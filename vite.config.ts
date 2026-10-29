@@ -24,7 +24,7 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;
   // Страница — сначала сеть (чтобы прилетали обновления), без сети — из кэша.
   if (e.request.mode === 'navigate') {
-    e.respondWith(fetch(e.request).catch(() => caches.match('./')));
+    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match('./')));
     return;
   }
   e.respondWith(caches.match(e.request).then((hit) => hit || fetch(e.request)));
