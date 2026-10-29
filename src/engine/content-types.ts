@@ -324,7 +324,11 @@ export interface Content {
   characters: Record<PlayerId, CharacterTemplate>;
   initialVars: Record<string, Scalar>;
   /** Предметы, которые лежат в местах мира на старте (квартиры, двор, машина). */
-  initialPlaceItems?: { type: string; at: string; qty?: number; charge?: number; fuel?: number; condition?: number }[];
+  /**
+   * Предметы, которые лежат в местах мира на старте. Предметы новых глав — с ключом `key`:
+   * в уже идущую игру их докладывает upgradeState (один раз, по ключу).
+   */
+  initialPlaceItems?: { type: string; at: string; qty?: number; charge?: number; fuel?: number; condition?: number; key?: string }[];
   /** Факты, которые персонаж знает с самого начала. */
   initialKnowledge?: Partial<Record<PlayerId, string[]>>;
   /** Правило слияния для переменных: точное имя или префикс с «*». По умолчанию — latest. */

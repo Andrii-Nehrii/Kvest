@@ -35,7 +35,7 @@ export function canonical(value: unknown): string {
 }
 
 /**
- * Хэш состояния. У состояния игры тексты (журнал, тексты сообщений) в хэш не входят: правка
+ * Хэш состояния. У состояния игры тексты (журнал и его счётчик, тексты сообщений) в хэш не входят: правка
  * формулировки в уже сыгранной сцене не должна ломать сверку ходов у партнёра. Логика — входит вся.
  */
 export function stateHash(value: unknown): string {
@@ -45,7 +45,7 @@ export function stateHash(value: unknown): string {
 
 function withoutTexts(value: unknown): unknown {
   if (!value || typeof value !== 'object' || !('log' in value) || !('chars' in value)) return value;
-  const { log: _log, messages, ...rest } = value as { log: unknown; messages?: { text?: string }[] };
+  const { log: _log, logSeq: _seq, messages, ...rest } = value as unknown as { log: unknown; logSeq?: unknown; messages?: { text?: string }[] };
   return { ...rest, messages: messages?.map(({ text: _text, ...m }) => m) };
 }
 

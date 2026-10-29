@@ -2,7 +2,7 @@ import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { clock, shortDateLabel } from '../engine/time';
 import { phone, type Ctx } from '../engine/world';
 import { dbDelete, dbGet, dbPut, requestPersistence } from '../app/db';
-import { act, exportSave, normalizePhase, type LocalSave } from '../app/session';
+import { act, exportSave, normalizePhase, refreshSave, type LocalSave } from '../app/session';
 import { cloudPaths, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
 import { content } from '../content';
 import { healthDot } from './format';
@@ -38,7 +38,14 @@ export function App() {
   const uploadChain = useRef<Promise<unknown>>(Promise.resolve());
 
   useEffect(() => {
-    dbGet<LocalSave>('current').then((s) => setSave(s ? normalizePhase(content, s) : null)).catch(() => setSave(null));
+    dbGet<LocalSave>('current').then((s) => {
+      if (!s) { setSave(null); return; }
+      // После обновления игры сохранение пересчитывается новой версией (см. refreshSave).
+      const fresh = normalizePhase(content, refreshSave(content, s));
+      if (fresh.notice) { setToast({ text: fresh.notice }); fresh.notice = undefined; }
+      setSave(fresh);
+      dbPut('current', fresh).catch(() => {});
+    }).catch(() => setSave(null));
     loadCloud().then((c) => setCloud(c ?? null)).catch(() => {});
     requestPersistence();
   }, []);
@@ -90,7 +97,7 @@ export function App() {
           : save?.phase === 'invited' ? <Create save={save} onSave={persist} onBack={reset} cloudToken={cloud?.token} />
           : view === 'create' ? <Create onSave={persist} onBack={() => setView('menu')} cloudToken={cloud?.token} />
           : view === 'join' ? <Join onBack={() => setView('menu')} onSave={(s, reply, token) => { persist(s); if (token && !cloud?.token) updateCloud({ token }); if (reply) setPendingJoin({ save: s, reply }); }} />
-          : <Menu onCreate={() => setView('create')} onJoin={() => setView('join')} onImport={(s) => persist(normalizePhase(content, s))} cloudToken={cloud?.token}
+          : <Menu onCreate={() => setView('create')} onJoin={() => setView('join')} onImport={(s) => persist(normalizePhase(content, refreshSave(content, s)))} cloudToken={cloud?.token}
               cloud={<CloudCard cloud={cloud} onCloud={updateCloud} />} />}
       </div>
     );

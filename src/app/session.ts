@@ -3,10 +3,10 @@
 import { canAct } from '../engine/body';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks, type JointResult } from '../engine/checkpoint';
 import type { Content, JointDecision } from '../engine/content-types';
-import { ENGINE_VERSION, newGame, play, replaySegment, segmentFinished, type ActionRecord, type PlayerSetup } from '../engine/game';
+import { ENGINE_VERSION, newGame, play, replayPrefix, replaySegment, segmentFinished, upgradeState, type ActionRecord, type PlayerSetup } from '../engine/game';
 import type { PlanResult } from '../engine/actions';
 import { decode, encode, newId, newSecret, sign, verify, type AnswersPacket, type InvitePacket, type SegmentPacket, type Signed } from '../engine/packet';
-import { shortHash, stateHash } from '../engine/rng';
+import { canonical, shortHash, stateHash } from '../engine/rng';
 import { at } from '../engine/time';
 import type { GameState, PlayerId } from '../engine/types';
 import { other } from '../engine/types';
@@ -53,6 +53,8 @@ export interface LocalSave {
   hashes: string[];
   /** Секунды реальной игры в текущем участке (для статистики, в мир не входит). */
   playSeconds: number;
+  /** Сообщение игроку один раз (например, что после обновления часть действий пришлось отменить). */
+  notice?: string;
   /** Последний код приглашения/ответа — чтобы переслать ещё раз после перезапуска. */
   outgoing?: string;
   updatedAt: number;
@@ -60,9 +62,25 @@ export interface LocalSave {
 
 const clone = <T>(x: T): T => structuredClone(x);
 
-function checkVersions(c: Content, p: { content: string; engine: string }) {
+const builds = new WeakMap<Content, string>();
+/**
+ * Отпечаток сборки сюжета: все данные и код погоды/связи. Если у партнёров он разный, их миры
+ * посчитаются по-разному — это ловится сразу, с понятным текстом, а не загадочным расхождением.
+ */
+export function contentBuild(c: Content): string {
+  let b = builds.get(c);
+  if (!b) {
+    const { weather, network, ...data } = c;
+    b = stateHash(canonical(data) + String(weather) + String(network) + ENGINE_VERSION).slice(0, 12);
+    builds.set(c, b);
+  }
+  return b;
+}
+
+function checkVersions(c: Content, p: { content: string; engine: string; build?: string }) {
   if (p.content !== c.version) throw new Error(`У партнёра другая версия сюжета (${p.content}, у тебя ${c.version}). Обновите приложение оба, подключившись к интернету.`);
   if (p.engine !== ENGINE_VERSION) throw new Error(`У партнёра другая версия движка (${p.engine}, у тебя ${ENGINE_VERSION}). Обновите приложение.`);
+  if (p.build && p.build !== contentBuild(c)) throw new Error('У партнёра другая сборка игры. Закройте и откройте приложение оба при интернете — оно обновится — и отправьте коды ещё раз.');
 }
 
 function startGame(c: Content, save: LocalSave): LocalSave {
@@ -78,7 +96,7 @@ export async function createInvite(c: Content, me: PlayerId, setup: PlayerSetup,
     schema: SAVE_SCHEMA, me, pairId: newId(), secret: newSecret(), seed: newId(), phase: 'invited',
     setups: { [me]: setup }, segment: [], hashes: [], playSeconds: 0, updatedAt: Date.now(),
   };
-  const p: InvitePacket = { v: 1, type: 'invite', pairId: save.pairId, from: me, seed: save.seed, secret: save.secret, content: c.version, engine: ENGINE_VERSION, setup, ...(cloudToken ? { cloudToken } : {}) };
+  const p: InvitePacket = { v: 1, type: 'invite', pairId: save.pairId, from: me, seed: save.seed, secret: save.secret, content: c.version, engine: ENGINE_VERSION, build: contentBuild(c), setup, ...(cloudToken ? { cloudToken } : {}) };
   const code = await encode(await sign(p, save.secret));
   return { save: { ...save, outgoing: code }, code };
 }
@@ -98,7 +116,7 @@ export async function acceptInvite(c: Content, invite: Signed<InvitePacket>, set
     setups: { [invite.from]: invite.setup as PlayerSetup, [me]: setup }, segment: [], hashes: [], playSeconds: 0, updatedAt: Date.now(),
   };
   save = startGame(c, save);
-  const p: InvitePacket = { v: 1, type: 'join', pairId: save.pairId, from: me, seed: save.seed, content: c.version, engine: ENGINE_VERSION, setup };
+  const p: InvitePacket = { v: 1, type: 'join', pairId: save.pairId, from: me, seed: save.seed, content: c.version, engine: ENGINE_VERSION, build: contentBuild(c), setup };
   const code = await encode(await sign(p, save.secret));
   return { save: { ...save, outgoing: code }, code };
 }
@@ -142,6 +160,42 @@ export function act(c: Content, save: LocalSave, plan: string[]): LocalSave {
   return maybeMerge(c, s);
 }
 
+/**
+ * После обновления игры (новая глава, правка текста): довезти новое в сохранение и пересчитать свой
+ * участок текущей версией — ровно так, как его посчитает партнёр. Если какое-то действие стало
+ * невозможным, участок обрезается перед ним, а игрок видит, сколько действий нужно повторить.
+ */
+export function refreshSave(c: Content, save: LocalSave): LocalSave {
+  if (!save.base || !save.state || save.phase === 'invited' || save.phase === 'ended') return save;
+  const s = clone(save);
+  if (upgradeState(c, s.base!)) {
+    s.baseHash = stateHash(s.base);
+    s.hashes = [...s.hashes.slice(0, -1), s.baseHash];
+  }
+  if (s.phase === 'checkpoint' && s.cp?.result) return s;
+  if (hadSegment(s.base!, s.me)) {
+    const { state, applied } = replayPrefix(c, s.base!, s.me, s.segment);
+    const lost = s.segment.length - applied;
+    const changed = lost > 0 || stateHash(state) !== stateHash(save.state);
+    s.state = state;
+    if (lost > 0) {
+      s.segment = s.segment.slice(0, applied);
+      s.last = undefined;
+      s.notice = `Игра обновилась: последние действия (${lost}) в новой версии невозможны и отменены — выбери заново.`;
+    }
+    if (changed && s.phase === 'checkpoint') {
+      if (segmentFinished(c, s.state, s.me)) s.cp = { ...s.cp!, merged: undefined, mergedHash: undefined };
+      else { s.phase = 'playing'; s.cp = undefined; }
+    }
+  } else {
+    s.state = clone(s.base!);
+  }
+  if (s.phase === 'checkpoint' && s.cp && !s.cp.merged) {
+    try { return maybeMerge(c, s); } catch { return { ...s, cp: { ...s.cp, partnerRecords: undefined } }; }
+  }
+  return s;
+}
+
 /** Если игрок не может действовать с начала участка — сразу контрольная точка. */
 export function normalizePhase(c: Content, save: LocalSave): LocalSave {
   if (save.phase !== 'playing' || !save.base) return save;
@@ -155,7 +209,7 @@ export const needPartnerSegment = (save: LocalSave) => hadSegment(save.base!, pa
 export async function mySegmentCode(c: Content, save: LocalSave): Promise<string> {
   const p: SegmentPacket = {
     v: 1, type: 'segment', pairId: save.pairId, from: save.me, checkpoint: save.base!.checkpoint + 1,
-    baseHash: save.baseHash!, engine: ENGINE_VERSION, content: c.version, actions: save.segment,
+    baseHash: save.baseHash!, engine: ENGINE_VERSION, content: c.version, build: contentBuild(c), actions: save.segment,
     endHash: stateHash(save.state), finish: myFinish(c, save),
   };
   return encode(await sign(p, save.secret));

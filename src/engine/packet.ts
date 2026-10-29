@@ -16,6 +16,8 @@ export interface SegmentPacket {
   baseHash: string;
   engine: string;
   content: string;
+  /** Отпечаток сборки сюжета: у партнёров должна быть одна и та же сборка. */
+  build?: string;
   actions: ActionRecord[];
   endHash: string;
   /** Чем закончился участок: дошёл до точки, погиб, без сознания. */
@@ -29,6 +31,7 @@ export interface AnswersPacket {
   from: PlayerId;
   checkpoint: number;
   mergedHash: string;
+  build?: string;
   answers: Record<string, string>;
 }
 
@@ -44,6 +47,7 @@ export interface InvitePacket {
   cloudToken?: string;
   content: string;
   engine: string;
+  build?: string;
   setup: unknown;
 }
 

@@ -53,9 +53,12 @@ export function newGame(c: Content, setup: GameSetup): GameState {
     s.npcs[def.id] = n;
   }
   // Предметы мира создаются от лица A только ради нумерации id — это не даёт A приоритета.
+  // Предметы с ключом (из поздних глав) кладёт upgradeState — так же, как в уже идущие игры.
   for (const it of c.initialPlaceItems ?? []) {
+    if (it.key) continue;
     giveItem({ s, c, pid: 'A' }, it.type, it.qty ?? 1, { charge: it.charge, condition: it.condition, fuel: it.fuel }, { kind: 'place', id: it.at });
   }
+  upgradeState(c, s);
   for (const pid of PLAYERS) {
     const ctx: Ctx = { s, c, pid };
     for (const it of c.characters[pid].startItems) giveItem(ctx, it.type, it.qty ?? 1, { charge: it.charge, condition: it.condition });
@@ -64,6 +67,57 @@ export function newGame(c: Content, setup: GameSetup): GameState {
   }
   markSegmentStart(s);
   return s;
+}
+
+/**
+ * Довезти в идущую игру то, что появилось в новых главах: NPC, начальные переменные, предметы с ключом.
+ * Только добавляет, ничего не перезаписывает; детерминированно — оба телефона получают одно и то же.
+ */
+export function upgradeState(c: Content, s: GameState): boolean {
+  let changed = false;
+  for (const def of Object.values(c.npcs)) {
+    if (s.npcs[def.id]) continue;
+    s.npcs[def.id] = { id: def.id, ...structuredClone(def.initial), agendaDone: [], changedAt: 0 };
+    changed = true;
+  }
+  for (const [k, v] of Object.entries(c.initialVars)) {
+    if (k in s.vars) continue;
+    s.vars[k] = v;
+    changed = true;
+  }
+  for (const it of c.initialPlaceItems ?? []) {
+    if (!it.key || s.vars[`sys.item.${it.key}`]) continue;
+    const def = c.items[it.type];
+    const id = `it-K-${it.key}`;
+    s.items[id] = {
+      id, type: it.type, qty: it.qty ?? 1, condition: it.condition ?? 100, charge: it.charge ?? (def?.battery ? 100 : undefined),
+      fuel: it.fuel ?? (def?.vehicle || def?.fuelCan ? 0 : undefined), at: { kind: 'place', id: it.at }, changedAt: 0,
+    };
+    s.vars[`sys.item.${it.key}`] = true;
+    changed = true;
+  }
+  return changed;
+}
+
+/**
+ * Повторить журнал, сколько получится: если после обновления игры какое-то действие стало невозможным,
+ * остановиться перед ним. Возвращает состояние и число выполненных записей.
+ */
+export function replayPrefix(c: Content, base: GameState, pid: PlayerId, records: ActionRecord[]): { state: GameState; applied: number } {
+  let s = structuredClone(base);
+  let applied = 0;
+  for (const r of records) {
+    const before = structuredClone(s);
+    try {
+      if (s.chars[pid].scene !== r.scene) throw new Error('сцена не совпала');
+      play(c, s, pid, r.plan);
+    } catch {
+      s = before;
+      break;
+    }
+    applied++;
+  }
+  return { state: s, applied };
 }
 
 export interface ActionRecord {
