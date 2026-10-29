@@ -79,6 +79,7 @@ const list: ItemType[] = [
   { id: 'pen_needles', name: 'иглы для шприц-ручек, упаковка', weight: 40, tags: ['medicine'] },
   { id: 'okafor_key', name: 'ключ Окафора (брелок-рыбка)', weight: 20, tags: ['keys'] },
   { id: 'kerem_note', name: 'записка Керема для Дениза', weight: 2, tags: ['paper'] },
+  { id: 'crowbar', name: 'монтировка', weight: 1500, tags: ['tool', 'blunt'] },
 
   // Транспорт и топливо
   { id: 'opel_corsa', name: 'Opel Corsa (2011, бензин)', weight: 1100000, tags: ['vehicle'], vehicle: { fuel: 'petrol', tankL: 45, per100km: 6.4, seats: 5, cargoL: 285 } },

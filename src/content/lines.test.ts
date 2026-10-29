@@ -63,8 +63,11 @@ describe('главные линии главы 1', () => {
     const b2 = structuredClone(kt1.state);
     run(a2, 'A', [['back_deniz_workshop'], ['car'], ['to_farm'], ['deniz', 'honest'], ['henrike'], ['offer_work', 'offer_fuel', 'tell_news', 'partner'], ['ask'], ['leave'], ['car'], ['to_home'],
       ['back'], ['up'], ['water'], ['wait_hour'], ['wait_hour'], ['wait_hour'], ['cp2_wait']]);
-    run(b2, 'B', [['go'], ['helmet', 'merle_bye', 'okafor'], ['ride'], ['on'], ['help'], ['check'], ['pass'], ['on'], ['detour'], ['cross'], ['south'], ['ride'], ['ride'], ['arrive'], ['door']]);
+    run(b2, 'B', [['go'], ['helmet', 'merle_bye', 'okafor'], ['ride'], ['on'], ['shop'], ['on'], ['help'], ['check'], ['pass'], ['on'], ['splint'], ['on'], ['detour'], ['cross'],
+      ['south'], ['ride'], ['ride'], ['arrive'], ['door']]);
     expect(a2.vars['w.henrike_yes']).toBe(true);
+    expect(b2.vars['B.bike_lights']).toBe(true);
+    expect(b2.vars['B.courier_done']).toBe('splint');
     const kt2 = checkpoint(kt1.state, a2, b2, { A: { shelter: 'farm' }, B: { shelter: 'farm' } });
     expect(lastNotes(kt2.state, 'A')).toMatch(/Она дошла/);
     expect(lastNotes(kt2.state, 'B')).toMatch(/Шаги за дверью/);
@@ -79,11 +82,13 @@ describe('главные линии главы 1', () => {
     const a2 = structuredClone(kt1.state);
     const b2 = structuredClone(kt1.state);
     run(a2, 'A', [['car'], ['radio', 'north_b'], ['polo'], ['on'], ['kerem'], ['talk', 'message'], ['back'], ['tunnel'], ['crawl'], ['j_take'], ['crawl'], ['j_bandage', 'tunnel'],
-      ['help'], ['out'], ['jannik'], ['on'], ['look'], ['ring']]);
+      ['help'], ['out'], ['crash_help'], ['jannik'], ['on'], ['look', 'sneak'], ['ring']]);
     run(b2, 'B', [['back_b_flat'], ['out'], ['nowak'], ['tim'], ['back'], ['home'], ['room'], ['wait_hour'], ['farewell'], ['persuade'], ['goodbye'], ['home'], ['home'], ['kitchen'],
       ['radio', 'water', 'cook'], ['hall'], ['barricade'], ['out'], ['okafor_flat'], ['kit'], ['back'], ['room'], ['wait_hour'], ['kitchen'], ['merle_evening'], ['room'], ['look_night'],
       ['wait_hour'], ['wait_hour'], ['hall'], ['svenja'], ['okafor'], ['room'], ['cp2_wait']]);
     expect(b2.npcs.svenja.location).toBe('b_okafor');
+    expect(Object.values(a2.items).some((i) => i.type === 'crowbar' && i.at.kind === 'char')).toBe(true);
+    expect(a2.vars['A.approached']).toBeTruthy();
     const kt2 = checkpoint(kt1.state, a2, b2, { A: { shelter: 'b_flat' }, B: { shelter: 'farm' } });
     expect(lastNotes(kt2.state, 'A')).toMatch(/Щелчок домофона/);
     expect(lastNotes(kt2.state, 'B')).toMatch(/Домофон/);

@@ -169,7 +169,7 @@ function syncClocksTo(c: Content, s: GameState, target: number) {
     if (isDead(ch.body)) { ch.time = target; continue; }
     if (canAct(ch.body)) {
       log(ctx, 'system', 'Время до общей точки проходит в ожидании.');
-      advanceTime(ctx, target - ch.time, 'rest', { finishOnEvent: true });
+      advanceTime(ctx, target - ch.time, 'rest', { finishOnEvent: true, away: true });
     } else {
       tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`);
       ch.time = target;

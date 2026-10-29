@@ -272,7 +272,7 @@ function deliverMissedNews(ctx: Ctx, step: StepResult) {
     for (const n of ev?.news ?? []) {
       if (n.channel !== 'phone') continue;
       step.text.push(n.text);
-      if (n.learn) applyEffects(ctx, [{ learn: n.learn, kind: n.kind, source: ev!.id }]);
+      if (n.learn) applyEffects(ctx, [{ learn: n.learn, kind: n.kind, source: ev!.id, quiet: true }]);
     }
   }
 }

@@ -65,7 +65,7 @@ export const waitHour = (label = 'Переждать час', id = 'wait_hour'):
 
 // ───────────── Радио ─────────────
 
-const L = (...ids: string[]): Effect[] => ids.map((learn) => ({ learn, source: 'radio' }));
+const L = (...ids: string[]): Effect[] => ids.map((learn) => ({ learn, source: 'radio', quiet: true }));
 
 /** Выпуск новостей по времени — от самого свежего к раннему. */
 export function radioOutcomes(): Outcome[] {

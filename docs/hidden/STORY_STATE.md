@@ -52,6 +52,15 @@
 * Возможные укусы у игроков: A — от Герда (дома или вечером) и у UKE; это обычные `injure` с `exposure`.
   Заражение решает движок через 60 мин (скрыто). Обращение раньше конца главы 1 невозможно (минимум ~14 ч).
 
+## Флаги эпизодов второго участка
+
+* A: `A.station_fuel` (+15 л на заправке у съезда), `A.station_jumpstart` (`ok`/`fail`), `A.city_crash`
+  (`helped` — у A монтировка `crowbar`, `passed`), `A.approached` (`quiet`/`chased`/`ran`/`fell`/`waited`),
+  `A.kid_done` (`found`/`police`/`left`), `A.hbg_clear`, `A.hbg_cordon_done` (`obeyed`/`stayed`/`forced`).
+* B: `B.chain_fixed` (`self`/`shop`), `B.courier_done` (`splint`/`left`), `B.bike_lights` (фонарь от мастерской
+  или курьера), `B.hbg_bakery`; факт `f_bridge_warning`.
+* Участок 1: `$.kt1_due` (толчок в 13:30).
+
 ## Открытые линии для главы 2 (дни 2–4)
 
 * Утро 11.11: Katastrophenfall, бундесвер, Elbtunnel закрыт (WORLD_BIBLE). Переезд по `w.shelter`.

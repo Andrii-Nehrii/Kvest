@@ -5,6 +5,7 @@ import type { JointResult } from '../../engine/checkpoint';
 import { evalCond } from '../../engine/conditions';
 import { clock, dateLabel } from '../../engine/time';
 import { fmt, type Ctx } from '../../engine/world';
+import type { PlayerId } from '../../engine/types';
 import { shortHash } from '../../engine/rng';
 import {
   acceptPartnerAnswers, acceptPartnerSegment, finishCheckpoint, myAnswersCode, myFinish, myQuestions, mySegmentCode,
@@ -182,6 +183,9 @@ const KIND_TEXT: Record<JointResult['kind'], string> = {
   solo: 'Решение одного', world: 'Решил мир',
 };
 
+/** Для этих исходов причина совпадает с заголовком карточки — второй раз не пишем. */
+const GENERIC_REASON = new Set<JointResult['kind']>(['same', 'compatible', 'compromise']);
+
 export function Resolution({ save, onClose }: { save: LocalSave; onClose: () => void }) {
   const r = save.cp?.result;
   const ctx: Ctx = { s: save.base!, c: content, pid: save.me };
@@ -195,10 +199,15 @@ export function Resolution({ save, onClose }: { save: LocalSave; onClose: () => 
         const d = content.joint[j.id];
         return (
           <Card key={j.id} title={KIND_TEXT[j.kind]}>
-            {Object.entries(j.answers).map(([p, a]) => (
-              <div key={p} className="small muted">{p === save.me ? 'Ты' : fmt(ctx, '{partner}')}: {fmt(ctx, d.options.find((o) => o.id === a)?.label.default ?? a)}</div>
-            ))}
-            <p className="story" style={{ marginTop: 8 }}>{fmt(ctx, j.reason)}</p>
+            {Object.entries(j.answers).map(([p, a]) => {
+              // Ответ — словами того, кто отвечал (как он видел вариант на своём экране).
+              const o = d.options.find((x) => x.id === a);
+              const who = p as PlayerId;
+              return (
+                <div key={p} className="small muted">{who === save.me ? 'Ты' : fmt(ctx, '{partner}')}: «{fmt({ ...ctx, pid: who }, o?.label[who] ?? o?.label.default ?? a)}»</div>
+              );
+            })}
+            {!GENERIC_REASON.has(j.kind) && <p className="story" style={{ marginTop: 8 }}>{fmt(ctx, j.reason)}</p>}
             {j.applied.map((id) => <p key={id} className="story">{fmt(ctx, d.options.find((o) => o.id === id)?.text ?? '')}</p>)}
           </Card>
         );

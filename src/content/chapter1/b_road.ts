@@ -195,14 +195,42 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
       { when: { not: onBike }, text: 'Пешком это всё — вдвое дольше.' },
     ],
     actions: [
-      { id: 'on', label: 'Ехать к Landungsbrücken', minutes: 35, terminal: true, goto: 'b2_landungsbruecken', move: true,
+      { id: 'on', label: 'Ехать к Landungsbrücken', minutes: 25, terminal: true, goto: 'b2_chain', move: true,
         outcomes: [
-          { id: 'foot', when: { not: onBike }, text: 'Пешком через весь центр — почти полтора часа.', effects: [{ wait: 50, activity: 'moderate' }] },
+          { id: 'foot', when: { not: onBike }, text: 'Пешком через весь центр — почти полтора часа.', effects: [{ wait: 60, activity: 'moderate' }], goto: 'b2_landungsbruecken' },
           { id: 'map', when: { hasTag: 'map' }, text: 'План города в непромокаемом кармане дождевика. Через Neustadt, мимо Michel — и вниз, к воде.' },
           { id: 'phone', when: { network: 'data' }, text: 'Карта в телефоне грузится урывками, но грузится. Ты едешь, поглядывая на экран на каждом светофоре.', effects: [{ charge: 'phone', delta: -3 }] },
           { id: 'lost', text: 'Без карты ты дважды сворачиваешь не туда — в перекрытую улицу у Rathaus, в тупик у Fleet. Полчаса лишних.', effects: [{ wait: 30, activity: 'moderate' }] },
         ] },
       { id: 'back', label: 'Повернуть назад, домой', minutes: 30, move: true, terminal: true, goto: 'b_street', effects: [{ move: 'b_street' }] },
+    ],
+  }),
+  S({
+    id: 'b2_chain', for: 'B', chapter: 'ch1', location: 'hh_neustadt', title: 'Цепь', ambient: rain,
+    text: [
+      { text: 'У Rödingsmarkt цепь со скрежетом слетает, педали проворачиваются впустую, и ты едва не падаешь на мокрую брусчатку. Дождь, пальцы не гнутся от холода.' },
+      { when: { not: { flag: '$.chain_fixed' } }, text: 'Через дорогу — велосипедная мастерская с наполовину опущенной решёткой. Внутри горит свет; парень в фартуке смотрит на тебя через стекло.' },
+    ],
+    actions: [
+      { id: 'fix', label: 'Надеть цепь самой', minutes: 12, combinable: true, when: { not: { flag: '$.chain_fixed' } },
+        outcomes: [
+          { id: 'ok', check: { traits: ['technical', 'agility'], difficulty: 3, uses: ['focus'] }, text: 'Звёздочка, натяжитель, провернуть педаль — цепь со щелчком садится на место. Руки по локоть в смазке, зато едет.',
+            effects: [{ set: '$.chain_fixed', value: 'self' }] },
+          { id: 'stuck', text: 'Цепь заклинивает между звёздочкой и рамой. Ты тянешь, дёргаешь, ругаешься, полчаса сидишь на корточках под дождём — и наконец вытаскиваешь её. Едет. Пальцы разбиты о зубья.',
+            effects: [{ set: '$.chain_fixed', value: 'self' }, { wait: 25, activity: 'light' }, { injure: 'scratch', site: 'hands', severity: 1, bleeding: 0.5 }] },
+        ] },
+      { id: 'shop', label: 'Постучать в мастерскую через дорогу', minutes: 10, combinable: true, when: { not: { flag: '$.chain_fixed' } },
+        outcomes: [
+          { id: 'paid', when: { has: 'cash_eur', qty: 10 }, text: 'Парень поднимает решётку ровно настолько, чтобы протащить велосипед. Пять минут — цепь на месте, смазана, натяжение подтянуто. — Zehn Euro? — спрашивает он почти виновато. — Я сам не знаю, зачем ещё открыт. — Отдавая велосипед, он молча прикручивает к рулю свой фонарь: «Нужнее тебе».',
+            effects: [{ take: 'cash_eur', qty: 10 }, { set: '$.chain_fixed', value: 'shop' }, { set: '$.bike_lights', value: true }] },
+          { id: 'free', text: 'Парень поднимает решётку ровно настолько, чтобы протащить велосипед. Пять минут — цепь на месте, смазана. Денег он не просит. — Куда ты в такую погоду? — Ты отвечаешь. Он молча прикручивает к рулю свой фонарь: «Нужнее тебе».',
+            effects: [{ set: '$.chain_fixed', value: 'shop' }, { set: '$.bike_lights', value: true }] },
+        ] },
+      { id: 'on', label: 'Ехать дальше, к Landungsbrücken', minutes: 12, move: true, terminal: true, goto: 'b2_landungsbruecken', when: { flag: '$.chain_fixed' },
+        outcomes: [
+          { id: 'lights', when: { flag: '$.bike_lights' }, text: 'Мимо Michel — и вниз, к воде. Фонарь на руле выхватывает из дождя мокрую брусчатку.' },
+          { id: 'plain', text: 'Мимо Michel — и вниз, к воде.' },
+        ] },
     ],
   }),
   S({
@@ -250,7 +278,46 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
     actions: [
       { id: 'shelter', label: 'Переждать ливень под навесом склада', minutes: 15, combinable: true, activity: 'rest',
         text: 'Под навесом пахнет мазутом. Ты съедаешь половину шоколадки и смотришь, как вода льётся с крыши сплошной стеной. Где-то в глубине склада что-то лязгает — раз, другой. Ты уезжаешь раньше, чем дождь кончился.' },
-      { id: 'on', label: 'Ехать на юг, к Wilhelmsburg', terminal: true, goto: 'b2_wilhelmsburg', ...legMinutes(25, 55) },
+      { id: 'on', label: 'Ехать на юг, к Wilhelmsburg', minutes: 12, move: true, terminal: true, goto: 'b2_courier',
+        outcomes: [
+          { id: 'foot', when: { not: onBike }, effects: [{ wait: 40, activity: 'moderate' }], goto: 'b2_wilhelmsburg' },
+          { id: 'bike' },
+        ] },
+    ],
+  }),
+  S({
+    id: 'b2_courier', for: 'B', chapter: 'ch1', location: 'steinwerder', title: 'Рельсы', ambient: rain,
+    onEnter: [{ body: 'stress', delta: 5 }],
+    text: [
+      { text: 'На Reiherstieg, там, где дорогу пересекают портовые рельсы, на боку лежит грузовой велосипед, заднее колесо ещё медленно вертится. Рядом на асфальте сидит мужчина лет сорока в светоотражающем жилете курьера и прижимает к груди руку. Запястье выгнуто так, как запястья не выгибаются. — Bin auf den Schienen weggerutscht, — говорит он сквозь зубы. — Scheißregen.' },
+    ],
+    actions: [
+      { id: 'splint', label: 'Наложить шину на запястье', minutes: 15, combinable: true, when: { not: { flag: '$.courier_done' } },
+        enabled: { any: [{ hasTag: 'dressing' }, { hasTag: 'cloth' }] }, disabledReason: 'Нужен бинт или хоть какая-то ткань',
+        outcomes: [
+          { id: 'ok', check: { traits: ['medicine'], difficulty: 3, mods: [{ when: { knows: 'f_wound_care' }, bonus: 1 }] },
+            text: 'Картонная вставка из его сумки вместо лангеты, бинт поверх — туго, но не до синевы. Он белеет, но не кричит. Когда всё готово, он долго дышит, потом говорит: — Слушай. Я по рации слышал, у нас диспетчер полицию слушает. В полшестого мост на Harburg закроют. Совсем. Успевай. — И отстёгивает от своего руля фонарь: — Бери. Мне сегодня уже не ехать.',
+            effects: [{ if: { hasTag: 'dressing' }, then: [{ takeTag: 'dressing' }], else: [{ takeTag: 'cloth' }] }, { set: '$.courier_done', value: 'splint' },
+              { set: '$.bike_lights', value: true }, { learn: 'f_bridge_warning' }] },
+          { id: 'clumsy', text: 'Ты бинтуешь как умеешь. Он кричит, когда ты задеваешь кость, потом извиняется — за крик. Повязка держится. — Спасибо… Слушай: в полшестого мост на Harburg закроют, я по рации слышал. Не застрянь.',
+            effects: [{ if: { hasTag: 'dressing' }, then: [{ takeTag: 'dressing' }], else: [{ takeTag: 'cloth' }] }, { set: '$.courier_done', value: 'splint' },
+              { learn: 'f_bridge_warning' }, { body: 'stress', delta: 4 }] },
+        ] },
+      { id: 'pill', label: 'Дать ему обезболивающее', minutes: 2, combinable: true, when: { all: [{ hasTag: 'painkiller' }, { not: { flag: '$.courier_pill' } }] },
+        text: 'Он глотает таблетку без воды и благодарно кивает.',
+        effects: [{ takeTag: 'painkiller' }, { set: '$.courier_pill', value: true }] },
+      { id: 'call', label: 'Попробовать вызвать ему 112', minutes: 4, combinable: true, when: { all: [{ phoneUsable: true }, { not: { flag: '$.courier_called' } }] },
+        outcomes: [
+          { id: 'through', when: { network: 'voice' }, text: 'Ты дозваниваешься с третьей попытки. Диспетчер выслушивает и говорит, что машин нет и не будет. «Er soll zu Fuß zur nächsten Wache.» Курьер смеётся, и от смеха ему становится больно.',
+            effects: [{ set: '$.courier_called', value: true }, { charge: 'phone', delta: -1 }] },
+          { id: 'busy', text: '«Netz besetzt». Ещё раз — то же самое.', effects: [{ set: '$.courier_called', value: true }, { charge: 'phone', delta: -1 }] },
+        ] },
+      { id: 'on', label: 'Ехать дальше, к Wilhelmsburg', minutes: 12, move: true, terminal: true, goto: 'b2_wilhelmsburg',
+        effects: [{ if: { not: { flag: '$.courier_done' } }, then: [{ set: '$.courier_done', value: 'left' }, { body: 'stress', delta: 6 }] }],
+        outcomes: [
+          { id: 'helped', when: { v: '$.courier_done', op: '==', value: 'splint' }, text: 'Он машет тебе здоровой рукой, пока ты не скрываешься за складами.' },
+          { id: 'left', text: 'Ты оглядываешься один раз. Он всё сидит на рельсах, прижимая руку к груди.' },
+        ] },
     ],
   }),
   S({
@@ -348,6 +415,10 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
         text: 'Площадь перед вокзалом. Ты останавливаешься, тяжело дыша, и ищешь глазами — машину, фигуру, лицо.' },
       { id: 'south', label: 'Ехать дальше, на юг, к Buchholz', terminal: true, goto: 'b2_b75', when: { not: planB('harburg') }, ...legMinutes(5, 10) },
       { id: 'south2', label: 'Не ждать — ехать дальше, к Buchholz', terminal: true, goto: 'b2_b75', when: planB('harburg'), ...legMinutes(5, 10) },
+      { id: 'bakery', label: 'Зайти погреться в булочную, которая ещё работает', minutes: 20, activity: 'rest', combinable: true,
+        when: { all: [{ before: at(10, 18, 0) }, { not: { flag: '$.hbg_bakery' } }, { has: 'cash_eur', qty: 4 }] },
+        text: 'В булочной тепло и пахнет корицей. Хозяйка, не спрашивая, ставит перед тобой чай и пирожок и берёт четыре евро. Ты держишь чашку обеими руками, пока пальцы снова не начинают слушаться. Часы над прилавком торопятся.',
+        effects: [{ set: '$.hbg_bakery', value: true }, { take: 'cash_eur', qty: 4 }, { body: 'thirst', delta: -20 }, { body: 'hunger', delta: -15 }, { body: 'stress', delta: -6 }] },
       { id: 'rest', label: 'Посидеть на скамейке под навесом остановки', minutes: 15, activity: 'rest', combinable: true,
         text: 'Ноги дрожат. Ты пьёшь воду маленькими глотками, глядя на поток машин, которые стоят на юг. Рядом садится старушка с таксой и молча протягивает тебе мятную конфету.' },
       ...tail(),

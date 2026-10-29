@@ -55,5 +55,6 @@ export function weightText(g: number): string {
 }
 
 export function knownNpc(n: NpcState, pid: PlayerId, vars: Record<string, unknown>): boolean {
-  return !!vars[`${pid}.met.${n.id}`] || n.trust[pid] !== 0 || n.memory.some((m) => m.startsWith(`${pid}:`));
+  // Записи «A:meet=…» — память NPC о совместном решении, а не знакомство с игроком.
+  return !!vars[`${pid}.met.${n.id}`] || n.trust[pid] !== 0 || n.memory.some((m) => m.startsWith(`${pid}:`) && !m.includes('='));
 }
