@@ -182,8 +182,6 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
         effects: [{ set: '$.okafor_bye', value: true }, { learn: 'f_old_tunnel' }, { give: 'nitrile_gloves', qty: 4 }] },
       { id: 'ride', label: 'Вывести велосипед со двора — и в путь', minutes: 3, combinable: true, terminal: true, goto: 'b2_ride', enabled: onBike, disabledReason: 'Велосипед не готов',
         effects: [{ move: 'b_yard' }] },
-      { id: 'walk', label: 'Идти пешком', minutes: 3, terminal: true, goto: 'b2_ride', when: { not: onBike }, risky: true,
-        effects: [{ set: '$.on_foot', value: true }] },
       { id: 'stay', label: 'Передумать и остаться', minutes: 1, terminal: true, goto: 'b_tbc',
         effects: [{ set: '$.stayed_after_all', value: true }] },
     ],
@@ -248,7 +246,6 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'help', label: 'Попросить помочь мужчину в оранжевом жилете', minutes: 10, terminal: true, goto: 'b2_old_tunnel', when: onBike,
         text: 'Докер, судя по жилету, лет пятидесяти. Он молча берёт твой велосипед за раму и спускается, будто несёт сумку с продуктами. Внизу ставит его на колёса. — Через порт — по Hachmannkai, не по главной. И не останавливайся, — говорит он и уходит назад, наверх.',
         effects: [{ learn: 'f_port_route' }] },
-      { id: 'walk', label: 'Спуститься пешком', minutes: 5, terminal: true, goto: 'b2_old_tunnel', when: { not: onBike } },
     ],
   }),
   S({
@@ -347,7 +344,6 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
             effects: [{ set: '$.passed_gang', value: 'talked' }, { wait: 10, activity: 'light' }] },
           { id: 'bad', text: 'Ты начинаешь говорить, а они уже обступают тебя с трёх сторон.', goto: 'b2_robbery' },
         ] },
-      { id: 'on', label: 'Ехать дальше, к мосту', terminal: true, goto: 'b2_bridge', when: { flag: '$.passed_gang' }, ...legMinutes(10, 25) },
     ],
   }),
   S({
@@ -474,6 +470,8 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── КТ 2 ─────────────
   S({
     id: 'b_cp2', for: 'B', chapter: 'ch1', checkpoint: 2, title: 'Ночь', universal: false,
+    // Ожидание партнёра (сведение часов) — под крышей: у двери, под навесом подъезда, а не под дождём.
+    ambient: { outdoor: false, wet: false },
     text: [
       { when: { at: 'a_street' }, text: 'Ты жмёшь кнопку звонка. Ещё раз. И стучишь — кулаком, по-настоящему.' },
       { when: { at: 'harburg_station' }, text: 'Ты стоишь у вокзала Harburg и вглядываешься в каждую машину.' },

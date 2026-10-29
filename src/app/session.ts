@@ -291,7 +291,8 @@ export function finishCheckpoint(c: Content, save: LocalSave): LocalSave {
   const out = completeCheckpoint(c, cp.merged!, { [save.me]: cp.myAnswers ?? {}, [partnerOf(save)]: cp.partnerAnswers ?? {} });
   const next: LocalSave = {
     ...save, phase: out.state.ended ? 'ended' : 'playing', base: out.state, baseHash: out.hash, state: clone(out.state),
-    segment: [], last: undefined, cp: { ...cp, result: { joint: out.joint, hash: out.hash } }, hashes: [...save.hashes, out.hash],
+    // От пройденной точки остаётся только итог: слитый мир и журнал партнёра больше не нужны.
+    segment: [], last: undefined, cp: { index: cp.index, myAnswers: cp.myAnswers, result: { joint: out.joint, hash: out.hash } }, hashes: [...save.hashes, out.hash],
     playSeconds: 0, updatedAt: Date.now(),
   };
   return normalizePhase(c, next);

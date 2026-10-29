@@ -489,6 +489,8 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── КТ 2 ─────────────
   S({
     id: 'a_cp2', for: 'A', chapter: 'ch1', checkpoint: 2, title: 'Ночь', universal: false,
+    // Ожидание партнёра (сведение часов) — под крышей: у двери, под навесом подъезда, а не под дождём.
+    ambient: { outdoor: false, wet: false },
     text: [
       { when: { at: 'b_street' }, text: 'Ты жмёшь кнопку домофона. Тишина. Ещё раз — долго, до боли в пальце.' },
       { when: { at: 'harburg_station' }, text: 'Ты ждёшь. Город вокруг гаснет квартал за кварталом.' },

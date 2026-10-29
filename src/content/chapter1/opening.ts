@@ -282,8 +282,10 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'plan', label: 'Обсудить, что делать сегодня', minutes: 10, combinable: true, requiresDone: ['talk'], when: merleHome,
         outcomes: [
           { id: 'trains', when: { v: 'w.rail', op: '!=', value: 'stopped' },
-            text: '— Можно на S-Bahn до Poppenbüttel, а там автобус, — Мерле уже открывает карту. — Если поезда ходят. Или подождать, пока скажут что-то нормальное. Ты как думаешь?' },
-          { id: 'stopped', text: '— Поезда стоят, — Мерле листает карту и откладывает телефон. — Значит, только если кто-то повезёт. Или пешком, двадцать километров. Или ждать. Ты как думаешь?' },
+            text: '— Можно на S-Bahn до Poppenbüttel, а там автобус, — Мерле уже открывает карту. — Если поезда ходят. Или подождать, пока скажут что-то нормальное. Ты как думаешь? — Ты вспоминаешь про свой велосипед во дворе: у него вечно спущено заднее колесо.',
+            effects: [{ learn: 'f_bike_flat' }] },
+          { id: 'stopped', text: '— Поезда стоят, — Мерле листает карту и откладывает телефон. — Значит, только если кто-то повезёт. Или пешком, двадцать километров. Или ждать. Ты как думаешь? — Или велосипед, думаешь ты. Если накачать колесо.',
+            effects: [{ learn: 'f_bike_flat' }] },
         ],
         effects: [{ npc: 'merle', trust: 3 }, { set: '$.discussed_plan', value: true }] },
       { id: 'insulin_more', label: 'Спросить, можно ли достать ещё инсулина', minutes: 4, combinable: true, requiresDone: ['fridge'], when: merleHome,

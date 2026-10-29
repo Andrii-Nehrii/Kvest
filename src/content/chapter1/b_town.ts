@@ -28,6 +28,8 @@ export const bTownScenes: Record<string, Scene> = Object.fromEntries([
       { when: { all: [{ flag: '$.okafor_knock2' }, { not: { visited: 'b_okafor_flat' } }, okaforHome] },
         text: 'В дверь стучат — негромко, три раза. «Это Окафор. Простите. Можно вас на минуту?»' },
       { when: evening, text: 'В прихожей темно. Ты не включаешь свет — так лучше слышно лестницу.' },
+      { when: { all: [{ knows: 'f_rail_stopped' }, { not: { flag: '$.bike_ready' } }] },
+        text: 'Поезда встали. Если придётся выбираться самой — остаётся велосипед во дворе, с вечно спущенным задним колесом.' },
     ],
     actions: [
       { id: 'tell_merle', label: 'Рассказать Мерле про Окафора', minutes: 5, combinable: true,

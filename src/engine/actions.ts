@@ -104,6 +104,8 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   }
   if (phoneUsable(ctx) && network(ctx).sms && ch.time >= (ctx.c.partnerContactAfter ?? 0)) {
     for (const m of ctx.c.messages) {
+      // Одно и то же сообщение — не чаще раза в час.
+      if (ctx.s.messages.some((x) => x.from === ctx.pid && x.template === m.id && ch.time - x.at < 60)) continue;
       list.push({ id: `u:msg:${m.id}`, label: fmt(ctx, `Написать {partner.dat}: «${m.label}»`), minutes: 2, combinable: true, group: `u:msg:${m.id}`,
         effects: [{ message: m.id }, { charge: 'phone', delta: -1 }] });
     }
