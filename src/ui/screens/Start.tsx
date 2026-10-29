@@ -29,7 +29,6 @@ export function Menu({ onCreate, onJoin, onImport, cloud }: { onCreate: () => vo
     <div className="page">
       <div style={{ height: '14vh' }} />
       <div className="h1" style={{ fontSize: 34 }}>Kvest</div>
-      <p className="lead">Север Германии, ноябрь. Двое, два телефона, одна история.<br />Без сюжетной брони.</p>
       <div className="stack" style={{ marginTop: 28 }}>
         <button className="btn primary block" onClick={onCreate}>Новая игра — пригласить партнёра</button>
         <button className="btn block" onClick={onJoin}>У меня есть приглашение</button>
@@ -37,7 +36,6 @@ export function Menu({ onCreate, onJoin, onImport, cloud }: { onCreate: () => vo
         {err && <div className="errors">{err}</div>}
       </div>
       <div style={{ marginTop: 24 }}>{cloud}</div>
-      <p className="faint small" style={{ marginTop: 28 }}>Игра работает без интернета. Связь нужна только на контрольных точках — чтобы обменяться кодами через мессенджер.</p>
     </div>
   );
 }
