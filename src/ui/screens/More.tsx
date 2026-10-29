@@ -7,13 +7,53 @@ import { START_TIME } from '../../app/session';
 import { content } from '../../content';
 import { knownNpc, RULE_LABELS } from '../format';
 import { Card, CodeOut } from '../kit';
+import { useState } from 'react';
+import { checkCloud, type CloudConfig } from '../../app/cloud';
+
+function CloudCard({ cloud, onCloud, onUpload }: { cloud: CloudConfig | null; onCloud: (c: CloudConfig | null) => void; onUpload: () => void }) {
+  const [token, setToken] = useState('');
+  const [err, setErr] = useState('');
+  const [busy, setBusy] = useState(false);
+  if (cloud?.token) {
+    return (
+      <Card title="Облако (GitHub)">
+        <div className="small">Подключено. Сохранение уходит само: на контрольных точках и каждые 5 действий. Коды на точках тоже передаются сами.</div>
+        <div className="small muted" style={{ marginTop: 6 }}>
+          {cloud.lastUpload ? `Последняя отправка: ${new Date(cloud.lastUpload).toLocaleString('ru-RU')}` : 'Ещё ничего не отправлялось.'}
+        </div>
+        {cloud.lastError && <div className="errors">Ошибка: {cloud.lastError}</div>}
+        <div className="row" style={{ marginTop: 10 }}>
+          <button className="btn primary" onClick={onUpload}>Отправить сейчас</button>
+          <button className="btn" onClick={() => { if (confirm('Отключить облако на этом телефоне?')) onCloud(null); }}>Отключить</button>
+        </div>
+      </Card>
+    );
+  }
+  const connect = async () => {
+    setBusy(true); setErr('');
+    const problem = await checkCloud(token);
+    setBusy(false);
+    if (problem) setErr(problem); else { onCloud({ token: token.trim() }); setToken(''); }
+  };
+  return (
+    <Card title="Облако (GitHub)">
+      <div className="small muted" style={{ marginBottom: 8 }}>Вставь токен GitHub — сохранения и коды контрольных точек будут передаваться сами.</div>
+      <input type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder="github_pat_…" autoComplete="off" />
+      {err && <div className="errors">{err}</div>}
+      <button className="btn primary block" style={{ marginTop: 10 }} disabled={busy || token.trim().length < 20} onClick={connect}>{busy ? 'Проверяю…' : 'Подключить'}</button>
+    </Card>
+  );
+}
 
 function hhmm(h: number) {
   const hh = Math.floor(h);
   return `${String(hh).padStart(2, '0')}:${String(Math.round((h - hh) * 60)).padStart(2, '0')}`;
 }
 
-export function More({ save, ctx, onPlan, onReset }: { save: LocalSave; ctx: Ctx; onPlan: (p: string[]) => void; onReset: () => void }) {
+export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
+  save: LocalSave; ctx: Ctx; onPlan: (p: string[]) => void; onReset: () => void;
+  cloud: CloudConfig | null; onCloud: (c: CloudConfig | null) => void; onUpload: () => void;
+}) {
   const ch = ctx.s.chars[ctx.pid];
   const loc = ctx.c.locations[ch.location];
   const w = ctx.c.weather(loc?.region ?? 'hh', ch.time);
@@ -56,6 +96,7 @@ export function More({ save, ctx, onPlan, onReset }: { save: LocalSave; ctx: Ctx
       {save.outgoing && save.hashes.length <= 1 && (
         <Card title="Код для партнёра (приглашение/ответ)"><CodeOut code={save.outgoing} /></Card>
       )}
+      <CloudCard cloud={cloud} onCloud={onCloud} onUpload={onUpload} />
       <Card title="Сохранение">
         <div className="small muted" style={{ marginBottom: 8 }}>Игра сохраняется сама после каждого действия. Файл — на случай, если телефон очистит данные браузера. В файле есть секрет вашей пары: не публикуй его.</div>
         <button className="btn block" onClick={download}>Скачать файл сохранения</button>

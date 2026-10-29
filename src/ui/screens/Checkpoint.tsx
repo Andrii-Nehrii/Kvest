@@ -1,12 +1,13 @@
 // Контрольная точка: обмен ходами → общий мир → совместные вопросы → итог.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { cloudPaths, getFile, putFile, type CloudConfig } from '../../app/cloud';
 import type { JointResult } from '../../engine/checkpoint';
 import { clock, dateLabel } from '../../engine/time';
 import { fmt, type Ctx } from '../../engine/world';
 import { shortHash } from '../../engine/rng';
 import {
   acceptPartnerAnswers, acceptPartnerSegment, finishCheckpoint, myAnswersCode, myFinish, myQuestions, mySegmentCode,
-  needPartnerSegment, optionsForMe, partnerAnswers, readyToFinish, type LocalSave,
+  needPartnerSegment, optionsForMe, partnerAnswers, partnerOf, readyToFinish, type LocalSave,
 } from '../../app/session';
 import { content } from '../../content';
 import { Card, CodeIn, CodeOut } from '../kit';
@@ -18,7 +19,57 @@ const FINISH_TEXT = {
   absent: 'В этом участке ты не {m:мог|могла} действовать.',
 };
 
-export function Checkpoint({ save, onSave }: { save: LocalSave; onSave: (s: LocalSave) => void }) {
+/**
+ * Автообмен через облако: свой ход и ответ выкладываются сами, ход и ответ партнёра
+ * проверяются каждые 12 секунд, пока экран открыт. Ручной обмен кодами остаётся.
+ */
+function useCloudExchange(save: LocalSave, cloud: CloudConfig | null | undefined, segCode: string, ansCode: string, onSave: (s: LocalSave) => void) {
+  const [note, setNote] = useState('');
+  const [sent, setSent] = useState({ seg: false, ans: false });
+  const latest = useRef(save);
+  latest.current = save;
+  const token = cloud?.token;
+  const cp = save.cp!;
+  const partner = partnerOf(save);
+  const say = (e: unknown) => setNote(e instanceof Error ? e.message : String(e));
+
+  useEffect(() => {
+    if (!token || !segCode) return;
+    putFile(token, cloudPaths.segment(save.pairId, cp.index, save.me), segCode, `${save.me}: ход на КТ${cp.index}`)
+      .then(() => setSent((x) => ({ ...x, seg: true }))).catch(say);
+  }, [token, segCode]);
+  useEffect(() => {
+    if (!token || !ansCode) return;
+    putFile(token, cloudPaths.answers(save.pairId, cp.index, save.me), ansCode, `${save.me}: ответ на КТ${cp.index}`)
+      .then(() => setSent((x) => ({ ...x, ans: true }))).catch(say);
+  }, [token, ansCode]);
+
+  const waitingSeg = !!token && needPartnerSegment(save) && !cp.partnerRecords;
+  const waitingAns = !!token && !!cp.merged && partnerAnswers(content, save) && !cp.partnerAnswers;
+  useEffect(() => {
+    if (!waitingSeg && !waitingAns) return;
+    let stop = false;
+    const tick = async () => {
+      const s = latest.current;
+      try {
+        if (waitingSeg) {
+          const t = await getFile(token!, cloudPaths.segment(s.pairId, s.cp!.index, partner));
+          if (t && !stop) { onSave(await acceptPartnerSegment(content, s, t)); setNote(''); }
+        } else if (waitingAns) {
+          const t = await getFile(token!, cloudPaths.answers(s.pairId, s.cp!.index, partner));
+          if (t && !stop) { onSave(await acceptPartnerAnswers(content, s, t)); setNote(''); }
+        }
+      } catch (e) { if (!stop) say(e); }
+    };
+    tick();
+    const id = setInterval(tick, 12000);
+    return () => { stop = true; clearInterval(id); };
+  }, [waitingSeg, waitingAns, save.baseHash, cp.mergedHash]);
+
+  return { on: !!token, note, sent, waitingSeg, waitingAns };
+}
+
+export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: CloudConfig | null; onSave: (s: LocalSave) => void }) {
   const cp = save.cp!;
   const def = content.checkpoints.find((x) => x.index === cp.index);
   const ctx: Ctx = { s: cp.merged ?? save.state!, c: content, pid: save.me };
@@ -33,6 +84,7 @@ export function Checkpoint({ save, onSave }: { save: LocalSave; onSave: (s: Loca
 
   useEffect(() => { if (iPlayed) mySegmentCode(content, save).then(setSegCode); }, [save.segment.length, save.baseHash]);
   useEffect(() => { if (cp.myAnswers && partnerQ) myAnswersCode(save).then(setAnsCode); }, [cp.myAnswers, cp.mergedHash]);
+  const net = useCloudExchange(save, cloud, segCode, ansCode, onSave);
 
   const fresh = cp.merged ? cp.merged.log.filter((e) => e.pid === save.me && ['message', 'checkpoint', 'system', 'news'].includes(e.kind)
     && e.seq > (save.state!.logSeq[save.me] ?? 0)) : [];
@@ -42,6 +94,19 @@ export function Checkpoint({ save, onSave }: { save: LocalSave; onSave: (s: Loca
       <div className="scene-title">Контрольная точка №{cp.index}</div>
       <div className="h1">{def?.title ?? 'Синхронизация'}</div>
       <p className="lead">{fmt({ ...ctx, s: save.state! }, FINISH_TEXT[finish])}</p>
+      {net.on && (
+        <Card title="Облако">
+          <div className="small">
+            {iPlayed && (net.sent.seg ? 'Твой ход выложен. ' : 'Выкладываю твой ход… ')}
+            {net.waitingSeg && 'Жду ход партнёра — проверяю каждые 12 секунд, пока экран открыт. '}
+            {cp.myAnswers && partnerQ && (net.sent.ans ? 'Твой ответ выложен. ' : 'Выкладываю ответ… ')}
+            {net.waitingAns && 'Жду ответ партнёра… '}
+            {!net.waitingSeg && !net.waitingAns && cp.merged && (!partnerQ || cp.partnerAnswers) && 'Обмен завершён.'}
+          </div>
+          {net.note && <div className="errors">{net.note}</div>}
+          <div className="faint small" style={{ marginTop: 6 }}>Коды ниже — запасной способ, если облако не работает.</div>
+        </Card>
+      )}
       <div className="steps">
         {iPlayed && (
           <section className="card stepcard done">
