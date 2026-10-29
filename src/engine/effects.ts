@@ -40,7 +40,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   if ('set' in e && 'value' in e) { setVar(ctx, e.set, e.value); return; }
   if ('add' in e) { setVar(ctx, e.add, Number(getVar(ctx, e.add) ?? 0) + e.value); return; }
   if ('give' in e) {
-    giveItem(ctx, e.give, e.qty ?? 1, { charge: e.charge, condition: e.condition, note: e.note });
+    giveItem(ctx, e.give, e.qty ?? 1, { charge: e.charge, condition: e.condition, note: e.note, fuel: e.fuel });
     return;
   }
   if ('take' in e) { takeItems(ctx, (i) => i.type === e.take, e.qty ?? 1); return; }
@@ -128,7 +128,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     log(ctx, 'message', `Отправлено: «${fmt(ctx, tpl.text)}»`);
     return;
   }
-  if ('wait' in e) { mergeAdvance(out, advanceTime(ctx, e.wait, e.activity ?? 'rest')); return; }
+  if ('wait' in e) { mergeAdvance(out, advanceTime(ctx, e.wait, e.activity ?? 'rest', { finishOnEvent: (e.activity ?? 'rest') !== 'rest' })); return; }
   if ('sleep' in e) {
     fallAsleep(ch.body, t);
     mergeAdvance(out, advanceTime(ctx, e.sleep, 'sleep'));
@@ -138,7 +138,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   if ('faint' in e) {
     ch.body.consciousness = 'unconscious';
     ch.body.consciousSince = t;
-    mergeAdvance(out, advanceTime(ctx, e.faint, 'rest'));
+    mergeAdvance(out, advanceTime(ctx, e.faint, 'rest', { finishOnEvent: true }));
     out.interrupted = true;
     return;
   }
@@ -154,7 +154,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     const r = workOnProject(ctx, e.work, e.hours);
     out.notes.push(r.text);
     log(ctx, 'story', r.text);
-    if (r.minutes) mergeAdvance(out, advanceTime(ctx, r.minutes, 'moderate'));
+    if (r.minutes) mergeAdvance(out, advanceTime(ctx, r.minutes, 'moderate', { finishOnEvent: true }));
     const def = ctx.c.projects?.[e.work];
     if (def?.onDone && ctx.s.vars[`proj.${e.work}.done`] === true && !ctx.s.vars[`proj.${e.work}.rewarded`]) {
       ctx.s.vars[`proj.${e.work}.rewarded`] = true;

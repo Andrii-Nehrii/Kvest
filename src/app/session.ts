@@ -1,7 +1,7 @@
 // Сессия игрока на его телефоне: создание пары, участок, обмен кодами на контрольной точке.
 // Состояние партнёра никогда не принимается целиком — только его журнал, который воспроизводится здесь.
 import { canAct } from '../engine/body';
-import { completeCheckpoint, deliverMessages, mergeSegments, optionsFor, participants, syncClocks, type JointResult } from '../engine/checkpoint';
+import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks, type JointResult } from '../engine/checkpoint';
 import type { Content, JointDecision } from '../engine/content-types';
 import { ENGINE_VERSION, newGame, play, replaySegment, segmentFinished, type ActionRecord, type PlayerSetup } from '../engine/game';
 import type { PlanResult } from '../engine/actions';
@@ -183,6 +183,7 @@ function maybeMerge(c: Content, save: LocalSave): LocalSave {
   const cpDef = c.checkpoints.find((x) => x.index === save.cp!.index);
   syncClocks(c, merged, cpDef?.syncNotBefore);
   deliverMessages(c, merged);
+  mergeNotes(c, merged, save.cp.index);
   return { ...save, cp: { ...save.cp, merged, mergedHash: stateHash(merged) } };
 }
 

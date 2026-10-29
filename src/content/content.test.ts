@@ -37,6 +37,9 @@ describe('сюжетный линтер', () => {
       if ('has' in x && !c.items[x.has]) errors.push(`${where}: условие на неизвестный предмет ${x.has}`);
       if ('npc' in x && !c.npcs[x.npc]) errors.push(`${where}: условие на неизвестного NPC ${x.npc}`);
       if ('visited' in x && !c.scenes[x.visited]) errors.push(`${where}: условие на неизвестную сцену ${x.visited}`);
+      if ('partnerKnows' in x && !c.facts[x.partnerKnows]) errors.push(`${where}: условие на неизвестный факт ${x.partnerKnows}`);
+      if ('at' in x && !('npc' in x) && !('stocked' in x) && !c.locations[x.at]) errors.push(`${where}: условие на неизвестное место ${x.at}`);
+      if ('partnerAt' in x && !c.locations[x.partnerAt]) errors.push(`${where}: условие на неизвестное место ${x.partnerAt}`);
     };
     for (const s of Object.values(c.scenes)) {
       if (s.location && !c.locations[s.location]) errors.push(`${s.id}: нет места ${s.location}`);
@@ -59,7 +62,18 @@ describe('сюжетный линтер', () => {
       if (e.scope === 'world') walkEffects(e.effects, (x) => { if (!('set' in x)) errors.push(`${e.id}: событие мира может только «set»`); });
       for (const n of e.news ?? []) if (n.learn && !c.facts[n.learn]) errors.push(`${e.id}: нет факта ${n.learn}`);
     }
-    for (const n of Object.values(c.npcs)) for (const a of n.agenda) walkEffects(a.effects, checkEffect(`${n.id}/${a.id}`));
+    for (const n of Object.values(c.npcs)) for (const a of n.agenda) { walkEffects(a.effects, checkEffect(`${n.id}/${a.id}`)); walkCond(a.when, checkCond(`${n.id}/${a.id}`)); }
+    for (const e of c.events) walkCond(e.when, checkCond(e.id));
+    for (const d of Object.values(c.joint)) {
+      for (const o of d.options) { walkEffects(o.effects, checkEffect(`${d.id}/${o.id}`)); walkCond(o.when, checkCond(`${d.id}/${o.id}`)); walkCond(o.feasible, checkCond(`${d.id}/${o.id}`)); }
+      for (const a of d.arbiters) { walkCond(a.when, checkCond(`${d.id}/${a.id}`)); if (!d.options.some((o) => o.id === a.winner)) errors.push(`${d.id}/${a.id}: нет варианта ${a.winner}`); }
+      for (const x of d.compromises ?? []) if (!d.options.some((o) => o.id === x.result)) errors.push(`${d.id}: компромисс ведёт к неизвестному варианту ${x.result}`);
+      for (const npc of d.rememberedBy ?? []) if (!c.npcs[npc]) errors.push(`${d.id}: нет NPC ${npc}`);
+    }
+    for (const cp of c.checkpoints) {
+      for (const id of cp.joint) if (!c.joint[id]) errors.push(`КТ ${cp.index}: нет решения ${id}`);
+      for (const n of cp.onMerge ?? []) { walkEffects(n.effects, checkEffect(`КТ ${cp.index}/${n.id}`)); walkCond(n.when, checkCond(`КТ ${cp.index}/${n.id}`)); }
+    }
     for (const it of c.initialPlaceItems ?? []) if (!c.items[it.type]) errors.push(`старт: нет предмета ${it.type}`);
     for (const cp of c.checkpoints) for (const p of ['A', 'B'] as const) for (const r of cp.next[p]) if (!c.scenes[r.scene]) errors.push(`КТ ${cp.index}: нет сцены ${r.scene}`);
     expect(errors).toEqual([]);

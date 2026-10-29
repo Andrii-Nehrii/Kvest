@@ -10,7 +10,7 @@ import type { GameState, Minutes, NameForms, NpcState, PlayerId, Traits } from '
 import { PLAYERS } from './types';
 import { giveItem, type Ctx } from './world';
 
-export const ENGINE_VERSION = '0.1.0';
+export const ENGINE_VERSION = '0.2.0';
 export const SAVE_SCHEMA = 1;
 
 export interface PlayerSetup {

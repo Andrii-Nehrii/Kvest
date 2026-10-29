@@ -230,9 +230,21 @@ export interface JointDecision {
   rememberedBy?: string[];
 }
 
+/** Что каждый игрок узнаёт сразу после слияния участков (связь, встреча). Условие — с его точки зрения. */
+export interface MergeNote {
+  id: string;
+  when?: Cond;
+  text?: string;
+  effects?: Effect[];
+  /** Из одной группы срабатывает только первая подходящая запись. */
+  group?: string;
+}
+
 export interface CheckpointDef {
   index: number;
   title: string;
+  /** Заметки после слияния: дозвонились ли, встретились ли, что узнали друг от друга. */
+  onMerge?: MergeNote[];
   /** Время, к которому сводятся часы обоих персонажей (не раньше их собственного). */
   syncNotBefore?: Minutes;
   joint: string[];

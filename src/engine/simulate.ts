@@ -18,13 +18,19 @@ export interface AdvanceResult {
 const HEAVIER: Record<Activity, Activity> = { sleep: 'sleep', rest: 'rest', light: 'moderate', moderate: 'heavy', heavy: 'heavy' };
 const STEP = 15;
 
-export function advanceTime(ctx: Ctx, minutes: number, activity: Activity): AdvanceResult {
+/**
+ * Продвинуть время. Событие с прерыванием (стук в дверь, крик) обрывает отдых, сон и ожидание,
+ * а начатое дело (поездка, очередь, работа) доводится до конца — прерывается только план после него.
+ */
+export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts: { finishOnEvent?: boolean } = {}): AdvanceResult {
   const ch = me(ctx);
   const res: AdvanceResult = { interrupted: false, notes: [] };
   fireDue(ctx, res);
   let remaining = Math.max(0, Math.round(minutes));
   const wasAble = canAct(ch.body) || ch.body.consciousness === 'asleep';
-  while (remaining > 0 && !res.interrupted) {
+  let stop = false;
+  const keepGoing = () => remaining > 0 && !stop && (opts.finishOnEvent || !res.interrupted);
+  while (keepGoing()) {
     const step = Math.min(STEP, remaining);
     const env = environment(ctx);
     const overloaded = carriedWeight(ctx) > carryLimit(ctx) * 1.25;
@@ -45,7 +51,7 @@ export function advanceTime(ctx: Ctx, minutes: number, activity: Activity): Adva
       break;
     }
     // Потеря сознания во время действия прерывает план; если игрок уже был без сознания — время просто идёт.
-    if (wasAble && !canAct(ch.body) && ch.body.consciousness !== 'asleep') res.interrupted = true;
+    if (wasAble && !canAct(ch.body) && ch.body.consciousness !== 'asleep') { res.interrupted = true; stop = true; }
     fireDue(ctx, res);
   }
   return res;

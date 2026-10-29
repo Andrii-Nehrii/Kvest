@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { cloudPaths, getFile, putFile, type CloudConfig } from '../../app/cloud';
 import type { JointResult } from '../../engine/checkpoint';
+import { evalCond } from '../../engine/conditions';
 import { clock, dateLabel } from '../../engine/time';
 import { fmt, type Ctx } from '../../engine/world';
 import { shortHash } from '../../engine/rng';
@@ -85,6 +86,9 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
   useEffect(() => { if (iPlayed) mySegmentCode(content, save).then(setSegCode); }, [save.segment.length, save.baseHash]);
   useEffect(() => { if (cp.myAnswers && partnerQ) myAnswersCode(save).then(setAnsCode); }, [cp.myAnswers, cp.mergedHash]);
   const net = useCloudExchange(save, cloud, segCode, ansCode, onSave);
+  const own: Ctx = { s: save.state!, c: content, pid: save.me };
+  const sceneDef = content.scenes[save.state!.chars[save.me].scene];
+  const sceneText = (sceneDef?.text ?? []).filter((b) => evalCond(own, b.when)).map((b) => fmt(own, b.text));
 
   const fresh = cp.merged ? cp.merged.log.filter((e) => e.pid === save.me && ['message', 'checkpoint', 'system', 'news'].includes(e.kind)
     && e.seq > (save.state!.logSeq[save.me] ?? 0)) : [];
@@ -93,6 +97,12 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
     <div className="page">
       <div className="scene-title">Контрольная точка №{cp.index}</div>
       <div className="h1">{def?.title ?? 'Синхронизация'}</div>
+      {save.last && save.last.steps.length > 0 && (
+        <div className="result">
+          {save.last.steps.map((st, i) => <div key={i}>{st.text.map((t, j) => <p key={j}>{t}</p>)}</div>)}
+        </div>
+      )}
+      {finish === 'checkpoint' && sceneText.length > 0 && <div className="story">{sceneText.map((t, i) => <p key={i}>{t}</p>)}</div>}
       <p className="lead">{fmt({ ...ctx, s: save.state! }, FINISH_TEXT[finish])}</p>
       {net.on && (
         <Card title="Облако">
@@ -188,8 +198,8 @@ export function Resolution({ save, onClose }: { save: LocalSave; onClose: () => 
             {Object.entries(j.answers).map(([p, a]) => (
               <div key={p} className="small muted">{p === save.me ? 'Ты' : fmt(ctx, '{partner}')}: {fmt(ctx, d.options.find((o) => o.id === a)?.label.default ?? a)}</div>
             ))}
-            <p className="story" style={{ marginTop: 8 }}>{j.reason}</p>
-            {j.applied.map((id) => <p key={id} className="story">{d.options.find((o) => o.id === id)?.text}</p>)}
+            <p className="story" style={{ marginTop: 8 }}>{fmt(ctx, j.reason)}</p>
+            {j.applied.map((id) => <p key={id} className="story">{fmt(ctx, d.options.find((o) => o.id === id)?.text ?? '')}</p>)}
           </Card>
         );
       })}

@@ -52,13 +52,14 @@ export function log(ctx: Ctx, kind: LogEntry['kind'], text: string, pid: PlayerI
 
 /**
  * Подстановки: {name}, {partner}, {partner.dat}, {partner.ins}… (падежи вводятся при создании персонажа);
+ * {A}, {B.gen}… — имя конкретного игрока (для текстов, которые видят оба: итоги контрольных точек);
  * {m:пошёл|пошла} — по роду текущего игрока, {pm:он|она} — по роду партнёра.
  */
 export function fmt(ctx: Ctx, text: string): string {
   const mine = me(ctx).name;
   const theirs = partnerOf(ctx).name;
-  return text.replace(/\{(name|partner)(?:\.(nom|gen|dat|acc|ins|pre))?\}/g, (_m, who: string, form?: string) => {
-    const n = who === 'name' ? mine : theirs;
+  return text.replace(/\{(name|partner|A|B)(?:\.(nom|gen|dat|acc|ins|pre))?\}/g, (_m, who: string, form?: string) => {
+    const n = who === 'name' ? mine : who === 'partner' ? theirs : ctx.s.chars[who as PlayerId].name;
     return n[(form ?? 'nom') as keyof typeof n];
   }).replace(/\{(m|pm):([^|}]*)\|([^}]*)\}/g, (_m, who: string, male: string, female: string) =>
     ((who === 'm' ? me(ctx) : partnerOf(ctx)).gender === 'm' ? male : female));

@@ -1,6 +1,11 @@
 // Сборка сюжета беты. Новые главы подключаются сюда же (сцены, события, NPC, решения).
-import type { CharacterTemplate, CheckpointDef, Content, JointDecision } from '../engine/content-types';
+import type { CharacterTemplate, Content, Scene } from '../engine/content-types';
 import { at } from '../engine/time';
+import { aRoadScenes } from './chapter1/a_road';
+import { aTownScenes } from './chapter1/a_town';
+import { bRoadScenes } from './chapter1/b_road';
+import { bTownScenes } from './chapter1/b_town';
+import { checkpoints, joint } from './chapter1/kt';
 import { CONTACT_AFTER, openingScenes } from './chapter1/opening';
 import { items } from './items';
 import { events, facts, messages, npcs } from './people';
@@ -23,48 +28,28 @@ const characters: Record<'A' | 'B', CharacterTemplate> = {
 export const EDITABLE_TRAITS = ['medicine', 'driving', 'stealth', 'persuasion', 'technical'] as const;
 export const TRAIT_BUDGET = 3;
 
-const joint: Record<string, JointDecision> = {
-  // Черновик КТ 1 — сцены, которые к ней ведут, пишутся в следующих сессиях.
-  meet: {
-    id: 'meet', checkpoint: 1,
-    prompt: { default: 'Связь рвётся. Нужно решить, как вы будете добираться друг до друга.' },
-    options: [
-      { id: 'a_to_b', label: { A: 'Я еду за тобой в Гамбург', B: 'Пусть {partner} приедет за мной', default: 'A едет за B' },
-        effects: [{ set: 'w.plan_meet', value: 'a_to_b' }], text: 'План: машина едет в Гамбург.' },
-      { id: 'b_to_a', label: { A: 'Пусть {partner} выбирается ко мне', B: 'Я выбираюсь к {partner.dat}', default: 'B едет к A' },
-        effects: [{ set: 'w.plan_meet', value: 'b_to_a' }], text: 'План: выбираться из города на юг.' },
-      { id: 'meet_harburg', label: { default: 'Встречаемся на полпути, у Harburg' }, feasible: { not: { flag: 'w.harburg_cordon' } },
-        effects: [{ set: 'w.plan_meet', value: 'harburg' }], text: 'План: встреча у Harburg.' },
-      { id: 'wait', label: { default: 'Каждый пережидает у себя до утра' },
-        effects: [{ set: 'w.plan_meet', value: 'wait' }], text: 'План: переждать до утра.' },
-    ],
-    compromises: [
-      { pair: ['a_to_b', 'b_to_a'], result: 'meet_harburg', when: { all: [{ not: { flag: 'w.harburg_cordon' } }, { v: 'w.rail', op: '!=', value: 'stopped' }] } },
-    ],
-    arbiters: [
-      { id: 'rail', when: { v: 'w.rail', op: '==', value: 'stopped' }, winner: 'a_to_b',
-        text: 'Поезда на юг стоят — из города без машины не выбраться. Решила дорога.' },
-      { id: 'jam', when: { flag: 'w.elbe_jam' }, winner: 'wait', text: 'Мосты через Эльбу стоят в пробке — до темноты не успеть никому.' },
-    ],
-    default: 'wait',
-    rememberedBy: ['merle', 'ilse'],
-  },
-};
-
-const checkpoints: CheckpointDef[] = [
-  { index: 1, title: 'Первая связь', joint: ['meet'], next: { A: [{ scene: 'a_tbc' }], B: [{ scene: 'b_tbc' }] } },
-];
+/**
+ * Переходы между местами (действия, уводящие из сцены) по умолчанию повторяемы — иначе после первого
+ * «Пойти на кухню» дорога туда исчезала бы навсегда — и совместимы с другими действиями (в плане они
+ * всё равно только последние: «собрать рюкзак, потом выйти»). Исключения помечаются явно (false).
+ */
+function withRepeatableMoves(scenes: Record<string, Scene>): Record<string, Scene> {
+  return Object.fromEntries(Object.entries(scenes).map(([id, s]) => [id, {
+    ...s, actions: s.actions.map((a) => (a.terminal || a.goto ? { ...a, repeatable: a.repeatable ?? true, combinable: a.combinable ?? true } : a)),
+  }]));
+}
 
 export const content: Content = {
   version: 'beta-0.1',
   epochLabel: '10.11.2026',
   items, locations, routes: [],
-  scenes: { ...openingScenes },
+  scenes: withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes }),
   facts, npcs, events, joint, checkpoints, messages, characters,
   partnerContactAfter: CONTACT_AFTER,
   initialVars: {
     'w.power.buchholz': 'off', 'w.power.buchholz.since': at(10, 5, 10),
-    'w.rail': 'running', 'w.elbe_jam': false,
+    'w.rail': 'running', 'w.elbe_jam': false, 'w.crossings': 'open', 'w.city_trains': 'running', 'w.hosp_buchholz': 'open',
+    'w.harburg_cordon': false, 'w.power.hh': 'on', 'w.plan_a': 'none', 'w.plan_b': 'none',
     // Кого персонажи знают с самого начала (соседи).
     'A.met.ilse': true, 'A.met.gerd': true, 'B.met.merle': true, 'B.met.okafor': true, 'B.met.dariusz': true, 'B.met.kasia': true,
   },

@@ -266,6 +266,14 @@ export type Cond =
   | { phoneUsable: true }
   | { network: 'voice' | 'data' | 'sms' }
   | { fuelFor: string; km: number }
+  /** В машине этого типа (где бы она ни стояла) не меньше столько-то литров. */
+  | { fuelIn: string; liters: number }
+  /** Оба телефона живы, оба в сознании и в ближайшие полчаса есть голосовая связь у обоих. */
+  | { callable: true }
+  /** Партнёр сейчас в этом месте. */
+  | { partnerAt: string }
+  /** Партнёр знает этот факт (для обмена новостями при встрече на контрольной точке). */
+  | { partnerKnows: string }
   | { project: string; done?: boolean; progress?: [CmpOp, number] }
   | { stocked: string; qty: number; at?: string }
   | { always: true };
@@ -275,7 +283,7 @@ export type Activity = 'sleep' | 'rest' | 'light' | 'moderate' | 'heavy';
 export type Effect =
   | { set: string; value: Scalar }
   | { add: string; value: number }
-  | { give: string; qty?: number; charge?: number; condition?: number; note?: string }
+  | { give: string; qty?: number; charge?: number; condition?: number; note?: string; fuel?: number }
   | { take: string; qty?: number }
   | { takeTag: string; qty?: number }
   | { drop: string; qty?: number }

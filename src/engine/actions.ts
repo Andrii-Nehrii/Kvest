@@ -9,7 +9,7 @@ import { clamp } from './rng';
 import { advanceTime, applyStandingRules } from './simulate';
 import type { Effect } from './types';
 import {
-  caps, countTag, fmt, heldItems, itemsAt, itemType, log, me, network, pain, phoneUsable, roll, type Ctx,
+  caps, countTag, fmt, heldItems, itemsAt, itemType, log, me, network, pain, phone, phoneUsable, roll, type Ctx,
 } from './world';
 
 export interface AvailableAction {
@@ -90,6 +90,12 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   if (countTag(ctx, 'painkiller') > 0 && (pain(ctx) >= 10 || b.coreTemp >= 38) && (b.meds.painkiller ?? -1) < ch.time) {
     list.push({ id: 'u:pill', label: 'Принять обезболивающее', minutes: 2, combinable: true, group: 'u:pill',
       effects: [{ takeTag: 'painkiller' }, { medicate: 'painkiller', hours: 5 }, { medicate: 'antipyretic', hours: 5 }] });
+  }
+  const bank = heldItems(ctx).find((i) => itemType(ctx, i.type).tags.includes('powerbank') && (i.charge ?? 0) >= 10);
+  const ph = phone(ctx);
+  if (bank && ph && (ph.charge ?? 0) <= 80) {
+    list.push({ id: 'u:powerbank', label: 'Подзарядить телефон от пауэрбанка', minutes: 2, combinable: true, group: 'u:powerbank',
+      effects: [{ charge: bank.type, delta: -10 }, { charge: 'phone', delta: 20 }] });
   }
   if (phoneUsable(ctx) && network(ctx).data && Object.keys(ctx.s.vars).some((k) => k.startsWith(`${ctx.pid}.missed.`) && ctx.s.vars[k])) {
     list.push({ id: 'u:news', label: 'Пролистать новости в телефоне', minutes: 10, combinable: true, group: 'u:news',
@@ -239,7 +245,8 @@ export function executePlan(ctx: Ctx, ids: string[]): PlanResult {
     applyEffects(ctx, outcomeEffects, eff);
     if (def.id === 'u:news') deliverMissedNews(ctx, step);
     for (const t of step.text) log(ctx, 'story', t);
-    const adv = advanceTime(ctx, Math.max(0, minutes - (ch.time - startT)), def.activity ?? (def.move ? 'moderate' : 'light'));
+    const activity = def.activity ?? (def.move ? 'moderate' : 'light');
+    const adv = advanceTime(ctx, Math.max(0, minutes - (ch.time - startT)), activity, { finishOnEvent: activity !== 'rest' });
     step.text.push(...eff.notes, ...adv.notes);
     result.steps.push(step);
 

@@ -64,6 +64,22 @@ const list: ItemType[] = [
   { id: 'keys_home', name: 'ключи от квартиры', weight: 60, tags: ['keys'] },
   { id: 'car_keys', name: 'ключи от машины', weight: 40, tags: ['keys'] },
 
+  // Глава 1: то, что можно найти, купить или получить в первый день
+  { id: 'nitrile_gloves', name: 'одноразовые перчатки, пара', weight: 10, tags: ['ppe'] },
+  { id: 'bandages', name: 'бинты и стерильные салфетки', weight: 120, tags: ['dressing'], medical: { treats: 'basic', uses: 3 } },
+  { id: 'road_map', name: 'бумажная карта области', weight: 120, tags: ['map'] },
+  { id: 'city_map', name: 'бумажный план Гамбурга', weight: 80, tags: ['map'] },
+  { id: 'leaflet', name: 'листовка из больницы', weight: 5, tags: ['paper'],
+    description: '«Hinweise für Angehörige»: избегайте контакта с кровью и слюной людей с высокой температурой, спутанностью или агрессией; при укусе — промыть рану и позвонить 112; не привозить таких больных без предупреждения.' },
+  { id: 'headlamp', name: 'налобный фонарик', weight: 90, tags: ['light'], battery: { drainPerHour: 10, idleDrainPerHour: 0 } },
+  { id: 'cooler_bag', name: 'термосумка с аккумулятором холода', weight: 400, tags: ['cooler'] },
+  { id: 'bike_pump', name: 'велосипедный насос', weight: 300, tags: ['tool'] },
+  { id: 'bike_helmet', name: 'велошлем Мерле', weight: 300, tags: ['clothing'], clothing: { warmth: 0.5, biteProtection: 1, slot: 'head' } },
+  { id: 'health_card', name: 'страховая карточка Мерле', weight: 5, tags: ['card'] },
+  { id: 'pen_needles', name: 'иглы для шприц-ручек, упаковка', weight: 40, tags: ['medicine'] },
+  { id: 'okafor_key', name: 'ключ Окафора (брелок-рыбка)', weight: 20, tags: ['keys'] },
+  { id: 'kerem_note', name: 'записка Керема для Дениза', weight: 2, tags: ['paper'] },
+
   // Транспорт и топливо
   { id: 'opel_corsa', name: 'Opel Corsa (2011, бензин)', weight: 1100000, tags: ['vehicle'], vehicle: { fuel: 'petrol', tankL: 45, per100km: 6.4, seats: 5, cargoL: 285 } },
   { id: 'bicycle', name: 'велосипед', weight: 14000, tags: ['bike'] },

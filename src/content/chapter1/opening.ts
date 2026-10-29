@@ -1,12 +1,22 @@
-// Глава 1, участок 1 — утро вторника. Сцены A и B раздельны; общие события — в people.ts.
+// Глава 1 — квартиры A и B: утро вторника и всё, что дальше происходит дома.
+// Сцены-места (квартира, кухня, прихожая) используются и во втором участке: текст и действия зависят от времени.
 import type { ActionDef, Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { at } from '../../engine/time';
+import { aTail, bTail, CONTACT_AFTER, callAction, radioOutcomes, SEG2, waitHour } from './common';
+import { brockDoorActions, gerdHome, gerdRaging } from './a_town';
+
+export { CONTACT_AFTER };
 
 const S = (s: Scene) => s;
-/** Партнёр появляется в истории не сразу: связь — только после 07:15 (≈ 5–8 решений). */
-export const CONTACT_AFTER = at(10, 7, 15);
 const knock: Cond = { flag: '$.knock' };
+const ilseOut: Cond = { flag: '$.ilse_out' };
+const powerA: Cond = { v: 'w.power.buchholz', op: '!=', value: 'off' };
+const evening: Cond = { after: at(10, 16, 30) };
+const merleHome: Cond = { npc: 'merle', at: 'b_flat' };
+/** Утреннее пробуждение — только при первом заходе и только в первые полчаса; дальше — «снова дома». */
+const waking = (scene: string): Cond => ({ all: [{ not: { visited: scene, times: 2 } }, { before: at(10, 7, 10) }] });
+const back = (scene: string): Cond => ({ not: waking(scene) });
 
 /** Действия с телефоном — одинаковые по механике, разные по тексту для A и B. */
 function phoneActions(newsText: string): ActionDef[] {
@@ -22,25 +32,22 @@ function phoneActions(newsText: string): ActionDef[] {
   ];
 }
 
-
-/** Звонок партнёру — в конце списка и не раньше CONTACT_AFTER. */
-const callAction = (): ActionDef => (
-{ id: 'call', label: 'Позвонить {partner.dat}', minutes: 2, combinable: true, group: 'phone_call', repeatable: true, when: { all: [{ phoneUsable: true }, { after: CONTACT_AFTER }] },
-      outcomes: [
-        { id: 'unreachable', when: { network: 'voice' }, text: 'Гудок. Второй. Третий… «Der gewünschte Gesprächspartner ist zurzeit nicht erreichbar.»', effects: [{ charge: 'phone', delta: -1 }] },
-        { id: 'busy', text: 'Вызов срывается, не начавшись: «Netz besetzt».', effects: [{ charge: 'phone', delta: -0.5 }] },
-      ] });
-
 export const openingScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────────────────────── A ─────────────────────────────
   S({
     id: 'a_wake', for: 'A', chapter: 'ch1', location: 'a_flat', safe: true, title: 'Вторник, 10 ноября',
     text: [
-      { text: 'Ты просыпаешься не от будильника, а от тишины. Холодильник на кухне не гудит, часы на духовке погасли. Лампа у кровати щёлкает впустую.', when: { not: { visited: 'a_wake', times: 2 } } },
-      { text: 'Телефон на тумбочке: заряда чуть за треть, сеть — одна полоска. На экране висит уведомление, пришедшее ночью, в 03:52.', when: { not: { visited: 'a_wake', times: 2 } } },
-      { text: 'За окном мокрый ноябрьский сумрак. Фонари во дворе не горят, туман съел дома напротив. Внизу глухо хлопает дверь — и снова тихо.', when: { not: { visited: 'a_wake', times: 2 } } },
-      { text: 'Ты снова в своей квартире. Тихо, холодно, пахнет остывшим кофе.', when: { visited: 'a_wake', times: 2 } },
-      { text: 'В дверь стучат. Ильзе Брокман — ты узнаёшь её голос — зовёт снова и снова.', when: { all: [knock, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
+      { text: 'Ты просыпаешься не от будильника, а от тишины. Холодильник на кухне не гудит, часы на духовке погасли. Лампа у кровати щёлкает впустую.', when: waking('a_wake') },
+      { text: 'Телефон на тумбочке: заряда чуть за треть, сеть — одна полоска. На экране висит уведомление, пришедшее ночью, в 03:52.', when: waking('a_wake') },
+      { text: 'За окном мокрый ноябрьский сумрак. Фонари во дворе не горят, туман съел дома напротив. Внизу глухо хлопает дверь — и снова тихо.', when: waking('a_wake') },
+      { text: 'Ты снова в своей квартире. Тихо, холодно, пахнет остывшим кофе.', when: { all: [back('a_wake'), { not: powerA }, { not: evening }] } },
+      { text: 'Ты снова в своей квартире. Холодильник гудит как ни в чём не бывало, батареи понемногу теплеют. Только тишина за окном другая.', when: { all: [back('a_wake'), powerA, { not: evening }] } },
+      { text: 'В пять за окном уже ночь. Горит одна лампа на кухне — больше включать не хочется: со двора видно каждое светлое окно.', when: { all: [back('a_wake'), powerA, evening] } },
+      { text: 'Света снова нет. Свеча на столе, тени по стенам. Холод возвращается в квартиру быстро, будто ждал за дверью.', when: { all: [back('a_wake'), { not: powerA }, evening] } },
+      { text: 'В дверь стучат. Ильзе Брокман — ты узнаёшь её голос — зовёт снова и снова.', when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
+      { text: 'Снизу — удары, глухие, неровные. И голос Ильзе: то ли плач, то ли молитва.', when: { all: [{ flag: '$.scream' }, { not: { flag: '$.brock_done' } }] } },
+      { text: 'Ильзе сидит на краешке твоего дивана, сжимая кружку, и вздрагивает от каждого звука снизу.', when: { npc: 'ilse', at: 'a_flat' } },
+      { text: 'Иногда сквозь пол доносится удар — снизу, из квартиры Брокманов. Потом долго ничего. Потом снова.', when: { all: [gerdRaging, { flag: '$.brock_done' }] } },
     ],
     actions: [
       ...phoneActions('Страница грузится мучительно долго. NDR: «Nach Angriffen in mehreren Hamburger Kliniken: Polizei sieht keine Hinweise auf Terror». Под заметкой сотни комментариев: наркотики, «новый вирус», размытые видео, которые не открываются.'),
@@ -53,16 +60,47 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'dress', label: 'Одеться по погоде', minutes: 4, combinable: true,
         text: 'Джинсы, худи, тёплые носки, ботинки. В квартире уже заметно прохладнее, чем вечером.',
         effects: [{ pickup: 'jeans' }, { pickup: 'hoodie' }, { pickup: 'boots' }] },
+      { id: 'warm', label: 'Взять тёплое: зимнюю куртку, шапку, перчатки', minutes: 2, combinable: true,
+        text: 'Зимняя куртка — плотная, тяжёлая, ещё пахнет прошлым январём.',
+        effects: [{ pickup: 'winter_jacket' }, { pickup: 'beanie' }, { pickup: 'gloves' }] },
+      { id: 'pack', label: 'Собрать рюкзак: вода, еда, фонарик, аптечка, пауэрбанк', minutes: 8, combinable: true,
+        text: 'Рюкзак, с которым ты ездил в горы: бутылка воды, хлебцы, банка фасоли, шоколад. Фонарик, автомобильная аптечка, антисептик, батарейки. Пауэрбанк — заряжен меньше чем наполовину. Мультитул, зажигалка, зарядка. Выходит килограммов пять.',
+        effects: [{ pickup: 'backpack' }, { pickup: 'water_15', qty: 1 }, { pickup: 'water_05' }, { pickup: 'crackers' }, { pickup: 'canned_beans' },
+          { pickup: 'chocolate' }, { pickup: 'flashlight' }, { pickup: 'first_aid' }, { pickup: 'disinfectant' }, { pickup: 'powerbank' },
+          { pickup: 'charger' }, { pickup: 'batteries_aa' }, { pickup: 'lighter' }, { pickup: 'multitool' }] },
+      { id: 'docs', label: 'Взять ключи от машины, карту и наличные', minutes: 1, combinable: true,
+        text: 'Ключи от Corsa, банковская карта, сорок пять евро в кошельке. Без тока карта — просто пластик, но пусть будет.',
+        effects: [{ pickup: 'car_keys' }, { pickup: 'bank_card' }, { pickup: 'cash_eur' }] },
       { id: 'door', label: 'Подойти к двери', minutes: 1, terminal: true, goto: 'a_door',
-        when: { all: [knock, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
+        when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
       { id: 'ignore', label: 'Не подходить. Замереть и слушать', minutes: 10, risky: false,
-        when: { all: [knock, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] },
+        when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] },
         text: 'Стук продолжается ещё минуту. Потом голос срывается на всхлип, шаги удаляются вниз. Хлопает дверь Брокманов.',
         effects: [{ set: '$.ignored_ilse', value: true }, { npc: 'ilse', trust: -10, remember: '$:ignored' }, { body: 'stress', delta: 6 }] },
       { id: 'go_down', label: 'Всё-таки спуститься к Брокманам', minutes: 2, terminal: true, goto: 'a_brockmann',
-        when: { all: [knock, { any: [{ flag: '$.ignored_ilse' }, { flag: '$.left_ilse' }] }] } },
+        when: { all: [knock, { any: [{ flag: '$.ignored_ilse' }, { flag: '$.left_ilse' }] }, gerdHome, { not: gerdRaging }] } },
+      ...brockDoorActions(false),
+      { id: 'scream_lock', label: 'Запереть дверь на оба замка и не выходить', minutes: 5, combinable: true,
+        when: { all: [{ flag: '$.scream' }, { not: { flag: '$.brock_done' } }, { not: { flag: '$.scream_locked' } }] },
+        text: 'Ты поворачиваешь ключ второй раз и стоишь в прихожей, прижавшись лбом к двери. Снизу кричат. Потом перестают.',
+        effects: [{ set: '$.scream_locked', value: true }, { body: 'stress', delta: 12 }, { npc: 'ilse', trust: -20, remember: '$:did_not_come' }] },
+      { id: 'ilse_talk', label: 'Поговорить с Ильзе', minutes: 10, combinable: true, when: { npc: 'ilse', at: 'a_flat' }, repeatable: true,
+        outcomes: [
+          { id: 'night', when: evening, text: 'Ильзе рассказывает про сына в Канаде, про то, как Герд учил его ловить угрей. Потом замолкает посреди фразы и долго смотрит на тёмное окно. — Он ведь там один, внизу. В темноте.', effects: [{ npc: 'ilse', trust: 3 }] },
+          { id: 'day', text: '— Вы хороший человек, — говорит Ильзе, не глядя на тебя. — Герд всегда говорил: этот, со второго этажа, хоть и здоровый, а вежливый. — Она почти улыбается.', effects: [{ npc: 'ilse', trust: 3 }] },
+        ] },
+      { id: 'water', label: 'Набрать воды про запас: ванну, кастрюли, бутылки', minutes: 20, combinable: true, when: { not: { flag: '$.water_stored' } },
+        text: 'Ванна наполняется медленно, трубы гудят. Кастрюли, чайник, пустые бутылки из-под лимонада — всё, что держит воду, стоит теперь в ряд на кухонном полу.',
+        effects: [{ set: '$.water_stored', value: true }] },
+      { id: 'look_night', label: 'Посмотреть в окно на тёмный двор', minutes: 3, combinable: true, when: { all: [SEG2, evening] }, repeatable: true,
+        outcomes: [
+          { id: 'late', when: { after: at(10, 19, 30) }, text: 'Во дворе кто-то есть. Фигура стоит у мусорных баков, не двигаясь, лицом к стене. Через минуту — уже нет. Ты не видел, куда она делась.', effects: [{ body: 'stress', delta: 6 }] },
+          { id: 'early', text: 'Двор пуст. В доме напротив гаснут окна, одно за другим, — люди не спят, просто не хотят быть видимыми.' },
+        ] },
       { id: 'leave', label: 'Выйти из квартиры', minutes: 2, terminal: true, goto: 'a_tbc' },
+      waitHour('Переждать дома час'),
       callAction(),
+      ...aTail(),
     ],
   }),
   S({
@@ -98,46 +136,49 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'promise', label: 'Пообещать отвезти их в больницу', minutes: 1, combinable: true,
         text: 'Ильзе хватает тебя за рукав. — Я сейчас его одену. Сейчас.',
         effects: [{ set: '$.promised_drive', value: true }, { npc: 'ilse', trust: 15, remember: '$:promised_drive' }] },
-      { id: 'refuse', label: 'Сказать, что помочь не можешь', minutes: 2, terminal: true, goto: 'a_wake',
+      { id: 'refuse', label: 'Сказать, что помочь не можешь', minutes: 2, terminal: true, goto: 'a_wake', when: { not: ilseOut },
         text: 'Ильзе молча кивает, будто ждала этого, и уходит вниз, держась за перила.',
+        effects: [{ set: '$.left_ilse', value: true }, { npc: 'ilse', trust: -15, remember: '$:refused' }] },
+      { id: 'refuse_out', label: 'Сказать, что помочь не можешь, и уйти', minutes: 2, terminal: true, goto: 'a_yard', when: ilseOut,
+        text: 'Ильзе молча кивает, будто ждала этого. Когда ты оглядываешься у машин, её уже нет — только дверь подъезда покачивается.',
         effects: [{ set: '$.left_ilse', value: true }, { npc: 'ilse', trust: -15, remember: '$:refused' }] },
     ],
   }),
   S({
     id: 'a_brockmann', for: 'A', chapter: 'ch1', location: 'a_brockmann', title: 'Квартира Брокманов',
     text: [
-      { text: 'У Брокманов душно и пахнет уксусом — Ильзе обтирала мужа. Герд лежит на диване под двумя одеялами, лицо серое, на лбу испарина. Глаза открыты, но смотрят мимо. На левом предплечье — свежая марлевая повязка, сквозь неё проступает желтоватое пятно.' },
-      { text: 'Когда ты входишь, он резко поворачивает голову на звук шагов — и щурится от фонарика, как от прожектора.' },
+      { text: 'У Брокманов душно и пахнет уксусом — Ильзе обтирала мужа. Герд лежит на диване под двумя одеялами, лицо серое, на лбу испарина. Глаза открыты, но смотрят мимо. На левом предплечье — свежая марлевая повязка, сквозь неё проступает желтоватое пятно.', when: { not: { flag: '$.scream' } } },
+      { text: 'Когда ты входишь, он резко поворачивает голову на звук шагов — и щурится от фонарика, как от прожектора.', when: { not: { flag: '$.scream' } } },
+      { text: 'Герд вдруг садится на диване, сбрасывая одеяла, — рывком, как на пружине. Смотрит на Ильзе. Рот приоткрыт, из горла идёт низкий хрип.', when: { flag: '$.scream' } },
     ],
     actions: [
-      { id: 'examine', label: 'Осмотреть повязку на руке', minutes: 4, combinable: true,
+      { id: 'examine', label: 'Осмотреть повязку на руке', minutes: 4, combinable: true, when: { not: { flag: '$.scream' } },
         text: 'Ты осторожно отводишь край марли. Полукруг следов зубов, края вспухшие, кожа вокруг горячая и багровая. Герд дёргает рукой и что-то бормочет — не по-немецки, не по-русски, просто звуки.',
         effects: [{ learn: 'f_gerd_wound' }, { body: 'stress', delta: 5 }] },
-      { id: 'talk', label: 'Заговорить с Гердом', minutes: 3, combinable: true,
+      { id: 'talk', label: 'Заговорить с Гердом', minutes: 3, combinable: true, when: { not: { flag: '$.scream' } },
         text: '— Herr Brockmann? Вы меня слышите? — Пауза. Потом хрипло, с трудом: «Licht… aus». Он отворачивается к стене. Ильзе гасит фонарик, и в темноте его дыхание кажется громче.',
         effects: [{ body: 'stress', delta: 4 }] },
-      { id: 'carry', label: 'Помочь довести его до машины', minutes: 15, activity: 'moderate', terminal: true, goto: 'a_tbc',
+      { id: 'carry', label: 'Помочь довести его до машины', minutes: 15, activity: 'moderate', terminal: true, goto: 'a_tbc', repeatable: false,
+        when: { all: [{ not: { flag: '$.scream' } }, { not: { flag: '$.brock_triaged' } }, { not: { flag: '$.brock_returned' } }] },
         text: 'Герд тяжёлый и неуклюжий, ноги его почти не слушаются. Ильзе семенит сзади с сумкой.',
         effects: [{ set: '$.driving_brockmanns', value: true }] },
-      { id: 'leave', label: 'Сказать, что вернёшься, и подняться к себе', minutes: 2, terminal: true, goto: 'a_wake',
+      { id: 'leave', label: 'Сказать, что вернёшься, и подняться к себе', minutes: 2, terminal: true, goto: 'a_wake', when: { not: { flag: '$.scream' } },
         effects: [{ set: '$.left_ilse', value: true }] },
+      { id: 'between', label: 'Встать между ними', minutes: 1, terminal: true, goto: 'a_brock_attack', risky: true, when: { flag: '$.scream' } },
     ],
-  }),
-  S({
-    id: 'a_tbc', for: 'A', chapter: 'ch1', location: 'a_stairs', title: 'Продолжение следует',
-    text: [{ text: 'Здесь бета пока обрывается: следующие сцены в работе. Можно осмотреть вещи и состояние — всё, что ты успел сделать, сохранено.' }],
-    actions: [],
   }),
 
   // ───────────────────────────── B ─────────────────────────────
   S({
     id: 'b_wake', for: 'B', chapter: 'ch1', location: 'b_flat', safe: true, title: 'Вторник, 10 ноября',
     text: [
-      { text: 'Ты просыпаешься от будильника Мерле за стеной: он пищит, пищит и пищит — и никто его не выключает. Потом стихает.', when: { not: { visited: 'b_wake', times: 2 } } },
-      { text: 'Телефон: заряда почти две трети. Два уведомления: NINA, 03:52 — обрывок экстренного сообщения. И сообщение от Мерле, отправленное в 01:14: «bin wach, die sirenen hören nicht auf 😬».', when: { not: { visited: 'b_wake', times: 2 } } },
-      { text: 'Батарея тёплая, свет включается. Где-то за крышами снова воет сирена — к ней присоединяется вторая.', when: { not: { visited: 'b_wake', times: 2 } } },
-      { text: 'Ты у себя в комнате. За стеной тихо бормочет радио.', when: { visited: 'b_wake', times: 2 } },
-      { text: 'С площадки доносится шорох, потом тяжёлый удар о дверь напротив. Потом — тишина.', when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }] } },
+      { text: 'Ты просыпаешься от будильника Мерле за стеной: он пищит, пищит и пищит — и никто его не выключает. Потом стихает.', when: waking('b_wake') },
+      { text: 'Телефон: заряда почти две трети. Два уведомления: NINA, 03:52 — обрывок экстренного сообщения. И сообщение от Мерле, отправленное в 01:14: «bin wach, die sirenen hören nicht auf 😬».', when: waking('b_wake') },
+      { text: 'Батарея тёплая, свет включается. Где-то за крышами снова воет сирена — к ней присоединяется вторая.', when: waking('b_wake') },
+      { text: 'Ты у себя в комнате. За стеной тихо бормочет радио.', when: { all: [back('b_wake'), merleHome, { not: evening }] } },
+      { text: 'Ты у себя в комнате. В квартире непривычно тихо: никто не бормочет за стеной, никто не гремит чашками.', when: { all: [back('b_wake'), { not: merleHome }] } },
+      { text: 'За окном темно. Фонари горят, но улица под ними пустая, и от этого ещё хуже. Где-то далеко, за крышами, — зарево, рыжее, низкое.', when: { all: [back('b_wake'), evening] } },
+      { text: 'С площадки доносится шорох, потом тяжёлый удар о дверь напротив. Потом — тишина.', when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }, { before: at(10, 8, 30) }] } },
     ],
     actions: [
       ...phoneActions('Сайт NDR открывается с третьей попытки. «Angriffe in mehreren Hamburger Kliniken — Polizei: Lage unter Kontrolle». Ниже — прямая трансляция, которая так и не загружается, и сотни комментариев: наркотики, бешенство, «нам опять что-то не договаривают».'),
@@ -150,10 +191,29 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'dress', label: 'Одеться', minutes: 4, combinable: true,
         text: 'Джинсы, худи, кроссовки. Волосы — в хвост.',
         effects: [{ pickup: 'jeans' }, { pickup: 'hoodie' }, { pickup: 'sneakers' }] },
+      { id: 'warm', label: 'Взять дождевик и шапку', minutes: 1, combinable: true,
+        text: 'Жёлтый дождевик, купленный на фестиваль и надетый один раз. Шапка — Мерле вязала, кривовато.',
+        effects: [{ pickup: 'rain_jacket' }, { pickup: 'beanie' }] },
+      { id: 'pack', label: 'Собрать рюкзак: вода, еда, пауэрбанк, зарядка', minutes: 6, combinable: true,
+        text: 'Рюкзак для универа, вытряхнутый на кровать: тетради — прочь. Вода, хлебцы, шоколад, пластыри, зажигалка, свечи, пауэрбанк, зарядка. Легко — и как-то несерьёзно.',
+        effects: [{ pickup: 'backpack' }, { pickup: 'water_05' }, { pickup: 'crackers' }, { pickup: 'chocolate' }, { pickup: 'plasters' },
+          { pickup: 'lighter' }, { pickup: 'candles' }, { pickup: 'powerbank' }, { pickup: 'charger' }] },
+      { id: 'docs', label: 'Взять карту и наличные', minutes: 1, combinable: true,
+        text: 'Тридцать евро наличными и карта. В Гамбурге ток есть — карта пока работает.',
+        effects: [{ pickup: 'bank_card' }, { pickup: 'cash_eur' }] },
       { id: 'peephole', label: 'Посмотреть в глазок', minutes: 1, terminal: true, goto: 'b_hall',
-        when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }] } },
-      { id: 'kitchen', label: 'Пойти на кухню к Мерле', minutes: 1, terminal: true, goto: 'b_kitchen' },
+        when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }, { before: at(10, 8, 30) }] } },
+      { id: 'look_night', label: 'Посмотреть в окно на улицу', minutes: 3, combinable: true, repeatable: true, when: { all: [SEG2, evening] },
+        outcomes: [
+          { id: 'scream', when: { flag: '$.street_scream' }, text: 'Под фонарём у киоска лежит велосипед, колесо ещё крутится. Рядом на коленях стоит человек и что-то делает с тем, кто лежит под ним. Медленно, сосредоточенно. Ты отшатываешься от окна прежде, чем понимаешь, что видела.',
+            effects: [{ learn: 'f_turned_seen_b' }, { body: 'stress', delta: 12 }] },
+          { id: 'quiet', text: 'Улица под фонарями пустая. В окнах напротив кое-где — свечи, хотя ток есть: люди не хотят, чтобы их было видно.' },
+        ] },
+      { id: 'kitchen', label: 'Пойти на кухню', minutes: 1, terminal: true, goto: 'b_kitchen' },
+      { id: 'hall', label: 'Выйти в прихожую', minutes: 1, terminal: true, goto: 'b_tbc' },
+      waitHour('Переждать час у себя'),
       callAction(),
+      ...bTail(),
     ],
   }),
   S({
@@ -161,28 +221,58 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
     text: [
       { text: 'Мерле сидит на подоконнике в пледе, с кружкой; на коленях — глюкометр. Радио на холодильнике бормочет NDR 90,3: «…die Lage in mehreren Kliniken… Polizei…». Она вздрагивает, когда ты входишь, и смеётся над собой.', when: { not: { visited: 'b_kitchen', times: 2 } } },
       { text: '— Ты тоже не спала? Я — вообще. В чате дома пишут, что на соседней улице кого-то увезли в наручниках, а он кусался. Кусался, представляешь?', when: { not: { visited: 'b_kitchen', times: 2 } } },
-      { text: 'Мерле на кухне, радио бормочет новости.', when: { visited: 'b_kitchen', times: 2 } },
-      { text: 'С площадки доносится шорох, потом тяжёлый удар о дверь напротив.', when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }] } },
+      { text: 'Мерле на кухне, радио бормочет новости.', when: { all: [{ visited: 'b_kitchen', times: 2 }, merleHome] } },
+      { text: 'Кухня без Мерле кажется больше. Её кружка в раковине, плед на подоконнике. Радио бормочет для одной тебя.', when: { all: [{ visited: 'b_kitchen', times: 2 }, { not: merleHome }] } },
+      { text: 'С площадки доносится шорох, потом тяжёлый удар о дверь напротив.', when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }, { before: at(10, 8, 30) }] } },
     ],
     actions: [
-      { id: 'talk', label: 'Расспросить, что она слышала', minutes: 10, combinable: true,
+      { id: 'talk', label: 'Расспросить, что она слышала', minutes: 10, combinable: true, when: merleHome,
         text: '— Сирены с полуночи. В чате пишут разное: что в UKE кто-то напал на врачей, что в Wilhelmsburg перекрыли улицу, что это наркотик какой-то. Мама звонила в шесть, сказала — сидеть дома. — Мерле крутит кружку. — Я хочу к ним, в Ahrensburg. Но не одна.',
         effects: [{ learn: 'f_sirens' }, { set: '$.merle_plan_known', value: true }, { npc: 'merle', trust: 3 }] },
-      { id: 'radio', label: 'Сделать радио погромче и послушать', minutes: 15, combinable: true,
-        text: 'Диктор говорит ровно, как всегда: «нападения в нескольких клиниках», «полиция призывает сохранять спокойствие», «Сенат проведёт пресс-конференцию». Между новостями — музыка, как будто ничего не случилось.',
-        effects: [{ learn: 'f_hospital_attacks' }] },
-      { id: 'fridge', label: 'Заглянуть в холодильник', minutes: 2, combinable: true,
+      { id: 'radio', label: 'Сделать радио погромче и послушать', minutes: 15, combinable: true, repeatable: true,
+        outcomes: [
+          { id: 'morning', when: { before: at(10, 8, 0) }, text: 'Диктор говорит ровно, как всегда: «нападения в нескольких клиниках», «полиция призывает сохранять спокойствие», «Сенат проведёт пресс-конференцию». Между новостями — музыка, как будто ничего не случилось.',
+            effects: [{ learn: 'f_hospital_attacks' }] },
+          ...radioOutcomes(),
+        ] },
+      { id: 'water', label: 'Набрать воды про запас: ванну, кастрюли, бутылки', minutes: 20, combinable: true, when: { not: { flag: '$.water_stored' } },
+        text: 'Ванна наполняется медленно. Кастрюли, чайник, пустые бутылки из-под лимонада, даже вазу Мерле — всё, что держит воду, ты ставишь в ряд на полу кухни. Если трубы замолчат, вам хватит на несколько дней.',
+        effects: [{ set: '$.water_stored', value: true }] },
+      { id: 'cook', label: 'Сварить большую кастрюлю риса, пока есть ток', minutes: 30, combinable: true, when: { all: [SEG2, { not: { flag: '$.cooked' } }] },
+        text: 'Рис, банка томатов, всё, что осталось в холодильнике. Кухня наполняется паром и запахом еды — впервые за день здесь пахнет нормальной жизнью. Половину вы съедаете сразу, половину — в контейнеры, на завтра.',
+        effects: [{ set: '$.cooked', value: true }, { body: 'hunger', delta: -35 }, { body: 'stress', delta: -5 }, { if: merleHome, then: [{ npc: 'merle', trust: 4 }] }] },
+      { id: 'merle_evening', label: 'Посидеть с Мерле', minutes: 20, combinable: true, when: { all: [SEG2, merleHome, evening, { not: { flag: '$.merle_evening' } }] },
+        text: 'Вы сидите на полу кухни, спиной к батарее, с одним пледом на двоих. Мерле проверяет сахар, говорит «норм», потом долго молчит. — Знаешь, чего я боюсь? Не их. Что инсулин кончится, а ничего не кончится. — Ты не знаешь, что на это сказать, и просто держишь её за руку.',
+        effects: [{ set: '$.merle_evening', value: true }, { npc: 'merle', trust: 6 }, { body: 'stress', delta: -6 }] },
+      { id: 'fridge', label: 'Заглянуть в холодильник', minutes: 2, combinable: true, when: merleHome,
         text: 'Яйца, молоко, остатки пасты. В дверце — три инсулиновые ручки Мерле. «Это где-то на девять дней», — говорит она, заметив твой взгляд, и отворачивается к окну.',
         effects: [{ learn: 'f_merle_insulin' }] },
-      { id: 'breakfast', label: 'Сделать завтрак на двоих', minutes: 20, combinable: true, group: 'meal',
+      { id: 'breakfast', label: 'Сделать завтрак на двоих', minutes: 20, combinable: true, group: 'meal', when: merleHome,
         text: 'Яичница, тосты, чай. Мерле ест, не глядя в тарелку, но впервые за утро улыбается по-настоящему.',
         effects: [{ pickup: 'eggs' }, { take: 'eggs' }, { body: 'hunger', delta: -25 }, { body: 'thirst', delta: -10 }, { npc: 'merle', trust: 5 }] },
-      { id: 'plan', label: 'Обсудить, что делать сегодня', minutes: 10, combinable: true, requiresDone: ['talk'],
+      { id: 'plan', label: 'Обсудить, что делать сегодня', minutes: 10, combinable: true, requiresDone: ['talk'], when: merleHome,
         text: '— Можно на S-Bahn до Poppenbüttel, а там автобус, — Мерле уже открывает карту. — Если поезда ходят. Или подождать, пока скажут что-то нормальное. Ты как думаешь?',
         effects: [{ npc: 'merle', trust: 3 }, { set: '$.discussed_plan', value: true }] },
+      { id: 'insulin_more', label: 'Спросить, можно ли достать ещё инсулина', minutes: 4, combinable: true, requiresDone: ['fridge'], when: merleHome,
+        text: '— Рецепт выписан, электронный — он на карточке страховки. Я всё собиралась в аптеку и… — Мерле пожимает плечами. — Сегодня я туда не пойду. Там люди. Там все кашляют.',
+        effects: [{ learn: 'f_merle_erezept' }] },
+      { id: 'card', label: 'Взять у Мерле карточку страховки — сходить в аптеку самой', minutes: 2, combinable: true, requiresDone: ['insulin_more'],
+        when: { all: [merleHome, { not: { has: 'health_card' } }, { not: { flag: '$.insulin_bought' } }] },
+        text: 'Мерле долго роется в сумке и протягивает тебе зелёную карточку. — Ты правда сходишь? — Она не умеет говорить «спасибо» серьёзно и поэтому говорит: — С меня торт. Когда-нибудь.',
+        effects: [{ give: 'health_card' }, { npc: 'merle', trust: 6 }] },
+      { id: 'give_insulin', label: 'Отдать Мерле инсулин из аптеки', minutes: 3, combinable: true,
+        when: { all: [merleHome, { has: 'insulin_pen' }] },
+        text: 'Мерле вертит в руках коробку, читает срок годности, кладёт её в холодильник — и обнимает тебя так крепко, что хрустит спина. Потом отворачивается к окну и долго сморкается.',
+        effects: [{ take: 'insulin_pen', qty: 5 }, { take: 'pen_needles' }, { npc: 'merle', trust: 20, remember: '$:insulin', set: { insulin_days: 24 } }] },
+      { id: 'cooler', label: 'Переложить инсулин Мерле в термосумку с холодом', minutes: 5, combinable: true,
+        when: { all: [merleHome, { has: 'cooler_bag' }, { not: { flag: '$.insulin_cooler' } }] },
+        text: 'Аккумулятор холода — в морозилку, ручки — в термосумку, сумка — в самый низ холодильника. Если ток пропадёт, у вас будет хотя бы день.',
+        effects: [{ set: '$.insulin_cooler', value: true }, { npc: 'merle', trust: 4, set: { cooler: true } }] },
       { id: 'peephole', label: 'Выйти в прихожую и посмотреть в глазок', minutes: 1, terminal: true, goto: 'b_hall',
-        when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }] } },
+        when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }, { before: at(10, 8, 30) }] } },
       { id: 'room', label: 'Вернуться к себе в комнату', minutes: 1, terminal: true, goto: 'b_wake' },
+      { id: 'hall', label: 'Выйти в прихожую', minutes: 1, terminal: true, goto: 'b_tbc' },
+      ...bTail(),
     ],
   }),
   S({
@@ -212,10 +302,5 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
         effects: [{ npc: 'okafor', trust: 5 }] },
       { id: 'back', label: 'Вернуться в квартиру', minutes: 1, terminal: true, goto: 'b_tbc' },
     ],
-  }),
-  S({
-    id: 'b_tbc', for: 'B', chapter: 'ch1', location: 'b_flat', title: 'Продолжение следует',
-    text: [{ text: 'Здесь бета пока обрывается: следующие сцены в работе. Можно осмотреть вещи и состояние — всё, что ты успела сделать, сохранено.' }],
-    actions: [],
   }),
 ].map((s) => [s.id, s]));

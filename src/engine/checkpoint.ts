@@ -169,7 +169,7 @@ function syncClocksTo(c: Content, s: GameState, target: number) {
     if (isDead(ch.body)) { ch.time = target; continue; }
     if (canAct(ch.body)) {
       log(ctx, 'system', 'Время до общей точки проходит в ожидании.');
-      advanceTime(ctx, target - ch.time, 'rest');
+      advanceTime(ctx, target - ch.time, 'rest', { finishOnEvent: true });
     } else {
       tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`);
       ch.time = target;
@@ -189,6 +189,23 @@ export function deliverMessages(c: Content, s: GameState) {
     log(ctx, 'message', `Сообщение от {partner.gen}, отправлено в ${hh}:${mm}: «${m.text}»`);
     const tpl = c.messages.find((t) => t.id === m.template);
     if (tpl?.learn) applyEffects(ctx, [{ learn: tpl.learn, source: m.id }]);
+  }
+}
+
+/** Заметки контрольной точки после слияния: каждый игрок видит свою версию (связь, встреча, новости друг от друга). */
+export function mergeNotes(c: Content, s: GameState, index: number) {
+  const cp = c.checkpoints.find((x) => x.index === index);
+  for (const pid of PLAYERS) {
+    if (isDead(s.chars[pid].body)) continue;
+    const ctx: Ctx = { s, c, pid };
+    const used = new Set<string>();
+    for (const n of cp?.onMerge ?? []) {
+      if (n.group && used.has(n.group)) continue;
+      if (!evalCond(ctx, n.when)) continue;
+      if (n.group) used.add(n.group);
+      if (n.text) log(ctx, 'checkpoint', n.text);
+      applyEffects(ctx, n.effects);
+    }
   }
 }
 
