@@ -18,7 +18,7 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
     const extra = [
       i.qty > 1 ? `×${i.qty}` : '',
       i.charge !== undefined ? (t.tags.includes('antiseptic') ? `осталось ${Math.round(i.charge)} %` : `заряд ${Math.round(i.charge)} %`) : '',
-      i.fuel !== undefined && (t.vehicle || t.fuelCan) ? `${i.fuel} л` : '',
+      i.fuel !== undefined && (t.vehicle || t.fuelCan) ? (t.fuelCan && i.fuel <= 0 ? 'пустая' : `${i.fuel} л`) : '',
       i.condition < 100 ? `износ ${100 - Math.round(i.condition)} %` : '',
     ].filter(Boolean).join(' · ');
     return { t, extra };
@@ -40,6 +40,7 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
                 <div className="li" onClick={() => setOpen(open === i.id ? null : i.id)}>
                   <span className="grow">{t.name}</span><span className="muted small">{extra}</span>
                 </div>
+                {open === i.id && t.description && <div className="small muted" style={{ padding: '2px 0 6px' }}>{t.description}</div>}
                 {open === i.id && canAct && (
                   <div className="row" style={{ padding: '4px 0 10px' }}>
                     <button className="btn" onClick={() => onPlan([`u:drop1:${i.type}`])}>Оставить одну</button>

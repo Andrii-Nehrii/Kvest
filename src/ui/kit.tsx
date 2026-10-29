@@ -83,7 +83,7 @@ export function CodeIn({ onSubmit, cta = 'Принять код' }: { onSubmit: 
       <textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="KVEST1.…" spellCheck={false} />
       {err && <div className="errors">{err}</div>}
       <div className="row">
-        <button className="btn" onClick={paste} disabled={busy}>Вставить из буфера</button>
+        <button className="btn" onClick={paste} disabled={busy}>Вставить</button>
         <button className="btn primary" onClick={() => submit()} disabled={busy || !text.includes('KVEST1.')}>{cta}</button>
       </div>
     </div>
