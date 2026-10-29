@@ -13,6 +13,8 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
   const w = carriedWeight(ctx);
   const lim = carryLimit(ctx);
   const [open, setOpen] = useState<string | null>(null);
+  const [allHere, setAllHere] = useState(false);
+  const HERE_SHOWN = 8;
   const describe = (i: (typeof held)[number]) => {
     const t = itemType(ctx, i.type);
     const extra = [
@@ -55,16 +57,19 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
       <Card title={`Здесь: ${ctx.c.locations[ch.location]?.name ?? ch.location}`}>
         <div className="list">
           {here.length === 0 && <div className="muted">Ничего полезного на виду.</div>}
-          {here.map((i) => {
+          {(allHere ? here : here.slice(0, HERE_SHOWN)).map((i) => {
             const { t, extra } = describe(i);
             const takeable = !t.vehicle && t.weight <= 30000 && canAct;
             return (
               <div className="li" key={i.id}>
                 <span className="grow">{t.name}</span><span className="muted small">{extra}</span>
-                {takeable && <button className="btn" style={{ minHeight: 34, padding: '0 12px' }} onClick={() => onPlan([`u:take:${i.type}`])}>Взять</button>}
+                {takeable && <button className="btn" style={{ minHeight: 44, padding: '0 14px' }} onClick={() => onPlan([`u:take:${i.type}`])}>Взять</button>}
               </div>
             );
           })}
+          {!allHere && here.length > HERE_SHOWN && (
+            <button className="group-toggle" onClick={() => setAllHere(true)}>Показать всё ({here.length})</button>
+          )}
         </div>
       </Card>
     </div>
@@ -120,7 +125,7 @@ export function Journal({ ctx }: { ctx: Ctx }) {
     <div className="page">
       <div className="row" style={{ margin: '6px 0 10px' }}>
         {(['all', 'news', 'message', 'body'] as const).map((k) => (
-          <button key={k} className={`btn ${kind === k ? 'primary' : ''}`} style={{ minHeight: 36, padding: '0 8px', fontSize: 13 }} onClick={() => setKind(k)}>
+          <button key={k} className={`btn ${kind === k ? 'primary' : ''}`} style={{ minHeight: 44, padding: '0 8px', fontSize: 13 }} onClick={() => setKind(k)}>
             {{ all: 'Всё', news: 'Новости', message: 'Связь', body: 'Тело' }[k]}
           </button>
         ))}
