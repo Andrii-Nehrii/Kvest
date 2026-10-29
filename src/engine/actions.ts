@@ -6,6 +6,7 @@ import type { ActionDef, Scene } from './content-types';
 import { checkChance } from './checks';
 import { applyEffects, type EffectResult } from './effects';
 import { clamp } from './rng';
+import { hourOfDay } from './time';
 import { advanceTime, applyStandingRules } from './simulate';
 import type { Effect } from './types';
 import {
@@ -127,7 +128,9 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
     list.push({ id: `u:rule:${key}`, label: `Правило: ${key}`, minutes: 0, combinable: true, group: `u:rule:${key}`, effects: [{ rule: key, value: !ch.rules[key] }] });
   }
   list.push({ id: 'u:rest', label: 'Перевести дух (30 мин)', minutes: 30, activity: 'rest', combinable: true, group: 'u:rest', repeatable: true });
-  if (scene.safe) {
+  // Сон — когда он нужен: недосып или ночь (иначе «лечь на два часа» в 06:30 после пробуждения).
+  const hour = hourOfDay(ch.time);
+  if (scene.safe && (b.sleepDebt >= 4 || hour >= 20 || hour < 5)) {
     const hours = clamp(Math.round(b.sleepDebt / 1.1), 2, 9);
     list.push({ id: 'u:sleep', label: `Лечь спать (≈${hours} ч)`, minutes: 0, group: 'u:sleep', effects: [{ sleep: hours * 60 }], repeatable: true });
   }
@@ -272,7 +275,7 @@ function deliverMissedNews(ctx: Ctx, step: StepResult) {
     for (const n of ev?.news ?? []) {
       if (n.channel !== 'phone') continue;
       step.text.push(n.text);
-      if (n.learn) applyEffects(ctx, [{ learn: n.learn, kind: n.kind, source: ev!.id }]);
+      if (n.learn) applyEffects(ctx, [{ learn: n.learn, kind: n.kind, source: ev!.id, quiet: true }]);
     }
   }
 }

@@ -1,5 +1,7 @@
 // Сборка сюжета беты. Новые главы подключаются сюда же (сцены, события, NPC, решения).
 import type { CharacterTemplate, Content, Scene } from '../engine/content-types';
+import type { Cond } from '../engine/types';
+import { SEG2 } from './chapter1/common';
 import { at } from '../engine/time';
 import { aRoadScenes } from './chapter1/a_road';
 import { aTownScenes } from './chapter1/a_town';
@@ -39,11 +41,21 @@ function withRepeatableMoves(scenes: Record<string, Scene>): Record<string, Scen
   }]));
 }
 
+/** Участок 1 затянулся после 14:00 — в местах с переходом к КТ 1 остаётся только он (плюс повседневное). */
+const LATE_SEG1: Cond = { all: [{ not: SEG2 }, { after: at(10, 14, 0) }] };
+const KEEP_LATE = new Set(['cp1_call', 'cp1_noon']);
+function withLateSegment1(scenes: Record<string, Scene>): Record<string, Scene> {
+  return Object.fromEntries(Object.entries(scenes).map(([id, s]) => {
+    if (!s.actions.some((a) => a.id === 'cp1_call')) return [id, s];
+    return [id, { ...s, actions: s.actions.map((a) => (KEEP_LATE.has(a.id) ? a : { ...a, when: a.when ? { all: [{ not: LATE_SEG1 }, a.when] } : { not: LATE_SEG1 } })) }];
+  }));
+}
+
 export const content: Content = {
   version: 'beta-0.1',
   epochLabel: '10.11.2026',
   items, locations, routes: [],
-  scenes: withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes }),
+  scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes })),
   facts, npcs, events, joint, checkpoints, messages, characters,
   partnerContactAfter: CONTACT_AFTER,
   initialVars: {

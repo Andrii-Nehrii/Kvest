@@ -322,7 +322,7 @@ export const bTownScenes: Record<string, Scene> = Object.fromEntries([
     actions: [
       { id: 'listen', label: 'Выслушать его', minutes: 10, combinable: true, when: { not: { knows: 'f_okafor_colleague' } },
         outcomes: [
-          { id: 'secret', when: { npc: 'okafor', trust: ['>=', 15] },
+          { id: 'secret', when: { npc: 'okafor', trust: ['>=', 10] },
             text: 'Он садится на подлокотник кресла. — Позавчера у нас была… коллега. Её укусил пациент в приёмном — несильно. Перевязали. Через сутки, на смене, она набросилась на врача. Молча. Мы решили — нервный срыв, переутомление. — Он смотрит на свои руки. — Сегодня ночью я видел ещё троих таких. Я в «срыв» больше не верю.',
             effects: [{ learn: 'f_okafor_colleague' }, { npc: 'okafor', trust: 5 }] },
           { id: 'guarded', text: 'Он говорит про смену, про раненых, про то, что «никто ничего не понимает». Но где-то посередине замолкает и переводит разговор на кота. Что-то он не договаривает.',

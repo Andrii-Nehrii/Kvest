@@ -104,7 +104,7 @@ function ActionCard({ a, n, ctx, onTap }: { a: AvailableAction; n: number; ctx: 
   const on = n >= 0;
   return (
     <button className={`action ${on ? 'sel' : ''} ${a.enabled ? '' : 'off'}`} onClick={onTap}>
-      <span className="num">{on ? n + 1 : a.def.combinable ? '+' : '›'}</span>
+      <span className="num">{on ? n + 1 : a.def.terminal || a.def.goto || !a.def.combinable ? '›' : '+'}</span>
       <span className="label">
         {fmt(ctx, a.def.label)}{a.def.risky && <span className="risky">риск</span>}
         {!a.enabled && <span className="why">{a.reason}</span>}

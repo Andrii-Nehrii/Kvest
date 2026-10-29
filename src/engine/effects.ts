@@ -102,7 +102,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     if (!prev || prev.kind !== 'fact') {
       ctx.s.knowledge[ctx.pid][e.learn] = { kind: e.kind ?? 'fact', at: t, source: e.source ?? ch.scene };
       const f = ctx.c.facts[e.learn];
-      if (f && !prev) log(ctx, 'news', f.text);
+      if (f && !prev && !e.quiet) log(ctx, 'news', f.text);
     }
     return;
   }

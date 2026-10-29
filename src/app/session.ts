@@ -12,6 +12,17 @@ import type { GameState, PlayerId } from '../engine/types';
 import { other } from '../engine/types';
 
 export const START_TIME = at(10, 6, 30);
+/** Самый старый движок, чьи сохранения воспроизводятся текущим (поднимать только при несовместимых правках движка). */
+export const MIN_COMPATIBLE_ENGINE = '0.2.0';
+
+function olderThan(v: string | undefined, min: string): boolean {
+  const a = (v ?? '0').split('.').map(Number);
+  const b = min.split('.').map(Number);
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    if ((a[i] ?? 0) !== (b[i] ?? 0)) return (a[i] ?? 0) < (b[i] ?? 0);
+  }
+  return false;
+}
 export const SAVE_SCHEMA = 1;
 
 export interface CheckpointWork {
@@ -244,5 +255,8 @@ export function importSave(c: Content, text: string): LocalSave {
   const save = obj.save as LocalSave;
   if (save.schema > SAVE_SCHEMA) throw new Error('Сохранение сделано более новой версией приложения.');
   if (save.base && save.base.contentVersion !== c.version) throw new Error(`Сохранение для версии сюжета ${save.base.contentVersion}, а приложение — ${c.version}.`);
+  if (save.base && olderThan(save.base.engineVersion, MIN_COMPATIBLE_ENGINE)) {
+    throw new Error(`Сохранение сделано движком ${save.base.engineVersion}: с текущей версией (${ENGINE_VERSION}) оно не воспроизведётся.`);
+  }
   return save;
 }

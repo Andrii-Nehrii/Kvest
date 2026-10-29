@@ -22,10 +22,10 @@ const STEP = 15;
  * Продвинуть время. Событие с прерыванием (стук в дверь, крик) обрывает отдых, сон и ожидание,
  * а начатое дело (поездка, очередь, работа) доводится до конца — прерывается только план после него.
  */
-export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts: { finishOnEvent?: boolean } = {}): AdvanceResult {
+export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts: { finishOnEvent?: boolean; away?: boolean } = {}): AdvanceResult {
   const ch = me(ctx);
   const res: AdvanceResult = { interrupted: false, notes: [] };
-  fireDue(ctx, res);
+  fireDue(ctx, res, opts.away);
   let remaining = Math.max(0, Math.round(minutes));
   const wasAble = canAct(ch.body) || ch.body.consciousness === 'asleep';
   let stop = false;
@@ -52,7 +52,7 @@ export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts:
     }
     // Потеря сознания во время действия прерывает план; если игрок уже был без сознания — время просто идёт.
     if (wasAble && !canAct(ch.body) && ch.body.consciousness !== 'asleep') { res.interrupted = true; stop = true; }
-    fireDue(ctx, res);
+    fireDue(ctx, res, opts.away);
   }
   return res;
 }
@@ -89,8 +89,12 @@ function drainBatteries(ctx: Ctx, minutes: number) {
   }
 }
 
-/** События мира и планы NPC, время которых наступило на этой временной линии. */
-export function fireDue(ctx: Ctx, res: AdvanceResult) {
+/**
+ * События мира и планы NPC, время которых наступило на этой временной линии.
+ * away — игрок ждёт на контрольной точке и не может ответить: личные события с прерыванием
+ * (стук в дверь, крик) «проходят без него» — помечаются, но не срабатывают.
+ */
+export function fireDue(ctx: Ctx, res: AdvanceResult, away = false) {
   const ch = me(ctx);
   const events = ctx.c.events
     .filter((e) => (e.scope === 'world' || e.scope === ctx.pid) && e.at <= ch.time)
@@ -100,17 +104,17 @@ export function fireDue(ctx: Ctx, res: AdvanceResult) {
     if (ctx.s.firedEvents[key] !== undefined) continue;
     if (!evalCond(ctx, e.when)) continue;
     ctx.s.firedEvents[key] = ch.time;
+    if (away && e.interrupt) continue;
     applyEffects(ctx, e.effects);
-    let heard = false;
-    for (const n of e.news ?? []) {
-      if (!channelOpen(ctx, n.channel)) {
-        if (n.channel === 'phone') ctx.s.vars[`${ctx.pid}.missed.${e.id}`] = true;
-        continue;
-      }
-      heard = true;
+    // Одна новость — один раз: первым открытым каналом (push, радио, люди). Пропущенный push можно прочитать позже.
+    const n = (e.news ?? []).find((x) => channelOpen(ctx, x.channel));
+    const heard = !!n;
+    if (n) {
       log(ctx, 'news', n.text);
       res.notes.push(n.text);
-      if (n.learn) applyEffects(ctx, [{ learn: n.learn, kind: n.kind, source: e.id }]);
+      if (n.learn) applyEffects(ctx, [{ learn: n.learn, kind: n.kind, source: e.id, quiet: true }]);
+    } else if (e.news?.some((x) => x.channel === 'phone')) {
+      ctx.s.vars[`${ctx.pid}.missed.${e.id}`] = true;
     }
     if (e.interrupt && (heard || !e.news?.length)) res.interrupted = true;
   }

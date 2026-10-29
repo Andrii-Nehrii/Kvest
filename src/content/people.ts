@@ -141,6 +141,7 @@ export const facts: Record<string, FactDef> = Object.fromEntries([
   F('f_wound_care', 'болезнь', 'Окафор: рану сначала долго промывать водой, потом антисептик, потом закрыть. Перчатки — всегда.'),
   F('f_hypo_signs', 'люди', 'Окафор: если у Мерле слабость, пот и спутанность — сразу сладкое; не поможет — звать его.'),
   F('f_old_tunnel', 'транспорт', 'Старый Эльбский тоннель у Landungsbrücken — пешеходный и открыт всегда: можно на юг мимо закрытых мостов.'),
+  F('f_bridge_warning', 'транспорт', 'Курьер слышал по полицейской рации: в половине шестого мост на Harburg закроют совсем.'),
   F('f_port_route', 'транспорт', 'Докер: через порт — по Hachmannkai, не по главной, и не останавливаться.'),
   // Контрольные точки
   F('f_kt1_talked', 'связь', 'В полдень вы дозвонились друг до друга — на минуту, сквозь треск.'),
@@ -191,6 +192,10 @@ export const events: WorldEvent[] = [
   { id: 'ev_net_back', at: at(10, 12, 20), scope: 'world', when: { all: [{ phoneUsable: true }, { before: at(10, 13, 0) }] }, interrupt: true,
     effects: [{ set: '$.net_back', value: true }],
     news: [{ channel: 'direct', text: 'Телефон вздрагивает — раз, другой, третий: пачка уведомлений. На экране — полные полоски сети. Впервые за утро.' }] },
+  // Первую связь нельзя откладывать до вечера: в 13:30 — толчок, с 14:00 в местах остаётся только переход к КТ 1 (index.ts).
+  { id: 'ev_noon_push', at: at(10, 13, 30), scope: 'world', when: { not: { flag: '$.seg2' } }, interrupt: true,
+    effects: [{ set: '$.kt1_due', value: true }],
+    news: [{ channel: 'direct', text: 'Ты ловишь себя на том, что уже который раз проверяешь телефон и смотришь в одну точку. Хватит откладывать: пора решить, что дальше.' }] },
   { id: 'ev_tunnel_open', at: at(10, 12, 30), scope: 'world', effects: [{ set: 'w.crossings', value: 'tunnel' }],
     news: [{ channel: 'radio', text: 'Радио: тоннель на A7 в сторону центра снова открыт — одна полоса, движение медленное.', learn: 'f_tunnel_open' }] },
   { id: 'ev_net_overload', at: at(10, 15, 0), scope: 'world',
@@ -199,6 +204,9 @@ export const events: WorldEvent[] = [
   { id: 'ev_cordon', at: at(10, 17, 30), scope: 'world', effects: [{ set: 'w.harburg_cordon', value: true }],
     news: [{ channel: 'radio', text: 'Радио: полиция оцепила Harburg и часть центра. Всех просят оставаться дома и не открывать посторонним.', learn: 'f_cordon' },
       { channel: 'phone', text: 'NINA: «Gefahrenlage. Bleiben Sie zu Hause. Öffnen Sie niemandem die Tür.»', learn: 'f_cordon' }] },
+  { id: 'ev_hbg_clear', at: at(10, 17, 30), scope: 'A', when: { at: 'harburg_station' }, interrupt: true,
+    effects: [{ set: '$.hbg_clear', value: true }],
+    news: [{ channel: 'direct', text: 'Громкоговоритель: «Platz räumen! Harburg ist abgesperrt!» Полицейские в шлемах идут цепью через площадь, отодвигая людей к улицам.' }] },
   { id: 'ev_power_off2', at: at(10, 20, 15), scope: 'world',
     effects: [{ set: 'w.power.buchholz', value: 'off' }, { set: 'w.power.buchholz.since', value: at(10, 20, 15) }, { set: 'w.power_off_again', value: true }] },
   { id: 'ev_power_off2_seen', at: at(10, 20, 15), scope: 'A', when: { any: [inBuchholzHome, { at: 'a_street' }, { at: 'deniz_workshop' }, { at: 'a_market' }, { at: 'a_gas' }] },

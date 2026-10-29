@@ -295,7 +295,8 @@ export type Effect =
   | { treat: 'basic' | 'proper'; target?: PlayerId | '$' | '@partner' }
   | { illness: string; target?: PlayerId | '$' }
   | { medicate: 'painkiller' | 'antipyretic' | 'antibiotic'; hours: number }
-  | { learn: string; kind?: KnowledgeKind; source?: string }
+  /** quiet — не дублировать текст факта в журнале (новость уже показана своим текстом). */
+  | { learn: string; kind?: KnowledgeKind; source?: string; quiet?: boolean }
   | { move: string }
   | { npc: string; trust?: number; remember?: string; set?: Record<string, Scalar>; status?: NpcState['status']; moveTo?: string; alive?: boolean }
   | { log: string; kind?: LogEntry['kind'] }
