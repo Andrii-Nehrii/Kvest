@@ -101,3 +101,31 @@ export async function getFile(token: string, path: string): Promise<string | und
   if (!r.ok) throw new Error(`GitHub ${r.status}`);
   return r.text();
 }
+
+export interface CloudSaveEntry {
+  pairId: string;
+  pid: string;
+  name: string;
+  updatedAt: number;
+  text: string;
+}
+
+/** Все сохранения в облаке — чтобы вернуть игру, если телефон очистил данные. */
+export async function listCloudSaves(token: string): Promise<CloudSaveEntry[]> {
+  const r = await gh(token, `/contents/pairs?ref=${BRANCH}`);
+  if (r.status === 404) return [];
+  if (!r.ok) throw new Error(`GitHub ${r.status}`);
+  const pairs = ((await r.json()) as { name: string; type: string }[]).filter((x) => x.type === 'dir');
+  const out: CloudSaveEntry[] = [];
+  for (const p of pairs) {
+    for (const pid of ['A', 'B']) {
+      const text = await getFile(token, cloudPaths.save(p.name, pid));
+      if (!text) continue;
+      try {
+        const save = JSON.parse(text).save;
+        out.push({ pairId: p.name, pid, name: save?.state?.chars?.[pid]?.name?.nom ?? pid, updatedAt: save?.updatedAt ?? 0, text });
+      } catch { /* битый файл пропускаем */ }
+    }
+  }
+  return out.sort((a, b) => b.updatedAt - a.updatedAt);
+}

@@ -8,6 +8,7 @@ import { guessForms, FORM_LABELS } from '../../app/names';
 import { acceptInvite, acceptJoin, createInvite, importSave, readInvite, worldCode, type LocalSave } from '../../app/session';
 import { content, EDITABLE_TRAITS, TRAIT_BUDGET } from '../../content';
 import { Card, CodeIn, CodeOut } from '../kit';
+import { listCloudSaves, type CloudSaveEntry } from '../../app/cloud';
 
 const TRAIT_NAMES: Record<keyof Traits, string> = {
   strength: 'Сила', endurance: 'Выносливость', agility: 'Ловкость', melee: 'Рукопашная', medicine: 'Медицина',
@@ -19,7 +20,41 @@ const ROLE_INFO: Record<PlayerId, { title: string; body: string }> = {
   B: { title: 'Она — Гамбург', body: '167 см, около 50 кг, физически не сильная, немного занималась в зале. Квартира в Гамбурге, соседка по квартире.' },
 };
 
-export function Menu({ onCreate, onJoin, onImport, cloud }: { onCreate: () => void; onJoin: () => void; onImport: (s: LocalSave) => void; cloud?: ReactNode }) {
+/** iPhone: вкладка Safari и значок «на экране Домой» хранят данные раздельно. */
+function iosBrowserTab(): boolean {
+  if (typeof navigator === 'undefined') return false;
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const standalone = (navigator as { standalone?: boolean }).standalone === true || window.matchMedia?.('(display-mode: standalone)').matches;
+  return ios && !standalone;
+}
+
+function CloudRestore({ token, onImport }: { token: string; onImport: (s: LocalSave) => void }) {
+  const [list, setList] = useState<CloudSaveEntry[] | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState('');
+  const load = async () => {
+    setBusy(true); setErr('');
+    try { setList(await listCloudSaves(token)); } catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
+    setBusy(false);
+  };
+  const pick = (e: CloudSaveEntry) => {
+    try { onImport(importSave(content, e.text)); } catch (x) { setErr(x instanceof Error ? x.message : String(x)); }
+  };
+  return (
+    <div className="stack">
+      {!list && <button className="btn block" disabled={busy} onClick={load}>{busy ? 'Ищу…' : 'Восстановить из облака'}</button>}
+      {list && list.length === 0 && <div className="muted small">В облаке сохранений нет.</div>}
+      {list?.map((e) => (
+        <button key={`${e.pairId}-${e.pid}`} className="btn block" onClick={() => pick(e)}>
+          {e.name} · {e.updatedAt ? new Date(e.updatedAt).toLocaleString('ru-RU') : e.pairId}
+        </button>
+      ))}
+      {err && <div className="errors">{err}</div>}
+    </div>
+  );
+}
+
+export function Menu({ onCreate, onJoin, onImport, cloud, cloudToken }: { onCreate: () => void; onJoin: () => void; onImport: (s: LocalSave) => void; cloud?: ReactNode; cloudToken?: string }) {
   const [err, setErr] = useState('');
   const load = async (f: File | undefined) => {
     if (!f) return;
@@ -29,10 +64,16 @@ export function Menu({ onCreate, onJoin, onImport, cloud }: { onCreate: () => vo
     <div className="page">
       <div style={{ height: '14vh' }} />
       <div className="h1" style={{ fontSize: 34 }}>Kvest</div>
+      {iosBrowserTab() && (
+        <Card title="iPhone" tone="warn">
+          <div className="small">Игра, начатая во вкладке Safari, не появится в значке на экране «Домой» — у них разные хранилища, а Safari ещё и стирает данные сайта через неделю без визитов. Сначала «Поделиться → На экран „Домой“», и начинай оттуда. И подключи облако.</div>
+        </Card>
+      )}
       <div className="stack" style={{ marginTop: 28 }}>
         <button className="btn primary block" onClick={onCreate}>Новая игра — пригласить партнёра</button>
         <button className="btn block" onClick={onJoin}>У меня есть приглашение</button>
         <label className="btn block">Восстановить из файла<input type="file" accept=".json,application/json" hidden onChange={(e) => load(e.target.files?.[0])} /></label>
+        {cloudToken && <CloudRestore token={cloudToken} onImport={onImport} />}
         {err && <div className="errors">{err}</div>}
       </div>
       <div style={{ marginTop: 24 }}>{cloud}</div>

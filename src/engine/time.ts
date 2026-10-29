@@ -23,6 +23,12 @@ export function dateLabel(t: Minutes): string {
   return `${WEEKDAYS[p.wd]}, ${p.day} ${MONTHS[p.mo]}`;
 }
 
+/** Коротко для шапки: «вт, 10.11». */
+export function shortDateLabel(t: Minutes): string {
+  const p = parts(t);
+  return `${['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'][p.wd]}, ${String(p.day).padStart(2, '0')}.${String(p.mo + 1).padStart(2, '0')}`;
+}
+
 export function hourOfDay(t: Minutes): number {
   const p = parts(t);
   return p.h + p.mi / 60;

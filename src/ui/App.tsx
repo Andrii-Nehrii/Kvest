@@ -1,5 +1,5 @@
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
-import { clock, dateLabel } from '../engine/time';
+import { clock, shortDateLabel } from '../engine/time';
 import { phone, type Ctx } from '../engine/world';
 import { dbDelete, dbGet, dbPut, requestPersistence } from '../app/db';
 import { act, exportSave, normalizePhase, type LocalSave } from '../app/session';
@@ -90,7 +90,7 @@ export function App() {
           : save?.phase === 'invited' ? <Create save={save} onSave={persist} onBack={reset} cloudToken={cloud?.token} />
           : view === 'create' ? <Create onSave={persist} onBack={() => setView('menu')} cloudToken={cloud?.token} />
           : view === 'join' ? <Join onBack={() => setView('menu')} onSave={(s, reply, token) => { persist(s); if (token && !cloud?.token) updateCloud({ token }); if (reply) setPendingJoin({ save: s, reply }); }} />
-          : <Menu onCreate={() => setView('create')} onJoin={() => setView('join')} onImport={(s) => persist(normalizePhase(content, s))}
+          : <Menu onCreate={() => setView('create')} onJoin={() => setView('join')} onImport={(s) => persist(normalizePhase(content, s))} cloudToken={cloud?.token}
               cloud={<CloudCard cloud={cloud} onCloud={updateCloud} />} />}
       </div>
     );
@@ -124,9 +124,9 @@ export function App() {
       <header className="topbar">
         <div>
           <div className="time">{clock(ch.time)}</div>
-          <div className="sub">{dateLabel(ch.time)}</div>
+          <div className="sub">{shortDateLabel(ch.time)}</div>
         </div>
-        <div className="sub" style={{ marginLeft: 6 }}>{content.locations[ch.location]?.name ?? ''}</div>
+        <div className="sub place">{content.locations[ch.location]?.name ?? ''}</div>
         <div className="right">
           {ph && <span title="Заряд телефона">📱 {Math.round(ph.charge ?? 0)}%</span>}
           <span className={`dot ${healthDot(ch.body)}`} title="Самочувствие" />

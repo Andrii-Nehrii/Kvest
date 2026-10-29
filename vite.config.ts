@@ -24,10 +24,11 @@ self.addEventListener('fetch', (e) => {
   if (url.origin !== location.origin) return;
   // Страница — сначала сеть (чтобы прилетали обновления), без сети — из кэша.
   if (e.request.mode === 'navigate') {
-    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match('./')));
+    e.respondWith(fetch(e.request, { cache: 'no-store' }).catch(() => caches.match('./', { ignoreSearch: true, ignoreVary: true })));
     return;
   }
-  e.respondWith(caches.match(e.request).then((hit) => hit || fetch(e.request)));
+  // ignoreVary: некоторые серверы отдают Vary, и без него кэш не находит свои же файлы.
+  e.respondWith(caches.match(e.request, { ignoreVary: true }).then((hit) => hit || fetch(e.request)));
 });
 `;
       this.emitFile({ type: 'asset', fileName: 'sw.js', source: sw });
