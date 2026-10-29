@@ -34,9 +34,19 @@ export function canonical(value: unknown): string {
   return '{' + keys.map((k) => JSON.stringify(k) + ':' + canonical(obj[k])).join(',') + '}';
 }
 
+/**
+ * Хэш состояния. У состояния игры тексты (журнал, тексты сообщений) в хэш не входят: правка
+ * формулировки в уже сыгранной сцене не должна ломать сверку ходов у партнёра. Логика — входит вся.
+ */
 export function stateHash(value: unknown): string {
-  const s = canonical(value);
+  const s = canonical(withoutTexts(value));
   return hash53(s, 1).toString(16).padStart(14, '0') + hash53(s, 2).toString(16).padStart(14, '0');
+}
+
+function withoutTexts(value: unknown): unknown {
+  if (!value || typeof value !== 'object' || !('log' in value) || !('chars' in value)) return value;
+  const { log: _log, messages, ...rest } = value as { log: unknown; messages?: { text?: string }[] };
+  return { ...rest, messages: messages?.map(({ text: _text, ...m }) => m) };
 }
 
 /** Короткий код для сверки миров глазами: «4F2A-91C0». */
