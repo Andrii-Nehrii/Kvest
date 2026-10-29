@@ -95,7 +95,7 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
     list.push({ id: 'u:news', label: 'Пролистать новости в телефоне', minutes: 10, combinable: true, group: 'u:news',
       effects: [{ charge: 'phone', delta: -2 }] });
   }
-  if (phoneUsable(ctx) && network(ctx).sms) {
+  if (phoneUsable(ctx) && network(ctx).sms && ch.time >= (ctx.c.partnerContactAfter ?? 0)) {
     for (const m of ctx.c.messages) {
       list.push({ id: `u:msg:${m.id}`, label: fmt(ctx, `Написать {partner.dat}: «${m.label}»`), minutes: 2, combinable: true, group: `u:msg:${m.id}`,
         effects: [{ message: m.id }, { charge: 'phone', delta: -1 }] });

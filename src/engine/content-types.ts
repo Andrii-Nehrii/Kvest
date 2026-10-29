@@ -305,6 +305,8 @@ export interface Content {
   joint: Record<string, JointDecision>;
   checkpoints: CheckpointDef[];
   messages: MessageTemplate[];
+  /** Раньше этого времени связь с партнёром (SMS, звонок) не предлагается — каждый сначала в своей истории. */
+  partnerContactAfter?: Minutes;
   projects?: Record<string, ProjectDef>;
   bases?: BaseDef[];
   characters: Record<PlayerId, CharacterTemplate>;

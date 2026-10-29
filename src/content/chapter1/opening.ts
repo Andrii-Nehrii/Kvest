@@ -1,8 +1,11 @@
 // Глава 1, участок 1 — утро вторника. Сцены A и B раздельны; общие события — в people.ts.
 import type { ActionDef, Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
+import { at } from '../../engine/time';
 
 const S = (s: Scene) => s;
+/** Партнёр появляется в истории не сразу: связь — только после 07:15 (≈ 5–8 решений). */
+export const CONTACT_AFTER = at(10, 7, 15);
 const knock: Cond = { flag: '$.knock' };
 
 /** Действия с телефоном — одинаковые по механике, разные по тексту для A и B. */
@@ -16,13 +19,17 @@ function phoneActions(newsText: string): ActionDef[] {
         { id: 'loaded', when: { network: 'data' }, text: newsText, effects: [{ learn: 'f_hospital_attacks' }, { charge: 'phone', delta: -3 }] },
         { id: 'nonet', text: '«Keine Verbindung». Полоска сети мигает и гаснет. Ещё попытка — то же самое.', effects: [{ charge: 'phone', delta: -2 }] },
       ] },
-    { id: 'call', label: 'Позвонить {partner.dat}', minutes: 2, combinable: true, group: 'phone_call', repeatable: true, when: { phoneUsable: true },
+  ];
+}
+
+
+/** Звонок партнёру — в конце списка и не раньше CONTACT_AFTER. */
+const callAction = (): ActionDef => (
+{ id: 'call', label: 'Позвонить {partner.dat}', minutes: 2, combinable: true, group: 'phone_call', repeatable: true, when: { all: [{ phoneUsable: true }, { after: CONTACT_AFTER }] },
       outcomes: [
         { id: 'unreachable', when: { network: 'voice' }, text: 'Гудок. Второй. Третий… «Der gewünschte Gesprächspartner ist zurzeit nicht erreichbar.»', effects: [{ charge: 'phone', delta: -1 }] },
         { id: 'busy', text: 'Вызов срывается, не начавшись: «Netz besetzt».', effects: [{ charge: 'phone', delta: -0.5 }] },
-      ] },
-  ];
-}
+      ] });
 
 export const openingScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────────────────────── A ─────────────────────────────
@@ -55,6 +62,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'go_down', label: 'Всё-таки спуститься к Брокманам', minutes: 2, terminal: true, goto: 'a_brockmann',
         when: { all: [knock, { any: [{ flag: '$.ignored_ilse' }, { flag: '$.left_ilse' }] }] } },
       { id: 'leave', label: 'Выйти из квартиры', minutes: 2, terminal: true, goto: 'a_tbc' },
+      callAction(),
     ],
   }),
   S({
@@ -145,6 +153,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'peephole', label: 'Посмотреть в глазок', minutes: 1, terminal: true, goto: 'b_hall',
         when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }] } },
       { id: 'kitchen', label: 'Пойти на кухню к Мерле', minutes: 1, terminal: true, goto: 'b_kitchen' },
+      callAction(),
     ],
   }),
   S({

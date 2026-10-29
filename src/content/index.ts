@@ -1,7 +1,7 @@
 // Сборка сюжета беты. Новые главы подключаются сюда же (сцены, события, NPC, решения).
 import type { CharacterTemplate, CheckpointDef, Content, JointDecision } from '../engine/content-types';
 import { at } from '../engine/time';
-import { openingScenes } from './chapter1/opening';
+import { CONTACT_AFTER, openingScenes } from './chapter1/opening';
 import { items } from './items';
 import { events, facts, messages, npcs } from './people';
 import { locations, network, weather } from './world';
@@ -61,6 +61,7 @@ export const content: Content = {
   items, locations, routes: [],
   scenes: { ...openingScenes },
   facts, npcs, events, joint, checkpoints, messages, characters,
+  partnerContactAfter: CONTACT_AFTER,
   initialVars: {
     'w.power.buchholz': 'off', 'w.power.buchholz.since': at(10, 5, 10),
     'w.rail': 'running', 'w.elbe_jam': false,
