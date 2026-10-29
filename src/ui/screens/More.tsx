@@ -10,7 +10,7 @@ import { Card, CodeOut } from '../kit';
 import { useState } from 'react';
 import { checkCloud, type CloudConfig } from '../../app/cloud';
 
-function CloudCard({ cloud, onCloud, onUpload }: { cloud: CloudConfig | null; onCloud: (c: CloudConfig | null) => void; onUpload: () => void }) {
+export function CloudCard({ cloud, onCloud, onUpload }: { cloud: CloudConfig | null; onCloud: (c: CloudConfig | null) => void; onUpload?: () => void }) {
   const [token, setToken] = useState('');
   const [err, setErr] = useState('');
   const [busy, setBusy] = useState(false);
@@ -23,7 +23,7 @@ function CloudCard({ cloud, onCloud, onUpload }: { cloud: CloudConfig | null; on
         </div>
         {cloud.lastError && <div className="errors">Ошибка: {cloud.lastError}</div>}
         <div className="row" style={{ marginTop: 10 }}>
-          <button className="btn primary" onClick={onUpload}>Отправить сейчас</button>
+          {onUpload && <button className="btn primary" onClick={onUpload}>Отправить сейчас</button>}
           <button className="btn" onClick={() => { if (confirm('Отключить облако на этом телефоне?')) onCloud(null); }}>Отключить</button>
         </div>
       </Card>
@@ -37,7 +37,7 @@ function CloudCard({ cloud, onCloud, onUpload }: { cloud: CloudConfig | null; on
   };
   return (
     <Card title="Облако (GitHub)">
-      <div className="small muted" style={{ marginBottom: 8 }}>Вставь токен GitHub — сохранения и коды контрольных точек будут передаваться сами.</div>
+      <div className="small muted" style={{ marginBottom: 8 }}>Вставь токен GitHub — сохранения и коды контрольных точек будут передаваться сами. Партнёру вводить не нужно: токен уйдёт ему вместе с приглашением.</div>
       <input type="password" value={token} onChange={(e) => setToken(e.target.value)} placeholder="github_pat_…" autoComplete="off" />
       {err && <div className="errors">{err}</div>}
       <button className="btn primary block" style={{ marginTop: 10 }} disabled={busy || token.trim().length < 20} onClick={connect}>{busy ? 'Проверяю…' : 'Подключить'}</button>

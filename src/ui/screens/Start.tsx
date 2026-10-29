@@ -1,5 +1,5 @@
 // Главное меню, создание персонажа, связывание двух телефонов.
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { Signed, InvitePacket } from '../../engine/packet';
 import type { PlayerSetup } from '../../engine/game';
 import type { NameForms, PlayerId, Traits } from '../../engine/types';
@@ -19,7 +19,7 @@ const ROLE_INFO: Record<PlayerId, { title: string; body: string }> = {
   B: { title: 'Она — Гамбург', body: '167 см, около 50 кг, физически не сильная, немного занималась в зале. Квартира в Гамбурге, соседка по квартире.' },
 };
 
-export function Menu({ onCreate, onJoin, onImport }: { onCreate: () => void; onJoin: () => void; onImport: (s: LocalSave) => void }) {
+export function Menu({ onCreate, onJoin, onImport, cloud }: { onCreate: () => void; onJoin: () => void; onImport: (s: LocalSave) => void; cloud?: ReactNode }) {
   const [err, setErr] = useState('');
   const load = async (f: File | undefined) => {
     if (!f) return;
@@ -36,6 +36,7 @@ export function Menu({ onCreate, onJoin, onImport }: { onCreate: () => void; onJ
         <label className="btn block">Восстановить из файла<input type="file" accept=".json,application/json" hidden onChange={(e) => load(e.target.files?.[0])} /></label>
         {err && <div className="errors">{err}</div>}
       </div>
+      <div style={{ marginTop: 24 }}>{cloud}</div>
       <p className="faint small" style={{ marginTop: 28 }}>Игра работает без интернета. Связь нужна только на контрольных точках — чтобы обменяться кодами через мессенджер.</p>
     </div>
   );
@@ -88,7 +89,7 @@ function CharacterForm({ pid, onDone, cta }: { pid: PlayerId; onDone: (s: Player
 }
 
 /** Создатель: выбрать роль → персонаж → отправить приглашение → принять ответ. */
-export function Create({ save, onSave, onBack }: { save?: LocalSave; onSave: (s: LocalSave) => void; onBack: () => void }) {
+export function Create({ save, onSave, onBack, cloudToken }: { save?: LocalSave; onSave: (s: LocalSave) => void; onBack: () => void; cloudToken?: string }) {
   const [role, setRole] = useState<PlayerId | null>(save?.me ?? null);
   if (save && save.phase === 'invited') {
     return (
@@ -117,7 +118,7 @@ export function Create({ save, onSave, onBack }: { save?: LocalSave; onSave: (s:
     <div className="page">
       <div className="h1">Твой персонаж</div>
       <CharacterForm pid={role} cta="Создать приглашение" onDone={async (setup) => {
-        const r = await createInvite(content, role, setup);
+        const r = await createInvite(content, role, setup, cloudToken);
         onSave(r.save);
       }} />
     </div>
@@ -125,7 +126,7 @@ export function Create({ save, onSave, onBack }: { save?: LocalSave; onSave: (s:
 }
 
 /** Приглашённый: вставить код → персонаж → отправить ответ → играть. */
-export function Join({ onSave, onBack, pending }: { onSave: (s: LocalSave, reply?: string) => void; onBack: () => void; pending?: { save: LocalSave; reply: string } }) {
+export function Join({ onSave, onBack, pending }: { onSave: (s: LocalSave, reply?: string, cloudToken?: string) => void; onBack: () => void; pending?: { save: LocalSave; reply: string } }) {
   const [invite, setInvite] = useState<Signed<InvitePacket> | null>(null);
   if (pending) {
     return (
@@ -158,7 +159,7 @@ export function Join({ onSave, onBack, pending }: { onSave: (s: LocalSave, reply
       <p className="lead">{inviter} играет за {invite.from === 'A' ? 'него' : 'неё'}. Тебе достаётся второй персонаж.</p>
       <CharacterForm pid={me} cta="Создать ответ" onDone={async (setup) => {
         const r = await acceptInvite(content, invite, setup);
-        onSave(r.save, r.code);
+        onSave(r.save, r.code, invite.cloudToken);
       }} />
     </div>
   );

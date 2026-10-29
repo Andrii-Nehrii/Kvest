@@ -62,12 +62,12 @@ function startGame(c: Content, save: LocalSave): LocalSave {
 
 // ───────────── Создание пары ─────────────
 
-export async function createInvite(c: Content, me: PlayerId, setup: PlayerSetup): Promise<{ save: LocalSave; code: string }> {
+export async function createInvite(c: Content, me: PlayerId, setup: PlayerSetup, cloudToken?: string): Promise<{ save: LocalSave; code: string }> {
   const save: LocalSave = {
     schema: SAVE_SCHEMA, me, pairId: newId(), secret: newSecret(), seed: newId(), phase: 'invited',
     setups: { [me]: setup }, segment: [], hashes: [], playSeconds: 0, updatedAt: Date.now(),
   };
-  const p: InvitePacket = { v: 1, type: 'invite', pairId: save.pairId, from: me, seed: save.seed, secret: save.secret, content: c.version, engine: ENGINE_VERSION, setup };
+  const p: InvitePacket = { v: 1, type: 'invite', pairId: save.pairId, from: me, seed: save.seed, secret: save.secret, content: c.version, engine: ENGINE_VERSION, setup, ...(cloudToken ? { cloudToken } : {}) };
   const code = await encode(await sign(p, save.secret));
   return { save: { ...save, outgoing: code }, code };
 }

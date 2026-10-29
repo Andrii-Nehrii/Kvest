@@ -40,6 +40,8 @@ export interface InvitePacket {
   seed: string;
   /** Секрет пары передаётся только в приглашении (один раз, напрямую партнёру). */
   secret?: string;
+  /** Токен облака (GitHub) — едет в приглашении, чтобы второй телефон подключился сам. */
+  cloudToken?: string;
   content: string;
   engine: string;
   setup: unknown;

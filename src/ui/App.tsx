@@ -8,7 +8,7 @@ import { content } from '../content';
 import { healthDot } from './format';
 import { Icon } from './kit';
 import { Checkpoint, Resolution } from './screens/Checkpoint';
-import { Ended, More } from './screens/More';
+import { CloudCard, Ended, More } from './screens/More';
 import { Create, Join, Menu } from './screens/Start';
 import { BodyScreen, Items, Journal, People } from './screens/Status';
 import { Story } from './screens/Story';
@@ -87,10 +87,11 @@ export function App() {
     return (
       <div className="app">
         {pendingJoin ? <Join pending={pendingJoin} onBack={() => setPendingJoin(undefined)} onSave={() => setPendingJoin(undefined)} />
-          : save?.phase === 'invited' ? <Create save={save} onSave={persist} onBack={reset} />
-          : view === 'create' ? <Create onSave={persist} onBack={() => setView('menu')} />
-          : view === 'join' ? <Join onBack={() => setView('menu')} onSave={(s, reply) => { persist(s); if (reply) setPendingJoin({ save: s, reply }); }} />
-          : <Menu onCreate={() => setView('create')} onJoin={() => setView('join')} onImport={(s) => persist(normalizePhase(content, s))} />}
+          : save?.phase === 'invited' ? <Create save={save} onSave={persist} onBack={reset} cloudToken={cloud?.token} />
+          : view === 'create' ? <Create onSave={persist} onBack={() => setView('menu')} cloudToken={cloud?.token} />
+          : view === 'join' ? <Join onBack={() => setView('menu')} onSave={(s, reply, token) => { persist(s); if (token && !cloud?.token) updateCloud({ token }); if (reply) setPendingJoin({ save: s, reply }); }} />
+          : <Menu onCreate={() => setView('create')} onJoin={() => setView('join')} onImport={(s) => persist(normalizePhase(content, s))}
+              cloud={<CloudCard cloud={cloud} onCloud={updateCloud} />} />}
       </div>
     );
   }
