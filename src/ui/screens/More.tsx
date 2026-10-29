@@ -1,0 +1,99 @@
+// «Ещё»: место и время, бытовые правила, сохранение, код мира, новая игра. Плюс экран финала.
+import { daylight, clock, dateLabel, durationLabel } from '../../engine/time';
+import { environment, network, phoneUsable, type Ctx } from '../../engine/world';
+import type { StandingRules } from '../../engine/types';
+import { exportSave, worldCode, type LocalSave } from '../../app/session';
+import { START_TIME } from '../../app/session';
+import { content } from '../../content';
+import { knownNpc, RULE_LABELS } from '../format';
+import { Card, CodeOut } from '../kit';
+
+function hhmm(h: number) {
+  const hh = Math.floor(h);
+  return `${String(hh).padStart(2, '0')}:${String(Math.round((h - hh) * 60)).padStart(2, '0')}`;
+}
+
+export function More({ save, ctx, onPlan, onReset }: { save: LocalSave; ctx: Ctx; onPlan: (p: string[]) => void; onReset: () => void }) {
+  const ch = ctx.s.chars[ctx.pid];
+  const loc = ctx.c.locations[ch.location];
+  const w = ctx.c.weather(loc?.region ?? 'hh', ch.time);
+  const env = environment(ctx);
+  const day = daylight(ch.time);
+  const net = phoneUsable(ctx) ? network(ctx) : null;
+  const download = () => {
+    const blob = new Blob([exportSave(save)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `kvest-${save.me}-kt${save.base?.checkpoint ?? 0}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  };
+  const canAct = ch.body.consciousness === 'awake';
+  return (
+    <div className="page">
+      <Card title="Где ты">
+        <b>{loc?.name ?? ch.location}</b>
+        {loc?.description && <div className="muted small" style={{ marginTop: 4 }}>{loc.description}</div>}
+        <div className="li"><span className="grow">Время</span><span>{dateLabel(ch.time)}, {clock(ch.time)}</span></div>
+        <div className="li"><span className="grow">Погода</span><span>{w.tempC.toFixed(0)} °C{w.rain ? ', дождь' : ''}, ветер {w.wind} км/ч</span></div>
+        <div className="li"><span className="grow">Ощущается</span><span>{env.tempC.toFixed(0)} °C{env.wet ? ', сыро' : ''}</span></div>
+        <div className="li"><span className="grow">Светло</span><span>{hhmm(day.sunrise)}–{hhmm(day.sunset)}</span></div>
+        <div className="li"><span className="grow">Связь</span><span>{!net ? 'телефон недоступен' : [net.voice && 'звонки', net.sms && 'SMS', net.data && 'интернет'].filter(Boolean).join(', ') || 'нет сети'}</span></div>
+      </Card>
+      <Card title="Бытовые правила">
+        <div className="small muted" style={{ marginBottom: 6 }}>Рутина без лишних нажатий. Сюжетных решений правила не принимают.</div>
+        {(Object.keys(RULE_LABELS) as (keyof StandingRules)[]).map((k) => (
+          <label key={k} className="li" style={{ alignItems: 'center' }}>
+            <span className="grow">{RULE_LABELS[k]}</span>
+            <input type="checkbox" checked={ch.rules[k]} disabled={!canAct} onChange={() => onPlan([`u:rule:${k}`])} />
+          </label>
+        ))}
+      </Card>
+      <Card title="Код мира">
+        <div className="world-code">{worldCode(save)}</div>
+        <div className="small muted" style={{ marginTop: 6 }}>Состояние на последней контрольной точке. У партнёра должен быть такой же.</div>
+      </Card>
+      {save.outgoing && save.hashes.length <= 1 && (
+        <Card title="Код для партнёра (приглашение/ответ)"><CodeOut code={save.outgoing} /></Card>
+      )}
+      <Card title="Сохранение">
+        <div className="small muted" style={{ marginBottom: 8 }}>Игра сохраняется сама после каждого действия. Файл — на случай, если телефон очистит данные браузера. В файле есть секрет вашей пары: не публикуй его.</div>
+        <button className="btn block" onClick={download}>Скачать файл сохранения</button>
+      </Card>
+      <Card title="Опасная зона" tone="bad">
+        <button className="btn danger block" onClick={() => { if (confirm('Удалить игру на этом телефоне? Без файла сохранения её не вернуть.')) onReset(); }}>Удалить игру с телефона</button>
+      </Card>
+      <p className="faint small center">Сюжет {ctx.c.version} · начало {clock(START_TIME)}</p>
+    </div>
+  );
+}
+
+export function Ended({ save, onReset }: { save: LocalSave; onReset: () => void }) {
+  const s = save.base!;
+  const end = s.ended!;
+  const lasted = end.at - START_TIME;
+  return (
+    <div className="page">
+      <div className="big-state">{end.kind === 'defeat' ? 'Конец' : 'Конец первой арки'}</div>
+      <p className="lead">{end.reason}</p>
+      <Card title="Сколько продержались">{durationLabel(lasted)} — с утра вторника до {dateLabel(end.at)}, {clock(end.at)}.</Card>
+      <Card title="Судьбы">
+        {(['A', 'B'] as const).map((p) => {
+          const ch = s.chars[p];
+          const dead = ch.body.consciousness === 'dead';
+          return <div className="li" key={p}><b className="grow">{ch.name.nom}</b><span className={`tag ${dead ? 'bad' : 'accent'}`}>{dead ? `погиб${ch.gender === 'f' ? 'ла' : ''} — ${ch.body.causeOfDeath}, ${clock(ch.body.diedAt!)}` : 'жив' + (ch.gender === 'f' ? 'а' : '')}</span></div>;
+        })}
+      </Card>
+      <Card title="Главные решения">
+        {s.history.filter((h) => h.kind === 'joint').map((h) => <div className="li" key={h.id}>КТ {h.checkpoint}: {h.summary}</div>)}
+        {s.history.every((h) => h.kind !== 'joint') && <div className="muted">Совместных решений не было.</div>}
+      </Card>
+      <Card title="Люди">
+        {Object.values(s.npcs).filter((n) => knownNpc(n, 'A', s.vars) || knownNpc(n, 'B', s.vars)).map((n) => (
+          <div className="li" key={n.id}><span className="grow">{content.npcs[n.id]?.name ?? n.id}</span><span className="tag">{n.alive ? n.status : 'погиб'}</span></div>
+        ))}
+      </Card>
+      <button className="btn primary block" onClick={() => { if (confirm('Начать новую игру? Текущая будет удалена с телефона.')) onReset(); }}>Новая игра</button>
+    </div>
+  );
+}

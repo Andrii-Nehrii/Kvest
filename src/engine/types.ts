@@ -296,6 +296,7 @@ export type Effect =
   | { sleep: number }
   | { die: string }
   | { faint: number }
+  | { rule: keyof StandingRules; value: boolean }
   | { drive: string; km: number; to?: string; jam?: number }
   | { refuel: string; liters: number; fromCan?: string }
   | { fillCan: string; liters: number }

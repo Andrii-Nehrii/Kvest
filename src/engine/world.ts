@@ -50,14 +50,18 @@ export function log(ctx: Ctx, kind: LogEntry['kind'], text: string, pid: PlayerI
 
 // ───────────── Текст ─────────────
 
-/** Подстановки: {name}, {partner}, {partner.dat}, {partner.ins}… Падежи вводятся при создании персонажа. */
+/**
+ * Подстановки: {name}, {partner}, {partner.dat}, {partner.ins}… (падежи вводятся при создании персонажа);
+ * {m:пошёл|пошла} — по роду текущего игрока, {pm:он|она} — по роду партнёра.
+ */
 export function fmt(ctx: Ctx, text: string): string {
   const mine = me(ctx).name;
   const theirs = partnerOf(ctx).name;
   return text.replace(/\{(name|partner)(?:\.(nom|gen|dat|acc|ins|pre))?\}/g, (_m, who: string, form?: string) => {
     const n = who === 'name' ? mine : theirs;
     return n[(form ?? 'nom') as keyof typeof n];
-  }).replace(/\{(?:m|ж):([^|}]*)\|([^}]*)\}/g, (_m, male: string, female: string) => (me(ctx).gender === 'm' ? male : female));
+  }).replace(/\{(m|pm):([^|}]*)\|([^}]*)\}/g, (_m, who: string, male: string, female: string) =>
+    ((who === 'm' ? me(ctx) : partnerOf(ctx)).gender === 'm' ? male : female));
 }
 
 // ───────────── Предметы ─────────────
@@ -97,10 +101,10 @@ export function carryLimit(ctx: Ctx, pid: PlayerId = ctx.pid): number {
   return 10000 + ctx.s.chars[pid].traits.strength * 2500;
 }
 
-export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: number; condition?: number; note?: string } = {}, to: ItemInstance['at'] = { kind: 'char', id: ctx.pid }): ItemInstance {
+export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: number; condition?: number; note?: string; fuel?: number } = {}, to: ItemInstance['at'] = { kind: 'char', id: ctx.pid }): ItemInstance {
   const def = itemType(ctx, type);
   const t = me(ctx).time;
-  const stackable = !def.battery && opts.charge === undefined && !opts.note && (opts.condition ?? 100) === 100;
+  const stackable = !def.battery && !def.vehicle && !def.fuelCan && opts.charge === undefined && !opts.note && (opts.condition ?? 100) === 100;
   if (stackable) {
     const existing = Object.values(ctx.s.items).find((i) => i.type === type && i.charge === undefined && !i.note && i.condition === 100
       && i.at.kind === to.kind && (i.at as { id?: string }).id === (to as { id?: string }).id && i.qty > 0);
@@ -109,6 +113,7 @@ export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: n
   const inst: ItemInstance = {
     id: nextId(ctx, 'it'), type, qty, condition: opts.condition ?? 100,
     charge: opts.charge ?? (def.battery ? 100 : undefined), at: to, changedAt: t, note: opts.note,
+    fuel: opts.fuel ?? (def.vehicle || def.fuelCan ? 0 : undefined),
   };
   ctx.s.items[inst.id] = inst;
   return inst;

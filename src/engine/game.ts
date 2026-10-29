@@ -52,9 +52,14 @@ export function newGame(c: Content, setup: GameSetup): GameState {
     const n: NpcState = { id: def.id, ...structuredClone(def.initial), agendaDone: [], changedAt: setup.startTime };
     s.npcs[def.id] = n;
   }
+  // Предметы мира создаются от лица A только ради нумерации id — это не даёт A приоритета.
+  for (const it of c.initialPlaceItems ?? []) {
+    giveItem({ s, c, pid: 'A' }, it.type, it.qty ?? 1, { charge: it.charge, condition: it.condition, fuel: it.fuel }, { kind: 'place', id: it.at });
+  }
   for (const pid of PLAYERS) {
     const ctx: Ctx = { s, c, pid };
     for (const it of c.characters[pid].startItems) giveItem(ctx, it.type, it.qty ?? 1, { charge: it.charge, condition: it.condition });
+    for (const f of c.initialKnowledge?.[pid] ?? []) s.knowledge[pid][f] = { kind: 'fact', at: setup.startTime, source: 'start' };
     enterScene(ctx, c.characters[pid].startScene);
   }
   markSegmentStart(s);

@@ -37,6 +37,8 @@ export interface LocationDef {
   /** Есть ли розетка, которой можно пользоваться бесплатно (пока есть ток). */
   power?: 'grid' | 'none';
   safe?: boolean;
+  /** Есть водопровод (работает, пока w.water.<region> ≠ 'off'). */
+  water?: boolean;
   /** Откуда здесь доходят новости: радио, телевизор, люди вокруг. */
   media?: ('radio' | 'tv' | 'people')[];
   description?: string;
@@ -307,6 +309,10 @@ export interface Content {
   bases?: BaseDef[];
   characters: Record<PlayerId, CharacterTemplate>;
   initialVars: Record<string, Scalar>;
+  /** Предметы, которые лежат в местах мира на старте (квартиры, двор, машина). */
+  initialPlaceItems?: { type: string; at: string; qty?: number; charge?: number; fuel?: number; condition?: number }[];
+  /** Факты, которые персонаж знает с самого начала. */
+  initialKnowledge?: Partial<Record<PlayerId, string[]>>;
   /** Правило слияния для переменных: точное имя или префикс с «*». По умолчанию — latest. */
   mergePolicies: Record<string, MergePolicy>;
   /** Погода по часам: возвращает температуру и осадки для региона. */

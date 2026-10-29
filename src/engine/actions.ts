@@ -9,7 +9,7 @@ import { clamp } from './rng';
 import { advanceTime, applyStandingRules } from './simulate';
 import type { Effect } from './types';
 import {
-  caps, countTag, fmt, heldItems, itemType, log, me, network, pain, phoneUsable, roll, type Ctx,
+  caps, countTag, fmt, heldItems, itemsAt, itemType, log, me, network, pain, phoneUsable, roll, type Ctx,
 } from './world';
 
 export interface AvailableAction {
@@ -54,6 +54,9 @@ function bestFood(ctx: Ctx, need: 'thirst' | 'hunger') {
       || (a.id < b.id ? -1 : 1))[0];
 }
 
+/** Служебные действия, которые интерфейс показывает не в списке сцены, а на своих экранах. */
+export const isServiceAction = (id: string) => /^u:(take|drop1|dropall|rule):/.test(id);
+
 export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   const ch = me(ctx);
   const b = ch.body;
@@ -97,6 +100,25 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
       list.push({ id: `u:msg:${m.id}`, label: fmt(ctx, `Написать {partner.dat}: «${m.label}»`), minutes: 2, combinable: true, group: `u:msg:${m.id}`,
         effects: [{ message: m.id }, { charge: 'phone', delta: -1 }] });
     }
+  }
+  const loc = ctx.c.locations[ch.location];
+  if (loc?.water && ctx.s.vars[`w.water.${loc.region}`] !== 'off' && b.thirst >= 10) {
+    list.push({ id: 'u:tap', label: 'Попить воды из-под крана', minutes: 3, combinable: true, group: 'u:drink', effects: [{ body: 'thirst', delta: -35 }] });
+  }
+  // Служебные действия интерфейса (экран вещей и настроек). Тоже идут в журнал участка,
+  // поэтому у партнёра воспроизводятся так же, как сюжетные.
+  for (const type of [...new Set(itemsAt(ctx, ch.location).map((i) => i.type))]) {
+    const t = itemType(ctx, type);
+    if (t.vehicle || t.weight > 30000) continue;
+    list.push({ id: `u:take:${type}`, label: `Взять: ${t.name}`, minutes: 1, combinable: true, group: `u:item:${type}`, effects: [{ pickup: type }] });
+  }
+  for (const type of [...new Set(heldItems(ctx).map((i) => i.type))]) {
+    const t = itemType(ctx, type);
+    list.push({ id: `u:drop1:${type}`, label: `Оставить здесь одну: ${t.name}`, minutes: 1, combinable: true, group: `u:item:${type}`, effects: [{ drop: type, qty: 1 }] });
+    list.push({ id: `u:dropall:${type}`, label: `Оставить здесь все: ${t.name}`, minutes: 1, combinable: true, group: `u:item:${type}`, effects: [{ drop: type }] });
+  }
+  for (const key of Object.keys(ch.rules) as (keyof typeof ch.rules)[]) {
+    list.push({ id: `u:rule:${key}`, label: `Правило: ${key}`, minutes: 0, combinable: true, group: `u:rule:${key}`, effects: [{ rule: key, value: !ch.rules[key] }] });
   }
   list.push({ id: 'u:rest', label: 'Перевести дух (30 мин)', minutes: 30, activity: 'rest', combinable: true, group: 'u:rest', repeatable: true });
   if (scene.safe) {

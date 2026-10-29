@@ -142,6 +142,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     out.interrupted = true;
     return;
   }
+  if ('rule' in e) { ch.rules[e.rule] = e.value; return; }
   if ('drive' in e) {
     const problem = drive(ctx, e.drive, e.km, e.to, e.jam);
     if (problem) { out.notes.push(problem); log(ctx, 'item', problem); out.interrupted = true; }
