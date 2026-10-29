@@ -138,8 +138,10 @@ export interface ItemInstance {
   qty: number;
   /** 0–100 — износ/порча. */
   condition: number;
-  /** Для батарей/телефонов/бака: 0–100 %, для топлива — литры. */
+  /** Заряд батареи/телефона, 0–100 %. */
   charge?: number;
+  /** Литры топлива: бак машины, канистра, бак генератора. */
+  fuel?: number;
   at: ItemLocation;
   /** Игровое время последнего изменения — для слияния. */
   changedAt: Minutes;
@@ -263,6 +265,9 @@ export type Cond =
   | { scene: string }
   | { phoneUsable: true }
   | { network: 'voice' | 'data' | 'sms' }
+  | { fuelFor: string; km: number }
+  | { project: string; done?: boolean; progress?: [CmpOp, number] }
+  | { stocked: string; qty: number; at?: string }
   | { always: true };
 
 export type Activity = 'sleep' | 'rest' | 'light' | 'moderate' | 'heavy';
@@ -291,4 +296,10 @@ export type Effect =
   | { sleep: number }
   | { die: string }
   | { faint: number }
+  | { drive: string; km: number; to?: string; jam?: number }
+  | { refuel: string; liters: number; fromCan?: string }
+  | { fillCan: string; liters: number }
+  | { work: string; hours: number }
+  | { stock: string; qty: number; at?: string }
+  | { unstock: string; qty: number; at?: string }
   | { if: Cond; then: Effect[]; else?: Effect[] };

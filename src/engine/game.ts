@@ -1,6 +1,7 @@
 // Создание игры и воспроизведение участков. Участок = журнал планов действий от общего
 // состояния контрольной точки. Партнёр получает журнал и воспроизводит его у себя —
 // результат совпадает до бита (проверяется хэшем).
+import { markSegmentStart } from './base';
 import { canAct, newBody } from './body';
 import type { Content } from './content-types';
 import { executePlan, enterScene, type PlanResult } from './actions';
@@ -56,6 +57,7 @@ export function newGame(c: Content, setup: GameSetup): GameState {
     for (const it of c.characters[pid].startItems) giveItem(ctx, it.type, it.qty ?? 1, { charge: it.charge, condition: it.condition });
     enterScene(ctx, c.characters[pid].startScene);
   }
+  markSegmentStart(s);
   return s;
 }
 

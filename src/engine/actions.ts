@@ -2,9 +2,10 @@
 // взаимоисключающие. План выполняется по шагам с проверкой мира после каждого шага.
 import { canAct } from './body';
 import { evalCond } from './conditions';
-import type { ActionDef, Check, Scene } from './content-types';
+import type { ActionDef, Scene } from './content-types';
+import { checkChance } from './checks';
 import { applyEffects, type EffectResult } from './effects';
-import { clamp, round } from './rng';
+import { clamp } from './rng';
 import { advanceTime, applyStandingRules } from './simulate';
 import type { Effect } from './types';
 import {
@@ -105,18 +106,7 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   return list;
 }
 
-// ───────────── Проверки ─────────────
-
-export function checkChance(ctx: Ctx, check: Check): number {
-  const ch = me(ctx);
-  const traitAvg = check.traits.reduce((a, k) => a + ch.traits[k], 0) / Math.max(1, check.traits.length);
-  const k = caps(ctx);
-  const capList = check.uses ?? ['focus'];
-  const capFactor = capList.reduce((a, c) => a * k[c], 1) ** (1 / capList.length);
-  const bonus = (check.mods ?? []).filter((m) => evalCond(ctx, m.when)).reduce((a, m) => a + m.bonus, 0);
-  const points = traitAvg * 2 * capFactor + bonus;
-  return round(clamp(0.5 + (points - check.difficulty) * 0.1, 0.02, 0.98));
-}
+export { checkChance };
 
 // ───────────── План ─────────────
 

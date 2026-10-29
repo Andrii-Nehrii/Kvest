@@ -1,4 +1,5 @@
 // Ход времени для одной временной линии: тело, батареи, события мира, планы NPC, бытовые правила.
+import { baseTicksDuring } from './base';
 import { canAct, symptoms, tickBody } from './body';
 import { evalCond } from './conditions';
 import { applyEffects } from './effects';
@@ -32,6 +33,7 @@ export function advanceTime(ctx: Ctx, minutes: number, activity: Activity): Adva
     const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`);
     drainBatteries(ctx, step);
     tickControlledPartner(ctx, step);
+    baseTicksDuring(ctx, ch.time, ch.time + step);
     ch.time += step;
     remaining -= step;
     for (const n of r.notes) { log(ctx, 'body', n); res.notes.push(n); }

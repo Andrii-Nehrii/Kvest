@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { availableActions, validatePlan } from './actions';
+import { baseDailyTick, drive, fillCan, refuel, stockAt, workOnProject } from './base';
+import { applyEffects } from './effects';
 import { newBody, tickBody } from './body';
 import { completeCheckpoint, mergeSegments, resolveJoint, syncClocks, deliverMessages } from './checkpoint';
 import { newGame, play, replaySegment, segmentFinished, type ActionRecord } from './game';
@@ -293,5 +295,69 @@ describe('пакеты синхронизации', () => {
     expect(await verify(back, secret)).toBe(true);
     expect(await verify({ ...back, actions: [{ scene: 'a_start', plan: ['stay'] }] }, secret)).toBe(false);
     expect(await verify(back, newSecret())).toBe(false);
+  });
+});
+
+describe('транспорт и топливо', () => {
+  it('поездка тратит топливо по расходу, без топлива машина глохнет', () => {
+    const s = fresh();
+    const ctx: Ctx = { s, c, pid: 'A' };
+    const car = applyEffects(ctx, [{ place: 'golf', at: 'flatA' }]) && Object.values(s.items).find((i) => i.type === 'golf')!;
+    car.fuel = 10;
+    expect(drive(ctx, 'golf', 100, 'street')).toBeUndefined();
+    expect(car.fuel).toBeCloseTo(3.5);
+    expect(s.chars.A.location).toBe('street');
+    expect(drive(ctx, 'golf', 100, 'flatA')).toMatch(/кончилось/);
+    expect(car.fuel).toBe(0);
+  });
+
+  it('дизель в бензиновую машину губит двигатель', () => {
+    const s = fresh();
+    const ctx: Ctx = { s, c, pid: 'A' };
+    applyEffects(ctx, [{ place: 'golf', at: 'flatA' }, { give: 'can_diesel' }]);
+    fillCan(ctx, 'can_diesel', 20);
+    const msg = refuel(ctx, 'golf', 15, 'can_diesel');
+    expect(msg).toMatch(/дизель/);
+    expect(Object.values(s.items).find((i) => i.type === 'golf')!.condition).toBeLessThan(50);
+  });
+});
+
+describe('долгие работы', () => {
+  it('ремонт не начинается без детали, идёт часами и завершается', () => {
+    const s = fresh();
+    const ctx: Ctx = { s, c, pid: 'A' };
+    expect(workOnProject(ctx, 'tractor', 2).minutes).toBe(0);
+    applyEffects(ctx, [{ give: 'tire' }]);
+    for (let i = 0; i < 6 && !s.vars['proj.tractor.done']; i++) applyEffects(ctx, [{ work: 'tractor', hours: 2 }]);
+    expect(s.vars['proj.tractor.done']).toBe(true);
+    expect(s.vars['w.tractor']).toBe('ok');
+    expect(countItem(ctx, 'tire')).toBe(0);
+  });
+});
+
+describe('убежище: общий склад', () => {
+  it('суточный расход еды, воды и дров; нехватка отмечается', () => {
+    const s = fresh();
+    const ctx: Ctx = { s, c, pid: 'B' };
+    applyEffects(ctx, [{ place: 'rice', at: 'shed', qty: 2 }, { place: 'water_l', at: 'shed', qty: 20 }, { place: 'wood', at: 'shed', qty: 30 }]);
+    // На базе: игрок B (flatB) и Надя (shed) — 2 человека.
+    baseDailyTick(ctx, c.bases![0], 1);
+    expect(stockAt(ctx, 'shed', 'water_l')).toBe(14);
+    expect(stockAt(ctx, 'shed', 'rice')).toBe(0); // 4400 ккал → съедено 2 кг (7200)
+    baseDailyTick(ctx, c.bases![0], 1); // повтор того же дня ничего не меняет
+    expect(stockAt(ctx, 'shed', 'water_l')).toBe(14);
+    baseDailyTick(ctx, c.bases![0], 2);
+    expect(Number(s.vars['base.farm.shortDays'])).toBe(1);
+  });
+
+  it('оба взяли со склада в своих участках — расход складывается при слиянии', () => {
+    const base = fresh();
+    applyEffects({ s: base, c, pid: 'B' }, [{ place: 'water_l', at: 'shed', qty: 20 }]);
+    const a = clone(base); a.chars.A.location = 'shed'; a.chars.A.time += 60;
+    applyEffects({ s: a, c, pid: 'A' }, [{ unstock: 'water_l', qty: 3, at: 'shed' }]);
+    const b = clone(base); b.chars.B.time += 30;
+    applyEffects({ s: b, c, pid: 'B' }, [{ unstock: 'water_l', qty: 5, at: 'shed' }]);
+    const m = mergeSegments(c, base, { A: a, B: b });
+    expect(stockAt({ s: m, c, pid: 'A' }, 'shed', 'water_l')).toBe(12);
   });
 });

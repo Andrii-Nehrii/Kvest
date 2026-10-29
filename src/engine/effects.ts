@@ -1,3 +1,4 @@
+import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
 import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
@@ -139,6 +140,35 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     ch.body.consciousSince = t;
     mergeAdvance(out, advanceTime(ctx, e.faint, 'rest'));
     out.interrupted = true;
+    return;
+  }
+  if ('drive' in e) {
+    const problem = drive(ctx, e.drive, e.km, e.to, e.jam);
+    if (problem) { out.notes.push(problem); log(ctx, 'item', problem); out.interrupted = true; }
+    return;
+  }
+  if ('refuel' in e) { const t2 = refuel(ctx, e.refuel, e.liters, e.fromCan); out.notes.push(t2); log(ctx, 'item', t2); return; }
+  if ('fillCan' in e) { const t2 = fillCan(ctx, e.fillCan, e.liters); out.notes.push(t2); log(ctx, 'item', t2); return; }
+  if ('work' in e) {
+    const r = workOnProject(ctx, e.work, e.hours);
+    out.notes.push(r.text);
+    log(ctx, 'story', r.text);
+    if (r.minutes) mergeAdvance(out, advanceTime(ctx, r.minutes, 'moderate'));
+    const def = ctx.c.projects?.[e.work];
+    if (def?.onDone && ctx.s.vars[`proj.${e.work}.done`] === true && !ctx.s.vars[`proj.${e.work}.rewarded`]) {
+      ctx.s.vars[`proj.${e.work}.rewarded`] = true;
+      applyEffects(ctx, def.onDone, out);
+    }
+    return;
+  }
+  if ('stock' in e) {
+    const place = e.at ?? baseOf(ctx, ch.location)?.stock ?? ch.location;
+    moveItems(ctx, (i) => i.type === e.stock, e.qty, { kind: 'char', id: ctx.pid }, { kind: 'place', id: place });
+    return;
+  }
+  if ('unstock' in e) {
+    const place = e.at ?? baseOf(ctx, ch.location)?.stock ?? ch.location;
+    moveItems(ctx, (i) => i.type === e.unstock, e.qty, { kind: 'place', id: place }, { kind: 'char', id: ctx.pid });
     return;
   }
   if ('die' in e) { kill(ch.body, t, e.die); out.interrupted = true; return; }

@@ -1,3 +1,4 @@
+import { baseOf, canDrive, projectDone, projectProgress, stockAt } from './base';
 import { isDead, isIncapacitated } from './body';
 import { daylight } from './time';
 import type { CmpOp, Cond, Scalar } from './types';
@@ -67,6 +68,16 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   if ('scene' in c) return ch.scene === c.scene;
   if ('phoneUsable' in c) return phoneUsable(ctx);
   if ('network' in c) return phoneUsable(ctx) && network(ctx)[c.network];
+  if ('fuelFor' in c) return canDrive(ctx, c.fuelFor, c.km);
+  if ('project' in c) {
+    if (c.done !== undefined && projectDone(ctx, c.project) !== c.done) return false;
+    if (c.progress && !cmp(projectProgress(ctx, c.project), c.progress[0], c.progress[1])) return false;
+    return true;
+  }
+  if ('stocked' in c) {
+    const place = c.at ?? baseOf(ctx, ch.location)?.stock ?? ch.location;
+    return stockAt(ctx, place, c.stocked) >= c.qty;
+  }
   const never: never = c;
   throw new Error(`Неизвестное условие: ${JSON.stringify(never)}`);
 }

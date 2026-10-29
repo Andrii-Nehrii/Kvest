@@ -1,6 +1,7 @@
 // Контрольные точки: детерминированное слияние двух офлайн-прохождений, сведение часов,
 // доставка сообщений, совместные решения, одиночное продолжение и поражение.
 // Слияние симметрично: merge(A, B) === merge(B, A) — ни у одного игрока нет приоритета.
+import { baseCatchUp, markSegmentStart } from './base';
 import { canAct, isDead, isIncapacitated, tickBody } from './body';
 import { evalCond } from './conditions';
 import type { Content, JointDecision, MergePolicy } from './content-types';
@@ -77,8 +78,14 @@ function mergeItem(seed: string, id: string, base: ItemInstance | undefined, a: 
   if (same(a, b)) return clone(a);
   if (base && same(a, base)) return clone(b);
   if (base && same(b, base)) return clone(a);
-  if (a.changedAt !== b.changedAt) return clone(a.changedAt > b.changedAt ? a : b);
-  return clone(tieBreak(seed, `item:${id}`) === 'A' ? a : b);
+  const later = clone(a.changedAt !== b.changedAt ? (a.changedAt > b.changedAt ? a : b) : tieBreak(seed, `item:${id}`) === 'A' ? a : b);
+  // Оба брали из одного запаса на одном месте (общий склад базы) — складываем расход, а не теряем его.
+  if (base && same(a.at, base.at) && same(b.at, base.at)) {
+    later.qty = Math.max(0, base.qty + (a.qty - base.qty) + (b.qty - base.qty));
+    if (base.fuel !== undefined) later.fuel = Math.max(0, Math.round(((base.fuel) + ((a.fuel ?? 0) - base.fuel) + ((b.fuel ?? 0) - base.fuel)) * 100) / 100);
+    if (later.qty <= 0) later.at = { kind: 'gone' };
+  }
+  return later;
 }
 
 /** Кто проводил участок за персонажа: он сам или партнёр (если был недееспособен). */
@@ -150,6 +157,11 @@ export function mergeSegments(c: Content, base: GameState, results: Partial<Reco
 /** Довести часы обоих до общего момента. Отставший персонаж «проживает» это время сам. */
 export function syncClocks(c: Content, s: GameState, notBefore = 0) {
   const target = Math.max(s.chars.A.time, s.chars.B.time, notBefore);
+  syncClocksTo(c, s, target);
+  baseCatchUp({ s, c, pid: s.chars.A.time >= s.chars.B.time ? 'A' : 'B' }, target);
+}
+
+function syncClocksTo(c: Content, s: GameState, target: number) {
   for (const pid of PLAYERS) {
     const ch = s.chars[pid];
     if (ch.time >= target) continue;
@@ -345,6 +357,7 @@ export function completeCheckpoint(c: Content, merged: GameState, answers: Parti
     joint.push(resolveJoint(c, s, id, { A: answers.A?.[id], B: answers.B?.[id] }));
   }
   s.checkpoint = cpIndex;
+  markSegmentStart(s);
   const verdict = resolveHelplessness(c, s);
   for (const pid of PLAYERS) {
     const ch = s.chars[pid];

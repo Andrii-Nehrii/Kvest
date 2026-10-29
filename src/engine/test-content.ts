@@ -16,6 +16,13 @@ export const testContent: Content = {
     disinfectant: { id: 'disinfectant', name: 'антисептик', weight: 120, tags: ['antiseptic'], battery: { drainPerHour: 0, idleDrainPerHour: 0 } },
     jacket: { id: 'jacket', name: 'тёплая куртка', weight: 1200, tags: ['clothing'], clothing: { warmth: 3, biteProtection: 2, slot: 'outer' } },
     crowbar: { id: 'crowbar', name: 'монтировка', weight: 1500, tags: ['tool'] },
+    golf: { id: 'golf', name: 'VW Golf', weight: 1300000, tags: ['vehicle'], vehicle: { fuel: 'petrol', tankL: 50, per100km: 6.5, seats: 5 } },
+    can_diesel: { id: 'can_diesel', name: 'канистра дизеля 20 л', weight: 1500, tags: ['fuel'], fuelCan: { fuel: 'diesel', capacityL: 20 } },
+    can_petrol: { id: 'can_petrol', name: 'канистра бензина 10 л', weight: 1000, tags: ['fuel'], fuelCan: { fuel: 'petrol', capacityL: 10 } },
+    rice: { id: 'rice', name: 'рис, 1 кг', weight: 1000, tags: ['staple'], food: { kcal: 3600 } },
+    water_l: { id: 'water_l', name: 'вода, литр', weight: 1000, tags: ['water_bulk'] },
+    wood: { id: 'wood', name: 'дрова, кг', weight: 1000, tags: ['firewood'] },
+    tire: { id: 'tire', name: 'шина 12.4-28', weight: 60000, tags: ['part'] },
   },
   locations: {
     flatA: { id: 'flatA', name: 'квартира A', region: 'hh', indoor: true, power: 'grid', safe: true },
@@ -115,6 +122,10 @@ export const testContent: Content = {
       },
     },
   ],
+  projects: {
+    tractor: { id: 'tractor', name: 'Ремонт колеса трактора', hours: 6, traits: ['technical', 'strength'], difficulty: 5, needs: [{ type: 'tire', qty: 1, consumed: true }], onDone: [{ set: 'w.tractor', value: 'ok' }] },
+  },
+  bases: [{ id: 'farm', name: 'ферма', places: ['flatB', 'shed'], stock: 'shed', waterPerPerson: 3, kcalPerPerson: 2200, heating: { tag: 'firewood', perDay: (t) => (t < 10 ? 15 : 5) } }],
   messages: [{ id: 'ok', label: 'Я в порядке', text: 'Я в порядке, не волнуйся.', learn: 'f_partner_ok' }],
   characters: {
     A: { pid: 'A', gender: 'm', traits: { strength: 4, endurance: 4, agility: 3, melee: 4, medicine: 1, driving: 3, stealth: 2, persuasion: 2, technical: 2 },

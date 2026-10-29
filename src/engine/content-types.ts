@@ -13,7 +13,11 @@ export interface ItemType {
   volume?: number;
   tags: string[];
   /** Пищевая ценность: насколько снижает голод/жажду одна единица. */
-  food?: { hunger?: number; thirst?: number; minutes?: number };
+  food?: { hunger?: number; thirst?: number; minutes?: number; kcal?: number };
+  /** Транспорт: вид топлива, бак (л), расход (л/100 км), мест. Топливо — в ItemInstance.fuel. */
+  vehicle?: { fuel: 'petrol' | 'diesel'; tankL: number; per100km: number; seats: number; cargoL?: number };
+  /** Канистра/бочка: вид топлива и объём. */
+  fuelCan?: { fuel: 'petrol' | 'diesel'; capacityL: number };
   /** Через сколько минут портится (скоропорт). */
   spoilsAfter?: number;
   /** Батарея: разряд % в час при обычном использовании. */
@@ -236,6 +240,38 @@ export interface CheckpointDef {
   arcEnd?: boolean;
 }
 
+/** Долгая работа: ремонт, укрепление, огород. Прогресс — часы, хранится в proj.<id>.progress. */
+export interface ProjectDef {
+  id: string;
+  name: string;
+  hours: number;
+  traits: (keyof Traits)[];
+  difficulty: number;
+  /** Без этих предметов (у игрока или на месте работ) работа не начнётся. */
+  needs?: { type: string; qty: number; consumed?: boolean }[];
+  /** Где можно работать. */
+  at?: string[];
+  /** Что даёт завершение. */
+  onDone?: Effect[];
+}
+
+/** Убежище/база: общий склад, жильцы, ежедневный расход (06:00). */
+export interface BaseDef {
+  id: string;
+  name: string;
+  /** Локации, которые считаются базой. */
+  places: string[];
+  /** Где лежит общий склад. */
+  stock: string;
+  /** Литров воды на человека в сутки (питьё + готовка). */
+  waterPerPerson: number;
+  kcalPerPerson: number;
+  /** Отопление: тег топлива (дрова, кг) и расход в сутки при данной температуре улицы. */
+  heating?: { tag: string; perDay: (outsideC: number) => number };
+  /** Если вода не из склада, а из скважины/водопровода — условие, когда она есть. */
+  freeWater?: Cond;
+}
+
 export type MergePolicy = 'delta' | 'latest' | 'max' | 'min' | 'or' | 'and';
 
 export interface MessageTemplate {
@@ -267,6 +303,8 @@ export interface Content {
   joint: Record<string, JointDecision>;
   checkpoints: CheckpointDef[];
   messages: MessageTemplate[];
+  projects?: Record<string, ProjectDef>;
+  bases?: BaseDef[];
   characters: Record<PlayerId, CharacterTemplate>;
   initialVars: Record<string, Scalar>;
   /** Правило слияния для переменных: точное имя или префикс с «*». По умолчанию — latest. */
