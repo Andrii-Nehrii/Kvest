@@ -2,7 +2,6 @@
 import { capabilities, painLevel, type Environment } from './body';
 import type { Content, ItemType } from './content-types';
 import { unit } from './rng';
-import { ch2Rules } from './rules';
 import type { CharacterState, GameState, ItemInstance, LogEntry, PlayerId, Scalar } from './types';
 import { other } from './types';
 
@@ -197,17 +196,15 @@ export function environment(ctx: Ctx): Environment {
     outdoor,
     warmth,
   };
-  if (ch2Rules(ctx.s)) {
-    // Глава 2. Надета одна вещь на слот — самая тёплая (остальное лежит в рюкзаке: не греет и не мокнет).
-    // Дождевик — поверх всего: защищает от дождя; мусорные мешки — хуже. Мокрая одежда сохнет и под крышей.
-    let shield = 0;
-    for (const i of heldItems(ctx)) {
-      const t = itemType(ctx, i.type);
-      if (t.tags.includes('waterproof')) shield = Math.max(shield, t.clothing ? 0.85 : 0.5);
-    }
-    env.rain = env.wet ? 1 - shield : 0;
-    env.dryPerHour = outdoor ? 0.15 : env.tempC >= 18 ? 0.5 : 0.2;
+  // Надета одна вещь на слот — самая тёплая (остальное лежит в рюкзаке: не греет и не мокнет).
+  // Дождевик — поверх всего: защищает от дождя; мусорные мешки — хуже. Мокрая одежда сохнет и под крышей.
+  let shield = 0;
+  for (const i of heldItems(ctx)) {
+    const t = itemType(ctx, i.type);
+    if (t.tags.includes('waterproof')) shield = Math.max(shield, t.clothing ? 0.85 : 0.5);
   }
+  env.rain = env.wet ? 1 - shield : 0;
+  env.dryPerHour = outdoor ? 0.15 : env.tempC >= 18 ? 0.5 : 0.2;
   return env;
 }
 

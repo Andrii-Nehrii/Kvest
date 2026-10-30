@@ -7,7 +7,6 @@ import { checkChance } from './checks';
 import { applyEffects, type EffectResult } from './effects';
 import { clamp } from './rng';
 import { hourOfDay } from './time';
-import { ch2Rules } from './rules';
 import { advanceTime, applyStandingRules, drinkOrder } from './simulate';
 import type { Effect } from './types';
 import {
@@ -50,7 +49,7 @@ export function availableActions(ctx: Ctx): AvailableAction[] {
 
 function bestFood(ctx: Ctx, need: 'thirst' | 'hunger') {
   const list = heldItems(ctx).filter((i) => (itemType(ctx, i.type).food?.[need] ?? 0) > 0);
-  if (need === 'thirst' && ch2Rules(ctx.s)) return list.sort((a, b) => drinkOrder(ctx, a, b))[0];
+  if (need === 'thirst') return list.sort((a, b) => drinkOrder(ctx, a, b))[0];
   return list
     .sort((a, b) => (itemType(ctx, b.type).spoilsAfter ? 1 : 0) - (itemType(ctx, a.type).spoilsAfter ? 1 : 0)
       || (itemType(ctx, b.type).food?.[need] ?? 0) - (itemType(ctx, a.type).food?.[need] ?? 0)
@@ -82,18 +81,8 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
       effects: [{ take: food.type }, { body: 'hunger', delta: -(t.food?.hunger ?? 0) }, { body: 'thirst', delta: -(t.food?.thirst ?? 0) }],
     });
   }
-  const v2 = ch2Rules(ctx.s);
   const untreated = b.injuries.some((i) => i.healed < 1 && i.treated === 'none' && i.kind !== 'bruise' && i.kind !== 'concussion');
-  if (v2) treatActions(ctx, list, untreated);
-  else if (untreated) {
-    if (countTag(ctx, 'dressing') > 0 && countTag(ctx, 'antiseptic') > 0) {
-      list.push({ id: 'u:treat', label: 'Промыть и перевязать раны', minutes: 15, combinable: true, group: 'u:treat',
-        effects: [{ takeTag: 'dressing' }, { charge: 'antiseptic', delta: -10 }, { treat: 'proper' }] });
-    } else if (countTag(ctx, 'dressing') > 0 || countTag(ctx, 'cloth') > 0) {
-      list.push({ id: 'u:treat', label: 'Перевязать раны тем, что есть', minutes: 10, combinable: true, group: 'u:treat',
-        effects: [{ takeTag: countTag(ctx, 'dressing') > 0 ? 'dressing' : 'cloth' }, { treat: 'basic' }] });
-    }
-  }
+  treatActions(ctx, list, untreated);
   if (countTag(ctx, 'painkiller') > 0 && (pain(ctx) >= 10 || b.coreTemp >= 38) && (b.meds.painkiller ?? -1) < ch.time) {
     list.push({ id: 'u:pill', label: 'Принять обезболивающее', minutes: 2, combinable: true, group: 'u:pill',
       effects: [{ takeTag: 'painkiller' }, { medicate: 'painkiller', hours: 5 }, { medicate: 'antipyretic', hours: 5 }] });

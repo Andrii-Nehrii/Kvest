@@ -58,7 +58,7 @@ function stateProblems(s: GameState, where: string): string[] {
 }
 
 describe('тело: инварианты', () => {
-  it('300 случайных тел в любой среде (правила главы 1 и главы 2) — значения конечны и в пределах', () => {
+  it('300 случайных тел в любой среде — значения конечны и в пределах', () => {
     const problems: string[] = [];
     for (let n = 0; n < 300; n++) {
       const r = (k: string) => unit(`fz:${n}:${k}`);
@@ -76,13 +76,12 @@ describe('тело: инварианты', () => {
       if (r('ill') < 0.3) b.illnesses.push({ id: 'ill', kind: pick(['cold', 'flu'], `fz:${n}:ik`), stage: 0, since: 0, severity: 0 });
       if (r('med') < 0.3) b.meds = { painkiller: 300, antipyretic: 300, antibiotic: 3000 };
       const env: Environment = { tempC: -15 + r('e') * 50, wet: r('w') < 0.4, outdoor: r('o') < 0.6, warmth: r('wa') * 12, rain: r('rn'), dryPerHour: r('dr') };
-      const v2 = n % 2 === 1;
       const act = pick(ACTS, `fz:${n}:a`);
       if (act === 'sleep') b.consciousness = 'asleep';
       let t = 0;
       for (let k = 0; k < 40 && b.consciousness !== 'dead'; k++) {
         const step = pick([15, 20, 60, 600], `fz:${n}:st${k}`);
-        tickBody(b, TRAITS, t, step, act, env, `fz:${n}`, v2);
+        tickBody(b, TRAITS, t, step, act, env, `fz:${n}`);
         t += step;
         problems.push(...bodyProblems(b, t, `тело ${n}, шаг ${k}`));
       }
@@ -154,8 +153,6 @@ describe('случайные прохождения первого участк�
     const problems = new Set<string>();
     for (let run = 0; run < 12; run++) {
       const s = newGame(c, { pairId: 'p', seed: `inv-${run}`, startTime: START_TIME, players: { A: { name: forms('A') }, B: { name: forms('B') } } });
-      // Нечётные прогоны — тот же сюжет по правилам главы 2.
-      if (run % 2 === 1) s.checkpoint = 2;
       for (const pid of ['A', 'B'] as PlayerId[]) {
         for (let step = 0; step < 250 && !segmentFinished(c, s, pid); step++) {
           const ctx: Ctx = { s, c, pid };

@@ -4,7 +4,6 @@ import { canAct, symptoms, tickBody } from './body';
 import { evalCond } from './conditions';
 import { applyEffects } from './effects';
 import { clamp, round } from './rng';
-import { ch2Rules } from './rules';
 import type { Activity, ItemInstance } from './types';
 import { other } from './types';
 import {
@@ -37,7 +36,7 @@ export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts:
     const overloaded = carriedWeight(ctx) > carryLimit(ctx) * 1.25;
     const act = overloaded ? HEAVIER[activity] : activity;
     const before = symptoms(ch.body, ch.time);
-    const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`, ch2Rules(ctx.s));
+    const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`);
     drainBatteries(ctx, step);
     tickControlledPartner(ctx, step);
     baseTicksDuring(ctx, ch.time, ch.time + step);
@@ -67,7 +66,7 @@ function tickControlledPartner(ctx: Ctx, minutes: number) {
   const p = ctx.s.chars[pid];
   if (p.controlledBy !== ctx.pid || p.body.consciousness === 'dead') return;
   const pctx: Ctx = { ...ctx, pid };
-  const r = tickBody(p.body, p.traits, p.time, minutes, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`, ch2Rules(ctx.s));
+  const r = tickBody(p.body, p.traits, p.time, minutes, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`);
   p.time += minutes;
   if (r.died) log(pctx, 'system', 'Смерть.');
 }
@@ -151,8 +150,8 @@ export function channelOpen(ctx: Ctx, channel: 'phone' | 'radio' | 'people' | 'a
 }
 
 /**
- * Правила главы 2: чем утолять жажду — сначала напитки (вода, молоко), затем то, что лучше утоляет жажду,
- * при равенстве — скоропортящееся. Раньше скоропорт шёл первым, и вместо воды съедалось яблоко.
+ * Чем утолять жажду: сначала напитки (вода, молоко), затем то, что лучше утоляет жажду,
+ * при равенстве — скоропортящееся (иначе вместо воды съедалось яблоко).
  */
 export function drinkOrder(ctx: Ctx, a: ItemInstance, b: ItemInstance): number {
   const ta = itemType(ctx, a.type);
@@ -169,13 +168,12 @@ export function applyStandingRules(ctx: Ctx) {
   if (!canAct(ch.body)) return;
   const scene = ctx.c.scenes[ch.scene];
   if (!scene?.safe && !scene?.calm) return;
-  const v2 = ch2Rules(ctx.s);
   const usable = (tag: 'thirst' | 'hunger') => heldItems(ctx)
     .filter((i) => {
       const t = itemType(ctx, i.type);
       return (t.food?.[tag] ?? 0) > 0 && !(ch.rules.keepReserve && t.tags.includes('reserve'));
     })
-    .sort(v2 && tag === 'thirst' ? (a, b) => drinkOrder(ctx, a, b)
+    .sort(tag === 'thirst' ? (a, b) => drinkOrder(ctx, a, b)
       : (a, b) => (itemType(ctx, b.type).spoilsAfter ? 1 : 0) - (itemType(ctx, a.type).spoilsAfter ? 1 : 0) || (a.id < b.id ? -1 : 1));
   if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45) {
     const item = usable('thirst')[0];

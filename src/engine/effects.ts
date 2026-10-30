@@ -3,7 +3,6 @@ import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
 import { clamp } from './rng';
-import { ch2Rules } from './rules';
 import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
 import { other } from './types';
@@ -60,8 +59,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('charge' in e) {
-    const item = ch2Rules(ctx.s) ? chargeTarget(ctx, e.charge, e.delta) : Object.values(ctx.s.items).find((i) => i.at.kind === 'char' && i.at.id === ctx.pid && i.qty > 0
-      && (i.type === e.charge || itemType(ctx, i.type).tags.includes(e.charge)) && i.charge !== undefined);
+    const item = chargeTarget(ctx, e.charge, e.delta);
     if (item) { item.charge = clamp((item.charge ?? 0) + e.delta, 0, 100); item.changedAt = t; }
     return;
   }
@@ -84,11 +82,10 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     const pid = targetPid(ctx, e.target);
     const body = ctx.s.chars[pid].body;
     const rank = { none: 0, basic: 1, proper: 2 } as const;
-    const v2 = ch2Rules(ctx.s);
     for (const i of body.injuries) {
       if (i.healed >= 1 || rank[i.treated] >= rank[e.treat]) continue;
       i.treated = e.treat;
-      if (v2) i.treatedAt = t;
+      i.treatedAt = t;
       // Тщательное промывание в первые полчаса немного снижает риск от возбудителя (скрытое правило §2.3).
       if (e.treat === 'proper' && i.exposure && t - i.since <= 30) i.exposure = Math.round(i.exposure * 0.75 * 1000) / 1000;
     }
@@ -140,14 +137,12 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('faint' in e) {
-    const v2 = ch2Rules(ctx.s);
     ch.body.consciousness = 'unconscious';
     ch.body.consciousSince = t;
-    // Глава 2: без сознания ровно e.faint минут (если нет других причин). Раньше — минимум 30 минут, и короткий
-    // обморок оставлял персонажа без сознания до контрольной точки, а длинный обрывался через полчаса.
-    if (v2) ch.body.faintUntil = t + Math.max(0, Math.round(e.faint));
+    // Без сознания ровно e.faint минут (если нет других причин): и короткий, и длинный обморок.
+    ch.body.faintUntil = t + Math.max(0, Math.round(e.faint));
     mergeAdvance(out, advanceTime(ctx, e.faint, 'rest', { finishOnEvent: true }));
-    if (v2) checkThresholds(ch.body, ch.time);
+    checkThresholds(ch.body, ch.time);
     out.interrupted = true;
     return;
   }
@@ -187,8 +182,8 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
 }
 
 /**
- * Глава 2: какой предмет заряжать/разряжать. Расход берётся из заряженного (пустой пауэрбанк не заряжает,
- * пустой антисептик не тратится), заряд — в незаряженный исправный. Раньше — просто первый попавшийся.
+ * Какой предмет заряжать/разряжать. Расход берётся из заряженного (пустой пауэрбанк не заряжает,
+ * пустой антисептик не тратится), заряд — в незаряженный исправный.
  */
 function chargeTarget(ctx: Ctx, what: string, delta: number) {
   const list = heldItems(ctx).filter((i) => (i.type === what || itemType(ctx, i.type).tags.includes(what)) && i.charge !== undefined);
