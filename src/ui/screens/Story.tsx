@@ -34,7 +34,8 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
   }, [planOpen]);
 
   const toggle = (a: AvailableAction) => {
-    if (!a.enabled && !(a.def.requiresDone?.length)) return;
+    // Недоступное можно выбрать, только если оно ждёт шаг, который стоит в плане раньше (движок проверит порядок).
+    if (!a.enabled && !a.waitsFor?.length) return;
     setSel((cur) => {
       if (cur.includes(a.def.id)) return cur.filter((x) => x !== a.def.id);
       if (!a.def.combinable) return [a.def.id];
