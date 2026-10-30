@@ -1,6 +1,6 @@
 // Совместимость сохранений: когда настоящая игра началась, историю только дописывают.
 // fixtures/release-1.json — журналы, сыгранные на выпущенной версии: новая глава обязана воспроизводить их бит в бит.
-// Пока игра тестовая (CLAUDE.md), журнал пересоздают после правок механики: удалить файл и выполнить команду ниже.
+// Настоящая игра идёт (CLAUDE.md): выпущенные журналы не пересоздают; новую главу проверяют следующим эталоном.
 // Создать: KVEST_FIXTURE=release-N npx vitest run src/content/compat.test.ts
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';

@@ -42,12 +42,13 @@ export const npcs: Record<string, NpcDef> = Object.fromEntries([
     hidden: { goals: ['дождаться брата из Harburg'], fears: ['мародёры'] }, vars: { diesel_l: 40 },
     agenda: [
       // Брат не пришёл и никто за ним не поехал — Дениз едет искать его сам.
+      // Во второй день (после КТ 2) эти пункты уже не срабатывают с опозданием: там у Дениза свои планы (chapter2/world2.ts).
       { id: 'search', at: at(10, 15, 0), scope: 'A',
-        when: { all: [{ npc: 'deniz', at: 'deniz_workshop' }, { not: { npc: 'kerem', at: 'deniz_workshop' } }, { not: { npc: 'kerem', at: 'walking' } }, { not: { npc: 'kerem', at: 'a_car' } }] },
+        when: { all: [{ not: { cp: 2 } }, { npc: 'deniz', at: 'deniz_workshop' }, { not: { npc: 'kerem', at: 'deniz_workshop' } }, { not: { npc: 'kerem', at: 'walking' } }, { not: { npc: 'kerem', at: 'a_car' } }] },
         effects: [{ npc: 'deniz', moveTo: 'harburg_search' }, { npc: 'kerem', moveTo: 'harburg_search' }] },
       // Брат с ним — вечером оба уезжают на хутор.
       { id: 'farm', at: at(10, 18, 0), scope: 'A',
-        when: { all: [{ npc: 'deniz', at: 'deniz_workshop' }, { npc: 'kerem', at: 'deniz_workshop' }] },
+        when: { all: [{ not: { cp: 2 } }, { npc: 'deniz', at: 'deniz_workshop' }, { npc: 'kerem', at: 'deniz_workshop' }] },
         effects: [{ npc: 'deniz', moveTo: 'hof_luedemann' }, { npc: 'kerem', moveTo: 'hof_luedemann' }, { set: 'w.deniz_at_farm', value: true }] },
     ] }),
   npc({ id: 'kerem', name: 'Керем Айдын', location: 'harburg_kerem', intro: 'Младший брат Дениза, живёт в Harburg у вокзала. Мягче брата, но такой же упрямый.',

@@ -284,6 +284,8 @@ export interface BaseDef {
   heating?: { tag: string; perDay: (outsideC: number) => number };
   /** Если вода не из склада, а из скважины/водопровода — условие, когда она есть. */
   freeWater?: Cond;
+  /** База работает (расход, паёк, трапезы) только после этой контрольной точки — сыгранные участки не меняются. */
+  from?: number;
 }
 
 export type MergePolicy = 'delta' | 'latest' | 'max' | 'min' | 'or' | 'and';

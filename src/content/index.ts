@@ -12,6 +12,12 @@ import { CONTACT_AFTER, openingScenes } from './chapter1/opening';
 import { items } from './items';
 import { events, facts, messages, npcs } from './people';
 import { locations, network, weather } from './world';
+import { awayScenes, chapterEntry, nightRoutes } from './chapter2/away';
+import { dayRoutes, dayScenes, withDay } from './chapter2/day';
+import { checkpoint3, checkpoint4, joint3 } from './chapter2/kt3';
+import { nightScenes } from './chapter2/night';
+import { agenda2, events2, facts2, locations2, npcs2 } from './chapter2/world2';
+import type { NpcDef } from '../engine/content-types';
 
 const characters: Record<'A' | 'B', CharacterTemplate> = {
   A: {
@@ -52,12 +58,24 @@ function withLateSegment1(scenes: Record<string, Scene>): Record<string, Scene> 
   }));
 }
 
+/** Планы NPC следующих глав дописываются в конец их agenda: прежние пункты не меняются. */
+function withAgenda(base: Record<string, NpcDef>, extra: Record<string, NpcDef['agenda']>): Record<string, NpcDef> {
+  return Object.fromEntries(Object.entries(base).map(([id, n]) => [id, extra[id] ? { ...n, agenda: [...n.agenda, ...extra[id]] } : n]));
+}
+
+const chapter2Scenes: Record<string, Scene> = withDay({
+  ...nightScenes, ...awayScenes, ...dayScenes, a_ch2: chapterEntry('a_ch2', 'A'), b_ch2: chapterEntry('b_ch2', 'B'),
+});
+/** После КТ 3: дорога к решённому месту или день там, где каждый есть. */
+const kt3Next = { A: dayRoutes(nightRoutes()), B: dayRoutes(nightRoutes()) };
+
 export const content: Content = {
   version: 'beta-0.1',
   epochLabel: '10.11.2026',
-  items, locations, routes: [],
-  scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes })),
-  facts, npcs, events, joint, checkpoints, messages, characters,
+  items, locations: { ...locations, ...locations2 }, routes: [],
+  scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes })),
+  facts: { ...facts, ...facts2 }, npcs: { ...withAgenda(npcs, agenda2), ...npcs2 }, events: [...events, ...events2],
+  joint: { ...joint, ...joint3 }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4], messages, characters,
   partnerContactAfter: CONTACT_AFTER,
   initialVars: {
     'w.power.buchholz': 'off', 'w.power.buchholz.since': at(10, 5, 10),

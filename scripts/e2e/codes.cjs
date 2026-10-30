@@ -1,4 +1,4 @@
-// Два телефона: приглашение → оба участка → обмен кодами через интерфейс → итоги → перезагрузка.
+// Два телефона: приглашение → четыре участка (главы 1–2) → обмен кодами через интерфейс → итоги → перезагрузка.
 const { makeRng, phone, pair, playSegment, tabs, exchangeByCodes } = require('./lib.cjs');
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
     const A = await phone(browser, 'A', errors);
     const B = await phone(browser, 'B', errors);
     await pair(A, B);
-    for (const n of [1, 2]) {
+    for (const n of [1, 2, 3, 4]) {
       const sa = await playSegment(A, `A${n}`, rnd);
       const sb = await playSegment(B, `B${n}`, rnd);
       log(`участок ${n}: A ${sa} шагов, B ${sb}`);

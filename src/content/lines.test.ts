@@ -72,7 +72,7 @@ describe('главные линии главы 1', () => {
     expect(lastNotes(kt2.state, 'A')).toMatch(/Она дошла/);
     expect(lastNotes(kt2.state, 'B')).toMatch(/Шаги за дверью/);
     expect(kt2.state.vars['w.shelter']).toBe('farm');
-    expect(kt2.state.chars.A.scene).toBe('a_ch2');
+    expect(kt2.state.chars.A.scene).toBe('c2_aflat');
   });
 
   it('A едет за B через тоннель и город, B ждёт дома (Новаки, Окафор, Свенья); встреча в Barmbek', () => {

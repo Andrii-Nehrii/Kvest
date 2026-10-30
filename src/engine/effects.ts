@@ -2,7 +2,7 @@ import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
 import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
-import { clamp } from './rng';
+import { clamp, round } from './rng';
 import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
 import { other } from './types';
@@ -169,6 +169,11 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('refuel' in e) { const t2 = refuel(ctx, e.refuel, e.liters, e.fromCan); out.notes.push(t2); log(ctx, 'item', t2); return; }
+  if ('siphon' in e) {
+    const car = Object.values(ctx.s.items).filter((i) => i.type === e.siphon && i.qty > 0 && i.at.kind !== 'gone').sort((a, b) => (a.id < b.id ? -1 : 1))[0];
+    if (car) { car.fuel = round(Math.max(0, (car.fuel ?? 0) - e.liters), 2); car.changedAt = t; }
+    return;
+  }
   if ('fillCan' in e) { const t2 = fillCan(ctx, e.fillCan, e.liters); out.notes.push(t2); log(ctx, 'item', t2); return; }
   if ('work' in e) {
     const r = workOnProject(ctx, e.work, e.hours);

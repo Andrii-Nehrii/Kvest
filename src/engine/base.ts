@@ -284,10 +284,14 @@ function baseMeal(ctx: Ctx, b: BaseDef, day: number) {
 }
 
 /** Пересечение 06:00 (паёк, а у «хранителя» базы — расход) и часов трапез на линии игрока. */
+/** Базы, которые уже работают на этом участке (BaseDef.from — с какой контрольной точки). */
+const activeBases = (ctx: Ctx): BaseDef[] => (ctx.c.bases ?? []).filter((b) => ctx.s.checkpoint >= (b.from ?? 0));
+
 export function baseTicksDuring(ctx: Ctx, from: Minutes, to: Minutes) {
-  if (!ctx.c.bases?.length) return;
+  const bases = activeBases(ctx);
+  if (!bases.length) return;
   for (let d = dayOf(from) + 1; d <= dayOf(to); d++) {
-    for (const b of ctx.c.bases) {
+    for (const b of bases) {
       recordRation(ctx, b, d);
       if (baseKeeper(ctx, b, d) === ctx.pid) baseDailyTick(ctx, b, d, 'self');
     }
@@ -296,14 +300,14 @@ export function baseTicksDuring(ctx: Ctx, from: Minutes, to: Minutes) {
     for (const h of BASE_MEALS) {
       const t = 6 * 60 + d * 1440 + (h - 6) * 60;
       if (t <= from || t > to) continue;
-      for (const b of ctx.c.bases) baseMeal(ctx, b, d);
+      for (const b of bases) baseMeal(ctx, b, d);
     }
   }
 }
 
 /** На контрольной точке досчитать дни, которые не посчитал ни один участок. */
 export function baseCatchUp(ctx: Ctx, to: Minutes) {
-  for (const b of ctx.c.bases ?? []) {
+  for (const b of activeBases(ctx)) {
     const last = Number(ctx.s.vars[`base.${b.id}.lastDay`] ?? dayOf(to) - 1);
     for (let d = last + 1; d <= dayOf(to); d++) baseDailyTick(ctx, b, d, 'all');
   }

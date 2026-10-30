@@ -288,6 +288,12 @@ export type Cond =
   | { charged: string; atLeast: number }
   | { project: string; done?: boolean; progress?: [CmpOp, number] }
   | { stocked: string; qty: number; at?: string }
+  /** Пройдено не меньше N контрольных точек: так включают новое поведение только для ещё не сыгранных участков. */
+  | { cp: number }
+  /** Чья это линия: общие сцены (for: 'any') различают хозяина места и гостя. */
+  | { me: PlayerId }
+  /** Переменная NPC: равна value, а без value — просто истинна. */
+  | { npcVar: string; key: string; value?: Scalar }
   | { always: true };
 
 export type Activity = 'sleep' | 'rest' | 'light' | 'moderate' | 'heavy';
@@ -322,6 +328,8 @@ export type Effect =
   | { rule: keyof StandingRules; value: boolean }
   | { drive: string; km: number; to?: string; jam?: number }
   | { refuel: string; liters: number; fromCan?: string }
+  /** Отлить топливо из машины этого типа, где бы она ни стояла (кража бензина ночью). */
+  | { siphon: string; liters: number }
   | { fillCan: string; liters: number }
   | { work: string; hours: number }
   | { stock: string; qty: number; at?: string }

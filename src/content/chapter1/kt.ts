@@ -4,6 +4,7 @@ import type { CheckpointDef, JointDecision, MergeNote } from '../../engine/conte
 import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
 import { A_HOMES } from './common';
+import { nightRoutes } from '../chapter2/away';
 
 const A_CAN_DRIVE: Cond = { all: [{ fuelIn: 'opel_corsa', liters: 4 }, { cap: 'canAct', op: '==', value: 1 }] };
 /** B уехала с Новаками (в фургоне или уже в Ahrensburg): в Barmbek её нет. */
@@ -156,5 +157,6 @@ export const checkpoints: CheckpointDef[] = [
   { index: 1, title: 'Первая связь', syncNotBefore: at(10, 12, 30), joint: ['meet'], onMerge: kt1Notes,
     next: { A: [{ scene: 'a2_after_call' }], B: [{ scene: 'b2_after_call' }] } },
   { index: 2, title: 'Ночь', joint: ['shelter'], onMerge: kt2Notes,
-    next: { A: [{ scene: 'a_ch2' }], B: [{ scene: 'b_ch2' }] } },
+    // Глава 2: ночь там, где застала точка (квартира, машина, улица, хутор…).
+    next: { A: nightRoutes(), B: nightRoutes() } },
 ];

@@ -570,9 +570,4 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
     ],
     actions: [],
   }),
-  S({
-    id: 'a_ch2', for: 'A', chapter: 'ch2', title: 'Продолжение следует', universal: false,
-    text: [{ text: 'Здесь заканчивается первая часть истории — первые сутки. Продолжение (дни 2–4: где жить, чем жить, кому верить) — в следующих главах. Всё, что ты успел, сохранено.' }],
-    actions: [],
-  }),
 ].map((s) => [s.id, s]));

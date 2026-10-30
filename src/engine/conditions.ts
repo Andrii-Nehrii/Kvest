@@ -24,6 +24,12 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   if ('any' in c) return c.any.some((x) => evalCond(ctx, x));
   if ('not' in c) return !evalCond(ctx, c.not);
   if ('always' in c) return true;
+  if ('cp' in c) return ctx.s.checkpoint >= c.cp;
+  if ('me' in c) return ctx.pid === c.me;
+  if ('npcVar' in c) {
+    const v = ctx.s.npcs[c.npcVar]?.vars[c.key];
+    return c.value === undefined ? !!v : v === c.value;
+  }
   // NPC — раньше «at»: у условия на NPC тоже есть поле at (где NPC), его нельзя спутать с местом игрока.
   if ('npc' in c) {
     const n = ctx.s.npcs[c.npc];
