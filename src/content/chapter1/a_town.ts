@@ -12,6 +12,10 @@ const powerOff: Cond = { v: PWR, op: '==', value: 'off' };
 export const gerdHome: Cond = { npc: 'gerd', at: 'a_brockmann' };
 export const gerdRaging: Cond = { all: [gerdHome, { any: [{ npc: 'gerd', status: 'infected' }, { npc: 'gerd', status: 'turned' }] }] };
 const gerdTurned: Cond = { npc: 'gerd', status: 'turned' };
+/** Герд дома и жив (если A его убил, за дверью больше никто не дышит). */
+const gerdAliveHome: Cond = { all: [gerdHome, { npc: 'gerd', alive: true }] };
+/** Ильзе поймала A на лестнице/во дворе и ждёт ответа — она здесь, а не за своей дверью (не дольше 11:30, как стук в дверь). */
+const ilseWaiting: Cond = { all: [{ flag: '$.ilse_out' }, { not: { visited: 'a_ilse' } }, { not: { flag: '$.ignored_ilse' } }, { before: at(10, 11, 30) }] };
 /** Крик ещё звучит: Ильзе внизу (в 13:00 укушенная Ильзе уходит — «броситься на крик» к тому времени уже поздно). */
 export const screamNow: Cond = { all: [{ flag: '$.scream' }, { npc: 'ilse', at: 'a_brockmann' }] };
 const ilseHere = (place: string): Cond => ({ npc: 'ilse', at: place });
@@ -89,13 +93,13 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         text: 'Подъезд. Пахнет мокрыми куртками, на почтовых ящиках — прошлогодняя записка про собрание жильцов.' },
       { when: { all: [{ not: { flag: '$.driving_brockmanns' } }, powerOff] }, text: 'Лампа на лестнице не горит.' },
       { when: { all: [{ not: { flag: '$.driving_brockmanns' } }, powerOn] }, text: 'Лампа на лестнице снова горит — тускло, с треском.' },
-      { when: { all: [{ not: { flag: '$.driving_brockmanns' } }, gerdHome, { not: gerdRaging }] },
+      { when: { all: [{ not: { flag: '$.driving_brockmanns' } }, gerdHome, { not: gerdRaging }, ilseHere('a_brockmann'), { not: ilseWaiting }] },
         text: 'Из-за двери Брокманов глухо бубнит Ильзе — успокаивает кого-то.' },
       { when: { all: [gerdRaging, { not: brockDone }, { not: gerdTurned }] },
         text: 'Из-за двери Брокманов — удары, будто в стену бросают что-то тяжёлое. Потом тишина. Неправильная.' },
       { when: { all: [gerdHome, gerdTurned] },
         text: 'За дверью Брокманов кто-то шаркает — туда и обратно, туда и обратно. Иногда — глухой удар в дверь, на уровне груди.' },
-      { when: { all: [brockDone, { not: gerdTurned }, gerdHome] },
+      { when: { all: [brockDone, { not: gerdTurned }, gerdAliveHome] },
         text: 'Дверь Брокманов закрыта. За ней — тяжёлое, хриплое дыхание, которое слышно даже отсюда.' },
     ],
     actions: [
@@ -117,14 +121,14 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'street', label: 'Выйти на улицу', minutes: 1, terminal: true, goto: 'a_street', when: { not: { flag: '$.driving_brockmanns' } } },
       ...brockDoorActions(true).map((a) => ({ ...a, when: { all: [a.when!, { not: { flag: '$.driving_brockmanns' } }] } })),
       { id: 'listen', label: 'Прислушаться у двери Брокманов', minutes: 2, combinable: true, repeatable: true,
-        when: { all: [brockDone, gerdHome] },
+        when: { all: [brockDone, gerdAliveHome] },
         outcomes: [
           { id: 'turned', when: gerdTurned, text: 'Шарканье. Удар. Шарканье. Ни слова, ни стона — только ногти скребут по дереву, очень низко. Ты отходишь от двери и понимаешь, что не дышал.', effects: [{ body: 'stress', delta: 6 }] },
           { id: 'raging', text: 'Хриплое дыхание, скрип пружин, потом долгий звук сквозь зубы — не крик и не плач. Герд не отвечает на своё имя.', effects: [{ body: 'stress', delta: 4 }] },
         ] },
       { id: 'up', label: 'Подняться к себе', minutes: 1, terminal: true, goto: 'a_wake', when: { not: { flag: '$.driving_brockmanns' } } },
       { id: 'ilse', label: 'Выслушать Ильзе', minutes: 1, terminal: true, goto: 'a_ilse',
-        when: { all: [{ flag: '$.ilse_out' }, { not: { visited: 'a_ilse' } }, { not: { flag: '$.ignored_ilse' } }] } },
+        when: ilseWaiting },
       ...brockFirst(tail()),
     ],
   }),
@@ -147,9 +151,9 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'street', label: 'Выйти на улицу', minutes: 1, terminal: true, goto: 'a_street' },
       { id: 'back', label: 'Вернуться в подъезд', minutes: 1, terminal: true, goto: 'a_tbc' },
       { id: 'ilse', label: 'Обернуться к Ильзе', minutes: 1, terminal: true, goto: 'a_ilse',
-        when: { all: [{ flag: '$.ilse_out' }, { not: { visited: 'a_ilse' } }, { not: { flag: '$.ignored_ilse' } }] } },
+        when: ilseWaiting },
       { id: 'ilse_no', label: 'Сделать вид, что торопишься, и не останавливаться', minutes: 2, combinable: true,
-        when: { all: [{ flag: '$.ilse_out' }, { not: { visited: 'a_ilse' } }, { not: { flag: '$.ignored_ilse' } }] },
+        when: ilseWaiting,
         text: '— Bitte! — летит тебе в спину. Ты не оборачиваешься. Хлопает дверь подъезда.',
         effects: [{ set: '$.ignored_ilse', value: true }, { npc: 'ilse', trust: -12, remember: '$:ignored' }, { body: 'stress', delta: 5 }] },
       ...brockDoorActions(false).filter((a) => a.id === 'brock_scream'),
@@ -239,6 +243,11 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         when: { all: [{ hasTag: 'charger' }, { not: { flag: '$.car_charging' } }] },
         text: 'Кабель еле дотягивается до гнезда. Значок молнии на экране — маленькая победа.',
         effects: [{ set: '$.car_charging', value: true }, { charge: 'phone', delta: 3 }] },
+      // Канистра в машине: залить можно везде, где стоит машина (раньше — только в мастерской Дениза).
+      { id: 'pour', label: 'Залить бензин из канистры в бак', minutes: 5, combinable: true, repeatable: true,
+        when: { all: [{ has: 'can_petrol_10' }, { fuelIn: 'can_petrol_10', liters: 1 }] },
+        text: 'Ты выходишь, отвинчиваешь крышку бака и наклоняешь канистру. Бензин булькает в горловине, резко пахнет. Стрелка ползёт вверх.',
+        effects: [{ refuel: 'opel_corsa', liters: 10, fromCan: 'can_petrol_10' }] },
       { id: 'glovebox', label: 'Порыться в бардачке', minutes: 2, combinable: true,
         text: 'Скребок для стёкол, салфетки, сервисная книжка, бумажная карта области двухлетней давности — и в конверте «на всякий случай» двадцать евро. Ты и забыл про них.',
         effects: [{ give: 'road_map' }, { give: 'cash_eur', qty: 20 }] },
@@ -363,7 +372,8 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── Заправка ─────────────
   S({
-    id: 'a_gas', for: 'A', chapter: 'ch1', location: 'a_gas', title: 'Заправка',
+    id: 'a_gas', for: 'A', chapter: 'ch1', location: 'a_gas', title: 'Заправка', ambient: { outdoor: false, tempC: 17 },
+    // Сюда приезжают на машине и в очереди к колонке из машин не выходят: сорок пять минут — не под дождём.
     text: [
       { when: { all: [powerOff, { not: evening }] }, text: 'Заправка у выезда на трассу: навес, шесть колонок — все мёртвые, дисплеи пустые. У колонок стоят машины, водители курят под дождём и ругаются. В магазинчике горит фонарь на батарейках, продавец торгует за наличные.' },
       { when: { all: [powerOn, { not: evening }] }, text: 'Колонки ожили. Очередь машин тянется на улицу и дальше, до кольца. Над кассой — лист: «Max. 20 Liter pro Fahrzeug». Люди в очереди не выходят из машин — боятся потерять место.' },
@@ -468,7 +478,8 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── Больница ─────────────
   S({
-    id: 'a_hosp_lot', for: 'A', chapter: 'ch1', location: 'a_hospital', title: 'Krankenhaus Buchholz',
+    id: 'a_hosp_lot', for: 'A', chapter: 'ch1', location: 'a_hospital', title: 'Krankenhaus Buchholz', ambient: { outdoor: false, tempC: 17 },
+    // Парковка, из машины: очередь к приёмному — в салоне. Под дождём — у палатки (a_hosp_triage, a_hosp_after).
     text: [
       { when: { v: 'w.hosp_buchholz', op: '!=', value: 'closed' }, text: 'Больница светится в тумане, как корабль: у неё свой генератор. У въезда к приёмному — вереница машин с аварийками. Охранник в жёлтом жилете машет жезлом. Сбоку натянута белая палатка, к ней очередь людей в куртках поверх пижам. Женщина в защитном комбинезоне идёт вдоль машин с планшетом и что-то спрашивает в каждое окно.' },
       { when: { all: [{ flag: '$.brock_in_car' }, { not: { flag: '$.brock_triaged' } }] }, text: 'Ильзе прижимает к себе Герда и шепчет: «Gleich, Schatz, gleich».' },
@@ -656,7 +667,7 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
       { when: { all: [{ npc: 'ilse', at: 'a_flat' }, { not: ilseBitten }] }, text: 'Ильзе сидит на ступеньке, обхватив себя руками, и раскачивается. — Это не он, — повторяет она. — Это не мой Герд.' },
       { when: { all: [{ npc: 'ilse', at: 'a_flat' }, ilseBitten] }, text: 'Ильзе сидит на ступеньке, прижимая к груди прокушенную руку. Кровь капает на бетон. Она смотрит на неё так, будто рука чужая.' },
       { when: { flag: '$.killed_gerd' }, text: 'Дверь Брокманов закрыта. За ней — тишина. Ты знаешь, что там лежит, и знаешь, что это сделал ты. И знаешь, что иначе было нельзя. Это знание не помогает.' },
-      { when: { injured: 'any' }, text: 'Твоя рука горит. Промыть бы это — и как можно скорее.' },
+      { when: { any: [{ injured: 'bite' }, { injured: 'scratch' }] }, text: 'Твоя рука горит. Промыть бы это — и как можно скорее.' },
     ],
     actions: [
       { id: 'treat_ilse', label: 'Перевязать Ильзе руку', minutes: 10, combinable: true,

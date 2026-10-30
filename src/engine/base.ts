@@ -78,8 +78,10 @@ export function fillCan(ctx: Ctx, canType: string, liters: number): string {
     && ((i.at.kind === 'char' && i.at.id === ctx.pid) || (i.at.kind === 'place' && i.at.id === me(ctx).location)));
   if (!can) return 'Канистры нет.';
   const cap = itemType(ctx, canType).fuelCan?.capacityL ?? 0;
-  const amount = Math.max(0, Math.min(liters, round(cap - (can.fuel ?? 0), 2)));
-  can.fuel = round((can.fuel ?? 0) + amount, 2);
+  const have = can.fuel ?? 0;
+  // Отрицательное количество — отлить из канистры (не больше, чем в ней есть); положительное — долить до объёма.
+  const amount = liters < 0 ? -Math.min(-liters, have) : Math.max(0, Math.min(liters, round(cap - have, 2)));
+  can.fuel = round(have + amount, 2);
   can.changedAt = me(ctx).time;
   return `В канистре ${can.fuel} л.`;
 }

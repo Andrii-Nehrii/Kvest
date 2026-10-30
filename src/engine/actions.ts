@@ -135,7 +135,8 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   for (const i of itemsAt(ctx, ch.location)) here.set(i.type, (here.get(i.type) ?? 0) + i.qty);
   for (const [type, qty] of here) {
     const t = itemType(ctx, type);
-    if (t.vehicle || t.weight > 30000) continue;
+    // Транспорт (машина, велосипед) не берут в руки: на нём едут — сюжетными действиями.
+    if (t.vehicle || t.tags.includes('bike') || t.weight > 30000) continue;
     const n = t.weight > 0 ? Math.min(qty, Math.max(0, Math.floor(room / t.weight))) : qty;
     if (n <= 0) continue;
     list.push({

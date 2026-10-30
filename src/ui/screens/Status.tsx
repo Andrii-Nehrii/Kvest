@@ -69,7 +69,7 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
           {here.length === 0 && <div className="muted">Ничего полезного на виду.</div>}
           {(allHere ? here : here.slice(0, HERE_SHOWN)).map((i) => {
             const { t, extra } = describe(i);
-            const takeable = !t.vehicle && t.weight <= 30000 && avail.has(`u:take:${i.type}`);
+            const takeable = avail.has(`u:take:${i.type}`);
             return (
               <div className="li" key={i.id}>
                 <span className="grow">{t.name}</span><span className="muted small">{extra}</span>

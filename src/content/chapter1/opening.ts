@@ -11,6 +11,11 @@ export { CONTACT_AFTER };
 const S = (s: Scene) => s;
 const knock: Cond = { flag: '$.knock' };
 const ilseOut: Cond = { flag: '$.ilse_out' };
+/**
+ * Ильзе стучит в дверь и ждёт ответа: выйти из квартиры можно только мимо неё — сначала глазок.
+ * Не дольше 11:30: тогда у Герда острая стадия, и Ильзе внизу, с ним (дальше — крик, a_town.ts).
+ */
+const knocking: Cond = { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }, { before: at(10, 11, 30) }] };
 const powerA: Cond = { v: 'w.power.buchholz', op: '!=', value: 'off' };
 const evening: Cond = { after: at(10, 16, 30) };
 const merleHome: Cond = { npc: 'merle', at: 'b_flat' };
@@ -46,7 +51,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { text: 'Ты снова в своей квартире. Холодильник гудит как ни в чём не бывало, батареи понемногу теплеют. Только тишина за окном другая.', when: { all: [back('a_wake'), powerA, { not: evening }] } },
       { text: 'В пять за окном уже ночь. Горит одна лампа на кухне — больше включать не хочется: со двора видно каждое светлое окно.', when: { all: [back('a_wake'), powerA, evening] } },
       { text: 'Света снова нет. Свеча на столе, тени по стенам. Холод возвращается в квартиру быстро, будто ждал за дверью.', when: { all: [back('a_wake'), { not: powerA }, evening] } },
-      { text: 'В дверь стучат. Ильзе Брокман — ты узнаёшь её голос — зовёт снова и снова.', when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
+      { text: 'В дверь стучат. Ильзе Брокман — ты узнаёшь её голос — зовёт снова и снова.', when: knocking },
       { text: 'Снизу — удары, глухие, неровные. И голос Ильзе: то ли плач, то ли молитва.', when: { all: [screamNow, { not: { flag: '$.brock_done' } }] } },
       { text: 'Ильзе сидит на краешке твоего дивана, сжимая кружку, и вздрагивает от каждого звука снизу.', when: { npc: 'ilse', at: 'a_flat' } },
       { text: 'Иногда сквозь пол доносится удар — снизу, из квартиры Брокманов. Потом долго ничего. Потом снова.', when: { all: [gerdRaging, { any: [{ flag: '$.brock_done' }, { all: [{ flag: '$.scream' }, { not: screamNow }] }] }] } },
@@ -90,9 +95,9 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
         text: 'Ключи от Corsa, банковская карта, сорок пять евро в кошельке. Без тока карта — просто пластик, но пусть будет.',
         effects: [{ pickup: 'car_keys' }, { pickup: 'bank_card' }, { pickup: 'cash_eur' }] },
       { id: 'door', label: 'Подойти к двери', minutes: 1, terminal: true, goto: 'a_door',
-        when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
+        when: knocking },
       { id: 'ignore', label: 'Не подходить. Замереть и слушать', minutes: 10, risky: false,
-        when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] },
+        when: knocking,
         text: 'Стук продолжается ещё минуту. Потом голос срывается на всхлип, шаги удаляются вниз. Хлопает дверь Брокманов.',
         effects: [{ set: '$.ignored_ilse', value: true }, { npc: 'ilse', trust: -10, remember: '$:ignored' }, { body: 'stress', delta: 6 }] },
       { id: 'go_down', label: 'Всё-таки спуститься к Брокманам', minutes: 2, terminal: true, goto: 'a_brockmann',
@@ -115,7 +120,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
           { id: 'late', when: { after: at(10, 19, 30) }, text: 'Во дворе кто-то есть. Фигура стоит у мусорных баков, не двигаясь, лицом к стене. Через минуту — уже нет. Ты не видел, куда она делась.', effects: [{ body: 'stress', delta: 6 }] },
           { id: 'early', text: 'Двор пуст. В доме напротив гаснут окна, одно за другим, — люди не спят, просто не хотят быть видимыми.' },
         ] },
-      { id: 'leave', label: 'Выйти из квартиры', minutes: 2, terminal: true, goto: 'a_tbc' },
+      { id: 'leave', label: 'Выйти из квартиры', minutes: 2, terminal: true, goto: 'a_tbc', outcomes: [{ id: 'knock', when: knocking, goto: 'a_door' }] },
       waitHour('Переждать дома час'),
       callAction(),
       ...aTail(),

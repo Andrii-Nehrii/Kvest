@@ -3,7 +3,7 @@
 import type { ActionDef, Outcome, Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { at } from '../../engine/time';
-import { aTail, carHere, driveAction, driveTo, radioAction, seg2Enter } from './common';
+import { aTail, carHere, driveAction, driveTo, fuelOk, radioAction, seg2Enter } from './common';
 import { biteArm } from './a_town';
 
 const S = (s: Scene) => s;
@@ -18,6 +18,8 @@ const jannikInCar: Cond = { npc: 'jannik', at: 'a_car' };
 /** Брокманы на руках у A: Герд на лестнице или оба в машине, а до больницы/дома ещё не доехали. */
 const brockWithMe: Cond = { flag: '$.driving_brockmanns' };
 const inCar = { outdoor: false, tempC: 17 };
+/** Дальше по городу — только с бензином (в пробке ×1,5): пустой бак не «довозит» до Barmbek. */
+const noFuel = (km: number): Pick<ActionDef, 'enabled' | 'disabledReason'> => ({ enabled: fuelOk(km, 1.5), disabledReason: 'Бензин на исходе — машина не доедет' });
 
 /** Сцена, в которую A возвращается из «После звонка», — по месту, где он стоит. */
 const PLACE_SCENES = [
@@ -102,7 +104,8 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
     ],
   }),
   S({
-    id: 'a_harburg1', for: 'A', chapter: 'ch1', location: 'harburg', title: 'Harburg',
+    id: 'a_harburg1', for: 'A', chapter: 'ch1', location: 'harburg', title: 'Harburg', ambient: inCar,
+    // В машине, как и a2_harburg: час в хвосте к тоннелю — не под дождём (иначе «одежда промокла насквозь» за рулём).
     text: [
       { text: 'Harburg. Съезд с трассы забит. На повороте к мостам на Wilhelmsburg поперёк дороги стоят два полицейских микроавтобуса; полицейские в жёлтых жилетах машут: назад, назад. Над крышами, в стороне Эльбы, кружит вертолёт.' },
       { when: { after: at(10, 11, 40) }, text: 'У вокзала толпа: поезда встали совсем. Люди с чемоданами идут пешком вдоль трассы — на юг.' },
@@ -172,7 +175,8 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── КТ 1 ─────────────
   S({
-    id: 'a_cp1', for: 'A', chapter: 'ch1', checkpoint: 1, title: 'Полдень', universal: false,
+    id: 'a_cp1', for: 'A', chapter: 'ch1', checkpoint: 1, title: 'Полдень', universal: false, calm: true,
+    // calm: пока ждёт партнёра на точке (сведение часов), пьёт и ест по привычке — ARCHITECTURE §7.6.
     text: [
       { when: { phoneUsable: true }, text: 'Ты стоишь, прижав телефон к уху так, что больно, и считаешь гудки. Третий. Четвёртый…' },
       { when: { not: { phoneUsable: true } }, text: 'Полдень. Ты не знаешь, что с {partner.ins}, и не можешь узнать. Можно только решить, что делать дальше, — и надеяться, что {pm:он|она} решит так же.' },
@@ -248,7 +252,7 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
     ],
   }),
   S({
-    id: 'a2_fuel_stop', for: 'A', chapter: 'ch1', location: 'a1_station', title: 'Заправка у съезда', ambient: { outdoor: true },
+    id: 'a2_fuel_stop', for: 'A', chapter: 'ch1', location: 'a1_station', title: 'Заправка у съезда', ambient: inCar,
     text: [
       { text: 'Заправка у съезда: здесь ток есть — горит навес, светятся цифры. Пятнадцать машин в очереди к двум колонкам, остальные закрыты лентой. Над кассой от руки: «Max. 15 Liter — nur Karte oder bar, passend». Мужчина в рыбацкой куртке ходит вдоль очереди с тремя пустыми канистрами и что-то тихо предлагает каждому водителю.' },
       { when: { not: { flag: '$.station_jumpstart' } }, text: 'У стоянки для грузовиков — серый «фиат» с поднятым капотом. Пожилая женщина за рулём раз за разом поворачивает ключ. Стартер щёлкает впустую.' },
@@ -414,15 +418,15 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
     onEnter: [{ body: 'stress', delta: 10 }, { learn: 'f_turned_seen' }],
     text: [{ text: 'Объезд выводит тебя на улицу в двух кварталах от UKE. Поперёк — полицейские машины, синие сполохи на мокрых фасадах. Из-за них выбегает человек в больничной рубашке, босиком по лужам. Он врезается в машину перед тобой, отлетает — и, не замечая, что из рассечённого лба хлещет кровь, бросается на окно водителя. Бьёт в стекло лбом. Ещё. Ещё. Женщина за рулём кричит.' }],
     actions: [
-      { id: 'reverse', label: 'Сдать назад и уйти в переулок', minutes: 25, risky: true, terminal: true, goto: 'a2_barmbek',
+      { id: 'reverse', label: 'Сдать назад и уйти в переулок', minutes: 25, risky: true, terminal: true, goto: 'a2_barmbek', ...noFuel(9),
         outcomes: [
           { id: 'ok', check: { traits: ['driving'], difficulty: 3, uses: ['focus'] }, text: 'Задний ход, руль, переулок. Сзади — крик, хлопок, похожий на выстрел. Ты не оглядываешься. Дальше — Winterhude, тёмные улицы, Barmbek.', effects: [...driveTo(9, 'b_street', 1.5)] },
           { id: 'bump', text: 'Задний ход — удар: ты врезаешься бампером в машину сзади. Её водитель даже не выходит. Ты выворачиваешь руль и уходишь в переулок с хрустом пластика. Дальше — тёмные улицы, Barmbek.', effects: [...driveTo(9, 'b_street', 1.5), { body: 'stress', delta: 6 }] },
         ] },
-      { id: 'horn', label: 'Сигналить и мигать фарами — отвлечь его от женщины', minutes: 30, risky: true, terminal: true, goto: 'a2_barmbek',
+      { id: 'horn', label: 'Сигналить и мигать фарами — отвлечь его от женщины', minutes: 30, risky: true, terminal: true, goto: 'a2_barmbek', ...noFuel(9),
         text: 'Ты давишь на клаксон и щёлкаешь дальним. Человек в рубашке замирает — и поворачивается на свет. Идёт к тебе. Женщина впереди срывается с места. Он врезается в твой капот, бьёт ладонями в лобовое, по стеклу ползёт трещина. Ты даёшь задний ход, и он идёт следом, пока не падает, споткнувшись о бордюр. Встаёт. Идёт. Ты уходишь в переулок.',
         effects: [...driveTo(9, 'b_street', 1.5), { set: '$.saw_attraction', value: true }, { learn: 'f_drawn_to_light' }] },
-      { id: 'help', label: 'Выскочить и оттащить его от её машины', minutes: 30, risky: true, terminal: true, goto: 'a2_barmbek',
+      { id: 'help', label: 'Выскочить и оттащить его от её машины', minutes: 30, risky: true, terminal: true, goto: 'a2_barmbek', ...noFuel(9),
         outcomes: [
           { id: 'ok', check: { traits: ['melee', 'strength'], difficulty: 5, uses: ['strength', 'mobility'] },
             text: 'Ты хватаешь его за ворот и швыряешь на асфальт. Он не чувствует удара — сразу встаёт на четвереньки и тянется к твоим ногам. Ты отпинываешь его и прыгаешь в машину. Женщина впереди уже уехала. Подбегают полицейские. Ты — тоже уезжаешь, переулками, в Barmbek.',
@@ -430,9 +434,11 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
           { id: 'bit', text: 'Ты хватаешь его за плечо — и он разворачивается быстрее, чем ты думал. Зубы впиваются в предплечье через рукав. Ты отрываешь его от себя вместе с куском ткани, отшвыриваешь и бежишь к машине. Рука горит. Ты едешь, не разбирая дороги, пока не понимаешь, что это уже Barmbek.',
             effects: [...driveTo(9, 'b_street', 1.5), biteArm('rightArm', 2)] },
         ] },
-      { id: 'wait', label: 'Заблокировать двери и не двигаться', minutes: 45, terminal: true, goto: 'a2_barmbek',
+      { id: 'wait', label: 'Заблокировать двери и не двигаться', minutes: 45, terminal: true, goto: 'a2_barmbek', ...noFuel(11),
         text: 'Ты нажимаешь кнопку блокировки и сидишь, вцепившись в руль. Полицейские подбегают с криками. Человек в рубашке не слышит. Хлопок, второй — он падает у машины женщины. Полицейский стоит над ним и не опускает пистолет ещё долго. Потом улицу перекрывают, и тебе приходится объезжать через Winterhude.',
         effects: [...driveTo(11, 'b_street', 1.5), { body: 'stress', delta: 12 }, { learn: 'f_police_shot' }] },
+      // Бензин кончился: дальше не уехать — остаётся ночь здесь (иначе участок не заканчивался).
+      ...tail(),
     ],
   }),
   S({
@@ -443,11 +449,12 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       { when: { flag: '$.jannik_lokstedt' }, text: 'На въезде в Lokstedt Янник просит остановить: — Дальше я дворами, пешком, до Eimsbüttel тут рукой подать. — Он жмёт тебе руку и бегом исчезает в переулке.' },
       { text: 'Ring 3 через Lokstedt. У разграбленного магазина электроники двое грузят телевизоры в фургон, не торопясь. Дальше — полицейский пост: две машины, барьер, фонарик тебе в лицо. «Wohin wollen Sie?»' }],
     actions: [
-      { id: 'talk', label: 'Объяснить, что едешь за девушкой в Barmbek', minutes: 5, terminal: true, goto: 'a2_barmbek',
+      { id: 'talk', label: 'Объяснить, что едешь за девушкой в Barmbek', minutes: 5, terminal: true, goto: 'a2_barmbek', ...noFuel(8),
         outcomes: [
           { id: 'ok', check: { traits: ['persuasion'], difficulty: 4 }, text: 'Полицейский смотрит на тебя долго, потом на заднее сиденье. — Barmbek. Fahren Sie. Und halten Sie nirgends an.', effects: [...driveTo(8, 'b_street', 1.5), { learn: 'f_looting' }] },
           { id: 'detour', text: '— Hier nicht. Zurück. — Тебя разворачивают. Объезд через Alsterdorf занимает ещё сорок минут. Когда ты наконец въезжаешь в Barmbek, уже совсем темно.', effects: [...driveTo(14, 'b_street', 1.5), { learn: 'f_looting' }] },
         ] },
+      ...tail(),
     ],
   }),
   S({
@@ -490,7 +497,8 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── Встреча у Harburg ─────────────
   S({
-    id: 'a2_hbg_wait', for: 'A', chapter: 'ch1', location: 'harburg_station', title: 'Вокзал Harburg',
+    id: 'a2_hbg_wait', for: 'A', chapter: 'ch1', location: 'harburg_station', title: 'Вокзал Harburg', ambient: inCar,
+    // Ждёт в машине, поставленной так, чтобы видеть мост (текст сцены), — не под дождём.
     text: [
       { when: { before: at(10, 17, 30) }, text: 'Площадь перед вокзалом Harburg. Люди с чемоданами, полицейские машины, ларёк, торгующий кофе из термоса за любые деньги. Ты ставишь машину так, чтобы видеть и мост, и дорогу из Wilhelmsburg, — отсюда {partner} должна появиться.' },
       { when: { after: at(10, 17, 30) }, text: 'Громкоговоритель: «Harburg ist abgesperrt. Bitte verlassen Sie den Platz!» Полиция очищает площадь. Ты отгоняешь машину на парковку за углом и смотришь на мост из темноты салона.' },
@@ -544,16 +552,20 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── КТ 2 ─────────────
   S({
-    id: 'a_cp2', for: 'A', chapter: 'ch1', checkpoint: 2, title: 'Ночь', universal: false,
+    id: 'a_cp2', for: 'A', chapter: 'ch1', checkpoint: 2, title: 'Ночь', universal: false, calm: true,
+    // calm: пока ждёт партнёра на точке (сведение часов), пьёт и ест по привычке — ARCHITECTURE §7.6.
     // Ожидание партнёра (сведение часов) — под крышей: у двери, под навесом подъезда, а не под дождём.
     ambient: { outdoor: false, wet: false },
     text: [
-      { when: { at: 'b_street' }, text: 'Ты жмёшь кнопку домофона. Тишина. Ещё раз — долго, до боли в пальце.' },
+      // Домофон — только если A позвонил (a2_barmbek/ring); ночь у её дома без звонка — как ночь «не дома».
+      { when: { all: [{ at: 'b_street' }, { flag: 'A.at_b_door' }] }, text: 'Ты жмёшь кнопку домофона. Тишина. Ещё раз — долго, до боли в пальце.' },
       { when: { at: 'harburg_station' }, text: 'Ты ждёшь. Город вокруг гаснет квартал за кварталом.' },
       { when: { any: [{ at: 'a_flat' }, { at: 'a_stairs' }, { at: 'a_yard' }, { at: 'a_street' }] }, text: 'Ночь в Buchholz. Ты сидишь в темноте, прислушиваясь к дому, к улице, к собственному телефону.' },
       { when: { at: 'hof_luedemann' }, text: 'Ночь на хуторе. Собака во дворе то и дело рычит в темноту.' },
-      { when: { at: 'deniz_workshop' }, text: 'Ночь в мастерской. Генератор выключен — экономят топливо. Слышно, как по железной крыше стучит дождь.' },
-      { when: { not: { any: ['b_street', 'harburg_station', 'a_flat', 'a_stairs', 'a_yard', 'a_street', 'hof_luedemann', 'deniz_workshop'].map((l) => ({ at: l })) } },
+      { when: { all: [{ at: 'deniz_workshop' }, { npc: 'deniz', at: 'deniz_workshop' }] }, text: 'Ночь в мастерской. Генератор выключен — экономят топливо. Слышно, как по железной крыше стучит дождь.' },
+      // Остальное — «не дома»: и у её дома без звонка, и у запертой мастерской, если Дениз уехал.
+      { when: { all: [{ not: { any: ['harburg_station', 'a_flat', 'a_stairs', 'a_yard', 'a_street', 'hof_luedemann'].map((l) => ({ at: l })) } },
+        { not: { all: [{ at: 'b_street' }, { flag: 'A.at_b_door' }] } }, { not: { all: [{ at: 'deniz_workshop' }, { npc: 'deniz', at: 'deniz_workshop' }] } }] },
         text: 'Ночь застаёт тебя не дома. Ты находишь угол, где тебя не видно с улицы, и ждёшь утра, прислушиваясь к каждому звуку и к собственному телефону.' },
     ],
     actions: [],

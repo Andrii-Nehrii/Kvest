@@ -2,6 +2,7 @@
 // которую легко повторить в главе 2 (расход вещей, события «не в своё время», NPC не там, невыполнимые решения).
 import { describe, expect, it } from 'vitest';
 import { availableActions } from '../engine/actions';
+import { evalCond } from '../engine/conditions';
 import { mergeNotes, resolveJoint } from '../engine/checkpoint';
 import { newGame, play } from '../engine/game';
 import { at } from '../engine/time';
@@ -159,5 +160,77 @@ describe('глава 1: логика сцен и мира', () => {
     expect(s.chars.B.time).toBeGreaterThanOrEqual(at(10, 14, 5));
     expect(s.npcs.dariusz.location).toBe('gone_east');
     expect(ids(s, 'B')).toEqual(['back']);
+  });
+
+  it('Сабине отливают пять литров — канистра A действительно теряет их', () => {
+    const s = game();
+    s.vars['A.seg2'] = true;
+    pickup(s, 'A', 'car_keys');
+    carTo(s, 'a_road', 10);
+    s.items['it-test-can'] = { id: 'it-test-can', type: 'can_petrol_10', qty: 1, condition: 100, fuel: 10, at: { kind: 'char', id: 'A' }, changedAt: 0 };
+    put(s, 'A', 'a2_road_north', at(10, 13, 0));
+    play(c, s, 'A', ['polo']);
+    play(c, s, 'A', ['give_fuel']);
+    expect(s.items['it-test-can'].fuel).toBe(5);
+  });
+
+  it('канистру можно залить в бак из машины, а не только в мастерской Дениза', () => {
+    const s = game();
+    pickup(s, 'A', 'car_keys');
+    carTo(s, 'a_yard', 4);
+    s.items['it-test-can'] = { id: 'it-test-can', type: 'can_petrol_10', qty: 1, condition: 100, fuel: 10, at: { kind: 'char', id: 'A' }, changedAt: 0 };
+    put(s, 'A', 'a_drive', at(10, 9, 0), 'a_yard');
+    play(c, s, 'A', ['pour']);
+    expect(Object.values(s.items).find((i) => i.type === 'opel_corsa')!.fuel).toBe(14);
+    expect(s.items['it-test-can'].fuel).toBe(0);
+  });
+
+  it('бензин кончился в Eppendorf или на Ring 3: дальше не уехать, но ночью есть ночлег (участок заканчивается)', () => {
+    for (const [scene, loc] of [['a2_eppendorf', 'hh_eppendorf'], ['a2_ring3', 'hh_ring3']]) {
+      const s = game();
+      s.vars['A.seg2'] = true;
+      s.vars['w.plan_a'] = 'to_b';
+      pickup(s, 'A', 'car_keys');
+      carTo(s, loc, 0.3);
+      put(s, 'A', scene, at(10, 17, 0), loc);
+      expect(availableActions({ s, c, pid: 'A' }).filter((a) => !a.universal && a.enabled)).toEqual([]);
+      s.chars.A.time = at(10, 20, 40);
+      expect(enabled(s, 'A', 'cp2_night')).toBe(true);
+    }
+  });
+
+  it('Ильзе стучит — «выйти из квартиры» ведёт к глазку, а не мимо неё на лестницу', () => {
+    const s = game();
+    put(s, 'A', 'a_wake', at(10, 6, 45));
+    play(c, s, 'A', ['u:rest']); // 06:50 — стук
+    expect(s.vars['A.knock']).toBe(true);
+    play(c, s, 'A', ['leave']);
+    expect(s.chars.A.scene).toBe('a_door');
+  });
+
+  it('A убил Герда — за дверью Брокманов больше никто не дышит', () => {
+    const s = game();
+    s.vars['A.seg2'] = true;
+    s.vars['A.brock_done'] = true;
+    s.vars['A.killed_gerd'] = true;
+    s.npcs.gerd.alive = false;
+    s.npcs.gerd.status = 'dead';
+    put(s, 'A', 'a_tbc', at(10, 19, 30));
+    const ctx = { s, c, pid: 'A' as const };
+    const texts = c.scenes.a_tbc.text.filter((b) => evalCond(ctx, b.when)).map((b) => b.text).join(' ');
+    expect(texts).not.toMatch(/дыхание/);
+    expect(ids(s, 'A')).not.toContain('listen');
+  });
+
+  it('КТ 2: «вы уже здесь, за запертой дверью» — только если встретились', () => {
+    const s = game();
+    s.chars.A.location = 'a_flat';
+    // Оба хотят на хутор, но бензина нет: не встретились — всё остаётся как есть, без «вы уже здесь».
+    carTo(s, 'a_yard', 1);
+    for (const p of ['A', 'B'] as const) s.knowledge[p].f_farm = { kind: 'fact', at: 0, source: 't' };
+    s.vars['w.henrike_maybe'] = true;
+    expect(resolveJoint(c, s, 'shelter', { A: 'farm', B: 'farm' }).reason).not.toMatch(/Вы уже здесь/);
+    s.vars['w.together'] = true;
+    expect(resolveJoint(c, structuredClone(s), 'shelter', { A: 'farm', B: 'farm' }).applied).toEqual(['a_flat']);
   });
 });

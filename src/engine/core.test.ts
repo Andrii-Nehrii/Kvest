@@ -311,6 +311,19 @@ describe('машина, канистра, заряд', () => {
     expect(car.fuel).toBe(0);
   });
 
+  it('отлить из канистры (fillCan с минусом) — топливо убывает, но не ниже нуля', () => {
+    const s = fresh();
+    const ctx = ctxOf(s, 'A');
+    applyEffects(ctx, [{ give: 'can_petrol', fuel: 10 }]);
+    const can = heldItems(ctx).find((i) => i.type === 'can_petrol')!;
+    applyEffects(ctx, [{ fillCan: 'can_petrol', liters: -5 }]);
+    expect(can.fuel).toBe(5);
+    applyEffects(ctx, [{ fillCan: 'can_petrol', liters: -8 }]);
+    expect(can.fuel).toBe(0);
+    applyEffects(ctx, [{ fillCan: 'can_petrol', liters: 15 }]);
+    expect(can.fuel).toBe(10);
+  });
+
   it('канистра весит вместе с топливом', () => {
     const s = newGame(testContent, testSetup);
     const ctx: Ctx = { s, c: testContent, pid: 'A' };

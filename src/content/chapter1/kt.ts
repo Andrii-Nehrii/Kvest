@@ -92,7 +92,7 @@ const kt2Notes: MergeNote[] = [
   { id: 'meet_a_B', group: 'meet', when: { all: [{ at: 'a_street' }, { flag: 'B.at_a_door' }, partnerAtAHome] }, effects: together,
     text: 'Шаги за дверью. Замок. {partner} стоит на пороге с фонариком в руке — и роняет его. Ты не помнишь, как оказываешься внутри. Помнишь только, что он держит тебя, мокрую, и повторяет твоё имя.' },
   { id: 'meet_a_A', group: 'meet', when: { all: [aHome, { flag: 'B.at_a_door' }, { partnerAt: 'a_street' }] }, effects: together,
-    text: 'Звонок. Стук — кулаком, по-настоящему. Ты открываешь с фонариком в руке — и роняешь его. {partner}. Мокрая насквозь, дрожащая, живая. Она дошла.' },
+    text: 'Звонок. Стук — кулаком, по-настоящему. Ты открываешь с фонариком в руке — и роняешь его. {partner}. Мокрая, дрожащая, живая. Она дошла.' },
   { id: 'meet_hbg', group: 'meet', when: { all: [{ at: 'harburg_station' }, { partnerAt: 'harburg_station' }] }, effects: together,
     text: 'Среди фар, зонтов и полицейских мигалок ты вдруг видишь {partner.acc} — и не веришь, пока {pm:он|она} не оказывается совсем рядом. Harburg, вокзал, дождь. Вы нашли друг друга на полпути.' },
   { id: 'miss_b', group: 'meet', when: { all: [{ at: 'b_street' }, { flag: 'A.at_b_door' }] },
@@ -141,8 +141,9 @@ const shelter: JointDecision = {
   arbiters: [
     { id: 'henrike', when: { all: [{ flag: 'w.henrike_yes' }, FARM_OK] }, winner: 'farm', text: 'Хенрике сказала «да». Такое второй раз не предлагают.' },
     { id: 'deniz', when: DENIZ_WAITS, winner: 'workshop', text: 'Дениз ждёт — и он держит слово.' },
-    { id: 'here_b', when: { at: 'b_street' }, winner: 'b_flat', text: 'Вы уже здесь, в Barmbek, за запертой дверью. Ночью через город никто не поедет.' },
-    { id: 'here_a', when: aHome, winner: 'a_flat', text: 'Вы уже здесь, в Buchholz, за запертой дверью. Ночью никто никуда не поедет.' },
+    // «Вы уже здесь, за запертой дверью» — только если встретились (иначе каждый сам по себе и «вы» не к месту).
+    { id: 'here_b', when: { all: [{ at: 'b_street' }, { flag: 'w.together' }] }, winner: 'b_flat', text: 'Вы уже здесь, в Barmbek, за запертой дверью. Ночью через город никто не поедет.' },
+    { id: 'here_a', when: { all: [aHome, { flag: 'w.together' }] }, winner: 'a_flat', text: 'Вы уже здесь, в Buchholz, за запертой дверью. Ночью никто никуда не поедет.' },
   ],
   fallbackWeights: SHELTERS.map((option) => ({ option, base: 1 })),
   default: STAY,

@@ -37,7 +37,8 @@ const backToPlace: ActionDef[] = [
 export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── КТ 1 ─────────────
   S({
-    id: 'b_cp1', for: 'B', chapter: 'ch1', checkpoint: 1, title: 'Полдень', universal: false,
+    id: 'b_cp1', for: 'B', chapter: 'ch1', checkpoint: 1, title: 'Полдень', universal: false, calm: true,
+    // calm: пока ждёт партнёра на точке (сведение часов), пьёт и ест по привычке — ARCHITECTURE §7.6.
     text: [
       { when: { phoneUsable: true }, text: 'Гудки. Ты садишься прямо там, где стоишь, и закрываешь глаза, чтобы слышать только их. Третий. Четвёртый…' },
       { when: { not: { phoneUsable: true } }, text: 'Полдень. Телефон мёртв, и ты не знаешь, что с {partner.ins}. Можно только решить, что делать дальше, — и надеяться, что {pm:он|она} решит так же.' },
@@ -263,7 +264,8 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'give', label: 'Оставить ему воду и таблетку от жара', minutes: 2, combinable: true,
         when: { all: [{ flag: '$.tunnel_man' }, { hasTag: 'painkiller' }, { hasTag: 'drink' }, { not: { flag: '$.tunnel_gave' } }] },
         text: 'Ты ставишь рядом с ним бутылку и кладёшь таблетку на крышку. Он смотрит на тебя так, будто не понимает, зачем. — Danke, — говорит он наконец.',
-        effects: [{ takeTag: 'painkiller' }, { takeTag: 'drink' }, { set: '$.tunnel_gave', value: true }] },
+        // Отдаёт маленькую бутылку, если она есть, а не литровую воду или молоко.
+        effects: [{ takeTag: 'painkiller' }, { if: { has: 'water_05' }, then: [{ take: 'water_05' }], else: [{ takeTag: 'drink' }] }, { set: '$.tunnel_gave', value: true }] },
       { id: 'pass', label: 'Не останавливаясь, ехать к южному выходу', minutes: 10, activity: 'moderate', terminal: true, goto: 'b2_steinwerder',
         effects: [{ if: { not: { flag: '$.tunnel_man' } }, then: [{ set: '$.tunnel_man', value: 'passed' }] }] },
     ],
@@ -275,8 +277,13 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
       { when: { knows: 'f_port_route' }, text: 'Hachmannkai — пустая служебная дорога вдоль воды. Докер был прав: здесь никого.' },
     ],
     actions: [
+      // Шоколадку съедает, только если она есть (и тогда она тратится).
       { id: 'shelter', label: 'Переждать ливень под навесом склада', minutes: 15, combinable: true, activity: 'rest',
-        text: 'Под навесом пахнет мазутом. Ты съедаешь половину шоколадки и смотришь, как вода льётся с крыши сплошной стеной. Где-то в глубине склада что-то лязгает — раз, другой. Ты уезжаешь раньше, чем дождь кончится.' },
+        outcomes: [
+          { id: 'choc', when: { has: 'chocolate' }, effects: [{ take: 'chocolate' }, { body: 'hunger', delta: -10 }],
+            text: 'Под навесом пахнет мазутом. Ты съедаешь шоколадку и смотришь, как вода льётся с крыши сплошной стеной. Где-то в глубине склада что-то лязгает — раз, другой. Ты уезжаешь раньше, чем дождь кончится.' },
+          { id: 'plain', text: 'Под навесом пахнет мазутом. Ты смотришь, как вода льётся с крыши сплошной стеной. Где-то в глубине склада что-то лязгает — раз, другой. Ты уезжаешь раньше, чем дождь кончится.' },
+        ] },
       { id: 'on', label: 'Ехать на юг, к Wilhelmsburg', minutes: 12, move: true, terminal: true, goto: 'b2_courier',
         outcomes: [
           { id: 'foot', when: { not: onBike }, effects: [{ wait: 40, activity: 'moderate' }], goto: 'b2_wilhelmsburg' },
@@ -419,8 +426,13 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
         when: { all: [{ before: at(10, 18, 0) }, { not: { flag: '$.hbg_bakery' } }, { has: 'cash_eur', qty: 4 }] },
         text: 'В булочной тепло и пахнет корицей. Хозяйка, не спрашивая, ставит перед тобой чай и пирожок и берёт четыре евро. Ты держишь чашку обеими руками, пока пальцы снова не начинают слушаться. Часы над прилавком торопятся.',
         effects: [{ set: '$.hbg_bakery', value: true }, { take: 'cash_eur', qty: 4 }, { body: 'thirst', delta: -20 }, { body: 'hunger', delta: -15 }, { body: 'stress', delta: -6 }] },
+      // Пьёт, только если есть маленькая бутылка (и тогда она тратится).
       { id: 'rest', label: 'Посидеть на скамейке под навесом остановки', minutes: 15, activity: 'rest', combinable: true,
-        text: 'Ноги дрожат. Ты пьёшь воду маленькими глотками, глядя на поток машин, которые стоят на юг. Рядом садится старушка с таксой и молча протягивает тебе мятную конфету.' },
+        outcomes: [
+          { id: 'water', when: { has: 'water_05' }, effects: [{ take: 'water_05' }, { body: 'thirst', delta: -22 }],
+            text: 'Ноги дрожат. Ты пьёшь воду маленькими глотками, глядя на поток машин, которые стоят на юг. Рядом садится старушка с таксой и молча протягивает тебе мятную конфету.' },
+          { id: 'plain', text: 'Ноги дрожат. Ты сидишь, глядя на поток машин, которые стоят на юг. Рядом садится старушка с таксой и молча протягивает тебе мятную конфету.' },
+        ] },
       ...tail(),
     ],
   }),
@@ -477,7 +489,8 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── КТ 2 ─────────────
   S({
-    id: 'b_cp2', for: 'B', chapter: 'ch1', checkpoint: 2, title: 'Ночь', universal: false,
+    id: 'b_cp2', for: 'B', chapter: 'ch1', checkpoint: 2, title: 'Ночь', universal: false, calm: true,
+    // calm: пока ждёт партнёра на точке (сведение часов), пьёт и ест по привычке — ARCHITECTURE §7.6.
     // Ожидание партнёра (сведение часов) — под крышей: у двери, под навесом подъезда, а не под дождём.
     ambient: { outdoor: false, wet: false },
     text: [

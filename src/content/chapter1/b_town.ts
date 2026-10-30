@@ -189,7 +189,8 @@ export const bTownScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── Супермаркет ─────────────
   S({
-    id: 'b_market', for: 'B', chapter: 'ch1', location: 'b_market', title: 'Супермаркет',
+    id: 'b_market', for: 'B', chapter: 'ch1', location: 'b_market', title: 'Супермаркет', ambient: { outdoor: true },
+    // Очередь — на тротуаре, под дождём (место — сам магазин, он под крышей: b_market_in).
     text: [
       { when: { before: at(10, 15, 0) }, text: 'Супермаркет у Hamburger Straße. У входа давка: охранник пускает по пятнадцать человек, очередь змеится по тротуару под дождём. Кто-то держит над головой упаковку туалетной бумаги вместо зонта.' },
       { when: { after: at(10, 15, 0) }, text: 'Супермаркет закрыт: ставни опущены наполовину, на асфальте — раздавленные яйца и пустая тележка на боку.' },
@@ -225,7 +226,8 @@ export const bTownScenes: Record<string, Scene> = Object.fromEntries([
 
   // ───────────── Аптека ─────────────
   S({
-    id: 'b_pharmacy', for: 'B', chapter: 'ch1', location: 'b_pharmacy', title: 'Аптека',
+    id: 'b_pharmacy', for: 'B', chapter: 'ch1', location: 'b_pharmacy', title: 'Аптека', ambient: { outdoor: true },
+    // «Полчаса под дождём» — очередь снаружи; внутри, у прилавка (b_pharmacy_in), сухо.
     text: [
       { when: open(at(10, 16, 30)), text: 'Аптека у вокзала. Очередь до угла; внутри три провизора в масках. На двери от руки: «Bitte nur dringende Fälle — Lieferung heute ausgefallen».' },
       { when: evening, text: 'Аптека закрыта. На стекле — утренний лист и под ним новый: «Kein Insulin, kein Paracetamol mehr».' },
