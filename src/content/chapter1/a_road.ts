@@ -343,6 +343,8 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       driveAction('out', 'Дождаться, пока поток тронется, и выехать', 4, 25, 'hh_city', 'a2_city', {
         text: 'Тридцать метров. Ещё тридцать. Потом — подъём, серое небо, и ты в городе.',
         effects: [{ if: { not: { flag: '$.tunnel_woman' } }, then: [{ set: '$.tunnel_woman', value: 'ignored' }] }] }, 3),
+      // Бензин кончился в пробке: выехать нельзя — остаётся ночь (иначе участок не заканчивался).
+      ...tail(),
     ],
   }),
   S({
@@ -385,6 +387,7 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
     ],
     actions: [
       driveAction('on', 'Ехать дальше, в Barmbek', 6, 25, 'b_street', 'a2_barmbek', {}, 1.5),
+      ...tail(),
     ],
   }),
   S({

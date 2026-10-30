@@ -6,6 +6,8 @@ import { caps, carriedWeight, carryLimit, fmt, heldItems, itemsAt, itemType, typ
 import { Card, Meter } from '../kit';
 import { consciousnessWord, injuryText, knownNpc, trustWord, weightText } from '../format';
 
+const IMPORTANT = ['keys', 'phone', 'medicine', 'card', 'money'];
+
 export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => void }) {
   const ch = ctx.s.chars[ctx.pid];
   const held = heldItems(ctx);
@@ -26,6 +28,12 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
     return { t, extra };
   };
   const canAct = ch.body.consciousness === 'awake';
+  /** Ключи, телефон, лекарства, деньги: случайно оставить их — дорого обойдётся. */
+  const drop = (i: (typeof held)[number], action: string) => {
+    const t = itemType(ctx, i.type);
+    if (IMPORTANT.some((tag) => t.tags.includes(tag)) && !confirm(`Оставить здесь: ${t.name}?`)) return;
+    onPlan([action]);
+  };
   return (
     <div className="page">
       <Card title="Нагрузка">
@@ -45,8 +53,8 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
                 {open === i.id && t.description && <div className="small muted" style={{ padding: '2px 0 6px' }}>{t.description}</div>}
                 {open === i.id && canAct && (
                   <div className="row" style={{ padding: '4px 0 10px' }}>
-                    <button className="btn" onClick={() => onPlan([`u:drop1:${i.type}`])}>Оставить одну</button>
-                    {i.qty > 1 && <button className="btn" onClick={() => onPlan([`u:dropall:${i.type}`])}>Оставить все</button>}
+                    <button className="btn" onClick={() => drop(i, `u:drop1:${i.type}`)}>{i.qty > 1 ? 'Оставить одну штуку' : 'Оставить здесь'}</button>
+                    {i.qty > 1 && <button className="btn" onClick={() => drop(i, `u:dropall:${i.type}`)}>Оставить все</button>}
                   </div>
                 )}
               </div>

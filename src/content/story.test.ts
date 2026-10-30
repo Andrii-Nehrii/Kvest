@@ -45,12 +45,16 @@ function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number) {
   const recs: ActionRecord[] = [];
   const visited = new Set<string>();
   let idle = 0;
+  let sameScene = 0;
+  let sceneNow = s.chars[pid].scene;
   for (let step = 0; step < limit && !segmentFinished(c, s, pid); step++) {
     if (step % 3 === 0) checkScreen({ s, c, pid });
     const all = availableActions({ s, c, pid }).filter((a) => a.enabled && !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
     const story = all.filter((a) => !a.universal);
     idle = story.length ? 0 : idle + 1;
-    if (idle === 40) stuck.add(`${pid} ${s.chars[pid].scene} @${s.chars[pid].location}`);
+    if (idle === 40) stuck.add(`${pid} только «подождать»: ${s.chars[pid].scene} @${s.chars[pid].location}`);
+    if (s.chars[pid].scene !== sceneNow) { sceneNow = s.chars[pid].scene; sameScene = 0; }
+    if (++sameScene === 80) stuck.add(`${pid} не выйти из сцены: ${sceneNow} @${s.chars[pid].location}`);
     const r = unit(`${tag}:${step}`);
     const pool = story.length && r < 0.9 ? story : all;
     if (!pool.length) break;
@@ -199,7 +203,7 @@ describe('сюжет главы 1: полное прохождение двум�
     console.log(`КТ1: ${stats.cp1}/${stats.runs}, КТ2: ${stats.cp2}/${stats.runs}; решений до КТ1 ~${med(stats.steps1)}, до КТ2 ~${med(stats.steps2)}; время КТ1 ~${hh(med(stats.t1))}, КТ2 ~${hh(med(stats.t2))}`);
     console.log(`Не посещены случайными игроками: ${Object.keys(c.scenes).filter((id) => !visited.has(id)).join(', ')}`);
     expect([...badTexts], 'неподставленные шаблоны в текстах').toEqual([]);
-    expect([...stuck], 'тупики: только «подождать» 40 шагов подряд').toEqual([]);
+    expect([...stuck], 'тупики').toEqual([]);
     expect(stats.cp1).toBeGreaterThanOrEqual(stats.runs * 0.9);
     expect(stats.cp2).toBeGreaterThanOrEqual(stats.runs * 0.9);
   });
