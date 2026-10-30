@@ -7,6 +7,7 @@ import { cloudPaths, loadCloud, putFile, storeCloud, type CloudConfig } from '..
 import { content } from '../content';
 import { healthDot } from './format';
 import { Icon } from './kit';
+import { saveFile } from './download';
 import { Checkpoint, Resolution } from './screens/Checkpoint';
 import { CloudCard, Ended, More } from './screens/More';
 import { Create, Join, Menu } from './screens/Start';
@@ -30,6 +31,7 @@ export function App() {
   const [pendingJoin, setPendingJoin] = useState<{ save: LocalSave; reply: string } | undefined>();
   const [showResult, setShowResult] = useState(false);
   const [toast, setToast] = useState<{ text: string; bad?: boolean } | null>(null);
+  const [updated, setUpdated] = useState(false);
 
   const [cloud, setCloud] = useState<CloudConfig | null>(null);
   const cloudRef = useRef<CloudConfig | null>(null);
@@ -48,6 +50,9 @@ export function App() {
     }).catch(() => setSave(null));
     loadCloud().then((c) => setCloud(c ?? null)).catch(() => {});
     requestPersistence();
+    const onUpdate = () => setUpdated(true);
+    window.addEventListener('kvest-update', onUpdate);
+    return () => window.removeEventListener('kvest-update', onUpdate);
   }, []);
 
   const updateCloud = (c: CloudConfig | null) => { setCloud(c); storeCloud(c).catch(() => {}); };
@@ -88,11 +93,16 @@ export function App() {
   };
   const reset = () => { persist(null); setView('menu'); setTab('story'); setPendingJoin(undefined); };
 
+  const updateBar = updated && (
+    <div className="update-bar"><span>Вышло обновление игры.</span><button className="btn primary" onClick={() => location.reload()}>Обновить</button></div>
+  );
+
   if (save === undefined) return <div className="app"><div className="page muted">Загрузка…</div></div>;
 
   if (!save || save.phase === 'invited' || pendingJoin) {
     return (
       <div className="app">
+        {updateBar}
         {pendingJoin ? <Join pending={pendingJoin} onBack={() => setPendingJoin(undefined)} onSave={() => setPendingJoin(undefined)} />
           : save?.phase === 'invited' ? <Create save={save} onSave={persist} onBack={reset} cloudToken={cloud?.token} />
           : view === 'create' ? <Create onSave={persist} onBack={() => setView('menu')} cloudToken={cloud?.token} />
@@ -139,6 +149,7 @@ export function App() {
           <span className={`dot ${healthDot(ch.body)}`} title="Самочувствие" />
         </div>
       </header>
+      {updateBar}
       <Boundary save={save}>{body}</Boundary>
       {save.phase !== 'ended' && (
         <nav className="nav"><div className="nav-inner">
@@ -160,12 +171,7 @@ class Boundary extends Component<{ save: LocalSave; children: ReactNode }, { err
   static getDerivedStateFromError(err: Error) { return { err }; }
   render() {
     if (!this.state.err) return this.props.children;
-    const download = () => {
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(new Blob([exportSave(this.props.save)], { type: 'application/json' }));
-      a.download = 'kvest-save.json';
-      a.click();
-    };
+    const download = () => saveFile('kvest-save.json', exportSave(this.props.save));
     return (
       <div className="page">
         <div className="card bad"><h3>Ошибка</h3><div className="small">{this.state.err.message}</div></div>

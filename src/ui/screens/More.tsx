@@ -7,6 +7,7 @@ import { START_TIME } from '../../app/session';
 import { content } from '../../content';
 import { knownNpc, RULE_LABELS } from '../format';
 import { Card, CodeOut } from '../kit';
+import { saveFile } from '../download';
 import { useState } from 'react';
 import { checkCloud, type CloudConfig } from '../../app/cloud';
 
@@ -60,14 +61,7 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
   const env = environment(ctx);
   const day = daylight(ch.time);
   const net = phoneUsable(ctx) ? network(ctx) : null;
-  const download = () => {
-    const blob = new Blob([exportSave(save)], { type: 'application/json' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `kvest-${save.me}-kt${save.base?.checkpoint ?? 0}.json`;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  };
+  const download = () => saveFile(`kvest-${save.me}-kt${save.base?.checkpoint ?? 0}.json`, exportSave(save));
   const canAct = ch.body.consciousness === 'awake';
   return (
     <div className="page">

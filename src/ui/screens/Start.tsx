@@ -38,6 +38,7 @@ function CloudRestore({ token, onImport }: { token: string; onImport: (s: LocalS
     setBusy(false);
   };
   const pick = (e: CloudSaveEntry) => {
+    if (!confirm(`Восстановить игру за ${e.name}? Дальше играй только на этом телефоне: если продолжать и на старом, ходы на контрольной точке разойдутся.`)) return;
     try { onImport(importSave(content, e.text)); } catch (x) { setErr(x instanceof Error ? x.message : String(x)); }
   };
   return (
