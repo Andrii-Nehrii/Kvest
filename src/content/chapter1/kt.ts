@@ -6,9 +6,15 @@ import { at } from '../../engine/time';
 import { A_HOMES } from './common';
 
 const A_CAN_DRIVE: Cond = { all: [{ fuelIn: 'opel_corsa', liters: 4 }, { cap: 'canAct', op: '==', value: 1 }] };
+/** B уехала с Новаками (в фургоне или уже в Ahrensburg): в Barmbek её нет. */
+const B_AWAY: Cond = { any: [{ partnerAt: 'ahrensburg' }, { partnerAt: 'b_van' }] };
+/**
+ * До B в Barmbek по самой короткой дороге (A1, тоннель в пробке ×3, город) уходит ≈ 5,9 л — с 4 л машина
+ * вставала в тоннеле. И ехать «за ней в Гамбург» есть смысл, только если она там.
+ */
+const A_CAN_REACH_B: Cond = { all: [{ fuelIn: 'opel_corsa', liters: 6 }, { cap: 'canAct', op: '==', value: 1 }, { not: B_AWAY }] };
 // Велосипед стоит в Barmbek: если B уже уехала с Новаками, ехать ей не на чем.
-const B_CAN_TRAVEL: Cond = { all: [{ flag: 'B.bike_ready' }, { not: { flag: 'B.bike_lost' } }, { partner: 'active' },
-  { not: { partnerAt: 'ahrensburg' } }, { not: { partnerAt: 'b_van' } }] };
+const B_CAN_TRAVEL: Cond = { all: [{ flag: 'B.bike_ready' }, { not: { flag: 'B.bike_lost' } }, { partner: 'active' }, { not: B_AWAY }] };
 const HARBURG_OK: Cond = { all: [{ not: { flag: 'w.harburg_cordon' } }, A_CAN_DRIVE, B_CAN_TRAVEL] };
 const plan = (a: string, b: string): Effect[] => [{ set: 'w.plan_a', value: a }, { set: 'w.plan_b', value: b }];
 
@@ -17,7 +23,7 @@ const meet: JointDecision = {
   prompt: { default: 'Связь рвётся. Полдень, до темноты — четыре часа. Как вы будете добираться друг до друга — и будете ли сегодня вообще?' },
   options: [
     { id: 'a_to_b', label: { A: 'Я еду за тобой в Гамбург — жди дома', B: 'Пусть {partner} приедет за мной — я жду дома', default: '{A} едет за {B.ins} в Гамбург' },
-      feasible: A_CAN_DRIVE, effects: [...plan('to_b', 'wait'), { set: 'w.plan_meet', value: 'a_to_b' }],
+      feasible: A_CAN_REACH_B, effects: [...plan('to_b', 'wait'), { set: 'w.plan_meet', value: 'a_to_b' }],
       text: 'Решено: {A} едет в Гамбург, {B} ждёт дома.' },
     { id: 'b_to_a', label: { A: 'Выбирайся ко мне — я жду здесь', B: 'Я выбираюсь к тебе в Buchholz', default: '{B} пробирается к {A.dat} в Buchholz' },
       feasible: B_CAN_TRAVEL, effects: [...plan('wait', 'to_a'), { set: 'w.plan_meet', value: 'b_to_a' }],
@@ -31,15 +37,17 @@ const meet: JointDecision = {
   ],
   compromises: [{ pair: ['a_to_b', 'b_to_a'], result: 'meet_harburg', when: HARBURG_OK }],
   arbiters: [
-    { id: 'a_on_road', when: { all: [{ at: 'harburg' }, A_CAN_DRIVE] }, winner: 'a_to_b',
+    { id: 'a_on_road', when: { all: [{ at: 'harburg' }, A_CAN_REACH_B] }, winner: 'a_to_b',
       text: '{A} уже в Harburg, на полпути, и машина при нём. Решила дорога, по которой он уже едет.' },
-    { id: 'no_car', when: { all: [{ not: A_CAN_DRIVE }, B_CAN_TRAVEL] }, winner: 'b_to_a',
+    { id: 'b_away', when: B_AWAY, winner: 'wait',
+      text: '{B} уже за городом, в Ahrensburg. Сегодня туда никто не доберётся — каждый остаётся там, где есть.' },
+    { id: 'no_car', when: { all: [{ not: A_CAN_REACH_B }, B_CAN_TRAVEL] }, winner: 'b_to_a',
       text: 'Машина {A.gen} не доедет — бензина в обрез или ехать не на чем. Дорога остаётся только у {B.gen}.' },
-    { id: 'b_stuck', when: { all: [{ not: B_CAN_TRAVEL }, A_CAN_DRIVE] }, winner: 'a_to_b',
+    { id: 'b_stuck', when: { all: [{ not: B_CAN_TRAVEL }, A_CAN_REACH_B] }, winner: 'a_to_b',
       text: 'Поезда в городе встали, а {B.dat} не на чем выбраться. Остаётся машина {A.gen}.' },
-    { id: 'nobody', when: { all: [{ not: A_CAN_DRIVE }, { not: B_CAN_TRAVEL }] }, winner: 'wait',
+    { id: 'nobody', when: { all: [{ not: A_CAN_REACH_B }, { not: B_CAN_TRAVEL }] }, winner: 'wait',
       text: 'Ни машины на ходу, ни велосипеда: сегодня друг до друга не добраться.' },
-    { id: 'jam', when: { flag: 'w.elbe_jam' }, winner: 'a_to_b',
+    { id: 'jam', when: { all: [{ flag: 'w.elbe_jam' }, A_CAN_REACH_B] }, winner: 'a_to_b',
       text: 'Всё, что едет из города на юг, стоит в пробке. В город дорога свободнее: ехать навстречу затору проще, чем сквозь него.' },
     { id: 'bike_far', when: HARBURG_OK, winner: 'meet_harburg',
       text: 'Сорок километров на велосипеде под дождём — слишком. До Harburg вдвое ближе.' },
@@ -65,8 +73,9 @@ const bHome: Cond = { any: [{ at: 'b_flat' }, { at: 'b_stairs' }] };
 const partnerAtBHome: Cond = { any: [{ partnerAt: 'b_flat' }, { partnerAt: 'b_stairs' }] };
 
 const kt1Notes: MergeNote[] = [
-  // Оба набирали друг друга, пока сеть была жива (12:20–13:10), — или сеть есть прямо сейчас.
-  { id: 'call', group: 'call', when: { any: [{ callable: true }, { all: [{ flag: '$.kt1_dialed' }, { flag: '@partner.kt1_dialed' }, { phoneUsable: true }] }] },
+  // Оба набирали друг друга, пока сеть была жива, — или сеть есть прямо сейчас. Набрать можно только с живого телефона,
+  // поэтому «оба набирали» — разговор состоялся у обоих, даже если чей-то телефон сел, пока ждали (заметки симметричны).
+  { id: 'call', group: 'call', when: { any: [{ callable: true }, { all: [{ flag: '$.kt1_dialed' }, { flag: '@partner.kt1_dialed' }] }] },
     text: 'Гудки обрываются — и в трубке голос {partner.gen}. Далёкий, с треском, слова доходят через одно: «…{pm:жив|жива}… слышишь меня?.. ты где?..» Вы успеваете сказать главное — живы, где вы, что видели, — прежде чем связь рвётся. Перезвонить не получается. Теперь нужно решить, как быть дальше.',
     effects: [{ learn: 'f_kt1_talked' }, { set: '$.talked_kt1', value: true }] },
   { id: 'dead', group: 'call', when: { not: { phoneUsable: true } },
@@ -100,6 +109,9 @@ const kt2Notes: MergeNote[] = [
 ];
 
 const STAY = 'stay';
+/** Дениз обещал укрыть — и он у себя в мастерской (в 15:00 мог уехать за братом, в 18:00 — на хутор). */
+const DENIZ_WAITS: Cond = { all: [{ flag: 'w.deniz_shelter' }, { npc: 'deniz', at: 'deniz_workshop' }] };
+const FARM_OK: Cond = { all: [{ any: [{ flag: 'w.henrike_yes' }, { flag: 'w.henrike_maybe' }, { flag: 'w.deniz_vouch' }] }, { fuelIn: 'opel_corsa', liters: 3 }] };
 const SHELTERS = ['farm', 'workshop', 'a_flat', 'b_flat', 'messe', 'north', STAY];
 
 const shelter: JointDecision = {
@@ -107,9 +119,9 @@ const shelter: JointDecision = {
   prompt: { default: 'Ночь. Город за окнами гаснет квартал за кварталом. Нужно решить, где вы переждёте ближайшие дни.' },
   options: [
     { id: 'farm', label: { default: 'Хутор Людеманов под Jesteburg — если Хенрике пустит' }, when: { knows: 'f_farm' },
-      feasible: { all: [{ any: [{ flag: 'w.henrike_yes' }, { flag: 'w.henrike_maybe' }, { flag: 'w.deniz_vouch' }] }, { fuelIn: 'opel_corsa', liters: 3 }] },
+      feasible: FARM_OK,
       effects: [{ set: 'w.shelter', value: 'farm' }], text: 'Утром — на хутор к Людеманам. Хенрике обещала посмотреть — на вас и на то, что вы привезёте.' },
-    { id: 'workshop', label: { default: 'Мастерская Дениза в Buchholz' }, when: { knows: 'f_deniz_shelter' }, feasible: { flag: 'w.deniz_shelter' },
+    { id: 'workshop', label: { default: 'Мастерская Дениза в Buchholz' }, when: { knows: 'f_deniz_shelter' }, feasible: DENIZ_WAITS,
       effects: [{ set: 'w.shelter', value: 'workshop' }], text: 'Утром — в мастерскую Дениза: бетон, железо, канистры. Стучать три раза и два.' },
     { id: 'a_flat', label: { A: 'Моя квартира в Buchholz', B: 'Квартира {partner.gen} в Buchholz', default: 'Квартира {A.gen} в Buchholz' },
       effects: [{ set: 'w.shelter', value: 'a_flat' }], text: 'Пока — квартира {A.gen} в Buchholz: свои стены, знакомые соседи.' },
@@ -127,8 +139,8 @@ const shelter: JointDecision = {
     ...SHELTERS.flatMap((x, i) => SHELTERS.slice(i + 1).map((y) => ({ pair: [x, y] as [string, string], result: STAY, when: { not: { flag: 'w.together' } } as Cond }))),
   ],
   arbiters: [
-    { id: 'henrike', when: { flag: 'w.henrike_yes' }, winner: 'farm', text: 'Хенрике сказала «да». Такое второй раз не предлагают.' },
-    { id: 'deniz', when: { flag: 'w.deniz_shelter' }, winner: 'workshop', text: 'Дениз ждёт — и он держит слово.' },
+    { id: 'henrike', when: { all: [{ flag: 'w.henrike_yes' }, FARM_OK] }, winner: 'farm', text: 'Хенрике сказала «да». Такое второй раз не предлагают.' },
+    { id: 'deniz', when: DENIZ_WAITS, winner: 'workshop', text: 'Дениз ждёт — и он держит слово.' },
     { id: 'here_b', when: { at: 'b_street' }, winner: 'b_flat', text: 'Вы уже здесь, в Barmbek, за запертой дверью. Ночью через город никто не поедет.' },
     { id: 'here_a', when: aHome, winner: 'a_flat', text: 'Вы уже здесь, в Buchholz, за запертой дверью. Ночью никто никуда не поедет.' },
   ],

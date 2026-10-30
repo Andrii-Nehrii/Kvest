@@ -65,9 +65,13 @@ function tickControlledPartner(ctx: Ctx, minutes: number) {
   const pid = other(ctx.pid);
   const p = ctx.s.chars[pid];
   if (p.controlledBy !== ctx.pid || p.body.consciousness === 'dead') return;
+  // Партнёр живёт ровно до часов ведущего: если его время уже досчитано (сведение часов на точке),
+  // второй раз оно не проживается.
+  const dt = me(ctx).time + minutes - p.time;
+  if (dt <= 0) return;
   const pctx: Ctx = { ...ctx, pid };
-  const r = tickBody(p.body, p.traits, p.time, minutes, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`);
-  p.time += minutes;
+  const r = tickBody(p.body, p.traits, p.time, dt, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`);
+  p.time += dt;
   if (r.died) log(pctx, 'system', 'Смерть.');
 }
 
@@ -120,12 +124,16 @@ export function fireDue(ctx: Ctx, res: AdvanceResult, away = false) {
   }
   for (const def of Object.values(ctx.c.npcs)) {
     const npc = ctx.s.npcs[def.id];
-    if (!npc) continue;
+    // У погибшего NPC своих планов больше нет.
+    if (!npc?.alive) continue;
     for (const a of def.agenda) {
       if (a.scope !== 'world' && a.scope !== ctx.pid) continue;
       const doneKey = a.scope === 'world' ? `${a.id}@${ctx.pid}` : a.id;
       if (npc.agendaDone.includes(doneKey)) continue;
       if (a.at !== undefined && a.at > ch.time) continue;
+      // Общий для обеих линий пункт уже выполнен на линии партнёра (видно после слияния): NPC сделал это один раз,
+      // а отставший при сведении часов не повторяет его поверх того, что случилось позже.
+      if (a.scope === 'world' && npc.agendaDone.includes(`${a.id}@${other(ctx.pid)}`)) { npc.agendaDone.push(doneKey); continue; }
       if (!evalCond(ctx, a.when)) continue;
       npc.agendaDone.push(doneKey);
       npc.changedAt = ch.time;
@@ -175,7 +183,12 @@ export function applyStandingRules(ctx: Ctx) {
     })
     .sort(tag === 'thirst' ? (a, b) => drinkOrder(ctx, a, b)
       : (a, b) => (itemType(ctx, b.type).spoilsAfter ? 1 : 0) - (itemType(ctx, a.type).spoilsAfter ? 1 : 0) || (a.id < b.id ? -1 : 1));
-  if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45) {
+  const loc = ctx.c.locations[ch.location];
+  if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45 && loc?.water && ctx.s.vars[`w.water.${loc.region}`] !== 'off') {
+    // Есть водопровод — пьют из-под крана, а не из запасов в рюкзаке.
+    ch.body.thirst = clamp(ch.body.thirst - 35, 0, 100);
+    log(ctx, 'item', 'По привычке: {m:попил|попила} воды из-под крана.');
+  } else if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45) {
     const item = usable('thirst')[0];
     if (item) {
       const t = itemType(ctx, item.type);

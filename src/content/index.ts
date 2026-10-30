@@ -43,7 +43,8 @@ function withRepeatableMoves(scenes: Record<string, Scene>): Record<string, Scen
 
 /** Участок 1 затянулся после 14:00 — в местах с переходом к КТ 1 остаётся только он (плюс повседневное). */
 const LATE_SEG1: Cond = { all: [{ not: SEG2 }, { after: at(10, 14, 0) }] };
-const KEEP_LATE = new Set(['cp1_call', 'cp1_noon']);
+// Довести Брокманов до машины / отвезти домой: пока они на руках у A, переход к КТ 1 скрыт (a_town.ts, brockFirst).
+const KEEP_LATE = new Set(['cp1_call', 'cp1_noon', 'keys_up', 'to_car', 'brock_back', 'home_brock']);
 function withLateSegment1(scenes: Record<string, Scene>): Record<string, Scene> {
   return Object.fromEntries(Object.entries(scenes).map(([id, s]) => {
     if (!s.actions.some((a) => a.id === 'cp1_call')) return [id, s];

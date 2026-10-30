@@ -10,7 +10,7 @@ import { hourOfDay } from './time';
 import { advanceTime, applyStandingRules, drinkOrder } from './simulate';
 import type { Effect } from './types';
 import {
-  caps, countTag, fmt, heldItems, itemsAt, itemType, log, me, network, pain, phone, phoneUsable, roll, type Ctx,
+  caps, carriedWeight, carryLimit, countTag, fmt, heldItems, itemsAt, itemType, log, me, network, pain, phone, phoneUsable, roll, type Ctx,
 } from './world';
 
 export interface AvailableAction {
@@ -18,6 +18,11 @@ export interface AvailableAction {
   enabled: boolean;
   reason?: string;
   universal: boolean;
+  /**
+   * Действие недоступно только потому, что ещё не сделаны эти шаги (requiresDone), а само условие `enabled`
+   * выполнено: в плане его можно поставить после них. Если не выполнено `enabled`, поле не задаётся.
+   */
+  waitsFor?: string[];
 }
 
 export function currentScene(ctx: Ctx): Scene {
@@ -36,8 +41,17 @@ export function availableActions(ctx: Ctx): AvailableAction[] {
   for (const def of scene.actions) {
     if (!def.repeatable && ch.done[doneKey(scene.id, def.id)]) continue;
     if (!evalCond(ctx, def.when)) continue;
-    const enabled = evalCond(ctx, def.enabled) && (def.requiresDone ?? []).every((r) => ch.done[doneKey(scene.id, r)]);
-    out.push({ def, enabled, reason: enabled ? undefined : def.disabledReason ?? 'Сейчас это невозможно', universal: false });
+    // Условие и очерёдность — раздельно: «сначала спросить» можно выполнить в том же плане,
+    // а невыполненное условие (нет денег, нет ключа) план не обходит.
+    const condOk = evalCond(ctx, def.enabled);
+    const waitsFor = (def.requiresDone ?? []).filter((r) => !ch.done[doneKey(scene.id, r)]);
+    const enabled = condOk && waitsFor.length === 0;
+    const firstLabel = () => scene.actions.find((x) => x.id === waitsFor[0])?.label ?? waitsFor[0];
+    out.push({
+      def, enabled, universal: false,
+      reason: enabled ? undefined : condOk ? fmt(ctx, `Сначала: «${firstLabel()}»`) : def.disabledReason ?? 'Сейчас это невозможно',
+      ...(condOk && waitsFor.length ? { waitsFor } : {}),
+    });
   }
   if (scene.universal !== false && canAct(ch.body)) {
     for (const def of universalActions(ctx, scene)) out.push({ def, enabled: true, universal: true });
@@ -58,6 +72,9 @@ function bestFood(ctx: Ctx, need: 'thirst' | 'hunger') {
 
 /** Служебные действия, которые интерфейс показывает не в списке сцены, а на своих экранах. */
 export const isServiceAction = (id: string) => /^u:(take|drop1|dropall|rule):/.test(id);
+
+/** Больше этого (во столько раз больше комфортной нагрузки) одной кнопкой «Взять» не унести. */
+export const CARRY_HARD_FACTOR = 2;
 
 export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   const ch = me(ctx);
@@ -111,10 +128,21 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   }
   // Служебные действия интерфейса (экран вещей и настроек). Тоже идут в журнал участка,
   // поэтому у партнёра воспроизводятся так же, как сюжетные.
-  for (const type of [...new Set(itemsAt(ctx, ch.location).map((i) => i.type))]) {
+  // «Взять» уносит стопку целиком, но не больше, чем вообще можно нести (вдвое больше комфортной нагрузки):
+  // остальное остаётся лежать.
+  const room = carryLimit(ctx) * CARRY_HARD_FACTOR - carriedWeight(ctx);
+  const here = new Map<string, number>();
+  for (const i of itemsAt(ctx, ch.location)) here.set(i.type, (here.get(i.type) ?? 0) + i.qty);
+  for (const [type, qty] of here) {
     const t = itemType(ctx, type);
     if (t.vehicle || t.weight > 30000) continue;
-    list.push({ id: `u:take:${type}`, label: `Взять: ${t.name}`, minutes: 1, combinable: true, group: `u:item:${type}`, effects: [{ pickup: type }] });
+    const n = t.weight > 0 ? Math.min(qty, Math.max(0, Math.floor(room / t.weight))) : qty;
+    if (n <= 0) continue;
+    list.push({
+      id: `u:take:${type}`, label: n < qty ? `Взять: ${t.name} (${n} из ${qty})` : `Взять: ${t.name}`, minutes: 1, combinable: true, group: `u:item:${type}`,
+      ...(n < qty ? { text: `Всё не унести: взято ${n} из ${qty}.` } : {}),
+      effects: [n < qty ? { pickup: type, qty: n } : { pickup: type }],
+    });
   }
   for (const type of [...new Set(heldItems(ctx).map((i) => i.type))]) {
     const t = itemType(ctx, type);
@@ -170,7 +198,8 @@ export function validatePlan(ctx: Ctx, ids: string[]): PlanValidation {
   for (const id of ids) {
     const a = avail.get(id);
     if (!a) { errors.push(`Действие недоступно: ${id}`); continue; }
-    if (!a.enabled && !(a.def.requiresDone ?? []).every((r) => ids.indexOf(r) >= 0 && ids.indexOf(r) < ids.indexOf(id))) {
+    // Недоступное действие допустимо, только если не хватает лишь предыдущих шагов и они стоят в плане раньше.
+    if (!a.enabled && !(a.waitsFor && a.waitsFor.every((r) => ids.indexOf(r) >= 0 && ids.indexOf(r) < ids.indexOf(id)))) {
       errors.push(`«${a.def.label}»: ${a.reason}`);
     }
     defs.push(a.def);
@@ -227,9 +256,9 @@ export function executePlan(ctx: Ctx, ids: string[]): PlanResult {
     const id = ids[n];
     if (ch.scene !== startScene) { result.stopped = 'Обстановка изменилась — остальные действия отменены.'; break; }
     if (!canAct(ch.body)) { result.stopped = 'Ты не в состоянии продолжать.'; break; }
+    // Перед шагом мир проверяется заново: предыдущие шаги уже отмечены как сделанные, условие — по текущему миру.
     const a = availableActions(ctx).find((x) => x.def.id === id);
-    const prerequisitesMet = a && (a.enabled || (a.def.requiresDone ?? []).every((r) => ch.done[doneKey(startScene, r)]));
-    if (!a || !prerequisitesMet) {
+    if (!a || !a.enabled) {
       result.stopped = `После предыдущего шага «${a?.def.label ?? id}» стало невозможно.`;
       break;
     }

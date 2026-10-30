@@ -1,6 +1,6 @@
 // Глава 1 — линия A в дороге: больница с Брокманами, трасса на север, Harburg, Керем;
 // после КТ 1 — дорога в город (тоннель, пробка, Eppendorf), встреча у Harburg, возвращение. КТ 1 и КТ 2.
-import type { ActionDef, Scene } from '../../engine/content-types';
+import type { ActionDef, Outcome, Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { at } from '../../engine/time';
 import { aTail, carHere, driveAction, driveTo, radioAction, seg2Enter } from './common';
@@ -12,6 +12,11 @@ const planA = (v: string): Cond => ({ v: 'w.plan_a', op: '==', value: v });
 const travels: Cond = { any: [planA('to_b'), planA('harburg')] };
 const atHome: Cond = { any: [{ at: 'a_flat' }, { at: 'a_stairs' }, { at: 'a_yard' }, { at: 'a_street' }, { at: 'a_brockmann' }] };
 const keremInCar: Cond = { npc: 'kerem', at: 'a_car' };
+/** Керем у себя дома: в 15:00 Дениз может забрать его оттуда сам (people.ts, deniz/search). */
+const keremAtHome: Cond = { npc: 'kerem', at: 'harburg_kerem' };
+const jannikInCar: Cond = { npc: 'jannik', at: 'a_car' };
+/** Брокманы на руках у A: Герд на лестнице или оба в машине, а до больницы/дома ещё не доехали. */
+const brockWithMe: Cond = { flag: '$.driving_brockmanns' };
 const inCar = { outdoor: false, tempC: 17 };
 
 /** Сцена, в которую A возвращается из «После звонка», — по месту, где он стоит. */
@@ -22,7 +27,8 @@ const PLACE_SCENES = [
 ];
 
 /** Вернуться к месту, где A сейчас находится (после КТ 1, если едет не он). */
-const backToPlace: ActionDef[] = PLACE_SCENES.map(([loc, scene]) => ({ id: `back_${loc}`, label: 'Вернуться к делам', minutes: 1, terminal: true, goto: scene, when: { all: [{ not: travels }, { at: loc }] } }));
+const backToPlace: ActionDef[] = PLACE_SCENES.map(([loc, scene]) => ({ id: `back_${loc}`, label: 'Вернуться к делам', minutes: 1, terminal: true, goto: scene,
+  when: { all: [{ any: [{ not: travels }, brockWithMe] }, { at: loc }] } }));
 
 // Решено ехать, а машины рядом нет (A дошёл куда-то пешком) или нет ключей: дойти до машины —
 // или отложить дорогу и вернуться к делам. Без этого «Сесть за руль» оставалось единственным, недоступным действием.
@@ -34,18 +40,28 @@ const walkToCar: ActionDef[] = ['a_yard', 'a_street', 'a_market'].flatMap((spot)
   const near = NEAR_HOME.includes(spot);
   return [
     { id: `walk_car_${spot}`, label: 'Дойти пешком до машины', minutes: 15, activity: 'light', combinable: true,
-      when: { all: [travels, carThere, { not: { at: spot } }, { any: TOWN.filter((l) => !near || !NEAR_HOME.includes(l)).map((l) => ({ at: l })) }] },
+      when: { all: [travels, { not: brockWithMe }, carThere, { not: { at: spot } }, { any: TOWN.filter((l) => !near || !NEAR_HOME.includes(l)).map((l) => ({ at: l })) }] },
       effects: [{ move: spot }] },
     ...(near && spot !== 'a_yard' ? [{ id: `near_car_${spot}`, label: 'Дойти до машины', minutes: 3, combinable: true,
-      when: { all: [travels, carThere, { not: { at: spot } }, { any: NEAR_HOME.map((l) => ({ at: l })) }] },
+      when: { all: [travels, { not: brockWithMe }, carThere, { not: { at: spot } }, { any: NEAR_HOME.map((l) => ({ at: l })) }] },
       effects: [{ move: spot }] } as ActionDef] : []),
   ];
 });
 const postpone: ActionDef[] = PLACE_SCENES.map(([loc, scene]) => ({ id: `later_${loc}`, label: 'Отложить дорогу и вернуться к делам', minutes: 1, terminal: true, goto: scene,
-  when: { all: [travels, { at: loc }, { not: canStart }] } }));
+  when: { all: [travels, { not: brockWithMe }, { at: loc }, { not: canStart }] } }));
 /** У вокзала Harburg без ключей: уехать не на чем — вернуться к машине и решать там. */
 const strandedHarburg: ActionDef = { id: 'later_harburg', label: 'Вернуться к делам', minutes: 1, terminal: true, goto: 'a_harburg1',
   when: { all: [{ not: travels }, { at: 'harburg' }, { not: canStart }] } };
+
+/** Разворот назад с Янником в машине: он выходит в пробке — ему в город, а не обратно. Без Янника — те же исходы. */
+function withJannikOut(list: Outcome[]): Outcome[] {
+  const out = 'Янник открывает дверь, не дожидаясь, пока ты повернёшь: «Мне туда. Дойду до тоннеля пешком». Он исчезает между машинами. ';
+  return [
+    ...list.map((o) => ({ ...o, id: `${o.id}_j`, when: jannikInCar, text: out + (o.text ?? ''),
+      effects: [{ npc: 'jannik', moveTo: 'a7_jam' }, ...(o.effects ?? [])] })),
+    ...list,
+  ];
+}
 
 export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── В больницу с Брокманами ─────────────
@@ -100,7 +116,7 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'station', label: 'Дойти до вокзала Harburg — может, ходят поезда', minutes: 10, move: true, terminal: true, goto: 'a_harburg_station',
         when: { not: keremInCar } },
       { id: 'kerem', label: 'Найти дом Керема у вокзала', minutes: 12, move: true, terminal: true, goto: 'a_kerem',
-        when: { all: [{ flag: '$.kerem_favor' }, { not: { flag: '$.saw_kerem' } }] } },
+        when: { all: [{ flag: '$.kerem_favor' }, { not: { flag: '$.saw_kerem' } }, keremAtHome] } },
       { id: 'jam', label: 'Встать в хвост к тоннелю и ждать', minutes: 60, combinable: true, activity: 'rest', repeatable: true,
         effects: [...driveTo(1)],
         outcomes: [
@@ -175,26 +191,28 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       { when: planA('harburg'), text: 'Решено: Harburg, вокзал. Встретиться там — и дальше вместе. Двадцать километров по трассе, если она едет.' },
       { when: { all: [planA('wait'), { flag: '$.partner_coming' }] }, text: '{partner} будет пробираться к тебе. Тебе остаётся ждать — и подготовить всё к {pm:его|её} приходу. Ждать оказывается труднее, чем ехать.' },
       { when: { all: [planA('wait'), { not: { flag: '$.partner_coming' } }] }, text: 'Решено: до утра — каждый у себя. Это разумно. Это невыносимо.' },
-      { when: { flag: '$.kerem_walked' }, text: 'Керем на заднем сиденье слышал весь разговор. — Высади меня. До брата дойду сам. — Двадцать километров, — говоришь ты. — Дойду, — повторяет он и выходит под дождь.' },
+      { when: { all: [{ flag: '$.kerem_walked' }, { at: 'harburg' }] }, text: 'Керем на заднем сиденье слышал весь разговор. — Высади меня. До брата дойду сам. — Двадцать километров, — говоришь ты. — Дойду, — повторяет он и выходит под дождь.' },
+      { when: { all: [{ flag: '$.kerem_walked' }, { not: { at: 'harburg' } }] }, text: 'Керем на заднем сиденье слышал весь разговор. — Высади меня здесь. До брата я дойду сам, — говорит он и выходит под дождь.' },
+      { when: { all: [brockWithMe, travels] }, text: 'Но сначала — Брокманы: Ильзе смотрит на тебя и ждёт. Бросить их здесь ты не можешь.' },
     ],
     actions: [
-      { id: 'pack', label: 'Забежать домой за вещами: вода, еда, тёплое', minutes: 10, combinable: true, when: { all: [travels, atHome] },
+      { id: 'pack', label: 'Забежать домой за вещами: вода, еда, тёплое', minutes: 10, combinable: true, when: { all: [travels, atHome, { not: brockWithMe }] },
         text: 'Ты сгребаешь всё, что попадается под руку: вода, хлебцы, консервы, шоколад, аптечка, фонарь, куртка, шапка, перчатки, пауэрбанк. Рюкзак тяжелеет. На пороге оглядываешься на квартиру — так, будто видишь её в последний раз.',
         effects: ['backpack', 'water_15', 'water_05', 'crackers', 'canned_beans', 'canned_ravioli', 'chocolate', 'first_aid', 'disinfectant', 'flashlight',
           'winter_jacket', 'beanie', 'gloves', 'powerbank', 'charger', 'car_keys', 'bank_card', 'cash_eur', 'multitool'].map((pickup) => ({ pickup, place: 'a_flat' })) },
       { id: 'ilse', label: 'Сказать Ильзе, что уезжаешь', minutes: 5, combinable: true,
-        when: { all: [travels, atHome, { any: [{ npc: 'ilse', at: 'a_flat' }, { npc: 'ilse', at: 'a_brockmann' }] }] },
+        when: { all: [travels, atHome, { not: brockWithMe }, { any: [{ npc: 'ilse', at: 'a_flat' }, { npc: 'ilse', at: 'a_brockmann' }] }] },
         text: '— Езжайте, — Ильзе крестит тебя мелко, по-старушечьи, хотя ты никогда не видел, чтобы она ходила в церковь. — Езжайте за ней. Я тут… я справлюсь.',
         effects: [{ npc: 'ilse', trust: 4, remember: '$:went_for_partner' }] },
       { id: 'to_car', label: 'Дойти до машины во дворе', minutes: 3, combinable: true,
-        when: { all: [travels, { not: carHere }, atHome, { itemAt: 'opel_corsa', place: 'a_yard' }] },
+        when: { all: [travels, { not: brockWithMe }, { not: carHere }, atHome, { itemAt: 'opel_corsa', place: 'a_yard' }] },
         effects: [{ move: 'a_yard' }] },
-      { id: 'car', label: 'Сесть за руль', minutes: 1, terminal: true, goto: 'a_drive', when: travels,
+      { id: 'car', label: 'Сесть за руль', minutes: 1, terminal: true, goto: 'a_drive', when: { all: [travels, { not: brockWithMe }] },
         enabled: { all: [carHere, { has: 'car_keys' }] }, disabledReason: 'Машина не здесь или нет ключей' },
       { id: 'harburg_go', label: 'Ехать к вокзалу Harburg — он в двух шагах', minutes: 5, terminal: true, goto: 'a2_hbg_wait',
-        when: { all: [planA('harburg'), { at: 'harburg' }] } },
+        when: { all: [planA('harburg'), { at: 'harburg' }, { not: brockWithMe }] }, effects: driveTo(1, 'harburg_station') },
       { id: 'tunnel', label: 'Ехать к тоннелю — отсюда ближе всего', minutes: 1, terminal: true, goto: 'a2_harburg',
-        when: { all: [planA('to_b'), { at: 'harburg' }] } },
+        when: { all: [planA('to_b'), { at: 'harburg' }, { not: brockWithMe }] } },
       driveAction('return', 'Вернуться в Buchholz', 20, 30, 'a_yard', 'a_yard', { when: { all: [{ not: travels }, { at: 'harburg' }] } }),
       ...backToPlace,
       ...walkToCar,
@@ -216,7 +234,7 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
         text: 'Бензин кончился. Ей нужно в Wilhelmsburg, за матерью: «Она одна, ей восемьдесят два, она не открывает дверь никому, кроме меня». Её зовут Сабина. Она не просит — просто смотрит на твою канистру на заднем сиденье, если она там есть.',
         effects: [{ set: '$.met_polo', value: true }] },
       { id: 'give_fuel', label: 'Отлить ей пять литров из канистры', minutes: 5, combinable: true,
-        when: { all: [{ flag: '$.met_polo' }, { fuelIn: 'can_petrol_10', liters: 5 }, { not: { flag: '$.gave_fuel' } }] },
+        when: { all: [{ flag: '$.met_polo' }, { has: 'can_petrol_10' }, { fuelIn: 'can_petrol_10', liters: 5 }, { not: { flag: '$.gave_fuel' } }] },
         text: 'Бензин булькает в горловину «поло». Сабина плачет и смеётся одновременно, пытается сунуть тебе деньги, ты отталкиваешь её руку. «Поло» заводится. Она уезжает первой — туда же, куда и ты.',
         effects: [{ fillCan: 'can_petrol_10', liters: -5 }, { set: '$.gave_fuel', value: true }, { body: 'stress', delta: -4 }] },
       { id: 'refuse', label: 'Сказать, что не можешь помочь, и ехать дальше', minutes: 1, combinable: true,
@@ -266,7 +284,7 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'hbg', label: 'Поставить машину у вокзала и ждать, как договорились', minutes: 8, terminal: true, goto: 'a2_hbg_wait',
         when: planA('harburg'), effects: driveTo(1, 'harburg_station') },
       { id: 'kerem', label: 'Заглянуть к Керему — это у вокзала', minutes: 12, move: true, terminal: true, goto: 'a_kerem2',
-        when: { all: [{ flag: '$.kerem_favor' }, { not: { flag: '$.saw_kerem' } }, { before: at(10, 17, 30) }] } },
+        when: { all: [{ flag: '$.kerem_favor' }, { not: { flag: '$.saw_kerem' } }, { before: at(10, 17, 30) }, keremAtHome] } },
       driveAction('tunnel', 'Ехать к тоннелю по A7', 8, 20, 'a7_jam', 'a2_jam', { when: { not: planA('harburg') } }, 2),
       { id: 'wilhelmsburg', label: 'Попробовать через Wilhelmsburg, мимо оцепления', minutes: 40, combinable: true, risky: true,
         when: { all: [{ not: { flag: '$.tried_wilhelmsburg' } }, { not: planA('harburg') }] },
@@ -316,14 +334,14 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'j_bandage', label: 'Перевязать Яннику руку', minutes: 8, combinable: true,
         when: { all: [{ npc: 'jannik', at: 'a_car' }, { hasTag: 'dressing' }, { not: { flag: '$.jannik_bandaged' } }] },
         text: 'Длинный рваный порез от локтя к запястью — и правда железо, не зубы: края ровные, внутри ржавая крошка. Ты промываешь водой и бинтуешь. Янник шипит сквозь зубы и благодарит на трёх языках.',
-        effects: [{ takeTag: 'dressing' }, { set: '$.jannik_bandaged', value: true }, { npc: 'jannik', trust: 10 }, { learn: 'f_jannik_cut' }] },
+        effects: [{ use: 'dressing' }, { set: '$.jannik_bandaged', value: true }, { npc: 'jannik', trust: 10 }, { learn: 'f_jannik_cut' }] },
       radioAction(),
       driveAction('tunnel', 'Въехать в тоннель', 2, 10, 'elbtunnel', 'a2_tunnel', { when: { v: '$.jam', op: '>=', value: 2 } }, 3),
       { id: 'u_turn', label: 'Развернуться через разделительную — назад', minutes: 10, risky: true, terminal: true, goto: 'a2_harburg',
-        outcomes: [
+        outcomes: withJannikOut([
           { id: 'ok', check: { traits: ['driving'], difficulty: 4 }, text: 'Газ, руль до упора, бордюр, рёв клаксонов — и ты на пустой встречной.', effects: [...driveTo(6, 'harburg')] },
           { id: 'scrape', text: 'Бордюр выше, чем казалось: скрежет днища, удар. Ты на встречной, но под машиной что-то стучит.', effects: [...driveTo(6, 'harburg'), { body: 'stress', delta: 6 }] },
-        ] },
+        ]) },
       ...tail(),
     ],
   }),
@@ -419,7 +437,11 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
   }),
   S({
     id: 'a2_ring3', for: 'A', chapter: 'ch1', location: 'hh_ring3', title: 'Ring 3', ambient: inCar,
-    text: [{ text: 'Ring 3 через Lokstedt. У разграбленного магазина электроники двое грузят телевизоры в фургон, не торопясь. Дальше — полицейский пост: две машины, барьер, фонарик тебе в лицо. «Wohin wollen Sie?»' }],
+    // Янник выходит в Lokstedt: до Eimsbüttel отсюда пешком (иначе он оставался в машине A до самой ночи).
+    onEnter: [{ if: jannikInCar, then: [{ npc: 'jannik', moveTo: 'eimsbuettel' }, { set: '$.jannik_lokstedt', value: true }] }],
+    text: [
+      { when: { flag: '$.jannik_lokstedt' }, text: 'На въезде в Lokstedt Янник просит остановить: — Дальше я дворами, пешком, до Eimsbüttel тут рукой подать. — Он жмёт тебе руку и бегом исчезает в переулке.' },
+      { text: 'Ring 3 через Lokstedt. У разграбленного магазина электроники двое грузят телевизоры в фургон, не торопясь. Дальше — полицейский пост: две машины, барьер, фонарик тебе в лицо. «Wohin wollen Sie?»' }],
     actions: [
       { id: 'talk', label: 'Объяснить, что едешь за девушкой в Barmbek', minutes: 5, terminal: true, goto: 'a2_barmbek',
         outcomes: [
@@ -531,6 +553,8 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
       { when: { any: [{ at: 'a_flat' }, { at: 'a_stairs' }, { at: 'a_yard' }, { at: 'a_street' }] }, text: 'Ночь в Buchholz. Ты сидишь в темноте, прислушиваясь к дому, к улице, к собственному телефону.' },
       { when: { at: 'hof_luedemann' }, text: 'Ночь на хуторе. Собака во дворе то и дело рычит в темноту.' },
       { when: { at: 'deniz_workshop' }, text: 'Ночь в мастерской. Генератор выключен — экономят топливо. Слышно, как по железной крыше стучит дождь.' },
+      { when: { not: { any: ['b_street', 'harburg_station', 'a_flat', 'a_stairs', 'a_yard', 'a_street', 'hof_luedemann', 'deniz_workshop'].map((l) => ({ at: l })) } },
+        text: 'Ночь застаёт тебя не дома. Ты находишь угол, где тебя не видно с улицы, и ждёшь утра, прислушиваясь к каждому звуку и к собственному телефону.' },
     ],
     actions: [],
   }),

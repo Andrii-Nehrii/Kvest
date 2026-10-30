@@ -33,21 +33,32 @@ export const cp1Actions = (target: 'a_cp1' | 'b_cp1'): ActionDef[] => [
     text: 'Телефон мёртвым грузом лежит в кармане. Ты останавливаешься и пытаешься собрать мысли.' },
 ];
 
-/** Переход к КТ 2: ждать партнёра у себя (с сумерек) или устроиться на ночь (с 20:30). Тоже в конце списка. */
-export const cp2Actions = (target: 'a_cp2' | 'b_cp2', homes: string[]): ActionDef[] => [
-  { id: 'cp2_wait', label: 'Сесть у окна и ждать {partner.acc}', minutes: 10, terminal: true, goto: target,
-    when: { all: [SEG2, { flag: '$.partner_coming' }, { after: at(10, 16, 45) }, { any: homes.map((h) => ({ at: h })) }] },
-    text: 'Ты придвигаешь стул к окну. Отсюда видно улицу в обе стороны. Остаётся только ждать.' },
-  { id: 'cp2_night', label: 'Ночь. Устроиться на ночлег и дождаться утра', minutes: 10, terminal: true, goto: target,
-    when: { all: [SEG2, { after: at(10, 20, 30) }] },
-    text: 'Ты проверяешь дверь ещё раз и ложишься, не раздеваясь.' },
-];
+/**
+ * Переход к КТ 2: ждать партнёра у себя (с сумерек) или устроиться на ночь (с 20:30). Тоже в конце списка.
+ * Из двора, с лестницы, с улицы у дома ждут и ночуют в квартире: у окна, за запертой дверью
+ * (иначе партнёр звонил в домофон, а «ты» стоял(а) у того же подъезда — и встреча не засчитывалась).
+ */
+export const cp2Actions = (target: 'a_cp2' | 'b_cp2', homes: string[], flat: string): ActionDef[] => {
+  const atHome: Cond = { any: homes.map((h) => ({ at: h })) };
+  return [
+    { id: 'cp2_wait', label: 'Сесть у окна и ждать {partner.acc}', minutes: 10, terminal: true, goto: target,
+      when: { all: [SEG2, { flag: '$.partner_coming' }, { after: at(10, 16, 45) }, atHome] },
+      text: 'Ты придвигаешь стул к окну. Отсюда видно улицу в обе стороны. Остаётся только ждать.',
+      effects: [{ move: flat }] },
+    { id: 'cp2_night', label: 'Ночь. Устроиться на ночлег и дождаться утра', minutes: 10, terminal: true, goto: target,
+      when: { all: [SEG2, { after: at(10, 20, 30) }] },
+      outcomes: [
+        { id: 'home', when: atHome, text: 'Ты проверяешь дверь ещё раз и ложишься, не раздеваясь.', effects: [{ move: flat }] },
+        { id: 'away', text: 'Ты устраиваешься на ночь там, где есть, — не раздеваясь, вполглаза.' },
+      ] },
+  ];
+};
 
 export const A_HOMES = ['a_flat', 'a_stairs', 'a_yard', 'a_street'];
 export const B_HOMES = ['b_flat', 'b_stairs', 'b_yard', 'b_street'];
 /** Хвост любого списка действий: связь и контрольные точки. */
-export const aTail = (): ActionDef[] => [...cp1Actions('a_cp1'), ...cp2Actions('a_cp2', A_HOMES)];
-export const bTail = (): ActionDef[] => [...bEventActions, ...cp1Actions('b_cp1'), ...cp2Actions('b_cp2', B_HOMES)];
+export const aTail = (): ActionDef[] => [...cp1Actions('a_cp1'), ...cp2Actions('a_cp2', A_HOMES, 'a_flat')];
+export const bTail = (): ActionDef[] => [...bEventActions, ...cp1Actions('b_cp1'), ...cp2Actions('b_cp2', B_HOMES, 'b_flat')];
 
 /** Действия, которые появляются в местах B из-за событий второго участка (проводы, стук в дверь). */
 const bEventActions: ActionDef[] = [

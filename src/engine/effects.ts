@@ -7,7 +7,7 @@ import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
 import { other } from './types';
 import {
-  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, setVar, takeItems, type Ctx,
+  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, resolveKey, setVar, takeItems, type Ctx,
 } from './world';
 
 export interface EffectResult {
@@ -37,9 +37,21 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   const ch = me(ctx);
   const t = ch.time;
   if ('if' in e) { applyEffects(ctx, evalCond(ctx, e.if) ? e.then : e.else, out); return; }
-  if ('set' in e && 'value' in e) { setVar(ctx, e.set, e.value); return; }
-  if ('add' in e) { setVar(ctx, e.add, Number(getVar(ctx, e.add) ?? 0) + e.value); return; }
+  if ('set' in e && 'value' in e) {
+    // Сведение часов на точке: отставший «проживает» время, которое у партнёра уже прошло. Если переменную
+    // партнёр изменил позже (по игровому времени), чем сейчас на часах отставшего, старое событие её не перезаписывает.
+    const k = resolveKey(ctx, e.set);
+    if ((ctx.s.varTime[k] ?? -Infinity) > t) return;
+    setVar(ctx, e.set, e.value);
+    return;
+  }
+  if ('add' in e) {
+    const cur = Number(getVar(ctx, e.add) ?? 0);
+    setVar(ctx, e.add, (Number.isFinite(cur) ? cur : 0) + e.value);
+    return;
+  }
   if ('give' in e) {
+    if (!((e.qty ?? 1) > 0)) return;
     giveItem(ctx, e.give, e.qty ?? 1, { charge: e.charge, condition: e.condition, note: e.note, fuel: e.fuel });
     return;
   }
@@ -55,6 +67,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('place' in e) {
+    if (!((e.qty ?? 1) > 0)) return;
     giveItem(ctx, e.place, e.qty ?? 1, { charge: e.charge }, { kind: 'place', id: e.at });
     return;
   }
@@ -114,9 +127,10 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     if (e.trust) n.trust[ctx.pid] = clamp(n.trust[ctx.pid] + e.trust, -100, 100);
     if (e.remember) { const m = e.remember.replace('$', ctx.pid); if (!n.memory.includes(m)) n.memory.push(m); }
     if (e.set) Object.assign(n.vars, e.set);
-    if (e.status) n.status = e.status;
+    // Смерть необратима: состояние погибшего не меняется (иначе «обратился» в 19:00 после того, как его убили).
+    if (e.status && n.alive) n.status = e.status;
     if (e.moveTo) n.location = e.moveTo;
-    if (e.alive !== undefined) { n.alive = e.alive; if (!e.alive) n.status = 'dead'; }
+    if (e.alive === false) { n.alive = false; n.status = 'dead'; }
     n.changedAt = t;
     return;
   }

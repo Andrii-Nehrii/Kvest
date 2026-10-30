@@ -16,9 +16,9 @@ export const npcs: Record<string, NpcDef> = Object.fromEntries([
       { id: 'bitten', at: at(10, 11, 50), scope: 'A',
         when: { all: [{ npc: 'gerd', at: 'a_brockmann' }, { npc: 'gerd', status: 'infected' }, { npc: 'ilse', at: 'a_brockmann' }, { not: { flag: '$.brock_intervened' } }] },
         effects: [{ npc: 'ilse', status: 'injured', set: { bitten: true } }] },
-      // Укушенная и одна — сама идёт пешком в больницу.
+      // Укушенная — сама идёт пешком в больницу (и если A захлопнул дверь и ушёл: заперта она не была).
       { id: 'walks_to_hospital', at: at(10, 13, 0), scope: 'A',
-        when: { all: [{ npc: 'ilse', at: 'a_brockmann' }, { npc: 'ilse', status: 'injured' }, { not: { flag: '$.brock_done' } }] },
+        when: { all: [{ npc: 'ilse', at: 'a_brockmann' }, { npc: 'ilse', status: 'injured' }] },
         effects: [{ npc: 'ilse', moveTo: 'a_hospital' }] },
     ] }),
   npc({ id: 'gerd', name: 'Герд Брокман', location: 'a_brockmann', intro: 'Муж Ильзе, 69 лет. До пенсии — крановщик в порту, до сих пор подрабатывает там.',
@@ -163,6 +163,8 @@ export const messages: MessageTemplate[] = [
 const inBuchholzHome: Cond = { any: [{ at: 'a_flat' }, { at: 'a_stairs' }, { at: 'a_brockmann' }, { at: 'a_yard' }] };
 const nearBrockmann: Cond = { any: [{ at: 'a_flat' }, { at: 'a_stairs' }, { at: 'a_yard' }, { at: 'a_street' }] };
 const gerdRaging: Cond = { all: [{ npc: 'gerd', at: 'a_brockmann' }, { npc: 'gerd', status: 'infected' }] };
+/** Крик — пока Ильзе внизу и ещё не укушена: позже кричать некому (она укушена в 11:50 и в 13:00 уходит). */
+const ilseInDanger: Cond = { all: [{ npc: 'ilse', at: 'a_brockmann' }, { not: { npc: 'ilse', status: 'injured' } }] };
 const inBarmbekHome: Cond = { any: [{ at: 'b_flat' }, { at: 'b_stairs' }, { at: 'b_yard' }, { at: 'b_street' }, { at: 'b_nowak' }, { at: 'b_kiosk' }, { at: 'b_okafor' }] };
 
 export const events: WorldEvent[] = [
@@ -183,10 +185,10 @@ export const events: WorldEvent[] = [
       { channel: 'radio', text: 'Радио: S-Bahn и U-Bahn ходят с перебоями, S3 и S5 между Harburg и центром стоят.', learn: 'f_trains_disrupted' }] },
   { id: 'ev_hosp_buchholz', at: at(10, 11, 0), scope: 'world', effects: [{ set: 'w.hosp_buchholz', value: 'closed' }],
     news: [{ channel: 'people', text: 'Кто-то рядом говорит: в больнице Buchholz закрыли приём, у ворот полиция.' }] },
-  { id: 'ev_scream', at: at(10, 11, 35), scope: 'A', when: { all: [gerdRaging, nearBrockmann, { not: { flag: '$.brock_intervened' } }] }, interrupt: true,
+  { id: 'ev_scream', at: at(10, 11, 35), scope: 'A', when: { all: [gerdRaging, ilseInDanger, nearBrockmann, { not: { flag: '$.brock_intervened' } }] }, interrupt: true,
     effects: [{ set: '$.scream', value: true }],
     news: [{ channel: 'direct', text: 'Снизу — крик Ильзе, короткий, страшный. Грохот, звон разбитой посуды. Потом — её голос, срывающийся: «Gerd! Gerd, nein!»' }] },
-  { id: 'ev_scream_here', at: at(10, 11, 35), scope: 'A', when: { all: [gerdRaging, { at: 'a_brockmann' }, { not: { flag: '$.brock_intervened' } }] }, interrupt: true,
+  { id: 'ev_scream_here', at: at(10, 11, 35), scope: 'A', when: { all: [gerdRaging, ilseInDanger, { at: 'a_brockmann' }, { not: { flag: '$.brock_intervened' } }] }, interrupt: true,
     effects: [{ set: '$.scream', value: true }],
     news: [{ channel: 'direct', text: 'Герд вдруг садится на диване — рывком, как на пружине. Ильзе вскрикивает.' }] },
   { id: 'ev_net_back', at: at(10, 12, 20), scope: 'world', when: { all: [{ phoneUsable: true }, { before: at(10, 13, 0) }] }, interrupt: true,
@@ -209,18 +211,18 @@ export const events: WorldEvent[] = [
     news: [{ channel: 'direct', text: 'Громкоговоритель: «Platz räumen! Harburg ist abgesperrt!» Полицейские в шлемах идут цепью через площадь, отодвигая людей к улицам.' }] },
   { id: 'ev_power_off2', at: at(10, 20, 15), scope: 'world',
     effects: [{ set: 'w.power.buchholz', value: 'off' }, { set: 'w.power.buchholz.since', value: at(10, 20, 15) }, { set: 'w.power_off_again', value: true }] },
-  { id: 'ev_power_off2_seen', at: at(10, 20, 15), scope: 'A', when: { any: [inBuchholzHome, { at: 'a_street' }, { at: 'deniz_workshop' }, { at: 'a_market' }, { at: 'a_gas' }] },
+  { id: 'ev_power_off2_seen', at: at(10, 20, 15), scope: 'A', when: { all: [{ before: at(10, 20, 45) }, { any: [inBuchholzHome, { at: 'a_street' }, { at: 'deniz_workshop' }, { at: 'a_market' }, { at: 'a_gas' }] }] },
     news: [{ channel: 'direct', text: 'Свет гаснет — снова, во всём квартале разом. Холодильник вздыхает и замолкает.' }] },
   { id: 'ev_messe', at: at(10, 19, 30), scope: 'world',
     news: [{ channel: 'radio', text: 'Радио: Сенат сообщает, что в залах Messe Hamburg готовят пункт приёма для жителей «наиболее пострадавших районов». Подробности обещают утром.', learn: 'f_messe' },
       { channel: 'phone', text: 'NINA: «Sammelstelle Messe Hamburg wird eingerichtet. Weitere Informationen folgen.»', learn: 'f_messe' }] },
-  { id: 'ev_okafor_knock2', at: at(10, 10, 15), scope: 'B', when: { all: [{ at: 'b_flat' }, { visited: 'b_okafor' }, { npc: 'okafor', at: 'b_okafor' }] }, interrupt: true,
+  { id: 'ev_okafor_knock2', at: at(10, 10, 15), scope: 'B', when: { all: [{ at: 'b_flat' }, { visited: 'b_okafor' }, { not: { visited: 'b_okafor_flat' } }, { npc: 'okafor', at: 'b_okafor' }] }, interrupt: true,
     effects: [{ set: '$.okafor_knock2', value: true }],
     news: [{ channel: 'direct', text: 'В дверь стучат — негромко, три раза. Голос Окафора: «Entschuldigung… Можно вас на минуту?»' }] },
   { id: 'ev_nowak_leaving', at: at(10, 13, 40), scope: 'B', when: { all: [inBarmbekHome, { npc: 'dariusz', at: 'b_nowak' }] }, interrupt: true,
     effects: [{ set: '$.nowak_leaving', value: true }],
     news: [{ channel: 'direct', text: 'С улицы сигналит фургон — длинно, нетерпеливо. Кася кричит в подъезд: «Jedziemy! Wir fahren!»' }] },
-  { id: 'ev_street_scream', at: at(10, 17, 45), scope: 'B', when: { at: 'b_flat' },
+  { id: 'ev_street_scream', at: at(10, 17, 45), scope: 'B', when: { all: [{ at: 'b_flat' }, { before: at(10, 23, 0) }] },
     effects: [{ set: '$.street_scream', value: true }],
     news: [{ channel: 'direct', text: 'С улицы — крик, долгий, на одной ноте. Звон стекла. Потом — тишина и чьи-то быстрые шаги.' }] },
   { id: 'ev_svenja', at: at(10, 18, 30), scope: 'B', when: { all: [{ at: 'b_flat' }, { before: at(10, 23, 0) }] }, interrupt: true,
@@ -229,7 +231,7 @@ export const events: WorldEvent[] = [
   { id: 'ev_schools', at: at(10, 7, 15), scope: 'world',
     news: [{ channel: 'phone', text: 'Push: «Schulbehörde — alle Hamburger Schulen bleiben heute geschlossen.»', learn: 'f_schools_closed' },
       { channel: 'radio', text: 'Радио: школы Гамбурга сегодня закрыты, причины не называют.', learn: 'f_schools_closed' }] },
-  { id: 'ev_okafor_home', at: at(10, 7, 20), scope: 'B', when: { at: 'b_flat' }, interrupt: true,
+  { id: 'ev_okafor_home', at: at(10, 7, 20), scope: 'B', when: { all: [{ at: 'b_flat' }, { before: at(10, 8, 30) }] }, interrupt: true,
     effects: [{ set: '$.okafor_knock', value: true }],
     news: [{ channel: 'direct', text: 'На площадке тяжёлые шаги, звякают ключи — долго, мимо замка. Потом глухой удар, будто кто-то привалился к двери напротив.' }] },
   { id: 'ev_barmbek_shooting', at: at(10, 9, 40), scope: 'world', effects: [{ set: 'w.barmbek_hospital', value: 'incident' }],

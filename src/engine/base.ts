@@ -52,7 +52,7 @@ export function refuel(ctx: Ctx, type: string, liters: number, fromCan?: string)
   if (!car) return 'Машины здесь нет.';
   const v = itemType(ctx, type).vehicle!;
   const room = round(v.tankL - (car.fuel ?? 0), 2);
-  let amount = Math.min(liters, room);
+  let amount = Math.max(0, Math.min(liters, room));
   if (fromCan) {
     const can = Object.values(ctx.s.items).find((i) => i.type === fromCan && i.qty > 0 && (i.fuel ?? 0) > 0
       && ((i.at.kind === 'char' && i.at.id === ctx.pid) || (i.at.kind === 'place' && i.at.id === me(ctx).location)));
@@ -78,7 +78,7 @@ export function fillCan(ctx: Ctx, canType: string, liters: number): string {
     && ((i.at.kind === 'char' && i.at.id === ctx.pid) || (i.at.kind === 'place' && i.at.id === me(ctx).location)));
   if (!can) return 'Канистры нет.';
   const cap = itemType(ctx, canType).fuelCan?.capacityL ?? 0;
-  const amount = Math.min(liters, round(cap - (can.fuel ?? 0), 2));
+  const amount = Math.max(0, Math.min(liters, round(cap - (can.fuel ?? 0), 2)));
   can.fuel = round((can.fuel ?? 0) + amount, 2);
   can.changedAt = me(ctx).time;
   return `В канистре ${can.fuel} л.`;
@@ -109,6 +109,12 @@ export function workOnProject(ctx: Ctx, id: string, hours: number): { text: stri
   const def = ctx.c.projects?.[id];
   if (!def) throw new Error(`Неизвестный проект ${id}`);
   if (projectDone(ctx, id)) return { text: `«${def.name}» уже готово.`, minutes: 0 };
+  // Двое работали над одним делом в своих участках: после слияния часов уже хватает — готово без лишнего часа.
+  if (ctx.s.vars[`proj.${id}.started`] && projectProgress(ctx, id) >= def.hours) {
+    ctx.s.vars[`proj.${id}.done`] = true;
+    ctx.s.varTime[`proj.${id}.done`] = me(ctx).time;
+    return { text: `«${def.name}» — готово.`, minutes: 0 };
+  }
   if (def.at && !def.at.includes(me(ctx).location)) return { text: `Для «${def.name}» нужно быть на месте работ.`, minutes: 0 };
   const startedKey = `proj.${id}.started`;
   for (const n of def.needs ?? []) {
@@ -185,20 +191,38 @@ export function baseKeeper(ctx: Ctx, b: BaseDef, day: number): PlayerId | undefi
 
 const dayOf = (t: Minutes) => Math.floor((t - 6 * 60) / 1440);
 
-/** Суточный расход базы за день `day` (06:00). Идемпотентно: base.<id>.lastDay. */
-export function baseDailyTick(ctx: Ctx, b: BaseDef, day: number) {
+/** Кто живёт на базе сейчас: живые NPC и игроки на её местах. */
+function residents(ctx: Ctx, b: BaseDef) {
+  const npcs = Object.values(ctx.s.npcs).filter((n) => n.alive && b.places.includes(n.location));
+  const players = PLAYERS.filter((p) => ctx.s.chars[p].body.consciousness !== 'dead' && b.places.includes(ctx.s.chars[p].location));
+  return { npcs, players, people: npcs.length + players.length };
+}
+
+const isWater = (ctx: Ctx) => (i: ItemInstance) => itemType(ctx, i.type).tags.includes('water_bulk');
+const isStaple = (ctx: Ctx) => (i: ItemInstance) => (itemType(ctx, i.type).food?.kcal ?? 0) > 0 && itemType(ctx, i.type).tags.includes('staple');
+
+function stockUnits(ctx: Ctx, place: string, pred: (i: ItemInstance) => boolean, unitsOf: (i: ItemInstance) => number): number {
+  return Object.values(ctx.s.items)
+    .filter((i) => i.qty > 0 && i.at.kind === 'place' && i.at.id === place && pred(i))
+    .reduce((n, i) => n + i.qty * unitsOf(i), 0);
+}
+
+/**
+ * Суточный расход базы за день `day` (06:00). Идемпотентно: base.<id>.lastDay.
+ * `notify`: кому писать о нехватке. В участке — только своему игроку (журнал партнёра ведёт его линия),
+ * на контрольной точке — всем, кто на базе.
+ */
+export function baseDailyTick(ctx: Ctx, b: BaseDef, day: number, notify: 'self' | 'all' = 'all') {
   const lastKey = `base.${b.id}.lastDay`;
   if (Number(ctx.s.vars[lastKey] ?? -1) >= day) return;
   ctx.s.vars[lastKey] = day;
   ctx.s.varTime[lastKey] = me(ctx).time;
-  const npcs = Object.values(ctx.s.npcs).filter((n) => n.alive && b.places.includes(n.location));
-  const players = PLAYERS.filter((p) => ctx.s.chars[p].body.consciousness !== 'dead' && b.places.includes(ctx.s.chars[p].location));
-  const people = npcs.length + players.length;
+  const { players, people } = residents(ctx, b);
   if (people === 0) return;
   const notes: string[] = [];
-  const water = ctx.c.bases && b.freeWater && evalCond(ctx, b.freeWater) ? 0 : b.waterPerPerson * people;
-  const waterShort = water > 0 ? takeFromPlace(ctx, b.stock, (i) => itemType(ctx, i.type).tags.includes('water_bulk'), water, () => 1) : 0;
-  const kcalShort = takeFromPlace(ctx, b.stock, (i) => (itemType(ctx, i.type).food?.kcal ?? 0) > 0 && itemType(ctx, i.type).tags.includes('staple'), b.kcalPerPerson * people, (i) => itemType(ctx, i.type).food!.kcal!);
+  const water = b.freeWater && evalCond(ctx, b.freeWater) ? 0 : b.waterPerPerson * people;
+  const waterShort = water > 0 ? takeFromPlace(ctx, b.stock, isWater(ctx), water, () => 1) : 0;
+  const kcalShort = takeFromPlace(ctx, b.stock, isStaple(ctx), b.kcalPerPerson * people, (i) => itemType(ctx, i.type).food!.kcal!);
   if (waterShort > 0) notes.push(`Воды на всех не хватило: недостаёт около ${Math.ceil(waterShort)} л.`);
   if (kcalShort > 0) notes.push(`Еды на всех не хватило: пайки урезаны примерно на ${Math.round(kcalShort / (b.kcalPerPerson * people) * 100)} %.`);
   const shortKey = `base.${b.id}.shortDays`;
@@ -210,14 +234,68 @@ export function baseDailyTick(ctx: Ctx, b: BaseDef, day: number) {
     ctx.s.vars[`base.${b.id}.cold`] = heatShort > need * 0.5;
     if (heatShort > 0) notes.push('Топлива для печи мало — в доме холодно.');
   }
-  for (const p of players) for (const n of notes) log({ ...ctx, pid: p }, 'item', n);
+  for (const p of players) if (notify === 'all' || p === ctx.pid) for (const n of notes) log({ ...ctx, pid: p }, 'item', n);
 }
 
-/** Пересечение 06:00 на линии игрока-«хранителя» базы. */
+// ───────────── Общий стол ─────────────
+// Суточный расход базы считает и игроков, которые на ней живут, поэтому база их и кормит: еда и вода
+// по часам (завтрак, обед, ужин), пока игрок на базе и не спит. Иначе он платил бы дважды — со склада
+// и из своего рюкзака. Насколько сытно — решает запас склада в 06:00 (доля от нужного на всех).
+
+/** Часы общих трапез. За день — примерно столько, сколько тело тратит за сутки. */
+export const BASE_MEALS = [7, 13, 19] as const;
+const MEAL_HUNGER = 20;
+const MEAL_THIRST = 30;
+
+/**
+ * Паёк игрока на день: в 06:00 на своей линии, если он на базе. Доля — по складу до расхода
+ * (у «хранителя» базы расход идёт следом; у второго игрока склад тот же, что был в начале участка).
+ */
+function recordRation(ctx: Ctx, b: BaseDef, day: number) {
+  const ch = me(ctx);
+  if (ch.body.consciousness === 'dead' || !b.places.includes(ch.location)) return;
+  const { people } = residents(ctx, b);
+  const needW = b.freeWater && evalCond(ctx, b.freeWater) ? 0 : b.waterPerPerson * people;
+  const needK = b.kcalPerPerson * people;
+  const haveW = stockUnits(ctx, b.stock, isWater(ctx), () => 1);
+  const haveK = stockUnits(ctx, b.stock, isStaple(ctx), (i) => itemType(ctx, i.type).food!.kcal!);
+  const key = `${ctx.pid}.ration.${b.id}`;
+  ctx.s.vars[key] = day;
+  ctx.s.vars[`${key}.water`] = needW > 0 ? round(Math.min(1, haveW / needW), 3) : 1;
+  ctx.s.vars[`${key}.food`] = needK > 0 ? round(Math.min(1, haveK / needK), 3) : 1;
+  for (const k of [key, `${key}.water`, `${key}.food`]) ctx.s.varTime[k] = ch.time;
+}
+
+/** Трапеза: игрок на базе, не спит, паёк на этот день есть. */
+function baseMeal(ctx: Ctx, b: BaseDef, day: number) {
+  const ch = me(ctx);
+  if (ch.body.consciousness !== 'awake' || !b.places.includes(ch.location)) return;
+  const key = `${ctx.pid}.ration.${b.id}`;
+  if (ctx.s.vars[key] !== day) return;
+  const food = Number(ctx.s.vars[`${key}.food`] ?? 0);
+  const water = Number(ctx.s.vars[`${key}.water`] ?? 0);
+  if (food <= 0 && water <= 0) return;
+  ch.body.hunger = round(Math.max(0, ch.body.hunger - MEAL_HUNGER * food), 2);
+  ch.body.thirst = round(Math.max(0, ch.body.thirst - MEAL_THIRST * water), 2);
+  const cut = [food < 1 ? 'порции урезаны' : '', water < 1 ? 'воды мало' : ''].filter(Boolean).join(', ');
+  log(ctx, 'item', food <= 0 ? 'Еды на всех не хватило — только вода.' : cut ? `Поели со всеми, но ${cut}.` : 'Поели со всеми.');
+}
+
+/** Пересечение 06:00 (паёк, а у «хранителя» базы — расход) и часов трапез на линии игрока. */
 export function baseTicksDuring(ctx: Ctx, from: Minutes, to: Minutes) {
   if (!ctx.c.bases?.length) return;
   for (let d = dayOf(from) + 1; d <= dayOf(to); d++) {
-    for (const b of ctx.c.bases) if (baseKeeper(ctx, b, d) === ctx.pid) baseDailyTick(ctx, b, d);
+    for (const b of ctx.c.bases) {
+      recordRation(ctx, b, d);
+      if (baseKeeper(ctx, b, d) === ctx.pid) baseDailyTick(ctx, b, d, 'self');
+    }
+  }
+  for (let d = dayOf(from); d <= dayOf(to); d++) {
+    for (const h of BASE_MEALS) {
+      const t = 6 * 60 + d * 1440 + (h - 6) * 60;
+      if (t <= from || t > to) continue;
+      for (const b of ctx.c.bases) baseMeal(ctx, b, d);
+    }
   }
 }
 
@@ -225,7 +303,7 @@ export function baseTicksDuring(ctx: Ctx, from: Minutes, to: Minutes) {
 export function baseCatchUp(ctx: Ctx, to: Minutes) {
   for (const b of ctx.c.bases ?? []) {
     const last = Number(ctx.s.vars[`base.${b.id}.lastDay`] ?? dayOf(to) - 1);
-    for (let d = last + 1; d <= dayOf(to); d++) baseDailyTick(ctx, b, d);
+    for (let d = last + 1; d <= dayOf(to); d++) baseDailyTick(ctx, b, d, 'all');
   }
 }
 

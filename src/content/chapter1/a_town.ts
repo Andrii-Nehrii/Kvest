@@ -12,6 +12,8 @@ const powerOff: Cond = { v: PWR, op: '==', value: 'off' };
 export const gerdHome: Cond = { npc: 'gerd', at: 'a_brockmann' };
 export const gerdRaging: Cond = { all: [gerdHome, { any: [{ npc: 'gerd', status: 'infected' }, { npc: 'gerd', status: 'turned' }] }] };
 const gerdTurned: Cond = { npc: 'gerd', status: 'turned' };
+/** Крик ещё звучит: Ильзе внизу (в 13:00 укушенная Ильзе уходит — «броситься на крик» к тому времени уже поздно). */
+export const screamNow: Cond = { all: [{ flag: '$.scream' }, { npc: 'ilse', at: 'a_brockmann' }] };
 const ilseHere = (place: string): Cond => ({ npc: 'ilse', at: place });
 const ilseBitten: Cond = { npc: 'ilse', status: 'injured' };
 const brockDone: Cond = { flag: '$.brock_done' };
@@ -19,6 +21,8 @@ const evening: Cond = { after: at(10, 16, 30) };
 const notSeg2: Cond = { not: SEG2 };
 const denizHere: Cond = { npc: 'deniz', at: 'deniz_workshop' };
 const keremInCar: Cond = { npc: 'kerem', at: 'a_car' };
+/** Бензин Дениза: в канистру A, если она при нём (вторая канистра путала, из какой лить), иначе — его канистра. */
+const denizPetrol: Effect[] = [{ if: { has: 'can_petrol_10' }, then: [{ fillCan: 'can_petrol_10', liters: 10 }], else: [{ give: 'can_petrol_10', fuel: 10 }] }];
 /** Условие «Дениз на месте» добавляется ко всем разговорам с ним. */
 const withDeniz = (a: ActionDef): ActionDef => ({ ...a, when: a.when ? { all: [denizHere, a.when] } : denizHere });
 
@@ -42,9 +46,9 @@ export function brockDoorActions(withMorning: boolean): ActionDef[] {
   }
   list.push(
     { id: 'brock_scream', label: 'Броситься вниз, на крик', minutes: 1, terminal: true, goto: 'a_brock_attack', risky: true,
-      when: { all: [{ flag: '$.scream' }, { not: brockDone }] } },
+      when: { all: [screamNow, { not: brockDone }] } },
     { id: 'brock_late', label: 'Постучать к Брокманам', minutes: 1, terminal: true, goto: 'a_brock_attack', risky: true,
-      when: { all: [gerdRaging, { not: { flag: '$.scream' } }, { not: brockDone }] } },
+      when: { all: [gerdRaging, { not: screamNow }, { not: brockDone }] } },
     { id: 'brock_ilse', label: 'Заглянуть к Ильзе', minutes: 2, terminal: true, goto: 'a_ilse_home',
       when: { all: [ilseHere('a_brockmann'), { not: gerdHome }] } },
   );
@@ -67,6 +71,12 @@ const enterCar = (extra: Partial<ActionDef> = {}): ActionDef => ({
 });
 
 const tail = aTail;
+/**
+ * Пока Брокманы на руках у A (Герд на лестнице или оба в машине), до точки не дойти: сначала — больница или дом.
+ * Иначе A «ждал вечера» на парковке с Гердом на заднем сиденье, а после звонка уезжал с ним в Гамбург.
+ * Сами шаги (довести, отвезти домой) остаются и после 14:00 — см. KEEP_LATE в index.ts.
+ */
+const brockFirst = (list: ActionDef[]): ActionDef[] => list.map((a) => ({ ...a, when: { all: [{ not: { flag: '$.driving_brockmanns' } }, ...(a.when ? [a.when] : [])] } }));
 
 export const aTownScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── Подъезд (бывшая заглушка a_tbc — id сохранён ради сохранений) ─────────────
@@ -98,6 +108,11 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         enabled: { has: 'car_keys' }, disabledReason: 'Ключи от машины остались наверху',
         text: 'Дождь мелкий, холодный. Герд шарахается от фар проезжающей машины, как от удара. Вдвоём с Ильзе вы усаживаете его на заднее сиденье.',
         effects: [{ set: '$.brock_in_car', value: true }, { move: 'a_yard' }, { npc: 'gerd', moveTo: 'a_car' }, { npc: 'ilse', moveTo: 'a_car' }] },
+      // Передумать на лестнице (или ключей нигде нет): без этого A с Гердом на руках оставался без единого выхода.
+      { id: 'brock_back', label: 'Передумать и отвести Герда обратно домой', minutes: 6, activity: 'moderate', combinable: true,
+        when: { all: [{ flag: '$.driving_brockmanns' }, { not: { flag: '$.brock_in_car' } }] },
+        text: 'Ты разворачиваешь Герда к двери Брокманов. Ильзе ничего не говорит — только смотрит, как ты укладываешь его обратно на диван.',
+        effects: [{ set: '$.driving_brockmanns', value: false }, { set: '$.brock_returned', value: true }, { npc: 'ilse', trust: -8, remember: '$:changed_mind' }] },
       { id: 'yard', label: 'Выйти во двор, к машинам', minutes: 1, terminal: true, goto: 'a_yard', when: { not: { flag: '$.driving_brockmanns' } } },
       { id: 'street', label: 'Выйти на улицу', minutes: 1, terminal: true, goto: 'a_street', when: { not: { flag: '$.driving_brockmanns' } } },
       ...brockDoorActions(true).map((a) => ({ ...a, when: { all: [a.when!, { not: { flag: '$.driving_brockmanns' } }] } })),
@@ -110,7 +125,7 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'up', label: 'Подняться к себе', minutes: 1, terminal: true, goto: 'a_wake', when: { not: { flag: '$.driving_brockmanns' } } },
       { id: 'ilse', label: 'Выслушать Ильзе', minutes: 1, terminal: true, goto: 'a_ilse',
         when: { all: [{ flag: '$.ilse_out' }, { not: { visited: 'a_ilse' } }, { not: { flag: '$.ignored_ilse' } }] } },
-      ...tail(),
+      ...brockFirst(tail()),
     ],
   }),
 
@@ -149,13 +164,14 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
     text: [
       { text: 'Скорая стоит криво, одним колесом на бордюре. Мотор выключен, носилки выдвинуты наполовину. На подножке — смазанный бурый след. Рация на панели шипит: «…drei-achtzig-eins, kommen… drei-achtzig-eins…» — и никто не отвечает.' },
       { text: 'Дверь седьмого дома приоткрыта. Наверху — глухие удары, будто кто-то бьёт в стену. Потом мужской крик, короткий, и снова удары.', when: { not: { flag: '$.police7' } } },
-      { text: 'К дому подлетает полицейский универсал. Двое в жилетах бегут в подъезд, третий говорит в рацию и машет тебе рукой: отойди.', when: { flag: '$.police7' } },
+      { text: 'К дому подлетает полицейский универсал. Двое в жилетах бегут в подъезд, третий говорит в рацию и машет тебе рукой: отойди.', when: { all: [{ flag: '$.police7' }, { before: at(10, 7, 55) }] } },
+      { text: 'Рядом стоит полицейский универсал с мигалкой; двое полицейских давно наверху, там теперь тихо. Третий говорит в рацию и машет тебе рукой: отойди.', when: { all: [{ flag: '$.police7' }, { after: at(10, 7, 55) }] } },
     ],
     actions: [
       { id: 'listen', label: 'Послушать рацию', minutes: 3, combinable: true,
         text: 'Сквозь треск — женский голос диспетчера, быстрый, без интонаций: «…alle verfügbaren Kräfte… Buchholz-Nord… Eigenschutz beachten, ich wiederhole, Eigenschutz…» Потом длинный писк, и тишина.',
         effects: [{ learn: 'f_dispatch' }] },
-      { id: 'take', label: 'Взять из салона перчатки и бинты', minutes: 2, combinable: true, risky: true,
+      { id: 'take', label: 'Взять из салона перчатки и бинты', minutes: 2, combinable: true, risky: true, when: { not: { flag: '$.police7' } },
         text: 'На полке — коробка одноразовых перчаток, стерильные салфетки, бинты в упаковках. Ты берёшь сколько влезает в карманы. Никто не видит. От этого не легче.',
         effects: [{ give: 'nitrile_gloves', qty: 4 }, { give: 'bandages' }, { set: '$.looted_ambulance', value: true }, { body: 'stress', delta: 3 }] },
       { id: 'shout', label: 'Крикнуть в подъезд, нужна ли помощь', minutes: 2, combinable: true, when: { not: { flag: '$.police7' } },
@@ -189,7 +205,7 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         ] },
       { id: 'bandage', label: 'Перевязать руку санитару', minutes: 8, combinable: true, when: { hasTag: 'dressing' },
         text: 'Ты разматываешь полотенце. Полукруг следов зубов на тыльной стороне кисти, неглубокий, но кровит. Ты бинтуешь как умеешь. Санитар смотрит на тебя с удивлением — будто давно никто не делал для него чего-то простого.',
-        effects: [{ takeTag: 'dressing' }, { learn: 'f_paramedic_bitten' }, { if: { not: { has: 'nitrile_gloves' } }, then: [{ body: 'stress', delta: 4 }] }] },
+        effects: [{ use: 'dressing' }, { learn: 'f_paramedic_bitten' }, { if: { not: { has: 'nitrile_gloves' } }, then: [{ body: 'stress', delta: 4 }] }] },
       { id: 'ask', label: 'Спросить, что с этим Хольгером', minutes: 4, combinable: true, when: { not: { flag: '$.police7' } },
         text: '— С субботы гриппует, — санитарка не отпускает дверь. — Ночью жена вызвала: бредит. Мы зашли — он сразу на нас. Не узнаёт никого. Это уже третий такой вызов за ночь по округу, понимаете? Третий.',
         effects: [{ learn: 'f_paramedic_bitten' }, { learn: 'f_third_call' }] },
@@ -286,7 +302,9 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
     ],
     actions: [
       { id: 'queue', label: 'Встать в очередь', minutes: 40, combinable: true, activity: 'light', terminal: true, goto: 'a_market_in',
-        when: { all: [{ not: evening }, { not: { visited: 'a_market_in', times: 2 } }] },
+        when: { all: [{ not: evening }, { not: { visited: 'a_market_in', times: 2 } }, { v: '$.stole_market', op: '!=', value: 'caught' }] },
+        // Очередь — сорок минут, а магазин открывается в восемь: раньше 07:20 заходить некуда.
+        enabled: { after: at(10, 7, 20) }, disabledReason: 'Магазин откроется только в восемь',
         text: 'Очередь движется рывками. Впереди женщина звонит кому-то снова и снова. Сзади кто-то читает вслух с телефона: «…в Гамбурге закрыли мосты…». Через сорок минут охранник кивает тебе: заходи.' },
       { id: 'ask', label: 'Спросить у очереди, что слышно', minutes: 5, combinable: true, when: { not: evening },
         outcomes: [
@@ -336,7 +354,10 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
             effects: [{ set: '$.stole_market', value: 'caught' }, { body: 'stress', delta: 10 }], goto: 'a_market' },
         ] },
       { id: 'out', label: 'Пройти к кассе и выйти', minutes: 15, terminal: true, goto: 'a_market',
-        text: 'Кассирша считает при свете фонарика на лбу, медленно и вслух. За тобой кто-то вздыхает так, будто ждёт уже сутки.' },
+        outcomes: [
+          { id: 'dark', when: powerOff, text: 'Кассирша считает при свете фонарика на лбу, медленно и вслух. За тобой кто-то вздыхает так, будто ждёт уже сутки.' },
+          { id: 'light', text: 'Кассирша пробивает быстро, не поднимая глаз; терминал думает долго, но пропускает. За тобой кто-то вздыхает так, будто ждёт уже сутки.' },
+        ] },
     ],
   }),
 
@@ -344,16 +365,16 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
   S({
     id: 'a_gas', for: 'A', chapter: 'ch1', location: 'a_gas', title: 'Заправка',
     text: [
-      { when: powerOff, text: 'Заправка у выезда на трассу: навес, шесть колонок — все мёртвые, дисплеи пустые. У колонок стоят машины, водители курят под дождём и ругаются. В магазинчике горит фонарь на батарейках, продавец торгует за наличные.' },
+      { when: { all: [powerOff, { not: evening }] }, text: 'Заправка у выезда на трассу: навес, шесть колонок — все мёртвые, дисплеи пустые. У колонок стоят машины, водители курят под дождём и ругаются. В магазинчике горит фонарь на батарейках, продавец торгует за наличные.' },
       { when: { all: [powerOn, { not: evening }] }, text: 'Колонки ожили. Очередь машин тянется на улицу и дальше, до кольца. Над кассой — лист: «Max. 20 Liter pro Fahrzeug». Люди в очереди не выходят из машин — боятся потерять место.' },
-      { when: { all: [powerOn, evening] }, text: 'Заправка закрыта: шланги сняты, на колонках — пакеты, примотанные скотчем. На стекле магазина: «Kein Benzin mehr».' },
+      { when: evening, text: 'Заправка закрыта: шланги сняты, на колонках — пакеты, примотанные скотчем. На стекле магазина: «Kein Benzin mehr».' },
     ],
     actions: [
-      { id: 'clerk', label: 'Спросить продавца, когда дадут ток', minutes: 5, combinable: true, when: powerOff,
+      { id: 'clerk', label: 'Спросить продавца, когда дадут ток', minutes: 5, combinable: true, when: { all: [powerOff, { not: evening }] },
         text: '— Да кто ж знает. Говорят, подстанция, к обеду, может. А без тока насосы не качают — бензин в земле, а толку ноль. — Он понижает голос. — Если прям горит — Айдын в промзоне держит канистры. Но он не всем продаёт.',
         effects: [{ learn: 'f_gas_no_power' }, { learn: 'f_deniz_petrol' }] },
-      buy('can', 'Купить пустую канистру на 10 литров', 15, PWR, [{ give: 'can_petrol_10' }], { when: { not: { has: 'can_petrol_10' } } }),
-      buy('map', 'Купить бумажную карту области', 7, PWR, [{ give: 'road_map' }], { when: { not: { hasTag: 'map' } } }),
+      buy('can', 'Купить пустую канистру на 10 литров', 15, PWR, [{ give: 'can_petrol_10' }], { when: { all: [{ not: { has: 'can_petrol_10' } }, { not: evening }] } }),
+      buy('map', 'Купить бумажную карту области', 7, PWR, [{ give: 'road_map' }], { when: { all: [{ not: { hasTag: 'map' } }, { not: evening }] } }),
       buy('food', 'Взять воды и бутербродов в магазинчике', 6, PWR, [{ give: 'water_05', qty: 2 }, { give: 'sandwich' }], { when: { not: evening } }),
       { id: 'queue', label: 'Встать в очередь к колонке и залить двадцать литров', minutes: 45, combinable: true, activity: 'light',
         when: { all: [powerOn, { not: evening }, carHere, { not: { flag: '$.filled_up' } }] },
@@ -362,7 +383,7 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         effects: [{ refuel: 'opel_corsa', liters: 20 }, { set: '$.filled_up', value: true },
           { if: { has: 'bank_card' }, then: [], else: [{ take: 'cash_eur', qty: 40 }] }] },
       { id: 'fill_can', label: 'Наполнить канистру', minutes: 5, combinable: true,
-        when: { all: [powerOn, { not: evening }, { has: 'can_petrol_10' }, { flag: '$.filled_up' }, { not: { flag: '$.filled_can' } }] },
+        when: { all: [powerOn, { not: evening }, { has: 'can_petrol_10' }, { not: { fuelIn: 'can_petrol_10', liters: 10 } }, { flag: '$.filled_up' }, { not: { flag: '$.filled_can' } }] },
         enabled: { any: [{ has: 'bank_card' }, { has: 'cash_eur', qty: 20 }] }, disabledReason: 'Нужна карта или 20 € наличными',
         text: 'Кассир морщится — «двадцать литров на машину, а канистры…» — но пропускает: десять литров в канистру.',
         effects: [{ fillCan: 'can_petrol_10', liters: 10 }, { set: '$.filled_can', value: true },
@@ -401,13 +422,14 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
           text: '— Бензина — одна канистра, десять литров. Остальное — дизель, тебе он ни к чему: зальёшь — убьёшь мотор. — Он смотрит на тебя оценивающе. — Канистру не продаю. Пока.',
           effects: [{ set: '$.deniz_petrol_known', value: true }, { learn: 'f_deniz_petrol' }] },
         { id: 'buy', label: 'Предложить сорок евро за канистру', minutes: 4, requiresDone: ['petrol'], combinable: true,
-          when: { not: { flag: '$.deniz_can' } }, enabled: { any: [{ has: 'cash_eur', qty: 40 }, { npc: 'deniz', trust: ['>=', 25] }] }, disabledReason: 'Нужно 40 € наличными',
+          when: { all: [{ not: { flag: '$.deniz_can' } }, { not: { all: [{ has: 'can_petrol_10' }, { fuelIn: 'can_petrol_10', liters: 10 }] } }] },
+          enabled: { any: [{ has: 'cash_eur', qty: 40 }, { npc: 'deniz', trust: ['>=', 25] }] }, disabledReason: 'Нужно 40 € наличными',
           outcomes: [
             { id: 'trust', when: { npc: 'deniz', trust: ['>=', 25] }, text: '— Убери деньги, — Дениз ставит канистру к твоим ногам. — Ты мне помог. Сочтёмся.',
-              effects: [{ give: 'can_petrol_10', fuel: 10 }, { set: '$.deniz_can', value: true }, { npc: 'deniz', trust: 3 }] },
+              effects: [...denizPetrol, { set: '$.deniz_can', value: true }, { npc: 'deniz', trust: 3 }] },
             { id: 'deal', check: { traits: ['persuasion'], difficulty: 5, mods: [{ when: { npc: 'deniz', trust: ['>=', 10] }, bonus: 2 }] },
               text: 'Дениз долго молчит. Потом берёт деньги, пересчитывает и кивает на канистру у стены. — Только никому не говори, где взял.',
-              effects: [{ take: 'cash_eur', qty: 40 }, { give: 'can_petrol_10', fuel: 10 }, { set: '$.deniz_can', value: true }] },
+              effects: [{ take: 'cash_eur', qty: 40 }, ...denizPetrol, { set: '$.deniz_can', value: true }] },
             { id: 'no', text: '— Деньги скоро будут бумагой, — говорит Дениз. — Бензин — нет. Не обижайся.', effects: [{ npc: 'deniz', trust: -2 }] },
           ] },
         { id: 'help', label: 'Предложить помочь — у него явно полно работы', minutes: 50, combinable: true, activity: 'heavy',
@@ -477,7 +499,7 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         enabled: { has: 'car_keys' }, disabledReason: 'Нет ключей' },
       { id: 'ilse_wait', label: 'Подойти к Ильзе у палатки', minutes: 2, terminal: true, goto: 'a_hosp_after',
         when: { all: [{ npc: 'ilse', at: 'a_hospital' }, { flag: '$.gerd_admitted' }, { not: { flag: '$.left_ilse_hosp' } }] } },
-      ...tail(),
+      ...brockFirst(tail()),
     ],
   }),
   S({
@@ -641,7 +663,7 @@ export const aTownScenes: Record<string, Scene> = Object.fromEntries([
         when: { all: [{ npc: 'ilse', at: 'a_flat' }, ilseBitten, { not: { flag: '$.treated_ilse' } }] },
         enabled: { any: [{ hasTag: 'dressing' }, { hasTag: 'cloth' }] }, disabledReason: 'Нужен бинт или хоть какая-то ткань',
         text: 'Ты промываешь укус водой из бутылки и туго бинтуешь. Ильзе морщится, но не издаёт ни звука. Следы зубов — полукругом, как у Герда на руке утром.',
-        effects: [{ if: { hasTag: 'dressing' }, then: [{ takeTag: 'dressing' }], else: [{ takeTag: 'cloth' }] }, { set: '$.treated_ilse', value: true }, { npc: 'ilse', trust: 8, set: { treated: true } }] },
+        effects: [{ if: { hasTag: 'dressing' }, then: [{ use: 'dressing' }], else: [{ takeTag: 'cloth' }] }, { set: '$.treated_ilse', value: true }, { npc: 'ilse', trust: 8, set: { treated: true } }] },
       { id: 'call112', label: 'Позвонить 112', minutes: 4, combinable: true, when: { phoneUsable: true },
         outcomes: [
           { id: 'through', when: { network: 'voice' }, text: 'Дозваниваешься с пятой попытки. Диспетчер выслушивает, не перебивая. «Wir haben sehr viele solcher Einsätze. Halten Sie Abstand, schließen Sie ihn ein. Es kann Stunden dauern.» Короткие гудки.', effects: [{ learn: 'f_112_overloaded' }, { charge: 'phone', delta: -1 }] },

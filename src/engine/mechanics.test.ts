@@ -44,6 +44,8 @@ function live(b: Body, hours: number, opts: { thirst?: number; step?: number; en
 describe('жажда', () => {
   it('«попить» и привычка пить берут воду, а не яблоко', () => {
     const { s, ctx } = game();
+    // Водопровод отключён: иначе привычка пьёт из-под крана и запасы не трогает (проверка ниже).
+    s.vars[`w.water.${real.locations[s.chars.A.location].region}`] = 'off';
     giveItem(ctx, 'apple', 2);
     giveItem(ctx, 'water_15', 1);
     s.chars.A.body.thirst = 50;

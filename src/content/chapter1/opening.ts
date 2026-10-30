@@ -4,7 +4,7 @@ import type { ActionDef, Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { at } from '../../engine/time';
 import { aTail, bTail, CONTACT_AFTER, callAction, radioOutcomes, SEG2, waitHour } from './common';
-import { brockDoorActions, gerdHome, gerdRaging } from './a_town';
+import { brockDoorActions, gerdHome, gerdRaging, screamNow } from './a_town';
 
 export { CONTACT_AFTER };
 
@@ -14,6 +14,8 @@ const ilseOut: Cond = { flag: '$.ilse_out' };
 const powerA: Cond = { v: 'w.power.buchholz', op: '!=', value: 'off' };
 const evening: Cond = { after: at(10, 16, 30) };
 const merleHome: Cond = { npc: 'merle', at: 'b_flat' };
+/** Первая встреча с Мерле на кухне — утренняя («Ты тоже не спала?»); днём и потом — коротко. */
+const kitchenFirst: Cond = { all: [{ not: { visited: 'b_kitchen', times: 2 } }, { before: at(10, 12, 0) }] };
 /** Утреннее пробуждение — только при первом заходе и только в первые полчаса; дальше — «снова дома». */
 const waking = (scene: string): Cond => ({ all: [{ not: { visited: scene, times: 2 } }, { before: at(10, 7, 10) }] });
 const back = (scene: string): Cond => ({ not: waking(scene) });
@@ -45,9 +47,9 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { text: 'В пять за окном уже ночь. Горит одна лампа на кухне — больше включать не хочется: со двора видно каждое светлое окно.', when: { all: [back('a_wake'), powerA, evening] } },
       { text: 'Света снова нет. Свеча на столе, тени по стенам. Холод возвращается в квартиру быстро, будто ждал за дверью.', when: { all: [back('a_wake'), { not: powerA }, evening] } },
       { text: 'В дверь стучат. Ильзе Брокман — ты узнаёшь её голос — зовёт снова и снова.', when: { all: [knock, { not: ilseOut }, { not: { flag: '$.ignored_ilse' } }, { not: { visited: 'a_door' } }] } },
-      { text: 'Снизу — удары, глухие, неровные. И голос Ильзе: то ли плач, то ли молитва.', when: { all: [{ flag: '$.scream' }, { not: { flag: '$.brock_done' } }] } },
+      { text: 'Снизу — удары, глухие, неровные. И голос Ильзе: то ли плач, то ли молитва.', when: { all: [screamNow, { not: { flag: '$.brock_done' } }] } },
       { text: 'Ильзе сидит на краешке твоего дивана, сжимая кружку, и вздрагивает от каждого звука снизу.', when: { npc: 'ilse', at: 'a_flat' } },
-      { text: 'Иногда сквозь пол доносится удар — снизу, из квартиры Брокманов. Потом долго ничего. Потом снова.', when: { all: [gerdRaging, { flag: '$.brock_done' }] } },
+      { text: 'Иногда сквозь пол доносится удар — снизу, из квартиры Брокманов. Потом долго ничего. Потом снова.', when: { all: [gerdRaging, { any: [{ flag: '$.brock_done' }, { all: [{ flag: '$.scream' }, { not: screamNow }] }] }] } },
     ],
     actions: [
       ...phoneActions('Страница грузится мучительно долго. NDR: «Nach Angriffen in mehreren Hamburger Kliniken: Polizei sieht keine Hinweise auf Terror». Под заметкой сотни комментариев: наркотики, «новый вирус», размытые видео, которые не открываются.'),
@@ -97,7 +99,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
         when: { all: [knock, { any: [{ flag: '$.ignored_ilse' }, { flag: '$.left_ilse' }] }, gerdHome, { not: gerdRaging }] } },
       ...brockDoorActions(false),
       { id: 'scream_lock', label: 'Запереть дверь на оба замка и не выходить', minutes: 5, combinable: true,
-        when: { all: [{ flag: '$.scream' }, { not: { flag: '$.brock_done' } }, { not: { flag: '$.scream_locked' } }] },
+        when: { all: [screamNow, { not: { flag: '$.brock_done' } }, { not: { flag: '$.scream_locked' } }] },
         text: 'Ты поворачиваешь ключ второй раз и стоишь в прихожей, прижавшись лбом к двери. Снизу кричат. Потом перестают.',
         effects: [{ set: '$.scream_locked', value: true }, { body: 'stress', delta: 12 }, { npc: 'ilse', trust: -20, remember: '$:did_not_come' }] },
       { id: 'ilse_talk', label: 'Поговорить с Ильзе', minutes: 10, combinable: true, when: { npc: 'ilse', at: 'a_flat' }, repeatable: true,
@@ -244,10 +246,10 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
   S({
     id: 'b_kitchen', for: 'B', chapter: 'ch1', location: 'b_flat', calm: true, title: 'Кухня',
     text: [
-      { text: 'Мерле сидит на подоконнике в пледе, с кружкой; на коленях — глюкометр. Радио на холодильнике бормочет NDR 90,3: «…die Lage in mehreren Kliniken… Polizei…». Она вздрагивает, когда ты входишь, и смеётся над собой.', when: { not: { visited: 'b_kitchen', times: 2 } } },
-      { text: '— Ты тоже не спала? Я — вообще. В чате дома пишут, что на соседней улице кого-то увезли в наручниках, а он кусался. Кусался, представляешь?', when: { not: { visited: 'b_kitchen', times: 2 } } },
-      { text: 'Мерле на кухне, радио бормочет новости.', when: { all: [{ visited: 'b_kitchen', times: 2 }, merleHome] } },
-      { text: 'Кухня без Мерле кажется больше. Её кружка в раковине, плед на подоконнике. Радио бормочет для одной тебя.', when: { all: [{ visited: 'b_kitchen', times: 2 }, { not: merleHome }] } },
+      { text: 'Мерле сидит на подоконнике в пледе, с кружкой; на коленях — глюкометр. Радио на холодильнике бормочет NDR 90,3: «…die Lage in mehreren Kliniken… Polizei…». Она вздрагивает, когда ты входишь, и смеётся над собой.', when: { all: [kitchenFirst, merleHome] } },
+      { text: '— Ты тоже не спала? Я — вообще. В чате дома пишут, что на соседней улице кого-то увезли в наручниках, а он кусался. Кусался, представляешь?', when: { all: [kitchenFirst, merleHome] } },
+      { text: 'Мерле на кухне, радио бормочет новости.', when: { all: [{ not: kitchenFirst }, merleHome] } },
+      { text: 'Кухня без Мерле кажется больше. Её кружка в раковине, плед на подоконнике. Радио бормочет для одной тебя.', when: { not: merleHome } },
       { text: 'С площадки доносится шорох, потом тяжёлый удар о дверь напротив.', when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }, { before: at(10, 8, 30) }] } },
     ],
     actions: [
@@ -264,8 +266,10 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
         text: 'Ванна наполняется медленно. Кастрюли, чайник, пустые бутылки из-под лимонада, даже вазу Мерле — всё, что держит воду, ты ставишь в ряд на полу кухни. Если трубы замолчат, вам хватит на несколько дней.',
         effects: [{ set: '$.water_stored', value: true }] },
       { id: 'cook', label: 'Сварить большую кастрюлю риса, пока есть ток', minutes: 30, combinable: true, when: { all: [SEG2, { not: { flag: '$.cooked' } }] },
+        enabled: { any: [{ has: 'rice' }, { itemAt: 'rice', place: 'b_flat' }] }, disabledReason: 'Риса больше нет',
         text: 'Рис, банка томатов, всё, что осталось в холодильнике. Кухня наполняется паром и запахом еды — впервые за день здесь пахнет нормальной жизнью. Половина уходит сразу, остальное — в контейнеры, на завтра.',
-        effects: [{ set: '$.cooked', value: true }, { body: 'hunger', delta: -35 }, { body: 'stress', delta: -5 }, { if: merleHome, then: [{ npc: 'merle', trust: 4 }] }] },
+        effects: [{ pickup: 'rice', qty: 1 }, { take: 'rice' }, { pickup: 'canned_tomatoes', qty: 1 }, { take: 'canned_tomatoes' },
+          { set: '$.cooked', value: true }, { body: 'hunger', delta: -35 }, { body: 'stress', delta: -5 }, { if: merleHome, then: [{ npc: 'merle', trust: 4 }] }] },
       { id: 'merle_evening', label: 'Посидеть с Мерле', minutes: 20, combinable: true, when: { all: [SEG2, merleHome, evening, { not: { flag: '$.merle_evening' } }] },
         text: 'Вы сидите на полу кухни, спиной к батарее, с одним пледом на двоих. Мерле проверяет сахар, говорит «норм», потом долго молчит. — Знаешь, чего я боюсь? Не их. Что инсулин кончится, а ничего не кончится. — Ты не знаешь, что на это сказать, и просто держишь её за руку.',
         effects: [{ set: '$.merle_evening', value: true }, { npc: 'merle', trust: 6 }, { body: 'stress', delta: -6 }] },
@@ -276,7 +280,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
           { id: 'nine', text: 'Яйца, молоко, остатки пасты. В дверце — три инсулиновые ручки Мерле. «Это где-то на девять дней», — говорит она, заметив твой взгляд, и отворачивается к окну.',
             effects: [{ learn: 'f_merle_insulin' }] },
         ] },
-      { id: 'breakfast', label: 'Сделать завтрак на двоих', minutes: 20, combinable: true, group: 'meal', when: merleHome,
+      { id: 'breakfast', label: 'Сделать завтрак на двоих', minutes: 20, combinable: true, group: 'meal', when: { all: [merleHome, { before: at(10, 12, 0) }] },
         text: 'Яичница, тосты, чай. Мерле ест, не глядя в тарелку, но впервые за сегодня улыбается по-настоящему.',
         effects: [{ pickup: 'eggs' }, { take: 'eggs' }, { body: 'hunger', delta: -25 }, { body: 'thirst', delta: -10 }, { npc: 'merle', trust: 5 }] },
       { id: 'plan', label: 'Обсудить, что делать сегодня', minutes: 10, combinable: true, requiresDone: ['talk'], when: merleHome,
@@ -302,7 +306,7 @@ export const openingScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'cooler', label: 'Переложить инсулин Мерле в термосумку с холодом', minutes: 5, combinable: true,
         when: { all: [merleHome, { has: 'cooler_bag' }, { not: { flag: '$.insulin_cooler' } }] },
         text: 'Аккумулятор холода — в морозилку, ручки — в термосумку, сумка — в самый низ холодильника. Если ток пропадёт, у вас будет хотя бы день.',
-        effects: [{ set: '$.insulin_cooler', value: true }, { npc: 'merle', trust: 4, set: { cooler: true } }] },
+        effects: [{ take: 'cooler_bag' }, { set: '$.insulin_cooler', value: true }, { npc: 'merle', trust: 4, set: { cooler: true } }] },
       { id: 'peephole', label: 'Выйти в прихожую и посмотреть в глазок', minutes: 1, terminal: true, goto: 'b_hall',
         when: { all: [{ flag: '$.okafor_knock' }, { not: { visited: 'b_hall' } }, { before: at(10, 8, 30) }] } },
       { id: 'room', label: 'Вернуться к себе в комнату', minutes: 1, terminal: true, goto: 'b_wake' },

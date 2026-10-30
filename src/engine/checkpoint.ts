@@ -7,7 +7,7 @@ import { evalCond } from './conditions';
 import type { Content, JointDecision, MergePolicy } from './content-types';
 import { applyEffects } from './effects';
 import { canonical, stateHash, unit } from './rng';
-import { advanceTime } from './simulate';
+import { advanceTime, applyStandingRules } from './simulate';
 import type { GameState, HistoryRecord, ItemInstance, NpcState, PlayerId, Scalar } from './types';
 import { other, PLAYERS } from './types';
 import { environment, log, network, phoneUsable, type Ctx } from './world';
@@ -15,13 +15,24 @@ import { environment, log, network, phoneUsable, type Ctx } from './world';
 const clone = <T>(x: T): T => structuredClone(x);
 const same = (a: unknown, b: unknown) => canonical(a) === canonical(b);
 
+/**
+ * Правила для служебных переменных движка (сюжет может переопределить их в mergePolicies):
+ * работу над одним проектом в двух участках складываем, «начато/готово» — достаточно одного.
+ */
+function enginePolicy(key: string): MergePolicy | undefined {
+  if (!key.startsWith('proj.')) return undefined;
+  if (key.endsWith('.progress')) return 'delta';
+  if (key.endsWith('.done') || key.endsWith('.started') || key.endsWith('.rewarded')) return 'or';
+  return undefined;
+}
+
 export function policyFor(c: Content, key: string): MergePolicy {
   if (c.mergePolicies[key]) return c.mergePolicies[key];
   let best: [number, MergePolicy] | undefined;
   for (const [k, p] of Object.entries(c.mergePolicies)) {
     if (k.endsWith('*') && key.startsWith(k.slice(0, -1)) && (!best || k.length > best[0])) best = [k.length, p];
   }
-  return best?.[1] ?? 'latest';
+  return best?.[1] ?? enginePolicy(key) ?? 'latest';
 }
 
 /** Ничья по времени решается хэшем ключа и сида — одинаково на обоих телефонах, без приоритета игрока. */
@@ -53,18 +64,31 @@ function mergeScalar(c: Content, seed: string, key: string, base: Scalar | undef
   return tieBreak(seed, key) === 'A' ? a : b;
 }
 
+/** Трёхстороннее слияние поля: изменил один — его значение; оба по-разному — позднее. */
+function pick3<T>(base: T | undefined, a: T, b: T, later: T): T {
+  if (same(a, b)) return a;
+  if (same(a, base)) return b;
+  if (same(b, base)) return a;
+  return later;
+}
+
 function mergeNpc(seed: string, id: string, base: NpcState | undefined, a: NpcState, b: NpcState): NpcState {
   if (same(a, b)) return clone(a);
   if (base && same(a, base)) return clone(b);
   if (base && same(b, base)) return clone(a);
   const later = a.changedAt !== b.changedAt ? (a.changedAt > b.changedAt ? a : b) : tieBreak(seed, `npc:${id}`) === 'A' ? a : b;
   const out = clone(later);
+  // Поля — по отдельности: если A увёл NPC в другое место, а B позже лишь поговорил с ним, место не откатывается.
+  out.location = pick3(base?.location, a.location, b.location, later.location);
+  out.status = pick3(base?.status, a.status, b.status, later.status);
+  out.alive = pick3(base?.alive, a.alive, b.alive, later.alive);
   out.trust = { A: a.trust.A, B: b.trust.B };
   out.memory = [...new Set([...a.memory, ...b.memory])].sort();
   out.agendaDone = [...new Set([...a.agendaDone, ...b.agendaDone])].sort();
-  for (const k of new Set([...Object.keys(a.vars), ...Object.keys(b.vars)])) {
-    const bv = base?.vars[k];
-    out.vars[k] = a.vars[k] === bv ? b.vars[k] : b.vars[k] === bv ? a.vars[k] : later.vars[k];
+  out.vars = {};
+  for (const k of [...new Set([...Object.keys(a.vars), ...Object.keys(b.vars)])].sort()) {
+    const v = pick3(base?.vars[k], a.vars[k], b.vars[k], later.vars[k]);
+    if (v !== undefined) out.vars[k] = v;
   }
   // Смерть необратима: если на одной из линий NPC погиб, он мёртв.
   if (!a.alive || !b.alive) { out.alive = false; out.status = 'dead'; }
@@ -78,14 +102,29 @@ function mergeItem(seed: string, id: string, base: ItemInstance | undefined, a: 
   if (same(a, b)) return clone(a);
   if (base && same(a, base)) return clone(b);
   if (base && same(b, base)) return clone(a);
-  const later = clone(a.changedAt !== b.changedAt ? (a.changedAt > b.changedAt ? a : b) : tieBreak(seed, `item:${id}`) === 'A' ? a : b);
-  // Оба брали из одного запаса на одном месте (общий склад базы) — складываем расход, а не теряем его.
-  if (base && same(a.at, base.at) && same(b.at, base.at)) {
-    later.qty = Math.max(0, base.qty + (a.qty - base.qty) + (b.qty - base.qty));
-    if (base.fuel !== undefined) later.fuel = Math.max(0, Math.round(((base.fuel) + ((a.fuel ?? 0) - base.fuel) + ((b.fuel ?? 0) - base.fuel)) * 100) / 100);
-    if (later.qty <= 0) later.at = { kind: 'gone' };
+  const later = a.changedAt !== b.changedAt ? (a.changedAt > b.changedAt ? a : b) : tieBreak(seed, `item:${id}`) === 'A' ? a : b;
+  if (!base) return clone(later);
+  // Каждое поле — отдельно: заряд из одного участка не отменяет перенос из другого.
+  const out = clone(later);
+  for (const k of ['type', 'condition', 'charge', 'uses', 'note'] as const) {
+    const v = pick3(base[k], a[k], b[k], later[k]);
+    if (v === undefined) delete out[k]; else (out as unknown as Record<string, unknown>)[k] = v;
   }
-  return later;
+  // Количество и топливо — изменения складываются: оба брали из одной стопки (общий склад, полка) —
+  // расход суммируется, а не теряется. Кто-то унёс стопку целиком, а другой взял из неё часть —
+  // унесший получает то, что осталось после второго.
+  out.qty = Math.max(0, base.qty + (a.qty - base.qty) + (b.qty - base.qty));
+  if (base.fuel !== undefined || a.fuel !== undefined || b.fuel !== undefined) {
+    const bf = base.fuel ?? 0;
+    out.fuel = Math.max(0, Math.round((bf + ((a.fuel ?? 0) - bf) + ((b.fuel ?? 0) - bf)) * 100) / 100);
+  }
+  const gone = (x: ItemInstance) => x.at.kind === 'gone';
+  let at = pick3(base.at, a.at, b.at, later.at);
+  // Израсходовано на одной линии, а на другой стопка ещё лежит и после сложения что-то осталось — она там и лежит.
+  if (gone({ ...out, at }) && out.qty > 0) at = !gone(a) ? a.at : !gone(b) ? b.at : base.at;
+  out.at = out.qty > 0 ? clone(at) : { kind: 'gone' };
+  out.changedAt = Math.max(a.changedAt, b.changedAt);
+  return out;
 }
 
 /** Кто проводил участок за персонажа: он сам или партнёр (если был недееспособен). */
@@ -165,19 +204,26 @@ export function syncClocks(c: Content, s: GameState, notBefore = 0) {
   baseCatchUp({ s, c, pid: s.chars.A.time >= s.chars.B.time ? 'A' : 'B' }, target);
 }
 
+/** Ожидание на точке — по часу: между часами бытовые правила (попить, поесть), как в обычном участке. */
+const SYNC_CHUNK = 60;
+
 function syncClocksTo(c: Content, s: GameState, target: number) {
   for (const pid of PLAYERS) {
     const ch = s.chars[pid];
     if (ch.time >= target) continue;
     const ctx: Ctx = { s, c, pid };
-    if (isDead(ch.body)) { ch.time = target; continue; }
     if (canAct(ch.body)) {
       log(ctx, 'system', 'Время до общей точки проходит в ожидании.');
-      advanceTime(ctx, target - ch.time, 'rest', { finishOnEvent: true, away: true });
-    } else {
-      tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`);
-      ch.time = target;
+      while (ch.time < target && canAct(ch.body)) {
+        advanceTime(ctx, Math.min(SYNC_CHUNK, target - ch.time), 'rest', { finishOnEvent: true, away: true });
+        if (canAct(ch.body)) applyStandingRules(ctx);
+      }
     }
+    // Потерял сознание или погиб, пока ждал, — или был недееспособен с самого начала: тело живёт до общего момента.
+    if (ch.time < target && !isDead(ch.body)) {
+      tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`);
+    }
+    ch.time = target;
   }
 }
 
@@ -253,7 +299,8 @@ export function resolveJoint(c: Content, s: GameState, decisionId: string, answe
 
   const arbitrate = (candidates: string[]): void => {
     for (const a of d.arbiters) {
-      if (evalCond(w, a.when) && (candidates.length === 0 || candidates.includes(a.winner) || !candidates.some(feasible))) {
+      // Обстоятельство выбирает только то, что объективно выполнимо.
+      if (evalCond(w, a.when) && feasible(a.winner) && (candidates.length === 0 || candidates.includes(a.winner) || !candidates.some(feasible))) {
         res.applied = [a.winner];
         res.reason = a.text;
         applyEffects(w, a.effects);
@@ -341,9 +388,10 @@ export function resolveHelplessness(c: Content, s: GameState): 'continue' | 'def
   if (PLAYERS.some((p) => canAct(s.chars[p].body))) return 'continue';
   const limit = Math.max(s.chars.A.time, s.chars.B.time) + 14 * 1440;
   while (Math.max(s.chars.A.time, s.chars.B.time) < limit) {
+    // Час проживают оба, и только потом проверяется, очнулся ли кто-то: часы обоих остаются равными.
     for (const p of PLAYERS) {
       const ch = s.chars[p];
-      if (isDead(ch.body)) continue;
+      if (isDead(ch.body)) { ch.time += 60; continue; }
       const carer = s.vars[`${p}.caredBy`];
       if (typeof carer === 'string' && s.npcs[carer]?.alive) {
         // Уход NPC (только если он заранее был рядом и согласился помогать).
@@ -353,8 +401,8 @@ export function resolveHelplessness(c: Content, s: GameState): 'continue' | 'def
       }
       tickBody(ch.body, ch.traits, ch.time, 60, 'rest', environment({ s, c, pid: p }), `${s.seed}:${p}`);
       ch.time += 60;
-      if (canAct(ch.body)) return 'continue';
     }
+    if (PLAYERS.some((p) => canAct(s.chars[p].body))) return 'continue';
     if (PLAYERS.every((p) => isDead(s.chars[p].body))) return 'defeat';
   }
   return 'defeat';
@@ -380,7 +428,6 @@ export function completeCheckpoint(c: Content, merged: GameState, answers: Parti
     joint.push(resolveJoint(c, s, id, { A: answers.A?.[id], B: answers.B?.[id] }));
   }
   s.checkpoint = cpIndex;
-  markSegmentStart(s);
   const verdict = resolveHelplessness(c, s);
   for (const pid of PLAYERS) {
     const ch = s.chars[pid];
@@ -401,6 +448,8 @@ export function completeCheckpoint(c: Content, merged: GameState, answers: Parti
     if (sc?.location) ch.location = sc.location;
     applyEffects(ctx, sc?.onEnter);
   }
+  // Где каждый начинает участок — после разведения по сценам (иначе база «не видит» тех, кто начинает на ней).
+  markSegmentStart(s);
   if (verdict === 'defeat') {
     const t = Math.max(s.chars.A.time, s.chars.B.time);
     s.ended = { kind: 'defeat', at: t, reason: PLAYERS.every((p) => isDead(s.chars[p].body)) ? 'Оба персонажа погибли.' : 'Никто из вас не может действовать, и помощи не будет.' };
