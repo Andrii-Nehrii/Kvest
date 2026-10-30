@@ -65,8 +65,10 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
   const drink = bestFood(ctx, 'thirst');
   if (drink && b.thirst >= 10) {
     const t = itemType(ctx, drink.type);
+    // Вода или молоко — «попить»; яблоко или консервы тоже утоляют жажду, но их едят.
+    const label = t.tags.includes('drink') ? `Попить (${t.name})` : `Утолить жажду (${t.name})`;
     list.push({
-      id: 'u:drink', label: `Попить (${t.name})`, minutes: 3, combinable: true, group: 'u:drink',
+      id: 'u:drink', label, minutes: 3, combinable: true, group: 'u:drink',
       effects: [{ take: drink.type }, { body: 'thirst', delta: -(t.food?.thirst ?? 0) }, { body: 'hunger', delta: -(t.food?.hunger ?? 0) }],
     });
   }

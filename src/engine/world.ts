@@ -135,8 +135,10 @@ export function takeItems(ctx: Ctx, pred: (i: ItemInstance) => boolean, qty: num
   return qty - left;
 }
 
+/** Переместить до `qty` штук (Infinity — все). Возвращает, сколько перемещено. */
 export function moveItems(ctx: Ctx, pred: (i: ItemInstance) => boolean, qty: number, from: ItemInstance['at'], to: ItemInstance['at']): number {
   let left = qty;
+  let moved = 0;
   const src = Object.values(ctx.s.items)
     .filter((i) => i.qty > 0 && i.at.kind === from.kind && (i.at as { id?: string }).id === (from as { id?: string }).id && pred(i))
     .sort((a, b) => (a.id < b.id ? -1 : 1));
@@ -151,8 +153,10 @@ export function moveItems(ctx: Ctx, pred: (i: ItemInstance) => boolean, qty: num
       ctx.s.items[copy.id] = copy;
     }
     left -= n;
+    moved += n;
   }
-  return qty - left;
+  // Не qty - left: при qty = Infinity это NaN.
+  return moved;
 }
 
 export function phone(ctx: Ctx, pid: PlayerId = ctx.pid): ItemInstance | undefined {

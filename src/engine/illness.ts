@@ -2,6 +2,7 @@
 // Они постоянны: новые главы не имеют права менять эти числа задним числом.
 // Игрок видит только симптомы; название «pathogen» в интерфейс не выводится.
 import { unit } from './rng';
+import { hourOfDay } from './time';
 import type { Body, Illness, Minutes } from './types';
 
 export interface IllnessDef {
@@ -59,7 +60,8 @@ export const ILLNESSES: Record<string, IllnessDef> = {
       if (ill.stage === 2) {
         if (ill.fate === 'abortive') {
           ill.stage = 3; ill.severity = 0; ill.nextAt = t + pathogenStageLength(3, key);
-          return { note: 'Ночью жар внезапно спал. Тело как после долгой болезни.' };
+          const h = hourOfDay(t);
+          return { note: `${h < 6 || h >= 22 ? 'Ночью жар' : 'Жар'} внезапно спал. Тело как после долгой болезни.` };
         }
         return { death: 'неизвестная болезнь' };
       }

@@ -168,7 +168,7 @@ export function applyStandingRules(ctx: Ctx) {
       takeItems(ctx, (i) => i.id === item.id, 1);
       ch.body.thirst = clamp(ch.body.thirst - (t.food?.thirst ?? 0), 0, 100);
       ch.body.hunger = clamp(ch.body.hunger - (t.food?.hunger ?? 0), 0, 100);
-      log(ctx, 'item', `По привычке: выпито — ${t.name}.`);
+      log(ctx, 'item', `По привычке: ${t.tags.includes('drink') ? 'выпито' : 'съедено, чтобы утолить жажду'} — ${t.name}.`);
     }
   }
   if (ch.rules.eatWhenHungry && ch.body.hunger >= 55) {
@@ -178,7 +178,7 @@ export function applyStandingRules(ctx: Ctx) {
       takeItems(ctx, (i) => i.id === item.id, 1);
       ch.body.hunger = clamp(ch.body.hunger - (t.food?.hunger ?? 0), 0, 100);
       ch.body.thirst = clamp(ch.body.thirst - (t.food?.thirst ?? 0), 0, 100);
-      log(ctx, 'item', `По привычке: съедено — ${t.name}.`);
+      log(ctx, 'item', `По привычке: ${t.tags.includes('drink') ? 'выпито' : 'съедено'} — ${t.name}.`);
     }
   }
 }

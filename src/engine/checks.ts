@@ -13,7 +13,8 @@ export function checkChance(ctx: Ctx, check: Check): number {
   // Среднее геометрическое. sqrt — точная операция на любом движке (pow в Safari и Chrome может разойтись
   // в последнем бите, а миры двух телефонов обязаны считаться одинаково); в Chrome sqrt(x) === x ** 0.5.
   const prod = capList.reduce((a, c) => a * k[c], 1);
-  const capFactor = capList.length === 1 ? prod : capList.length === 2 ? Math.sqrt(prod) : prod ** (1 / capList.length);
+  // uses: [] — тело не влияет (иначе 1 ** Infinity = NaN, и проверка проходила бы всегда).
+  const capFactor = capList.length === 0 ? 1 : capList.length === 1 ? prod : capList.length === 2 ? Math.sqrt(prod) : prod ** (1 / capList.length);
   const bonus = (check.mods ?? []).filter((m) => evalCond(ctx, m.when)).reduce((a, m) => a + m.bonus, 0);
   const points = traitAvg * 2 * capFactor + bonus;
   return round(clamp(0.5 + (points - check.difficulty) * 0.1, 0.02, 0.98));
