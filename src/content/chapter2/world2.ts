@@ -13,15 +13,17 @@ export const C3: Cond = { cp: 3 };
 export const A_HOME_PLACES = ['a_flat', 'a_stairs', 'a_yard', 'a_street', 'a_brockmann'];
 export const B_HOME_PLACES = ['b_flat', 'b_stairs', 'b_yard', 'b_street', 'b_okafor', 'b_nowak', 'b_kiosk'];
 /** Юг: Buchholz и окрестности, хутор, мастерская, дорога на Harburg. */
-export const SOUTH = [...A_HOME_PLACES, 'a_house7', 'a_hospital', 'a_market', 'a_gas', 'deniz_workshop', 'hof_luedemann', 'a_road', 'b75_road'];
+export const SOUTH = [...A_HOME_PLACES, 'a_house7', 'a_hospital', 'a_market', 'a_gas', 'deniz_workshop', 'hof_luedemann', 'farm_coop', 'a_road', 'b75_road'];
 /** Harburg — южный берег, за Süderelbe. */
 export const HARBURG = ['harburg', 'harburg_station', 'harburg_kerem', 'a1_station', 'a7_jam'];
 /** Остров между рукавами Эльбы. */
 export const ISLAND = ['wilhelmsburg', 'wilhelmsburg_stairs', 'steinwerder'];
 /** Гамбург к северу от Эльбы. */
 export const CITY = [...B_HOME_PLACES, 'b_market', 'b_pharmacy', 'b_station', 'hh_alster', 'hh_neustadt', 'hh_landungsbruecken', 'old_elbtunnel',
-  'elbtunnel', 'hh_city', 'hh_eppendorf', 'hh_ring3', 'messe'];
+  'elbtunnel', 'hh_city', 'hh_eppendorf', 'hh_ring3', 'messe', 'messe_q', 'elbbruecken'];
 export const EAST = ['ahrensburg', 'b_van'];
+/** Север: спортзал DRK в Kaltenkirchen (после дороги на север). */
+export const NORTH = ['north_gym'];
 
 export const atAny = (places: string[]): Cond => ({ any: places.map((p) => ({ at: p })) });
 export const partnerAtAny = (places: string[]): Cond => ({ any: places.map((p) => ({ partnerAt: p })) });
@@ -82,6 +84,9 @@ export const facts2: Record<string, FactDef> = Object.fromEntries([
   F('f_coop_rule', 'места', 'У Хенрике правило: кто с укусом, раной или жаром — сутки в старом курятнике, пока не станет ясно.'),
   F('f_messe_cough', 'люди', 'В Messe через два ряда от вас мужчина с перевязанной кистью: кашляет, весь мокрый, прячет руку под одеяло.'),
   F('f_farm_lights', 'места', 'Ночью к хутору подъезжала машина без номеров — постояла на краю поля с фарами и уехала.'),
+  F('f_okafor_sound', 'болезнь', 'Окафор: «Не открывайте, не светите, не шумите. Они уходят, когда нечего слышать».'),
+  F('f_car_shadow', 'болезнь', 'Ночью у машины стоял человек: ладони на стекле, глаза открыты — и будто не видел, кто внутри. Ушёл на далёкий звук.'),
+  F('f_engine_lure', 'болезнь', 'Человек у машины пошёл на звук мотора и бился в стекло лбом, пока машина не отъехала.'),
 ].map((f) => [f.id, f]));
 
 // ───────────── Новые люди ─────────────
@@ -130,12 +135,18 @@ export const agenda2: Record<string, AgendaItem[]> = {
   okafor: [
     { id: 'c2_back', at: at(11, 7, 40), scope: 'world', when: { all: [C2, { npc: 'okafor', at: 'clinic_barmbek' }] },
       effects: [{ npc: 'okafor', moveTo: 'b_okafor', set: { back_from_clinic: true } }] },
+    // Свенья у него в ванной: в острой стадии она бросается на него — дома ли кто-нибудь из вас или нет.
+    { id: 'c4_bitten', at: at(11, 19, 10), scope: 'world',
+      when: { all: [C3, { npc: 'okafor', at: 'b_okafor' }, { npc: 'svenja', at: 'b_okafor' }, { npc: 'svenja', status: 'infected' }] },
+      effects: [{ npc: 'okafor', status: 'injured', set: { bitten: true } }] },
   ],
   // Дениз с братом искали друг друга в Harburg — утром возвращаются в мастерскую.
   deniz: [
     // Брат с ним — в полдень оба уезжают на хутор (кто поедет с ними — решает сцена).
     { id: 'c4_farm', at: at(11, 12, 0), scope: 'world', when: { all: [C3, { npc: 'deniz', at: 'deniz_workshop' }, { npc: 'kerem', at: 'deniz_workshop' }] },
-      effects: [{ npc: 'deniz', moveTo: 'hof_luedemann' }, { npc: 'kerem', moveTo: 'hof_luedemann' }, { set: 'w.deniz_at_farm', value: true }] },
+      // Договорились утром прийти к нему — оставляет ключ под ведром у ворот.
+      effects: [{ npc: 'deniz', moveTo: 'hof_luedemann' }, { npc: 'kerem', moveTo: 'hof_luedemann' }, { set: 'w.deniz_at_farm', value: true },
+        { if: { v: 'w.day2', op: '==', value: 'workshop' }, then: [{ set: 'w.deniz_note', value: true }] }] },
     { id: 'c2_back', at: at(11, 9, 30), scope: 'world', when: { all: [C2, { npc: 'deniz', at: 'harburg_search' }] },
       effects: [{ npc: 'deniz', moveTo: 'deniz_workshop' }] },
   ],
@@ -164,11 +175,11 @@ export const events2: WorldEvent[] = [
     effects: [{ set: '$.merle_hypo', value: true }],
     news: [{ channel: 'direct', text: 'Из комнаты Мерле — глухой стук, будто на пол упало что-то тяжёлое. Потом тишина.' }] },
   // Если к Мерле никто не подошёл — она приходит в себя сама, но к утру совсем без сил.
-  { id: 'ev2_merle_hypo_bad', at: at(11, 3, 55), scope: 'B', when: { all: [C2, { flag: '$.merle_hypo' }, { not: { flag: '$.merle_helped' } }] },
+  { id: 'ev2_merle_hypo_bad', at: at(11, 3, 55), scope: 'B', when: { all: [C2, { flag: '$.merle_hypo' }, { not: { flag: '$.merle_helped' } }, { not: { scene: 'c2_merle_night' } }] },
     effects: [{ set: '$.merle_hypo_bad', value: true }] },
-  { id: 'ev2_gerd_door', at: at(11, 1, 40), scope: 'world', when: { all: [C2, { npc: 'gerd', at: 'a_stairs' }, { at: 'a_flat' }, { before: at(11, 5, 0) }] }, interrupt: true,
+  { id: 'ev2_gerd_door', at: at(11, 1, 40), scope: 'world', when: { all: [C2, { npc: 'gerd', at: 'a_stairs', alive: true }, { at: 'a_flat' }, { before: at(11, 5, 0) }] }, interrupt: true,
     effects: [{ set: '$.gerd_at_door', value: true }],
-    news: [{ channel: 'direct', text: 'На лестнице — шаги. Медленные, шаркающие, с остановками. Они поднимаются до твоей площадки и замирают у двери. Потом — глухой удар плечом. И ещё один.' }] },
+    news: [{ channel: 'direct', text: 'На лестнице — шаги. Медленные, шаркающие, с остановками. Они поднимаются до площадки и замирают у самой двери. Потом — глухой удар плечом. И ещё один.' }] },
   { id: 'ev2_gerd_below', at: at(11, 1, 0), scope: 'world',
     when: { all: [C2, { npc: 'gerd', at: 'a_brockmann' }, { npc: 'gerd', status: 'turned' }, { at: 'a_flat' }, { before: at(11, 5, 0) }] },
     news: [{ channel: 'direct', text: 'Снизу, из квартиры Брокманов, — удары. Неровные, тупые, будто кто-то раз за разом налетает на дверь. Потом долго ничего. Потом снова.' }] },
@@ -179,14 +190,15 @@ export const events2: WorldEvent[] = [
     when: { all: [C2, { at: 'a_flat' }, { itemAt: 'opel_corsa', place: 'a_yard' }, { fuelIn: 'opel_corsa', liters: 3 }, { before: at(11, 4, 30) }] }, interrupt: true,
     effects: [{ set: '$.thief', value: true }],
     news: [{ channel: 'direct', text: 'Во дворе звякает металл. Ты подходишь к окну: у твоей машины — тень на корточках, луч фонарика под днищем, рядом канистра. Кто-то сливает твой бензин.' }] },
-  { id: 'ev2_a_thief_done', at: at(11, 3, 55), scope: 'A', when: { all: [C2, { flag: '$.thief' }, { not: { flag: '$.thief_gone' } }] },
+  // Пока A во дворе разговаривает с вором, тот ничего больше не сливает: исход решает сцена.
+  { id: 'ev2_a_thief_done', at: at(11, 3, 55), scope: 'A', when: { all: [C2, { flag: '$.thief' }, { not: { flag: '$.thief_gone' } }, { not: { scene: 'c2_ayard_thief' } }] },
     effects: [{ siphon: 'opel_corsa', liters: 9 }, { set: '$.thief_gone', value: 'got_fuel' }] },
   { id: 'ev2_car_patrol', at: at(11, 0, 40), scope: 'world', when: { all: [C2, inCarScene, { before: at(11, 4, 0) }, { not: atAny(SOUTH) }] }, interrupt: true,
     effects: [{ set: '$.c2_patrol', value: true }],
     news: [{ channel: 'direct', text: 'Свет фонаря бьёт в стекло. Ты щуришься: двое в касках и камуфляже, третий держит машину на прицеле. Стучат костяшками в окно: «Aufmachen. Langsam.»', learn: 'f_curfew' }] },
   { id: 'ev2_car_shadow', at: at(11, 3, 30), scope: 'world', when: { all: [C2, inCarScene, { before: at(11, 5, 30) }] }, interrupt: true,
     effects: [{ set: '$.c2_shadow', value: true }],
-    news: [{ channel: 'direct', text: 'Ты просыпаешься от того, что машина чуть качнулась. За стеклом — человек. Стоит вплотную, ладонями на окне, лицом к тебе. Глаза открыты. Он тебя не видит — или видит и не понимает. Ты перестаёшь дышать.' }] },
+    news: [{ channel: 'direct', text: 'Машина чуть качнулась. За стеклом — человек. Стоит вплотную, ладонями на окне, лицом к тебе. Глаза открыты. Он тебя не видит — или видит и не понимает. Ты перестаёшь дышать.' }] },
   { id: 'ev2_farm_lights', at: at(11, 2, 10), scope: 'world', when: { all: [C2, { at: 'hof_luedemann' }, { before: at(11, 5, 0) }] }, interrupt: true,
     effects: [{ set: '$.farm_lights', value: true }],
     news: [{ channel: 'direct', text: 'Собака во дворе заходится лаем. В окне — свет: на краю поля, у дороги, стоит машина с включёнными фарами. Стоит и не едет.' }] },
@@ -213,7 +225,8 @@ export const events2: WorldEvent[] = [
   { id: 'ev4_svenja', at: at(11, 17, 5), scope: 'world', when: { all: [C3, { at: 'b_flat' }, { npc: 'svenja', at: 'b_flat' }, { npc: 'svenja', status: 'infected' }] }, interrupt: true,
     effects: [{ set: '$.svenja_attack', value: true }],
     news: [{ channel: 'direct', text: 'С дивана — звук, какого не издают люди: не стон, не крик — рычание сквозь сжатые зубы. Свенья сидит, выпрямившись, плед на полу. Она смотрит на тебя. Не на тебя — сквозь.' }] },
-  { id: 'ev4_okafor_scream', at: at(11, 19, 10), scope: 'world', when: { all: [C3, { any: [{ at: 'b_flat' }, { at: 'b_stairs' }] }, { npc: 'svenja', at: 'b_okafor' }, { npc: 'okafor', at: 'b_okafor' }] }, interrupt: true,
+  { id: 'ev4_okafor_scream', at: at(11, 19, 10), scope: 'world',
+    when: { all: [C3, { any: [{ at: 'b_flat' }, { at: 'b_stairs' }] }, { npc: 'svenja', at: 'b_okafor' }, { npc: 'okafor', at: 'b_okafor' }, { npcVar: 'okafor', key: 'bitten' }] }, interrupt: true,
     effects: [{ set: '$.okafor_trouble', value: true }],
     news: [{ channel: 'direct', text: 'Через площадку — грохот, звон стекла и голос Окафора, впервые громкий: «Nein! Svenja, nein!» Потом удар в стену. Потом тишина.' }] },
   { id: 'ev4_attic', at: at(11, 18, 0), scope: 'world', when: { all: [C3, { any: [{ at: 'b_flat' }, { at: 'b_stairs' }] }, { npc: 'svenja', at: 'b_attic' }, { npc: 'svenja', status: 'infected' }] },

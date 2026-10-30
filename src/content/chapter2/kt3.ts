@@ -5,7 +5,7 @@
 import type { CheckpointDef, JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
-import { CITY, EAST, HARBURG, ISLAND, SOUTH, atAny, carIn, partnerAtAny } from './world2';
+import { CITY, EAST, HARBURG, ISLAND, NORTH, SOUTH, atAny, carIn, partnerAtAny } from './world2';
 
 const together: Cond = { flag: 'w.together' };
 const A_HOME = ['a_flat', 'a_stairs', 'a_yard'];
@@ -31,15 +31,20 @@ const B_CITY: Cond = { all: [bCanAct, partnerAtAny([...CITY, ...EAST])] };
 /** В Messe: из города — пешком, с юга — автобусом от вокзала Harburg (до него — на машине или пешком из Harburg). */
 const A_MESSE: Cond = { any: [atAny([...CITY, ...HARBURG, ...ISLAND]), { all: [atAny(SOUTH), car(SOUTH, 2)] }] };
 const B_MESSE: Cond = { all: [bCanAct, { any: [partnerAtAny([...CITY, ...HARBURG, ...ISLAND]), { all: [partnerAtAny(SOUTH), { any: [bBike, ride(SOUTH, 2)] }] }] }] };
-/** На север — только на машине из города; B — только вместе с A. */
-const A_NORTH: Cond = { all: [atAny(CITY), car(CITY, 6)] };
-const B_NORTH: Cond = { all: [bCanAct, together] };
+/** На север — только на машине из города; B — только вместе с A. Кто уже на севере (КТ 4) — остаётся там. */
+const A_NORTH: Cond = { any: [{ all: [atAny(CITY), car(CITY, 6)] }, atAny(NORTH)] };
+const B_NORTH: Cond = { all: [bCanAct, { any: [together, partnerAtAny(NORTH)] }] };
 
 /** Оба могут добраться (кто не может действовать — не участвует и не мешает). */
 const both = (a: Cond, b: Cond): Cond => ({ all: [{ any: [a, { not: aCanAct }] }, { any: [b, { not: bCanAct }] }] });
 
-const FARM_DOOR: Cond = { any: [{ flag: 'w.henrike_yes' }, { flag: 'w.henrike_maybe' }, { flag: 'w.deniz_vouch' }] };
-const DENIZ_THERE: Cond = { all: [{ flag: 'w.deniz_shelter' }, { any: [{ npc: 'deniz', at: 'deniz_workshop' }, { npc: 'deniz', at: 'harburg_search' }] }] };
+/** Хенрике пустит: обещала, Дениз поручился — или (КТ 4) уже пустила. */
+const FARM_DOOR: Cond = { any: [{ flag: 'w.henrike_yes' }, { flag: 'w.henrike_maybe' }, { flag: 'w.deniz_vouch' }, { flag: 'w.farm_welcome' }] };
+/** Дениз ждёт в мастерской — или (КТ 4) уехал, оставив ключи. */
+const DENIZ_THERE: Cond = { any: [
+  { all: [{ flag: 'w.deniz_shelter' }, { any: [{ npc: 'deniz', at: 'deniz_workshop' }, { npc: 'deniz', at: 'harburg_search' }] }] },
+  { flag: 'w.workshop_keys' },
+] };
 
 /** Коридор на юг — с 9 до 14: кто решает до половины двенадцатого, успевает отстоять очередь. Хенрике пустит, если обещала или есть кому поручиться. */
 const corridor: Effect = { if: { before: at(11, 11, 30) }, then: [{ set: 'w.corridor_ok', value: true }] };
@@ -47,6 +52,7 @@ const farmWelcome: Effect = { if: { any: [{ flag: 'w.henrike_yes' }, { flag: 'w.
   then: [{ set: 'w.farm_welcome', value: true }] };
 
 const SHELTER_IDS = ['farm', 'workshop', 'a_flat', 'b_flat', 'messe', 'north'];
+const DAY_IDS = [...SHELTER_IDS, 'stay'];
 
 /**
  * «Куда вы сегодня/завтра» — одно и то же решение на КТ 3 и КТ 4: те же места, те же законы дорог.
@@ -72,7 +78,10 @@ function dayDecision(id: string, checkpoint: number, varName: string, prompt: st
       { id: 'stay', label: { default: 'Никуда: остаёмся там, где мы есть' },
         effects: day('stay'), text: 'Решено: никуда. Каждый остаётся там, где он есть.' },
     ],
+    // Порознь разные ответы — «остаёмся»: никто не двинется, пока не знает точно, где второй.
+    compromises: DAY_IDS.flatMap((x, i) => DAY_IDS.slice(i + 1).map((y) => ({ pair: [x, y] as [string, string], result: 'stay', when: { not: together } as Cond }))),
     arbiters: [
+      // Вместе, но не договорились: побеждает то, о чём договорились раньше.
       ...SHELTER_IDS.map((sid) => ({
         id: `plan_${sid}`, when: { v: planVar, op: '==', value: sid } as Cond, winner: sid,
         text: 'Об этом вы уже договаривались. Ни один довод с тех пор этого не отменил.',
@@ -80,7 +89,7 @@ function dayDecision(id: string, checkpoint: number, varName: string, prompt: st
       { id: 'apart', when: { not: together }, winner: 'stay', text: 'Вы порознь, связь не держится. Пока каждый не знает точно, где второй, никто никуда не двинется.' },
       { id: 'tired', when: { always: true }, winner: 'stay', text: 'Вы оба вымотаны. Когда не можете договориться — остаётесь, где есть, и ждёте утра.' },
     ],
-    fallbackWeights: [...SHELTER_IDS, 'stay'].map((option) => ({ option, base: 1 })),
+    fallbackWeights: DAY_IDS.map((option) => ({ option, base: 1 })),
     default: 'stay',
     rememberedBy: ['merle', 'okafor', 'deniz', 'henrike', 'ilse'],
   };
@@ -94,7 +103,8 @@ const day2 = dayDecision('day2', 3, 'w.day2',
 
 /** Те же факты, что на КТ 2, и новые за ночь: при встрече каждый узнаёт, что знал другой. */
 const SHARED = ['f_farm', 'f_henrike_yes', 'f_henrike_maybe', 'f_henrike_no', 'f_deniz_shelter', 'f_messe', 'f_kfall', 'f_curfew', 'f_messe_open', 'f_corridor',
-  'f_messe_bus', 'f_fuel_ban', 'f_tunnels_closed', 'f_okafor_clinic', 'f_okafor_fever', 'f_svenja_fever', 'f_ilse_fever', 'f_gerd_stairs', 'f_vorderhaus_man', 'f_okafor_colleague'];
+  'f_messe_bus', 'f_fuel_ban', 'f_tunnels_closed', 'f_okafor_clinic', 'f_okafor_fever', 'f_svenja_fever', 'f_ilse_fever', 'f_gerd_stairs', 'f_vorderhaus_man', 'f_okafor_colleague',
+  'f_okafor_sound', 'f_car_shadow', 'f_engine_lure', 'f_merle_hypo', 'f_farm_lights', 'f_messe_q', 'f_coop_rule', 'f_north_gym', 'f_messe_cough', 'f_svenja_attack', 'f_ilse_turned', 'f_corridor_closed'];
 const share: Effect[] = SHARED.map((f) => ({ if: { partnerKnows: f }, then: [{ learn: f, source: 'partner' }] }));
 const meet: Effect[] = [{ set: 'w.together', value: true }, ...share];
 
@@ -118,9 +128,15 @@ export const checkRiskNote: MergeNote = {
 };
 const checkClear: MergeNote = { id: 'check_clear', group: 'check', effects: [{ set: '$.check_risk', value: false }] };
 
+/**
+ * Заметки идут по очереди — сначала A, потом B — на одном общем состоянии: встреча, которую отметил A
+ * (w.together = true), для B уже «вместе». Поэтому «нашли друг друга» помечается и у B видна по флагу партнёра.
+ */
+const foundBy = (flag: string): Cond => ({ flag: `@partner.${flag}` });
+
 const kt3Notes: MergeNote[] = [
   checkRiskNote, checkClear,
-  { id: 'still', group: 'meet', when: { all: [together, SAME, { not: atDoor }, { not: partnerAtDoor }] } },
+  { id: 'still', group: 'meet', when: { all: [together, SAME, { not: atDoor }, { not: partnerAtDoor }, { not: foundBy('kt3_found') }] } },
   { id: 'door_a_home', group: 'meet', when: { all: [{ me: 'B' }, atDoor, { at: 'a_street' }, partnerAtAny(A_HOME)] }, effects: meet,
     text: 'Шаги на лестнице — тяжёлые, быстрые. Дверь подъезда распахивается, и {partner} стоит на пороге — небритый, в куртке нараспашку, с фонариком в руке. Он смотрит на тебя так, будто не верит глазам. Потом ты уже ничего не видишь — только его куртку и его руки.' },
   { id: 'door_a_A', group: 'meet', when: { all: [{ me: 'A' }, atAny(A_HOME), { partnerAt: 'a_street' }, { flag: 'B.at_partner_door' }] }, effects: meet,
@@ -128,9 +144,9 @@ const kt3Notes: MergeNote[] = [
   { id: 'door_b_home', group: 'meet', when: { all: [{ me: 'A' }, atDoor, { at: 'b_street' }, partnerAtAny(B_HOME)] }, effects: meet,
     text: 'Щелчок домофона. Шаги на лестнице — через ступеньку. Дверь подъезда распахивается, и {partner} врезается в тебя так, что ты отступаешь на шаг. Утро, холод, люди с чемоданами идут мимо и не смотрят. Вам всё равно.' },
   { id: 'door_b_B', group: 'meet', when: { all: [{ me: 'B' }, atAny(B_HOME), { partnerAt: 'b_street' }, { flag: 'A.at_partner_door' }] }, effects: meet,
-    text: 'Домофон. Ты не сразу понимаешь, что это — он. Потом летишь вниз по лестнице, через ступеньку. {partner} стоит у подъезда — мокрый, небритый, с красными от бессонной ночи глазами. Живой.' },
-  { id: 'found', group: 'meet', when: { all: [{ not: together }, SAME] }, effects: meet,
-    text: 'Ты видишь {partner.acc} раньше, чем {pm:он|она} тебя, — и сначала не веришь. Потом веришь.' },
+    text: 'Домофон. Ты не сразу понимаешь, что это — он. Потом летишь вниз по лестнице, через ступеньку. {partner} стоит у подъезда — небритый, серый от холода, с красными от бессонной ночи глазами. Живой.' },
+  { id: 'found', group: 'meet', when: { all: [{ any: [{ not: together }, foundBy('kt3_found')] }, SAME] }, effects: [{ set: '$.kt3_found', value: true }, ...meet],
+    text: '{partner} — здесь, в двадцати шагах, {pm:живой|живая}. Ты сначала не веришь глазам. Потом веришь.' },
   { id: 'nobody', group: 'meet', when: atDoor,
     text: 'Никто не открывает. Ты стучишь ещё, зовёшь, ждёшь. Тишина. {partner} здесь нет.', effects: [{ set: 'w.together', value: false }] },
   { id: 'apart', group: 'meet', when: together, effects: [{ set: 'w.together', value: false }] },
@@ -157,7 +173,7 @@ const split: Cond = { any: [{ all: [{ at: 'messe' }, { partnerAt: 'messe_q' }] }
 
 const kt4Notes: MergeNote[] = [
   checkRiskNote, checkClear,
-  { id: 'still', group: 'meet', when: { all: [together, SAME4, { not: atDoor4 }, { not: partnerAtDoor4 }] } },
+  { id: 'still', group: 'meet', when: { all: [together, SAME4, { not: atDoor4 }, { not: partnerAtDoor4 }, { not: foundBy('kt4_found') }] } },
   { id: 'door_a', group: 'meet', when: { all: [{ me: 'B' }, atDoor4, { at: 'a_street' }, partnerAtAny(A_HOME)] }, effects: meet,
     text: 'Шаги на лестнице. Дверь подъезда распахивается — {partner}, с фонариком, в куртке поверх свитера. Он стоит и смотрит, будто ты можешь исчезнуть, если моргнуть. Потом ты уже ничего не видишь.' },
   { id: 'door_a_A', group: 'meet', when: { all: [{ me: 'A' }, atAny(A_HOME), { partnerAt: 'a_street' }, { flag: 'B.at_partner_door4' }] }, effects: meet,
@@ -166,10 +182,10 @@ const kt4Notes: MergeNote[] = [
     text: 'Щелчок домофона. Шаги — через ступеньку. {partner} врезается в тебя в дверях подъезда, и вы стоите так, пока у соседей напротив не загорается и не гаснет окно.' },
   { id: 'door_b_B', group: 'meet', when: { all: [{ me: 'B' }, atAny(B_HOME), { partnerAt: 'b_street' }, { flag: 'A.at_partner_door4' }] }, effects: meet,
     text: 'Домофон — поздно, почти в комендантский час. Ты знаешь, кто это, раньше, чем снимаешь трубку. Вниз — через ступеньку. {partner} у подъезда, живой, небритый, с красными глазами.' },
-  { id: 'split', group: 'meet', when: split, effects: [{ set: 'w.together', value: false }],
+  { id: 'split', group: 'meet', when: { all: [split, { any: [together, foundBy('kt4_split')] }] }, effects: [{ set: '$.kt4_split', value: true }, { set: 'w.together', value: false }],
     text: 'Вы в одном здании, в двухстах метрах друг от друга, — но между вами строительный забор, солдаты и двое суток наблюдения.' },
-  { id: 'found', group: 'meet', when: { all: [{ not: together }, SAME4] }, effects: meet,
-    text: 'Ты видишь {partner.acc} раньше, чем {pm:он|она} тебя, — и сначала не веришь глазам. Потом веришь.' },
+  { id: 'found', group: 'meet', when: { all: [{ any: [{ not: together }, foundBy('kt4_found')] }, SAME4] }, effects: [{ set: '$.kt4_found', value: true }, ...meet],
+    text: 'Среди чужих людей ты вдруг видишь {partner.acc}. Сначала не веришь глазам. Потом веришь — и уже не отпускаешь.' },
   { id: 'nobody', group: 'meet', when: atDoor4, effects: [{ set: 'w.together', value: false }],
     text: 'Никто не открывает. Ты стучишь, зовёшь, ждёшь до самого комендантского часа. {partner} здесь нет.' },
   { id: 'apart', group: 'meet', when: together, effects: [{ set: 'w.together', value: false }] },

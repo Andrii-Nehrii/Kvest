@@ -7,7 +7,7 @@ import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
 import { biteArm } from '../chapter1/a_town';
 import { driveTo, waitHour } from '../chapter1/common';
-import { C3, CITY, EVE, HARBURG, ISLAND, PM, SOUTH, atAny, radio2 } from './world2';
+import { B_HOME_PLACES, C3, CITY, EVE, HARBURG, ISLAND, PM, SOUTH, atAny, radio2 } from './world2';
 
 const S = (s: Scene) => s;
 const isA: Cond = { me: 'A' };
@@ -32,9 +32,13 @@ const byCar: Cond = { any: [{ all: [isA, { has: 'car_keys' }] }, { all: [isB, to
 /** Велосипед при B (в дороге). */
 const onBike: Cond = { all: [isB, { flag: '$.bike_ready' }, { not: { flag: '$.bike_lost' } }] };
 const tankFor = (km: number): Cond => ({ any: [isB, { fuelFor: 'opel_corsa', km }] });
-/** A подходит к своей машине: она стоит у дома, а он — в квартире (или у её подъезда, во дворе). */
-const ALL_PLACES = [...SOUTH, ...HARBURG, ...ISLAND, ...CITY];
-const toCar: Effect = { if: isA, then: ALL_PLACES.map((p) => ({ if: { itemAt: 'opel_corsa', place: p }, then: [{ move: p }] }) as Effect) };
+/**
+ * A подходит к своей машине: она стоит у дома, а он — в квартире (или у её подъезда, во дворе).
+ * Только в той же части карты, откуда начинается дорога: машина за Эльбой или в другом городе — не рядом.
+ */
+const toCar = (zone: string[]): Effect => ({ if: isA, then: zone.map((p) => ({ if: { itemAt: 'opel_corsa', place: p }, then: [{ move: p }] }) as Effect) });
+/** Есть травма, которую увидят: укус или глубокая царапина (жар — отдельно). */
+const markedWound: Cond = { any: [{ injured: 'bite' }, { injured: 'scratch', minSeverity: 2 }] };
 
 /** Куда ведёт дорога на юг: машина (A — с бензином, B — просто едет рядом), велосипед или пешком. */
 function southArrival(km: number, minutesBike: number, minutesFoot: number): ActionDef[] {
@@ -43,7 +47,11 @@ function southArrival(km: number, minutesBike: number, minutesFoot: number): Act
     { id: `${d}_a`, when: { all: [D(d), isA] }, goto: scene, effects: driveTo(km + (d === 'farm' ? 7 : 0), loc) },
     { id: `${d}_b`, when: D(d), goto: scene, effects: [{ move: loc }] },
   ]);
-  const self = (mode: 'bike' | 'foot'): Outcome[] => dests.map(([d, loc, scene]) => ({ id: `${d}_${mode}`, when: D(d), goto: scene, effects: [{ move: loc }] }));
+  // Одна, без него, B идёт к его подъезду, а не к нему во двор и в квартиру (ключей у неё нет): дверь — на КТ 4.
+  const self = (mode: 'bike' | 'foot'): Outcome[] => [
+    { id: `a_flat_${mode}_door`, when: { all: [D('a_flat'), isB, alone] }, goto: 'c2_adoor', effects: [{ move: 'a_street' }] },
+    ...dests.map(([d, loc, scene]): Outcome => ({ id: `${d}_${mode}`, when: D(d), goto: scene, effects: [{ move: loc }] })),
+  ];
   return [
     { id: 'c4_on_car', label: 'Ехать дальше', minutes: Math.round(km * 1.1), terminal: true, when: { all: [byCar, SOUTH_DEST] },
       enabled: tankFor(km + 7), disabledReason: 'Бензина не хватит — дальше только пешком', outcomes: car },
@@ -63,12 +71,12 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── Коридор через Elbbrücken ─────────────
   S({
     id: 'c4_corridor', for: 'any', chapter: 'ch2', title: 'Elbbrücken', ambient: inCar,
-    onEnter: [toCar,
+    onEnter: [toCar(CITY),
       { if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 12 }] }, then: driveTo(8, 'elbbruecken', 1.5), else: [{ move: 'elbbruecken' }] }],
     text: [
       { when: byCar, text: 'Очередь к мостам начинается ещё на Billhorner Brückenstraße: три ряда машин, двигатели заглушены, люди стоят рядом и курят. Каждые десять минут колонна вздрагивает и проползает на пару корпусов. Впереди, над крышами, — зелёные тенты армейского поста.' },
       { when: { not: byCar }, text: 'Пешеходов и велосипедистов пускают отдельно, по тротуару моста, между бетонными блоками. Очередь короче, чем у машин, но тоже на час: семьи с тележками, старики, подростки с рюкзаками. Над рекой — вертолёт.' },
-      { when: { all: [together, byCar] }, text: '{partner} рядом — то {pm:смотрит|смотрит} в окно, то на тебя. Вы почти не разговариваете: всё уже сказано.' },
+      { when: { all: [together, byCar] }, text: '{partner} рядом — смотрит то в окно, то на тебя. Вы почти не разговариваете: всё уже сказано.' },
     ],
     actions: [
       { id: 'c4_queue', label: 'Стоять в очереди до поста', minutes: 150, activity: 'rest', terminal: true,
@@ -92,25 +100,31 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
         effects: once('c4_queue_talk', [{ learn: 'f_messe_q', kind: 'rumor' }]) },
       { id: 'c4_check_self', label: 'Осмотреть себя: руки, шею — что увидят на посту', minutes: 5, combinable: true, when: notDone('c4_check_self'),
         outcomes: [
-          { id: 'mark', when: myRisk, text: 'Ты закатываешь рукав. Там, где была рана, — красное, припухшее, горячее. Солдаты это увидят. Солдаты ищут именно это.', effects: once('c4_check_self', [{ body: 'stress', delta: 10 }]) },
+          { id: 'mark', when: { all: [myRisk, markedWound] }, text: 'Ты закатываешь рукав. Там, где была рана, — красное, припухшее, горячее. Солдаты это увидят. Солдаты ищут именно это.', effects: once('c4_check_self', [{ body: 'stress', delta: 10 }]) },
+          { id: 'fever', when: myRisk, text: 'Ран, похожих на укус, нет. Но лоб горячий, глаза режет от света, по спине — озноб. Градусник на посту покажет это раньше, чем ты успеешь что-то объяснить.', effects: once('c4_check_self', [{ body: 'stress', delta: 8 }]) },
           { id: 'clean', text: 'Ссадины, синяки, грязь под ногтями. Ничего, что похоже на укус. Ты выдыхаешь и опускаешь рукав.', effects: once('c4_check_self') },
         ] },
     ],
   }),
 
   S({
-    id: 'c4_check_fail', for: 'any', chapter: 'ch2', location: 'elbbruecken', title: 'Пост', ambient: outside,
+    // Без своего места: пост на мосту (машина там же, где A) или на A7 у Schnelsen.
+    id: 'c4_check_fail', for: 'any', chapter: 'ch2', title: 'Пост', ambient: outside,
     onEnter: [{ learn: 'f_messe_q' }, { body: 'stress', delta: 14 }],
     text: [
       { text: 'Солдат в маске заглядывает в окно, потом второй — с градусником-пистолетом. «Ärmel hoch. Beide.» Медик в белом комбинезоне смотрит на руку, на лоб, на цифры. Пауза. «Rechts ran.»' },
       { when: myRisk, text: 'Тебя выводят из очереди. Вежливо и не спрашивая. «Zur Beobachtung in die Messe. Achtundvierzig Stunden. Das ist keine Strafe.»' },
-      { when: { all: [together, partnerRisk, { not: myRisk }] }, text: '{partner.acc} выводят из машины. Тебе говорят: можешь ехать дальше один или ехать следом, в Messe. Ты не спрашиваешь, что лучше.' },
+      { when: { all: [together, partnerRisk, { not: myRisk }] }, text: '{partner.acc} выводят из машины. Тебе говорят, что ты {m:можешь ехать дальше один|можешь ехать дальше одна}. Ты даже не отвечаешь — только спрашиваешь, куда {pm:его|её} везут.' },
     ],
     actions: [
       { id: 'c4_escort', label: 'Ехать в Messe за армейским грузовиком', minutes: 50, terminal: true, goto: 'c4_messe_gate',
-        text: 'Колонна из пяти машин за грузовиком с солдатами — обратно через пустой город, мимо Hauptbahnhof, мимо Dammtor. У входа в Messe вас разводят по разным очередям.',
-        effects: [{ move: 'messe' }, { set: '$.escorted', value: true },
-          { if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 8 }] }, then: [{ drive: 'opel_corsa', km: 8, to: 'messe' }] }] },
+        // Сначала машина (она там, где A), потом — человек: иначе машина осталась бы брошенной на посту.
+        effects: [{ set: '$.escorted', value: true },
+          { if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 8 }] }, then: [{ drive: 'opel_corsa', km: 8, to: 'messe' }], else: [{ move: 'messe' }] }],
+        outcomes: [
+          { id: 'car', when: byCar, text: 'Колонна из пяти машин за грузовиком с солдатами — обратно через пустой город, мимо Hauptbahnhof, мимо Dammtor. У входа в Messe вас разводят по разным очередям.' },
+          { id: 'truck', text: 'Тебя сажают в кузов армейского грузовика, к пятерым таким же — все молчат и не смотрят друг на друга. Обратно через пустой город, мимо Hauptbahnhof, мимо Dammtor. У входа в Messe борт откидывают.' },
+        ] },
     ],
   }),
 
@@ -119,10 +133,14 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     onEnter: [{ learn: 'f_corridor_closed' }, { body: 'stress', delta: 8 }],
     text: [{ text: 'В десяти машинах от поста шлагбаум опускается. Солдат идёт вдоль очереди и стучит по капотам: «Geschlossen. Morgen ab neun.» Кто-то кричит, кто-то сигналит, кто-то просто выключает мотор и опускает голову на руль. До поста — сто метров. Сегодня — нет.' }],
     actions: [
-      { id: 'c4_back_home', label: 'Вернуться в Barmbek', minutes: 40, terminal: true, goto: 'c2_bflat',
-        effects: [{ move: 'b_flat' }, { if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 8 }] }, then: [{ drive: 'opel_corsa', km: 8, to: 'b_street' }] }] },
+      // К ней домой — она сама или вы вдвоём (машину A ставит у её подъезда). Один A к ней в квартиру не пойдёт.
+      { id: 'c4_back_home', label: 'Вернуться в Barmbek', minutes: 40, terminal: true, goto: 'c2_bflat', when: { any: [isB, together] },
+        effects: [{ if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 8 }] }, then: [{ drive: 'opel_corsa', km: 8, to: 'b_street' }] }, { move: 'b_flat' }] },
+      { id: 'c4_back_car', label: 'Отъехать от моста и переждать в машине', minutes: 30, terminal: true, goto: 'c2_car', when: { all: [isA, alone, byCar, { fuelFor: 'opel_corsa', km: 4 }] },
+        text: 'Ты разворачиваешься через газон, как все, и уезжаешь от моста в первый же тихий переулок. Глушишь мотор. Сегодня — здесь.',
+        effects: [{ drive: 'opel_corsa', km: 4, to: 'hh_city' }] },
       { id: 'c4_back_messe', label: 'Ехать в Messe — там хотя бы еда и крыша', minutes: 40, terminal: true, goto: 'c4_messe_gate', when: alone,
-        effects: [{ move: 'messe' }, { if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 6 }] }, then: [{ drive: 'opel_corsa', km: 6, to: 'messe' }] }] },
+        effects: [{ if: { all: [isA, byCar, { fuelFor: 'opel_corsa', km: 6 }] }, then: [{ drive: 'opel_corsa', km: 6, to: 'messe' }], else: [{ move: 'messe' }] }] },
     ],
   }),
 
@@ -130,16 +148,16 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     id: 'c4_south', for: 'any', chapter: 'ch2', title: 'На юг', ambient: inCar,
     text: [
       { when: byCar, text: 'Пост позади. Мост, внизу — серая Эльба, баржа, приткнувшаяся к берегу, никого на ней. Дальше — A1 на юг: пустая встречка, брошенные машины на обочине с открытыми дверями, армейская колонна навстречу. В Harburg на развязке — бронемашина и солдаты, но на юг машут: проезжайте.' },
-      { when: { not: byCar }, text: 'Пост позади. Мост, ветер с реки, под ногами — гул. Дальше — Wilhelmsburg, Harburg, B75: тридцать с лишним километров. Ты не думаешь о том, сколько это. Ты думаешь только о следующем повороте.' },
+      { when: { not: byCar }, text: 'Пост позади. Мост, ветер с реки, под ногами — гул. Дальше — Wilhelmsburg, Harburg, B75: сорок километров. Ты не думаешь о том, сколько это. Ты думаешь только о следующем повороте.' },
     ],
     actions: southArrival(40, 150, 420),
   }),
 
   S({
     id: 'c4_b75', for: 'any', chapter: 'ch2', title: 'B75 на юг', ambient: outside,
-    onEnter: [toCar],
+    onEnter: [toCar([...HARBURG, ...ISLAND])],
     text: [
-      { text: 'Harburg утром второго дня — пустой и серый: закрытые ставни, армейский грузовик у вокзала, очередь к автобусам на Messe. На выезде на юг солдаты машут: проезжайте, на юг — можно.' },
+      { text: 'Harburg второго дня — пустой и серый: закрытые ставни, армейский грузовик у вокзала, очередь к автобусам на Messe. На выезде на юг солдаты машут: проезжайте, на юг — можно.' },
       { when: byCar, text: 'B75 почти пустая. Поля в инее, вороны над пашней, брошенный трактор у обочины.' },
     ],
     actions: southArrival(22, 90, 300),
@@ -147,9 +165,29 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
 
   S({
     id: 'c4_local', for: 'any', chapter: 'ch2', title: 'Короткая дорога', ambient: outside,
-    onEnter: [toCar],
-    text: [{ text: 'Buchholz утром второго дня: без тока, без воды, полупустой. На перекрёстке у ратуши — армейский грузовик с цистерной и очередь с канистрами.' }],
+    onEnter: [toCar(SOUTH)],
+    text: [{ text: 'Buchholz второго дня: без тока, без воды, полупустой. На перекрёстке у ратуши — армейский грузовик с цистерной и очередь с канистрами.' }],
     actions: southArrival(5, 25, 90),
+  }),
+
+  S({
+    id: 'c4_to_barmbek', for: 'any', chapter: 'ch2', title: 'Через город', ambient: outside,
+    onEnter: [toCar(CITY)],
+    text: [{ text: 'Город второго дня: патрули на перекрёстках, пустые трамвайные пути, витрины, заклеенные картоном. Все идут в одну сторону — к Messe. Тебе — в другую, в Barmbek.' }],
+    actions: [
+      { id: 'c4_tb_car', label: 'Ехать в Barmbek', minutes: 30, terminal: true, when: byCar, enabled: tankFor(12), disabledReason: 'Бензина не хватит',
+        outcomes: [
+          { id: 'a_alone', when: { all: [isA, alone] }, goto: 'c2_bdoor', effects: driveTo(8, 'b_street', 1.5) },
+          { id: 'a', when: isA, goto: 'c2_bflat', effects: driveTo(8, 'b_street', 1.5) },
+          { id: 'b', goto: 'c2_bflat', effects: [{ move: 'b_flat' }] },
+        ] },
+      { id: 'c4_tb_foot', label: 'Идти в Barmbek пешком', minutes: 100, move: true, activity: 'moderate', terminal: true,
+        when: { not: { all: [byCar, tankFor(12)] } },
+        outcomes: [
+          { id: 'a_alone', when: { all: [isA, alone] }, goto: 'c2_bdoor', effects: [{ move: 'b_street' }] },
+          { id: 'home', goto: 'c2_bflat', effects: [{ move: 'b_flat' }] },
+        ] },
+    ],
   }),
 
   // ───────────── Хутор: ворота ─────────────
@@ -157,10 +195,10 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     id: 'c4_farm_gate', for: 'any', chapter: 'ch2', location: 'hof_luedemann', title: 'Ворота хутора', ambient: outside,
     onEnter: [{ if: { npc: 'henrike', alive: true }, then: [{ set: '$.met.henrike', value: true }] }],
     text: [
-      { text: 'Собака у ворот, потом Оле — с ружьём на сгибе локтя. Он узнаёт машину раньше, чем лица, и не опускает ружьё, пока Хенрике не выходит на крыльцо и не говорит одно слово: «Lass».' },
+      { text: 'Собака у ворот заходится лаем, потом появляется Оле — с ружьём на сгибе локтя. Он не опускает ружьё, пока Хенрике не выходит на крыльцо и не говорит одно слово: «Lass».' },
       { when: { all: [together, isB] }, text: 'Хенрике смотрит на тебя долго — с головы до ног, как на корову на рынке. — Ты — его. Работать умеешь? — Ты киваешь. — Посмотрим.' },
-      { when: myRisk, text: 'Хенрике смотрит на твою руку. Она увидела. — Правило ты знаешь, — говорит она. — Сутки в курятнике. Если ничего не будет — заходишь в дом. Если будет — сам{m:|а} понимаешь.' },
-      { when: { all: [together, partnerRisk, { not: myRisk }] }, text: 'Хенрике смотрит на руку {partner.gen}. Ей хватает секунды. — Курятник. Сутки. — Она не повышает голос, и спорить не о чем.' },
+      { when: myRisk, text: 'Хенрике смотрит на тебя — на руки, на лицо, прикладывает тыльную сторону ладони к твоему лбу. Ей хватает пары секунд. — Правило ты знаешь, — говорит она. — Сутки в курятнике. Если ничего не будет — заходишь в дом. Если будет — сам{m:|а} понимаешь.' },
+      { when: { all: [together, partnerRisk, { not: myRisk }] }, text: 'Хенрике смотрит на {partner.acc} — на руки, на лоб. Ей хватает секунды. — Курятник. Сутки. — Она не повышает голос, и спорить не о чем.' },
       { when: { all: [{ not: { flag: 'w.farm_welcome' } }, { not: myRisk }] }, text: '— Сегодня — сарай, — говорит Хенрике. — Завтра посмотрим, что вы за люди.' },
     ],
     actions: [
@@ -179,16 +217,17 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     id: 'c4_coop', for: 'any', chapter: 'ch2', location: 'farm_coop', title: 'Старый курятник', safe: true,
     text: [
       { text: 'Кирпичная пристройка без окон. Нары, соломенный тюфяк, ведро, бутылка воды, свеча. Дверь запирается снаружи на засов. Сквозь щель под дверью — полоска света и запах дыма из трубы дома.' },
+      { when: { all: [together, partnerRisk] }, text: '{partner} — на соседних нарах, в метре от тебя. Хенрике заперла вас вместе: «Разделять вас уже поздно».' },
       { when: EVE, text: 'Вечером засов скрипит: Хенрике ставит на порог миску с супом и хлеб, не заходя. — Как жар? — спрашивает она. Ответ её не интересует: она смотрит сама.' },
     ],
     actions: [
       { id: 'c4_coop_eat', label: 'Поесть то, что принесли', minutes: 15, combinable: true, when: { all: [EVE, notDone('coop_ate')] },
         text: 'Суп с картошкой и салом, горячий. Ты ешь медленно, чтобы растянуть.',
         effects: once('coop_ate', [{ body: 'hunger', delta: -35 }, { body: 'thirst', delta: -15 }]) },
-      { id: 'c4_coop_talk', label: 'Говорить с {partner.ins} через дверь', minutes: 30, combinable: true, when: { all: [together, notDone('coop_talk')] },
+      { id: 'c4_coop_talk', label: 'Говорить с {partner.ins} через дверь', minutes: 30, combinable: true, when: { all: [together, { not: partnerRisk }, notDone('coop_talk')] },
         text: 'Голос с той стороны двери — близко, у самой щели. Вы говорите о ерунде: о том, что на хуторе пахнет как в детстве у бабушки, о курах, о том, что Оле, кажется, умеет улыбаться. Не о том, что будет через сутки.',
         effects: once('coop_talk', [{ body: 'stress', delta: -10 }]) },
-      { id: 'c4_coop_wound', label: 'Осмотреть рану при свече', minutes: 10, combinable: true, when: notDone('coop_wound'),
+      { id: 'c4_coop_wound', label: 'Осмотреть рану при свече', minutes: 10, combinable: true, when: { all: [markedWound, notDone('coop_wound')] },
         text: 'Красное, горячее, но не хуже, чем утром. Или хуже? Ты не можешь понять. Ты бинтуешь заново и долго смотришь на пламя свечи.',
         effects: once('coop_wound', [{ body: 'stress', delta: 4 }]) },
       { id: 'c4_coop_pawel', label: 'Позвать Павла — он ходит мимо к курам', minutes: 15, combinable: true, when: { all: [PM, notDone('coop_pawel')] },
@@ -212,7 +251,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
 
   S({
     id: 'c4_to_harburg', for: 'any', chapter: 'ch2', title: 'К вокзалу Harburg', ambient: outside,
-    onEnter: [toCar],
+    onEnter: [toCar(SOUTH)],
     text: [{ text: 'Автобусы в Messe ходят только от вокзала Harburg. До него — двадцать с лишним километров на север по B75.' }],
     actions: [
       { id: 'c4_car_hbg', label: 'Ехать к вокзалу Harburg', minutes: 35, terminal: true, goto: 'c4_messe_bus', when: byCar,
@@ -234,7 +273,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     actions: [
       { id: 'c4_board', label: 'Отстоять очередь и сесть в автобус', minutes: 120, activity: 'rest', terminal: true,
         outcomes: [
-          { id: 'q', when: myRisk, goto: 'c4_messe_gate', text: 'Медик смотрит на твою руку и молча показывает на автобус с занавесками. Внутри — человек десять, все сидят далеко друг от друга и не поднимают глаз.',
+          { id: 'q', when: myRisk, goto: 'c4_messe_gate', text: 'Медик смотрит на твои руки, на градусник — и молча показывает на автобус с занавесками. Внутри — человек десять, все сидят далеко друг от друга и не поднимают глаз.',
             effects: [{ move: 'messe' }, { learn: 'f_messe_q' }] },
           { id: 'ok', goto: 'c4_messe_gate', text: 'Автобус идёт через закрытый город по пустой полосе: Wilhelmsburg, мост, Hammerbrook, где вчера горело. В окнах — никого. На Dammtor автобус останавливается у ворот Messe.',
             effects: [{ move: 'messe' }] },
@@ -246,7 +285,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     id: 'c4_messe_gate', for: 'any', chapter: 'ch2', location: 'messe', title: 'Вход в Messe', ambient: outside,
     text: [
       { text: 'У входа в залы — палатки, столы под навесами, солдаты, люди в жёлтых жилетах DRK. Очереди — к регистрации, к медикам, к раздаче одеял. Над всем — голос из громкоговорителя, по-немецки, по-английски, по-турецки, по-арабски: «Bitte halten Sie Ihre Papiere bereit».' },
-      { when: myRisk, text: 'Медик у стола смотрит на твою руку, потом тебе в глаза. Ставит на запястье красный браслет. «Halle B4. Zur Beobachtung.» Это не просьба.' },
+      { when: myRisk, text: 'Медик у стола смотрит на твои руки, на цифры градусника, потом тебе в глаза. Ставит на запястье красный браслет. «Halle B4. Zur Beobachtung.» Это не просьба.' },
       { when: { all: [together, partnerRisk, { not: myRisk }] }, text: '{partner.dat} надевают красный браслет и уводят к отдельному залу за строительным забором. Тебе — белый. «Halle B1.» Ты смотришь {pm:ему|ей} вслед, пока {pm:его|её} не загораживают чужие спины.' },
     ],
     actions: [
@@ -274,7 +313,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
         effects: once('messe_cot', [{ set: '$.messe_exit', value: true }]) },
       { id: 'c4_board', label: 'Посмотреть списки на доске поиска', minutes: 20, combinable: true, when: notDone('messe_board'),
         outcomes: [
-          { id: 'svenja', when: { npc: 'svenja', at: 'messe' }, text: 'Доска объявлений — тысячи листков: «Ищу маму», «Kai, wir sind in B3», фотографии. В распечатанном списке зала наблюдения — «Svenja K., 21». Значит, её всё-таки отвели туда.',
+          { id: 'svenja', when: { all: [{ npc: 'svenja', at: 'messe' }, { flag: '$.met.svenja' }] }, text: 'Доска объявлений — тысячи листков: «Ищу маму», «Kai, wir sind in B3», фотографии. В распечатанном списке зала наблюдения — «Svenja K., 21». Значит, её всё-таки отвели туда.',
             effects: once('messe_board', [{ learn: 'f_messe_q' }]) },
           { id: 'none', text: 'Доска объявлений — тысячи листков: «Ищу маму», «Kai, wir sind in B3», фотографии детей, собак, стариков. Ты читаешь, пока не начинает рябить в глазах. Знакомых имён нет. Ты пишешь своё и прикалываешь в угол.',
             effects: once('messe_board') },
@@ -326,7 +365,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── На север ─────────────
   S({
     id: 'c4_north', for: 'any', chapter: 'ch2', title: 'A7 на север', ambient: inCar,
-    onEnter: [toCar],
+    onEnter: [toCar(CITY)],
     text: [
       { text: 'A7 на север забита, но движется: три полосы в одну сторону, встречка пустая. У Schnelsen-Nord — армейский пост поперёк трассы: машины проходят по одной, у каждой солдат с градусником и медик.' },
     ],
@@ -345,7 +384,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
     actions: [
       { id: 'c4_gym', label: 'Свернуть к спортзалу', minutes: 30, terminal: true, goto: 'c4_north_gym',
         outcomes: [
-          { id: 'a', when: isA, effects: [...driveTo(30, 'north_gym'), { learn: 'f_north_gym' }] },
+          { id: 'a', when: { all: [isA, { fuelFor: 'opel_corsa', km: 30 }] }, effects: [...driveTo(30, 'north_gym'), { learn: 'f_north_gym' }] },
           { id: 'b', effects: [{ move: 'north_gym' }, { learn: 'f_north_gym' }] },
         ] },
     ],
@@ -385,7 +424,7 @@ export const dayScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'room', label: 'Увернуться и захлопнуть её в комнате', minutes: 3, activity: 'heavy', terminal: true, goto: 'c2_bflat', risky: true,
         outcomes: [
           { id: 'ok', check: { traits: ['agility'], difficulty: 4, uses: ['mobility'] },
-            text: 'Ты отскакиваешь за дверь комнаты Мерле, она влетает следом — и ты выскальзываешь обратно и тянешь дверь на себя. Удар. Ещё удар. Ты держишь ручку обеими руками, пока не находишь чем подпереть.',
+            text: 'Ты отскакиваешь в спальню, она влетает следом — и ты выскальзываешь обратно и тянешь дверь на себя. Удар. Ещё удар. Ты держишь ручку обеими руками, пока не находишь чем подпереть.',
             effects: [{ npc: 'svenja', set: { locked: true } }] },
           { id: 'bit', text: 'Она успевает схватить тебя за руку, когда ты уже тянешь дверь. Зубы — сквозь рукав. Ты вырываешься, захлопываешь дверь, держишь. Рука пульсирует.',
             effects: [biteArm('leftArm', 2), { npc: 'svenja', set: { locked: true } }] },
@@ -485,12 +524,26 @@ export const dayActions: Record<string, ActionDef[]> = {
       enabled: { all: [{ has: 'car_keys' }, { fuelFor: 'opel_corsa', km: 8 }] }, disabledReason: 'Нужны ключи и бензин', effects: driveTo(8, 'hof_luedemann') },
   ],
   c2_workshop: [
-    { id: 'c4_with_deniz', label: 'Ехать с Денизом на хутор', minutes: 25, terminal: true, goto: 'c4_farm_gate', when: { all: [done('deniz_leaving'), notDone('deniz_answer')] },
-      text: 'Фургон Дениза впереди, ты — следом или рядом, на ящиках. Семь километров по просёлкам. У ворот Дениз выходит первым и что-то долго говорит Хенрике. Она смотрит на тебя поверх его плеча и кивает.',
-      effects: [{ move: 'hof_luedemann' }, { set: 'w.farm_welcome', value: true }, ...once('deniz_answer', [{ npc: 'deniz', trust: 4 }])] },
+    // Одному — своё решение. Вместе вы уже решили утром (мастерская): иначе два телефона разошлись бы по разным местам.
+    { id: 'c4_with_deniz', label: 'Ехать с Денизом на хутор', minutes: 25, terminal: true, goto: 'c4_farm_gate', when: { all: [alone, done('deniz_leaving'), notDone('deniz_answer')] },
+      effects: [{ set: 'w.farm_welcome', value: true }, ...once('deniz_answer', [{ npc: 'deniz', trust: 4 }])],
+      outcomes: [
+        { id: 'car', when: { all: [isA, { has: 'car_keys' }, { fuelFor: 'opel_corsa', km: 7 }] }, effects: driveTo(7, 'hof_luedemann'),
+          text: 'Фургон Дениза впереди, ты — следом на своей машине. Семь километров по просёлкам. У ворот Дениз выходит первым и что-то долго говорит Хенрике. Она смотрит на тебя поверх его плеча и кивает.' },
+        { id: 'van', effects: [{ move: 'hof_luedemann' }],
+          text: 'Ты едешь в фургоне, на ящиках, держась за канистры. Семь километров по просёлкам. У ворот Дениз выходит первым и что-то долго говорит Хенрике. Она смотрит на тебя поверх его плеча и кивает.' },
+      ] },
     { id: 'c4_stay_ws', label: 'Остаться в мастерской', minutes: 5, when: { all: [done('deniz_leaving'), notDone('deniz_answer')] },
-      text: 'Дениз пожимает плечами и бросает тебе связку ключей. — Запрёшь, когда уйдёшь. Если уйдёшь. — Фургон выезжает за ворота. В мастерской становится очень тихо.',
-      effects: once('deniz_answer', [{ set: 'w.workshop_keys', value: true }]) },
+      effects: once('deniz_answer', [{ set: 'w.workshop_keys', value: true }]),
+      outcomes: [
+        { id: 'both', when: together, text: 'Дениз переводит взгляд с тебя на {partner.acc}, пожимает плечами и бросает вам связку ключей. — Запрёте, когда уйдёте. Если уйдёте. — Фургон выезжает за ворота. В мастерской становится очень тихо.' },
+        { id: 'one', text: 'Дениз пожимает плечами и бросает тебе связку ключей. — Запрёшь, когда уйдёшь. Если уйдёшь. — Фургон выезжает за ворота. В мастерской становится очень тихо.' },
+      ] },
+    // Дениз уже уехал на хутор, мастерская заперта: можно пойти следом.
+    { id: 'c4_ws_to_farm', label: 'Идти на хутор вслед за Денизом', minutes: 100, move: true, activity: 'moderate', terminal: true, goto: 'c4_farm_gate',
+      when: { all: [C3, alone, { flag: 'w.deniz_at_farm' }, { not: { npc: 'deniz', at: 'deniz_workshop' } }, { not: { flag: 'w.workshop_keys' } }, { knows: 'f_farm' }] },
+      text: 'Семь километров просёлками, через поле и перелесок. Указателей нет, но Дениз описывал дорогу: у разбитой молнией липы — направо.',
+      effects: [{ move: 'hof_luedemann' }] },
   ],
   c2_farm: [
     { id: 'c4_potatoes', label: 'Копать картошку с Павлом', minutes: 90, activity: 'heavy', combinable: true, when: { all: [C3, PM, notDone('c4_potatoes')] },
@@ -542,9 +595,11 @@ export function dayRoutes(stayRoutes: { when?: Cond; scene: string }[]): { when?
     { when: { all: [D('farm'), { at: 'hof_luedemann' }] }, scene: 'c2_farm' },
     { when: { all: [D('workshop'), { at: 'deniz_workshop' }] }, scene: 'c2_workshop' },
     { when: { all: [D('a_flat'), atAny(['a_flat', 'a_stairs', 'a_yard', 'a_street']), { any: [isA, together] }] }, scene: 'c2_aflat' },
-    // Пришла к его двери, а его нет: ждать у двери (дверь — в КТ 4).
-    { when: { all: [isB, alone, { at: 'a_street' }] }, scene: 'c2_adoor' },
-    { when: { all: [isA, alone, { at: 'b_street' }, { partnerAt: 'b_flat' }] }, scene: 'c2_bdoor' },
+    // Пришла к его двери, а его нет: ждать у двери (дверь — в КТ 4). Если решили на хутор или в мастерскую — идёт туда.
+    { when: { all: [isB, alone, { at: 'a_street' }, { not: { any: [D('farm'), D('workshop')] } }] }, scene: 'c2_adoor' },
+    { when: { all: [isA, alone, { at: 'b_street' }, { any: [{ partnerAt: 'b_flat' }, D('b_flat')] }] }, scene: 'c2_bdoor' },
+    // В Barmbek из другой части города.
+    { when: { all: [D('b_flat'), atAny(CITY), { not: atAny(B_HOME_PLACES) }] }, scene: 'c4_to_barmbek' },
     { when: { all: [SOUTH_DEST, atAny(SOUTH)] }, scene: 'c4_local' },
     ...stayRoutes,
   ];

@@ -5,7 +5,7 @@ import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
 import { driveTo, waitHour } from '../chapter1/common';
 import { cp3Action } from './night';
-import { AM, CITY, EVE, HARBURG, ISLAND, MORNING, NIGHT, PM, SOUTH, atAny, carHereAny, radio2 } from './world2';
+import { AM, A_HOME_PLACES, B_HOME_PLACES, CITY, EVE, HARBURG, ISLAND, MORNING, NIGHT, PM, SOUTH, atAny, carHereAny, radio2 } from './world2';
 
 const S = (s: Scene) => s;
 const isA: Cond = { me: 'A' };
@@ -21,12 +21,32 @@ const outside = { outdoor: true };
 /** Велосипед при B: накачан, не отобран — и B в дороге (дома он стоит во дворе). */
 const onBike: Cond = { all: [{ flag: '$.bike_ready' }, { not: { flag: '$.bike_lost' } }, { not: atAny(['b_flat', 'b_stairs', 'b_yard', 'b_street']) }] };
 const MOVE_KEYS: Cond = { has: 'car_keys' };
+/** Куда A идёт к ней: она дома (так было на точке) или на КТ 3 решили встретиться в Barmbek. */
+const toB: Cond = { any: [{ partnerAt: 'b_flat' }, { v: 'w.day2', op: '==', value: 'b_flat' }] };
+/** Юг, но не дома: больница, заправка, мастерская, трасса. */
+const southAway: Cond = { all: [atAny(SOUTH), { not: atAny(A_HOME_PLACES) }] };
+/** Город, но не её дом. */
+const cityAway: Cond = { all: [atAny(CITY), { not: atAny(B_HOME_PLACES) }] };
 
 /** Пешком или на велосипеде: велосипед быстрее, остальное время — пешком (move удлиняет при травмах). */
 const leg = (bike: number, foot: number): Pick<ActionDef, 'minutes' | 'move' | 'outcomes'> => ({
   minutes: bike, move: true,
   outcomes: [{ id: 'bike', when: onBike }, { id: 'foot', effects: [{ wait: foot - bike, activity: 'moderate' }] }],
 });
+
+/** A пешком домой: из Harburg / Wilhelmsburg — по B75, с юга — через город. Машину (если есть) бросает. */
+const WALK_HOME: ActionDef = {
+  id: 'c2_walk_home', label: 'Идти домой в Buchholz пешком', minutes: 300, move: true, activity: 'moderate', terminal: true, goto: 'c2_ayard',
+  when: { all: [MORNING, alone, isA, atAny([...HARBURG, ...ISLAND])] },
+  text: 'Двадцать километров по обочине B75. Через час ноги перестают болеть и начинают просто идти. Мимо проезжают машины — ни одна не останавливается. Ты бы тоже не остановился.',
+  effects: [{ move: 'a_yard' }],
+};
+const WALK_HOME_NEAR: ActionDef = {
+  id: 'c2_walk_home_near', label: 'Дойти домой пешком', minutes: 60, move: true, activity: 'moderate', terminal: true, goto: 'c2_ayard',
+  when: { all: [MORNING, alone, isA, southAway] },
+  text: 'Через полгорода пешком. Buchholz без тока и без людей кажется чужим: закрытые ставни, пустые парковки, мусор у баков, который никто не вывез.',
+  effects: [{ move: 'a_yard' }],
+};
 
 /** Подойти к двери партнёра — и сразу на точку: дома ли он(а), решится там. */
 const ringDoor = (label: string): ActionDef[] => [
@@ -43,16 +63,18 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
     text: [
       { when: { all: [NIGHT, atAny(['hh_city', 'hh_eppendorf', 'hh_ring3', 'elbtunnel'])] }, text: 'Ночь в машине посреди города. За стёклами — тёмные дома без единого огня, рыжее зарево на востоке и сирены, то ближе, то дальше. Ты запираешь двери изнутри и опускаешь спинку.' },
       { when: { all: [NIGHT, atAny(['harburg', 'harburg_station'])] }, text: 'Площадь у вокзала Harburg пуста. У моста — синие огни оцепления. Иногда мимо проезжает армейский грузовик, и машина вздрагивает от его тяжести.' },
-      { when: { all: [NIGHT, atAny(['a7_jam', 'a1_station'])] }, text: 'Пробка так и стоит: сотни тёмных машин, в некоторых — люди, спят или делают вид, как ты. Кто-то через три ряда слушает радио, и обрывки слов долетают сквозь стекло.' },
+      { when: { all: [NIGHT, { at: 'a7_jam' }] }, text: 'Пробка так и стоит: сотни тёмных машин, в некоторых — люди, спят или делают вид, как ты. Кто-то через три ряда слушает радио, и обрывки слов долетают сквозь стекло.' },
+      { when: { all: [NIGHT, { at: 'a1_station' }] }, text: 'Заправка у съезда тёмная: колонки обмотаны лентой, магазин заперт. На площадке — ещё с десяток машин, в которых тоже ночуют. Кто-то через три машины слушает радио, и обрывки слов долетают сквозь стекло.' },
       { when: { all: [NIGHT, { at: 'b_street' }] }, text: 'Её дом — в двух шагах. Окна четвёртого этажа тёмные. Ты смотришь на них, пока глаза не начинают слезиться.' },
       { when: { all: [NIGHT, atAny(SOUTH)] }, text: 'Ночь в машине на пустой парковке. Тока в городе нет — ни фонарей, ни окон. Только звёзды, впервые за много дней.' },
       { when: { all: [NIGHT, together] }, text: '{partner} рядом — {pm:откинул|откинула} спинку и смотрит в потолок. Вы держитесь за руки, как подростки в кино, и молчите.' },
       { when: { all: [NIGHT, { npc: 'jannik', at: 'a_car' }] }, text: 'Янник спит на пассажирском, прижавшись виском к стеклу, обнимая свой рюкзак.' },
-      { when: { all: [{ not: AM }, { not: NIGHT }] }, text: 'День в машине. Стёкла запотевают от дыхания, спина ноет, время тянется. Мимо иногда проходят люди — в одну сторону, к Messe.' },
+      { when: { all: [{ not: AM }, { not: NIGHT }] }, text: 'День в машине. Стёкла запотевают от дыхания, спина ноет, время тянется. Мимо иногда проходят люди с сумками — все в одну сторону, никто обратно.' },
       { when: AM, text: 'Рассвет в машине: стёкла запотели изнутри, ноги ледяные, шея затекла так, что больно повернуть голову. Ты протираешь окно рукавом.' },
       { when: { all: [AM, done('c2_jannik'), { not: { npc: 'jannik', at: 'a_car' } }] }, text: 'Пассажирское сиденье пустое. На нём записка, вырванная из тетради: «Danke für alles. Ich gehe zu Lea. Viel Glück. — J.»' },
       { when: { all: [AM, atAny(['harburg', 'harburg_station']), after(8, 0)] }, text: 'У вокзала выстраиваются автобусы с табличкой «Sonderfahrt Messe». У дверей — солдаты: смотрят руки, шею, подносят градусник ко лбу. Очередь тянется через всю площадь.' },
-      { when: { all: [AM, atAny(['a7_jam', 'a1_station'])] }, text: 'Пробка оживает: машины разворачиваются через разделительную полосу и уходят на юг. Тоннель впереди перекрыт бетонными блоками, у них — бронемашина.' },
+      { when: { all: [AM, { at: 'a7_jam' }] }, text: 'Пробка оживает: машины разворачиваются через разделительную полосу и уходят на юг. Тоннель впереди перекрыт бетонными блоками, у них — бронемашина.' },
+      { when: { all: [AM, { at: 'a1_station' }] }, text: 'Машины на площадке заправки одна за другой заводятся и уезжают на юг. На двери магазина — лист от руки: «Kein Benzin. Kein Diesel. Keine Toilette».' },
       { when: { all: [AM, atAny(CITY)] }, text: 'Утренний город — пустые улицы, патрули, редкие люди с рюкзаками, все в одну сторону. На перекрёстке — армейский грузовик.' },
     ],
     actions: [
@@ -66,11 +88,11 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
         text: 'Солдат светит тебе в лицо, потом на руки, на заднее сиденье. Молодой, моложе тебя. — Ausgangssperre. Bis sechs Uhr bleiben Sie im Fahrzeug, verstanden? Утром будет объявление по радио. — Он медлит. — Не выходите ночью. Даже если кто-то стучит. Особенно если стучит.',
         effects: once('patrol_done', [{ learn: 'f_curfew' }, { body: 'stress', delta: 6 }]) },
       { id: 'c2_shadow_still', label: 'Не шевелиться', minutes: 15, when: { all: [done('c2_shadow'), notDone('shadow_done')] },
-        text: 'Ты не дышишь. Он стоит, прижав ладони к стеклу, и смотрит сквозь тебя. Потом голова дёргается на какой-то звук вдалеке, и он уходит — медленно, всем телом, по разделительной полосе. Ты долго не можешь разжать пальцы на ручке двери.',
-        effects: once('shadow_done', [{ learn: 'f_turned_seen', quiet: true }, { body: 'stress', delta: 12 }]) },
+        text: 'Ты не дышишь. Он стоит, прижав ладони к стеклу, и смотрит сквозь тебя. Потом голова дёргается на какой-то звук вдалеке, и он уходит — медленно, всем телом, в темноту. Ты долго не можешь разжать пальцы на ручке двери.',
+        effects: once('shadow_done', [{ learn: 'f_car_shadow', quiet: true }, { body: 'stress', delta: 12 }]) },
       { id: 'c2_shadow_drive', label: 'Завести машину и отъехать', minutes: 5, when: { all: [done('c2_shadow'), notDone('shadow_done'), isA, MOVE_KEYS, { fuelFor: 'opel_corsa', km: 1 }] },
         text: 'Двигатель схватывает с первого раза. На звук он бьётся в стекло лбом — раз, другой, трещина ползёт по боковому. Ты трогаешься, он идёт следом, потом отстаёт. Через двести метров ты останавливаешься. В зеркале — пусто.',
-        effects: [{ drive: 'opel_corsa', km: 1 }, ...once('shadow_done', [{ learn: 'f_drawn_to_light', quiet: true }, { body: 'stress', delta: 10 }])] },
+        effects: [{ drive: 'opel_corsa', km: 1 }, ...once('shadow_done', [{ learn: 'f_engine_lure', quiet: true }, { body: 'stress', delta: 10 }])] },
       { id: 'c2_jannik', label: 'Поговорить с Янником', minutes: 20, combinable: true, when: { all: [NIGHT, { npc: 'jannik', at: 'a_car' }, notDone('jannik_talk')] },
         text: 'Янник не спит. Рассказывает про Леа: медсестра, познакомились на концерте, на прошлой неделе поссорились из-за ерунды. — Я ей вчера написал «прости». Не знаю, дошло ли. — Он смеётся. — Глупо, да? Мир кончается, а я про ссору.',
         effects: [{ npc: 'jannik', trust: 6 }, ...once('jannik_talk', [{ body: 'stress', delta: -4 }])] },
@@ -78,18 +100,18 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
       { ...waitHour('Переждать час в машине', 'c2_wait'), when: { not: NIGHT } },
       // Утро: кто один — может доехать или дойти до партнёра или домой. Вместе — решаете на точке.
       { id: 'c2_drive_b', label: 'Доехать до её дома в Barmbek', minutes: 30, terminal: true, goto: 'c2_bdoor',
-        when: { all: [MORNING, alone, isA, atAny(CITY), { not: { at: 'b_street' } }, { partnerAt: 'b_flat' }] },
+        when: { all: [MORNING, alone, isA, atAny(CITY), { not: { at: 'b_street' } }, toB] },
         enabled: { all: [MOVE_KEYS, { fuelFor: 'opel_corsa', km: 12 }] }, disabledReason: 'Нужны ключи и бензин — километров на двенадцать',
         text: 'Утренний город без пробок — впервые за всю жизнь. Ты едешь мимо армейских грузовиков и людей с чемоданами и не останавливаешься.',
         effects: driveTo(8, 'b_street', 1.5) },
       { id: 'c2_walk_b', label: 'Идти пешком к ней в Barmbek', minutes: 110, move: true, activity: 'moderate', terminal: true, goto: 'c2_bdoor',
-        when: { all: [MORNING, alone, isA, atAny(CITY), { not: { at: 'b_street' } }, { partnerAt: 'b_flat' }] },
+        when: { all: [MORNING, alone, isA, atAny(CITY), { not: { at: 'b_street' } }, toB] },
         text: 'Семь километров через утренний город. Патрули смотрят на тебя и не останавливают: ты идёшь не туда, куда все, но комендантский час кончился.',
         effects: [{ move: 'b_street' }] },
       { id: 'c2_ring_b', label: 'Ещё раз позвонить в её домофон', minutes: 3, terminal: true, goto: 'c2_cp3',
         when: { all: [MORNING, alone, isA, { at: 'b_street' }, { not: { cp: 3 } }] },
         effects: [{ set: '$.at_partner_door', value: true }, { set: '$.c3', value: true }] },
-      { id: 'c4_ring_b', label: 'Ещё раз позвонить в её домофон', minutes: 3, terminal: true, goto: 'c4_cp4', when: { all: [isA, alone, { at: 'b_street' }, { cp: 3 }, { partnerAt: 'b_flat' }] },
+      { id: 'c4_ring_b', label: 'Ещё раз позвонить в её домофон', minutes: 3, terminal: true, goto: 'c4_cp4', when: { all: [isA, alone, { at: 'b_street' }, { cp: 3 }, toB] },
         effects: [{ set: '$.at_partner_door4', value: true }, { set: '$.c4', value: true }] },
       { id: 'c2_drive_home', label: 'Ехать домой в Buchholz', minutes: 35, terminal: true, goto: 'c2_ayard',
         when: { all: [MORNING, alone, isA, atAny([...HARBURG, ...ISLAND])] },
@@ -100,10 +122,8 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
         when: { all: [MORNING, alone, isA, atAny(SOUTH), { not: { at: 'a_yard' } }] },
         enabled: { all: [MOVE_KEYS, { fuelFor: 'opel_corsa', km: 4 }] }, disabledReason: 'Нужны ключи и бензин',
         effects: driveTo(4, 'a_yard') },
-      { id: 'c2_walk_home', label: 'Идти домой в Buchholz пешком', minutes: 300, move: true, activity: 'moderate', terminal: true, goto: 'c2_ayard',
-        when: { all: [MORNING, alone, isA, atAny([...HARBURG, ...ISLAND])] },
-        text: 'Двадцать километров по обочине B75. Через час ноги перестают болеть и начинают просто идти. Мимо проезжают машины — ни одна не останавливается. Ты бы тоже не остановился.',
-        effects: [{ move: 'a_yard' }] },
+      WALK_HOME,
+      WALK_HOME_NEAR,
       { id: 'c2_station', label: 'Дойти до вокзала Harburg — там автобусы', minutes: 15, move: true, terminal: true, goto: 'c2_out',
         when: { all: [MORNING, alone, atAny(['harburg', 'a7_jam', 'a1_station'])] }, effects: [{ move: 'harburg_station' }] },
       cp3Action(),
@@ -124,7 +144,9 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
       { when: { all: [{ not: AM }, { not: NIGHT }] }, text: 'День под открытым небом. Холодно, сухо, серо. Ты двигаешься, чтобы не замёрзнуть, и всё время оглядываешься.' },
       { when: AM, text: 'Рассвет. Ты не чувствуешь пальцев ног, и всё тело ноет так, будто тебя били. Но ночь кончилась.' },
       { when: { all: [AM, atAny(['harburg', 'harburg_station']), after(8, 0)] }, text: 'У вокзала выстраиваются автобусы с табличкой «Sonderfahrt Messe». У дверей — солдаты с градусниками. Очередь — через всю площадь.' },
-      { when: { all: [AM, { at: 'a_street' }] }, text: 'Buchholz просыпается: соседи выносят чемоданы и косятся на тебя. Его машины во дворе нет.' },
+      { when: { all: [AM, { at: 'a_street' }] }, text: 'Buchholz просыпается: соседи выносят чемоданы и косятся на тебя.' },
+      { when: { all: [AM, { at: 'a_street' }, { not: { itemAt: 'opel_corsa', place: 'a_yard' } }] }, text: 'Его машины во дворе нет.' },
+      { when: { all: [AM, { at: 'a_street' }, { itemAt: 'opel_corsa', place: 'a_yard' }] }, text: 'Его Corsa стоит во дворе, на своём месте, в инее. А окна второго этажа — тёмные.' },
       { when: { all: [AM, atAny(['wilhelmsburg_stairs', 'wilhelmsburg'])] }, text: 'Из подъезда видно улицу: пусто, только чайки и перевёрнутый мусорный бак. Вдали, у моста на Harburg, — зелёные грузовики.' },
     ],
     actions: [
@@ -149,9 +171,23 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
         effects: [{ move: 'a_street' }] },
       { id: 'c2_station', label: 'Дойти до вокзала Harburg — там автобусы', minutes: 15, move: true, terminal: true, goto: 'c2_out',
         when: { all: [MORNING, alone, { at: 'harburg' }] }, effects: [{ move: 'harburg_station' }] },
-      { id: 'c2_ask_neighbors', label: 'Спросить соседей про {partner.acc}', minutes: 8, combinable: true, when: { all: [MORNING, isB, { at: 'a_street' }, notDone('asked_neighbors')] },
-        text: 'Мужчина с третьего этажа, который грузит коробки в «пассат», качает головой: — Уехал вчера утром на своей машине. Не возвращался. — Он смотрит на тебя внимательнее. — Вы его девушка? Он вас искал, наверное. Все кого-то ищут.',
-        effects: once('asked_neighbors') },
+      WALK_HOME,
+      WALK_HOME_NEAR,
+      { id: 'c2_walk_b', label: 'Идти пешком к ней в Barmbek', minutes: 90, move: true, activity: 'moderate', terminal: true, goto: 'c2_bdoor',
+        when: { all: [MORNING, alone, isA, cityAway, toB] },
+        text: 'Через утренний город — пешком. Патрули смотрят на тебя и не останавливают: ты идёшь не туда, куда все, но комендантский час кончился.',
+        effects: [{ move: 'b_street' }] },
+      { id: 'c2_walk_bhome', label: 'Идти домой в Barmbek', minutes: 90, move: true, activity: 'moderate', terminal: true, goto: 'c2_bstreet',
+        when: { all: [MORNING, alone, isB, cityAway] },
+        text: 'Через утренний город — домой. Навстречу тянутся люди с чемоданами, все в сторону Messe; ты идёшь против течения, и тебя толкают плечами. Патрули смотрят и не останавливают: комендантский час кончился.',
+        effects: [{ move: 'b_street' }] },
+      { id: 'c2_ask_neighbors', label: 'Спросить соседей про {partner.acc}', minutes: 8, combinable: true, when: { all: [AM, isB, { at: 'a_street' }, notDone('asked_neighbors')] },
+        outcomes: [
+          { id: 'car', when: { itemAt: 'opel_corsa', place: 'a_yard' }, text: 'Мужчина с третьего этажа, который грузит коробки в «пассат», пожимает плечами: — Машина его тут, а самого со вчерашнего дня не видел. — Он смотрит на тебя внимательнее. — Вы его девушка? Он вас искал, наверное. Все кого-то ищут.',
+            effects: once('asked_neighbors') },
+          { id: 'gone', text: 'Мужчина с третьего этажа, который грузит коробки в «пассат», качает головой: — Уехал вчера на своей машине. Больше я его не видел. — Он смотрит на тебя внимательнее. — Вы его девушка? Он вас искал, наверное. Все кого-то ищут.',
+            effects: once('asked_neighbors') },
+        ] },
       { id: 'c4_wait_a', label: 'Ждать его здесь, у двери, до ночи', minutes: 3, terminal: true, goto: 'c4_cp4', when: { all: [isB, alone, { at: 'a_street' }, { cp: 3 }] },
         effects: [{ set: '$.at_partner_door4', value: true }, { set: '$.c4', value: true }] },
       { id: 'c2_wait_a', label: 'Ждать его здесь, у двери', minutes: 3, terminal: true, goto: 'c2_cp3', when: { all: [isB, { at: 'a_street' }, after(7, 30), { not: { cp: 3 } }] },
@@ -180,7 +216,8 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
   S({
     id: 'c2_farm', for: 'any', chapter: 'ch2', location: 'hof_luedemann', title: 'Хутор Людеманов', safe: true,
     text: [
-      { when: NIGHT, text: 'Ночь на хуторе. Хенрике отвела тебе угол в старом Altenteil — пристройке, где когда-то жили старики: железная кровать, печка, холод из щелей. Во дворе бродит собака. За стеной кто-то ворочается — Павел.' },
+      { when: { all: [NIGHT, alone] }, text: 'Ночь на хуторе. Хенрике отвела тебе угол в старом Altenteil — пристройке, где когда-то жили старики: железная кровать, печка, холод из щелей. Во дворе бродит собака. За стеной кто-то ворочается — Павел.' },
+      { when: { all: [NIGHT, together] }, text: 'Ночь на хуторе. Хенрике отвела вам угол в старом Altenteil — пристройке, где когда-то жили старики: железная кровать на двоих, печка, холод из щелей. Во дворе бродит собака. За стеной кто-то ворочается — Павел.' },
       { when: { all: [NIGHT, { npc: 'deniz', at: 'hof_luedemann' }] }, text: 'Дениз с братом спят в своей машине у сарая — Хенрике пустила их во двор, но не в дом.' },
       { when: { all: [done('farm_lights'), notDone('lights_done')] }, text: 'Фары на краю поля всё ещё горят. Собака не умолкает. Во дворе, у ворот, — силуэт Оле с ружьём.' },
       { when: PM, text: 'День на хуторе. Работа не кончается: куры, дрова, вода из колодца, картошка, забор. Хенрике везде и нигде, Оле — с ружьём на плече, Павел — молча и быстро.' },
@@ -191,15 +228,15 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'c2_lights_ole', label: 'Выйти к Оле', minutes: 25, risky: true, when: { all: [done('farm_lights'), notDone('lights_done')] },
         outcomes: [
           { id: 'calm', check: { traits: ['persuasion'], difficulty: 4, uses: ['focus'] },
-            text: 'Оле стоит у ворот, ружьё у плеча, палец на спуске. — Не стреляй, — говоришь ты тихо. — Они только смотрят. Выстрелишь — вернутся с друзьями. — Он не опускает ружьё, но и не стреляет. Через десять минут фары гаснут, машина разворачивается и уезжает. Оле сплёвывает. — Нормально, — говорит он. Это много, для Оле.',
+            text: 'Оле стоит у ворот, ружьё у плеча, палец на спуске. — Не стреляй, — говоришь ты тихо. — Они только смотрят. Выстрелишь — вернутся с друзьями. — Он не опускает ружьё, но и не стреляет. Через десять минут фары гаснут, машина разворачивается и уезжает. Оле сплёвывает. — Нормально, — говорит он. Для Оле это много.',
             effects: once('lights_done', [{ npc: 'ole', trust: 8, remember: '$:stood_watch' }, { learn: 'f_farm_lights' }]) },
           { id: 'shot', text: 'Ты не успеваешь ничего сказать: Оле стреляет поверх машины. Грохот, собака визжит, фары дёргаются и уносятся по дороге. — Пусть знают, — говорит Оле. Хенрике в окне ничего не говорит, но смотрит на сына долго.',
             effects: once('lights_done', [{ npc: 'ole', trust: 4, remember: '$:stood_watch' }, { learn: 'f_farm_lights' }, { body: 'stress', delta: 6 }]) },
         ] },
       { id: 'c2_lights_stay', label: 'Остаться в кровати', minutes: 30, activity: 'rest', when: { all: [done('farm_lights'), notDone('lights_done')] },
-        text: 'Ты лежишь и слушаешь собаку. Через полчаса она замолкает. Утром Оле, проходя мимо, бросает: — Спал? Ну-ну.',
+        text: 'Ты лежишь и слушаешь собаку. Через полчаса она замолкает. Утром Оле, проходя мимо, бросает: — {m:Спал|Спала}? Ну-ну.',
         effects: once('lights_done', [{ npc: 'ole', trust: -2 }, { learn: 'f_farm_lights' }]) },
-      { id: 'c2_breakfast', label: 'Завтрак за большим столом у Хенрике', minutes: 30, combinable: true, when: { all: [MORNING, notDone('c2_ate')] },
+      { id: 'c2_breakfast', label: 'Завтрак за большим столом у Хенрике', minutes: 30, combinable: true, when: { all: [AM, notDone('c2_ate')] },
         text: 'Яйца, хлеб домашней выпечки, масло, кофе из большого кофейника. Хенрике ест быстро и смотрит на тебя поверх кружки. — Правила тут простые, — говорит она. — Работают все. Кто заболел — в старый курятник, пока не станет ясно. Решаю я. — Оле хмыкает. Павел улыбается в тарелку.',
         effects: once('c2_ate', [{ body: 'hunger', delta: -40 }, { body: 'thirst', delta: -20 }, { body: 'stress', delta: -6 }, { npc: 'henrike', trust: 2 }]) },
       { id: 'c2_hens', label: 'Помочь Павлу с курами', minutes: 40, activity: 'light', combinable: true, when: { all: [MORNING, notDone('c2_hens')] },
@@ -208,7 +245,7 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
       { id: 'c2_wood', label: 'Колоть дрова у сарая', minutes: 60, activity: 'heavy', combinable: true, when: { all: [MORNING, notDone('c2_wood')] },
         text: 'Колун, чурбак, полено. Первые десять минут — неуклюже, потом тело вспоминает. Когда ты разгибаешься, у сарая стоит Хенрике и смотрит на поленницу. Ничего не говорит. Кивает и уходит.',
         effects: once('c2_wood', [{ npc: 'henrike', trust: 6 }, { body: 'stress', delta: -4 }]) },
-      { id: 'c2_henrike', label: 'Спросить Хенрике про {partner.acc}', minutes: 10, combinable: true, when: { all: [MORNING, isA, notDone('c2_henrike_b')] },
+      { id: 'c2_henrike', label: 'Спросить Хенрике про {partner.acc}', minutes: 10, combinable: true, when: { all: [MORNING, isA, alone, notDone('c2_henrike_b')] },
         outcomes: [
           { id: 'yes', when: { npc: 'henrike', trust: ['>=', 25] },
             text: 'Хенрике слушает, не перебивая. — Привози, — говорит она. — Если работает — место найдётся. Если нет — тоже найдётся, но будет работать. — Она почти улыбается.',
@@ -232,6 +269,7 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
       { when: { all: [{ not: AM }, { not: NIGHT }, { not: { npc: 'deniz', at: 'deniz_workshop' } }, { flag: 'w.workshop_keys' }] }, text: 'Пустая мастерская. Ключи Дениза у тебя в кармане. Бетон, железо, запах масла — и тишина.' },
       { when: { all: [AM, { npc: 'deniz', at: 'deniz_workshop' }] }, text: 'Утро. Дениз варит кофе в турке на газовой горелке — крепкий, со специями, на две чашки. Радио на верстаке бормочет одно и то же уже который раз.' },
       { when: { all: [{ not: { npc: 'deniz', at: 'deniz_workshop' } }, { not: { flag: 'w.workshop_keys' } }] }, text: 'Ворота мастерской заперты. Ты стучишь — три раза и два, как он учил. Никто не отвечает.' },
+      { when: { all: [{ not: { npc: 'deniz', at: 'deniz_workshop' } }, { not: { flag: 'w.workshop_keys' } }, { flag: 'w.deniz_note' }] }, text: 'На воротах — лист из блокнота, прижатый магнитом, крупно, маркером: «Уехали к Хенрике. Ключ — под ведром. Д.»' },
     ],
     actions: [
       { id: 'c2_gate_stand', label: 'Встать рядом с Денизом у ворот', minutes: 10, risky: true, when: { all: [done('ws_gate'), notDone('gate_done')] },
@@ -244,7 +282,7 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
         outcomes: [
           { id: 'kerem', when: { npc: 'kerem', at: 'deniz_workshop' }, text: '— Брат здесь — значит, можно ехать, — говорит Дениз. — К Хенрике, к полудню. Дизель у меня, генератор у неё. Ей нужны руки и голова, которая умеет чинить. — Он смотрит на тебя. — Твои руки ей тоже нужны.',
             effects: once('ws_coffee', [{ npc: 'deniz', trust: 3 }, { learn: 'f_fuel_ban' }]) },
-          { id: 'alone', text: '— Жду брата, — говорит Дениз. — Без него никуда. — Он крутит в руках турку. — Бензин больше не продают, слышал? Только армии. У кого бак полный — тот теперь богач.',
+          { id: 'alone', text: '— Жду брата, — говорит Дениз. — Без него никуда. — Он крутит в руках турку. — Бензин больше не продают, {m:слышал|слышала}? Только армии. У кого бак полный — тот теперь богач.',
             effects: once('ws_coffee', [{ npc: 'deniz', trust: 3 }, { learn: 'f_fuel_ban' }]) },
         ] },
       { id: 'c2_ws_help', label: 'Помочь Денизу: забить окна, перелить дизель', minutes: 60, activity: 'heavy', combinable: true, when: { all: [MORNING, { npc: 'deniz', at: 'deniz_workshop' }, notDone('ws_help')] },
@@ -258,11 +296,17 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
           { id: 'new', text: 'Дениз молча идёт к «фиату» клиента, который никто уже не заберёт, и сливает бак в старую канистру. — Восемь литров. Больше там нет. Канистру не возвращай.',
             effects: [{ give: 'can_petrol_10', fuel: 8 }, ...once('ws_petrol')] },
         ] },
-      { id: 'c2_ws_wait', label: 'Ждать у ворот', minutes: 30, activity: 'rest', repeatable: true, when: { not: { npc: 'deniz', at: 'deniz_workshop' } },
+      { id: 'c2_ws_key', label: 'Достать ключ из-под ведра', minutes: 2, combinable: true,
+        when: { all: [{ flag: 'w.deniz_note' }, { not: { flag: 'w.workshop_keys' } }, { not: { npc: 'deniz', at: 'deniz_workshop' } }] },
+        text: 'Ключ на проволочном кольце, холодный и мокрый. Замок поддаётся со второго раза. Внутри пахнет маслом и пустотой: фургона нет, канистр нет, на верстаке — турка и одна чашка.',
+        effects: [{ set: 'w.workshop_keys', value: true }] },
+      { id: 'c2_ws_wait', label: 'Ждать у ворот', minutes: 30, activity: 'rest', repeatable: true, when: { all: [{ not: { npc: 'deniz', at: 'deniz_workshop' } }, { not: { flag: 'w.workshop_keys' } }] },
         text: 'Ты сидишь у ворот на перевёрнутом ведре. Мимо промзоны проезжает пустой автобус.' },
-      { ...waitHour('Переждать час в мастерской', 'c2_wait'), when: { all: [{ not: NIGHT }, { npc: 'deniz', at: 'deniz_workshop' }] } },
+      { ...waitHour('Переждать час в мастерской', 'c2_wait'), when: { all: [{ not: NIGHT }, { any: [{ npc: 'deniz', at: 'deniz_workshop' }, { flag: 'w.workshop_keys' }] }] } },
       { id: 'c2_ws_home', label: 'Пешком домой', minutes: 45, move: true, activity: 'moderate', terminal: true, goto: 'c2_ayard',
         when: { all: [MORNING, alone, isA] }, effects: [{ move: 'a_yard' }] },
+      { id: 'c2_ws_to_a', label: 'Дойти до его дома', minutes: 45, move: true, activity: 'moderate', terminal: true, goto: 'c2_adoor',
+        when: { all: [MORNING, alone, isB, { not: { npc: 'deniz', at: 'deniz_workshop' } }] }, effects: [{ move: 'a_street' }] },
       radio2('radio', 'Послушать радио на верстаке'),
       cp3Action(),
     ],
@@ -277,7 +321,7 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
       { when: AM, text: 'Утро. Биргит жарит блины — «пока есть мука и ток». Уве сидит у радио с блокнотом и записывает что-то мелким почерком. Мерле в пижаме ест прямо со сковородки и впервые за двое суток похожа на себя.' },
     ],
     actions: [
-      { id: 'c2_breakfast', label: 'Сесть со всеми завтракать', minutes: 30, combinable: true, when: { all: [MORNING, notDone('c2_ate')] },
+      { id: 'c2_breakfast', label: 'Сесть со всеми завтракать', minutes: 30, combinable: true, when: { all: [AM, notDone('c2_ate')] },
         text: 'Блины с яблочным пюре, какао, хлеб. Биргит подкладывает тебе, не спрашивая. Уве за столом молчит, но один раз пододвигает тебе сахарницу. Мерле пинает тебя под столом и подмигивает: «я же говорила».',
         effects: once('c2_ate', [{ body: 'hunger', delta: -40 }, { body: 'thirst', delta: -20 }, { body: 'stress', delta: -8 }, { npc: 'birgit', trust: 5 }]) },
       { id: 'c2_uwe', label: 'Спросить Уве, что передают', minutes: 15, combinable: true, when: { all: [MORNING, notDone('c2_uwe')] },
@@ -291,7 +335,7 @@ export const awayScenes: Record<string, Scene> = Object.fromEntries([
         effects: once('c2_ahr_merle', [{ npc: 'merle', trust: 4 }, { give: 'sandwich', qty: 2 }]) },
       { id: 'c2_ahr_ride', label: 'Попросить Уве отвезти тебя домой, в Barmbek', minutes: 70, terminal: true, goto: 'c2_bstreet', when: { all: [MORNING, alone, isB, notDone('c2_ahr_ride')] },
         enabled: { npc: 'uwe', trust: ['>=', 8] }, disabledReason: 'Уве не повезёт в закрытый город почти незнакомую девушку',
-        text: 'Уве ничего не говорит — просто берёт ключи. Мерле плачет на крыльце, Биргит суёт тебе пакет с едой. Двадцать километров — час с лишним: блокпост на въезде в Wandsbek, армейский грузовик поперёк Ahrensburger Straße, объезд дворами. У твоего дома Уве глушит мотор. — Береги себя, — говорит он. — И её, своего… кого ты там ждёшь.',
+        text: 'Уве ничего не говорит — просто берёт ключи. Мерле плачет на крыльце, Биргит суёт тебе пакет с едой. Двадцать километров — час с лишним: блокпост на въезде в Wandsbek, армейский грузовик поперёк Ahrensburger Straße, объезд дворами. У твоего дома Уве глушит мотор. — Береги себя, — говорит он. — И того, кого ты там ждёшь.',
         effects: [{ set: '$.c2_ahr_ride', value: true }, { give: 'sandwich', qty: 2 }, { npc: 'uwe', trust: 3 }] },
       { id: 'c2_ahr_walk', label: 'Идти домой в Barmbek пешком', minutes: 300, move: true, activity: 'moderate', terminal: true, goto: 'c2_bstreet',
         when: { all: [MORNING, alone, isB, { cp: 3 }, { v: 'w.day2', op: '==', value: 'b_flat' }] },

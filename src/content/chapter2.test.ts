@@ -1,8 +1,8 @@
 // Глава 2: ночь и утро второго дня из любых положений, в которых могла закончиться глава 1, и КТ 3.
 // Положения строятся прямо (место, машина, NPC), чтобы проверить и редкие линии: хутор, Ahrensburg, машина в городе.
 import { describe, expect, it } from 'vitest';
-import { availableActions, isServiceAction } from '../engine/actions';
-import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks } from '../engine/checkpoint';
+import { availableActions, enterScene, isServiceAction } from '../engine/actions';
+import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, resolveJoint, syncClocks } from '../engine/checkpoint';
 import { evalCond } from '../engine/conditions';
 import { newGame, play, replaySegment, segmentFinished, type ActionRecord } from '../engine/game';
 import { stateHash, unit } from '../engine/rng';
@@ -211,5 +211,148 @@ describe('глава 2: ночь, утро и КТ 3 из разных поло�
     expect(south).toEqual(expect.arrayContaining(['a_flat', 'messe', 'stay']));
     expect(south).not.toContain('b_flat');
     expect(south).not.toContain('north');
+  });
+
+  // ───────────── Регрессии ─────────────
+
+  /** Второй день после КТ 3: решение day2 уже принято, оба стоят там, где их застала точка. */
+  function day2State(x: Setup, day2: string, time = at(11, 9, 0)): GameState {
+    const s = afterKt2(x, `day2:${x.name}`);
+    s.checkpoint = 3;
+    Object.assign(s.vars, { 'w.day2': day2, 'w.corridor_ok': true, 'w.kfall': true, 'w.crossings': 'corridor' });
+    for (const p of ['A', 'B'] as const) s.chars[p].time = time;
+    return s;
+  }
+  const ids = (s: GameState, pid: PlayerId) => availableActions({ s, c, pid }).filter((a) => a.enabled).map((a) => a.def.id);
+  const corsa = (s: GameState) => Object.values(s.items).find((i) => i.type === 'opel_corsa')!;
+
+  it('убитый на лестнице Герд больше не стоит на лестнице: можно подняться домой', () => {
+    const s = afterKt2(SETUPS[1], 'gerd');
+    s.npcs.gerd.location = 'a_stairs';
+    s.npcs.gerd.alive = false; s.npcs.gerd.status = 'dead';
+    s.chars.A.time = at(11, 7, 0);
+    enterScene({ s, c, pid: 'A' }, 'c2_astairs');
+    const here = ids(s, 'A');
+    expect(here).not.toContain('sneak');
+    expect(here).not.toContain('fight');
+    expect(here).toContain('down');
+    enterScene({ s, c, pid: 'A' }, 'c2_ayard');
+    expect(ids(s, 'A')).toContain('c2_up');
+    expect(ids(s, 'A')).not.toContain('c2_up_gerd');
+  });
+
+  it('КТ 3: оба оказались в одном месте порознь — встречу видят оба и оба узнают новости друг друга', () => {
+    const x: Setup = { name: 'порознь у вокзала', A: 'harburg_station', B: 'harburg_station' };
+    const s = afterKt2(x, 'found');
+    s.knowledge.A.f_car_shadow = { kind: 'fact', at: 0, source: 'test' };
+    s.knowledge.B.f_merle_hypo = { kind: 'fact', at: 0, source: 'test' };
+    const res = {} as Record<PlayerId, GameState>;
+    for (const pid of ['A', 'B'] as const) {
+      const t = structuredClone(s);
+      t.chars[pid].time = at(11, 7, 40);
+      play(c, t, pid, ['c3_go']);
+      res[pid] = t;
+    }
+    const merged = mergeSegments(c, s, res);
+    syncClocks(c, merged, at(11, 8, 30));
+    mergeNotes(c, merged, 3);
+    expect(merged.vars['w.together']).toBe(true);
+    expect(merged.knowledge.A.f_merle_hypo).toBeTruthy();
+    expect(merged.knowledge.B.f_car_shadow).toBeTruthy();
+    for (const pid of ['A', 'B'] as const) {
+      expect(merged.log.some((e) => e.pid === pid && e.kind === 'checkpoint' && e.text.includes('в двадцати шагах'))).toBe(true);
+    }
+  });
+
+  it('КТ 3: порознь и разные ответы — каждый остаётся, где есть (вчерашний план не тянет одного)', () => {
+    const s = afterKt2(SETUPS[3], 'apart');
+    s.vars['w.shelter'] = 'a_flat';
+    s.chars.A.time = s.chars.B.time = at(11, 9, 0);
+    const r = resolveJoint(c, s, 'day2', { A: 'a_flat', B: 'messe' });
+    expect(r.applied).toEqual(['stay']);
+  });
+
+  it('на посту с укусом: машину A ведёт за грузовиком в Messe, а не бросает у моста', () => {
+    const s = day2State(SETUPS[0], 'farm');
+    s.vars['A.check_risk'] = true;
+    const ctx = { s, c, pid: 'A' as const };
+    enterScene(ctx, 'c4_corridor');
+    expect(corsa(s).at).toEqual({ kind: 'place', id: 'elbbruecken' });
+    play(c, s, 'A', ['c4_queue']);
+    expect(s.chars.A.scene).toBe('c4_check_fail');
+    play(c, s, 'A', ['c4_escort']);
+    expect(s.chars.A.scene).toBe('c4_messe_gate');
+    expect(corsa(s).at).toEqual({ kind: 'place', id: 'messe' });
+  });
+
+  it('у шлагбаума один A не уходит в её квартиру, а вместе — возвращаются к ней и ставят машину у подъезда', () => {
+    const alone = day2State(SETUPS[7], 'farm');
+    alone.vars['w.corridor_ok'] = false;
+    enterScene({ s: alone, c, pid: 'A' }, 'c4_corridor');
+    play(c, alone, 'A', ['c4_queue']);
+    expect(alone.chars.A.scene).toBe('c4_turned_back');
+    expect(ids(alone, 'A')).not.toContain('c4_back_home');
+    play(c, alone, 'A', ['c4_back_car']);
+    expect(alone.chars.A.scene).toBe('c2_car');
+    expect(corsa(alone).at).toEqual({ kind: 'place', id: alone.chars.A.location });
+
+    const both = day2State(SETUPS[0], 'farm');
+    both.vars['w.corridor_ok'] = false;
+    enterScene({ s: both, c, pid: 'A' }, 'c4_corridor');
+    play(c, both, 'A', ['c4_queue']);
+    play(c, both, 'A', ['c4_back_home']);
+    expect(both.chars.A.scene).toBe('c2_bflat');
+    expect(corsa(both).at).toEqual({ kind: 'place', id: 'b_street' });
+  });
+
+  it('одна B, пришедшая в Buchholz, — у его подъезда, а не у него во дворе и в квартире', () => {
+    const s = day2State(SETUPS[5], 'a_flat');
+    s.chars.B.location = 'harburg';
+    s.vars['B.bike_ready'] = true;
+    enterScene({ s, c, pid: 'B' }, 'c4_b75');
+    play(c, s, 'B', ['c4_on_bike']);
+    expect(s.chars.B.scene).toBe('c2_adoor');
+    expect(s.chars.B.location).toBe('a_street');
+  });
+
+  it('одна B в чужой части города утром может уйти домой; A пешком — к ней', () => {
+    const s = afterKt2({ name: 'город', A: 'hh_neustadt', B: 'hh_alster' }, 'city');
+    s.chars.A.time = s.chars.B.time = at(11, 7, 0);
+    s.chars.B.location = 'hh_alster';
+    expect(ids(s, 'B')).toContain('c2_walk_bhome');
+    s.chars.B.location = 'b_flat';
+    expect(ids(s, 'A')).toContain('c2_walk_b');
+  });
+
+  it('Свенья у Окафора кусает его вечером, даже если дома никого нет', () => {
+    const s = day2State(SETUPS[4], 'stay', at(11, 16, 0));
+    Object.assign(s.npcs.svenja, { location: 'b_okafor', status: 'sick' });
+    s.npcs.okafor.location = 'b_okafor';
+    s.vars['w.okafor_stays'] = true;
+    s.chars.B.location = 'north_gym';
+    enterScene({ s, c, pid: 'B' }, 'c4_north_gym');
+    while (s.chars.B.time < at(11, 19, 30)) play(c, s, 'B', ['c4_wait']);
+    expect(s.npcs.svenja.status).toBe('infected');
+    expect(s.npcs.okafor.vars.bitten).toBe(true);
+  });
+
+  it('вместе судьбу Свеньи решает хозяйка квартиры, а не гость', () => {
+    const s = afterKt2(SETUPS[0], 'svenja');
+    s.npcs.svenja.status = 'sick';
+    for (const p of ['A', 'B'] as const) { s.chars[p].time = at(11, 8, 0); enterScene({ s, c, pid: p }, 'c2_svenja'); }
+    expect(ids(s, 'A')).not.toContain('keep');
+    expect(ids(s, 'A')).toContain('water');
+    expect(ids(s, 'B')).toContain('keep');
+  });
+
+  it('КТ 4: уже на хуторе или на севере — «туда же» выполнимо', () => {
+    const s = day2State(SETUPS[4], 'farm', at(11, 22, 30));
+    s.chars.A.location = 'farm_coop'; s.chars.B.location = 'hof_luedemann';
+    s.vars['w.farm_welcome'] = true; s.vars['w.together'] = true;
+    s.vars['w.henrike_yes'] = false;
+    const feas = (id: string) => evalCond({ s, c, pid: 'A' }, c.joint.day3.options.find((o) => o.id === id)!.feasible);
+    expect(feas('farm')).toBe(true);
+    s.chars.A.location = 'north_gym'; s.chars.B.location = 'north_gym';
+    expect(feas('north')).toBe(true);
   });
 });
