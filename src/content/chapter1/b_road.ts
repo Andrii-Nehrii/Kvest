@@ -274,7 +274,7 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
     ],
     actions: [
       { id: 'shelter', label: 'Переждать ливень под навесом склада', minutes: 15, combinable: true, activity: 'rest',
-        text: 'Под навесом пахнет мазутом. Ты съедаешь половину шоколадки и смотришь, как вода льётся с крыши сплошной стеной. Где-то в глубине склада что-то лязгает — раз, другой. Ты уезжаешь раньше, чем дождь кончился.' },
+        text: 'Под навесом пахнет мазутом. Ты съедаешь половину шоколадки и смотришь, как вода льётся с крыши сплошной стеной. Где-то в глубине склада что-то лязгает — раз, другой. Ты уезжаешь раньше, чем дождь кончится.' },
       { id: 'on', label: 'Ехать на юг, к Wilhelmsburg', minutes: 12, move: true, terminal: true, goto: 'b2_courier',
         outcomes: [
           { id: 'foot', when: { not: onBike }, effects: [{ wait: 40, activity: 'moderate' }], goto: 'b2_wilhelmsburg' },
@@ -340,7 +340,7 @@ export const bRoadScenes: Record<string, Scene> = Object.fromEntries([
         ] },
       { id: 'talk', label: 'Остановиться и заговорить с ними первой', minutes: 1, terminal: true, goto: 'b2_bridge', when: { not: { flag: '$.passed_gang' } }, risky: true,
         outcomes: [
-          { id: 'ok', check: { traits: ['persuasion'], difficulty: 4 }, text: '— Мне к парню в Buchholz, — говоришь ты. — Мосты закрыты. Как тут лучше на Harburg? — Парни переглядываются. Тот, что на капоте, смеётся. — Буххольц. Ну ты даёшь. Через Kornweide и на старый мост. И не стой тут, тут сегодня всякие ходят.',
+          { id: 'ok', check: { traits: ['persuasion'], difficulty: 4 }, text: '— Мне к парню в Buchholz, — говоришь ты. — Мосты закрыты. Как тут лучше на Harburg? — Парни переглядываются. Тот, что на капоте, смеётся. — Buchholz. Ну ты даёшь. Через Kornweide и на старый мост. И не стой тут, тут сегодня всякие ходят.',
             effects: [{ set: '$.passed_gang', value: 'talked' }, { wait: 10, activity: 'light' }] },
           { id: 'bad', text: 'Ты начинаешь говорить, а они уже обступают тебя с трёх сторон.', goto: 'b2_robbery' },
         ] },
