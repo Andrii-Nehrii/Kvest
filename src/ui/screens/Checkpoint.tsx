@@ -22,53 +22,57 @@ const FINISH_TEXT = {
 };
 
 /**
- * Автообмен через облако: свой ход и ответ выкладываются сами, ход и ответ партнёра
+ * Автообмен через облако: свой ход и ответ выкладываются сами (при сбое — повтор), ход и ответ партнёра
  * проверяются каждые 12 секунд, пока экран открыт. Ручной обмен кодами остаётся.
  */
 function useCloudExchange(save: LocalSave, cloud: CloudConfig | null | undefined, segCode: string, ansCode: string, onSave: (s: LocalSave) => void) {
   const [note, setNote] = useState('');
-  const [sent, setSent] = useState({ seg: false, ans: false });
+  const [sent, setSent] = useState({ seg: '', ans: '' });
   const latest = useRef(save);
   latest.current = save;
   const token = cloud?.token;
   const cp = save.cp!;
   const partner = partnerOf(save);
-  const say = (e: unknown) => setNote(e instanceof Error ? e.message : String(e));
 
-  useEffect(() => {
-    if (!token || !segCode) return;
-    putFile(token, cloudPaths.segment(save.pairId, cp.index, save.me), segCode, `${save.me}: ход на КТ${cp.index}`)
-      .then(() => setSent((x) => ({ ...x, seg: true }))).catch(say);
-  }, [token, segCode]);
-  useEffect(() => {
-    if (!token || !ansCode) return;
-    putFile(token, cloudPaths.answers(save.pairId, cp.index, save.me), ansCode, `${save.me}: ответ на КТ${cp.index}`)
-      .then(() => setSent((x) => ({ ...x, ans: true }))).catch(say);
-  }, [token, ansCode]);
-
+  const segPending = !!token && !!segCode && sent.seg !== segCode;
+  const ansPending = !!token && !!ansCode && sent.ans !== ansCode;
   const waitingSeg = !!token && needPartnerSegment(save) && !cp.partnerRecords;
   const waitingAns = !!token && !!cp.merged && partnerAnswers(content, save) && !cp.partnerAnswers;
   useEffect(() => {
-    if (!waitingSeg && !waitingAns) return;
+    if (!segPending && !ansPending && !waitingSeg && !waitingAns) return;
     let stop = false;
+    let busy = false;
     const tick = async () => {
+      if (busy) return;
+      busy = true;
       const s = latest.current;
-      try {
-        if (waitingSeg) {
-          const t = await getFile(token!, cloudPaths.segment(s.pairId, s.cp!.index, partner));
-          if (t && !stop) { onSave(await acceptPartnerSegment(content, s, t)); setNote(''); }
-        } else if (waitingAns) {
-          const t = await getFile(token!, cloudPaths.answers(s.pairId, s.cp!.index, partner));
-          if (t && !stop) { onSave(await acceptPartnerAnswers(content, s, t)); setNote(''); }
-        }
-      } catch (e) { if (!stop) say(e); }
+      const errors: string[] = [];
+      const step = async (f: () => Promise<void>) => { try { await f(); } catch (e) { errors.push(e instanceof Error ? e.message : String(e)); } };
+      if (segPending) await step(async () => {
+        await putFile(token!, cloudPaths.segment(s.pairId, s.cp!.index, s.me), segCode, `${s.me}: ход на КТ${s.cp!.index}`);
+        if (!stop) setSent((x) => ({ ...x, seg: segCode }));
+      });
+      if (ansPending) await step(async () => {
+        await putFile(token!, cloudPaths.answers(s.pairId, s.cp!.index, s.me), ansCode, `${s.me}: ответ на КТ${s.cp!.index}`);
+        if (!stop) setSent((x) => ({ ...x, ans: ansCode }));
+      });
+      if (waitingSeg) await step(async () => {
+        const t = await getFile(token!, cloudPaths.segment(s.pairId, s.cp!.index, partner));
+        if (t && !stop) onSave(await acceptPartnerSegment(content, s, t));
+      });
+      else if (waitingAns) await step(async () => {
+        const t = await getFile(token!, cloudPaths.answers(s.pairId, s.cp!.index, partner));
+        if (t && !stop) onSave(await acceptPartnerAnswers(content, s, t));
+      });
+      if (!stop) setNote(errors.join(' '));
+      busy = false;
     };
     tick();
     const id = setInterval(tick, 12000);
     return () => { stop = true; clearInterval(id); };
-  }, [waitingSeg, waitingAns, save.baseHash, cp.mergedHash]);
+  }, [segPending, ansPending, waitingSeg, waitingAns, segCode, ansCode, save.baseHash, cp.mergedHash]);
 
-  return { on: !!token, note, sent, waitingSeg, waitingAns };
+  return { on: !!token, note, sent: { seg: !!segCode && sent.seg === segCode, ans: !!ansCode && sent.ans === ansCode }, waitingSeg, waitingAns };
 }
 
 export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: CloudConfig | null; onSave: (s: LocalSave) => void }) {
@@ -171,6 +175,9 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
           </section>
         )}
       </div>
+      {readyToFinish(content, save) && net.on && cp.myAnswers && partnerQ && !net.sent.ans && (
+        <div className="errors">Твой ответ ещё не ушёл в облако — без него {fmt(ctx, '{partner}')} не сможет закончить точку. Подожди немного или отправь код ответа вручную.</div>
+      )}
       {readyToFinish(content, save) && (
         <button className="btn primary block" onClick={() => onSave(finishCheckpoint(content, save, { segment: segCode || undefined, answers: ansCode || undefined }))}>Завершить контрольную точку</button>
       )}

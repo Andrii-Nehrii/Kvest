@@ -86,6 +86,7 @@ export async function putFile(token: string, path: string, text: string, message
     if (sha === want) return 'same';
     const r = await gh(token, `/contents/${path}`, {
       method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ message, content: toBase64(text), branch: BRANCH, ...(sha ? { sha } : {}) }),
     });
     if (r.ok) return 'written';
