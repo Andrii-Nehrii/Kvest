@@ -101,7 +101,7 @@ function CharacterForm({ pid, onDone, cta }: { pid: PlayerId; onDone: (s: Player
     <div className="stack">
       <Card title="Персонаж"><b>{ROLE_INFO[pid].title}</b><div className="muted small" style={{ marginTop: 4 }}>{ROLE_INFO[pid].body}</div></Card>
       <label className="field">Имя персонажа</label>
-      <input type="text" value={name} onChange={(e) => { setName(e.target.value); setForms(null); }} placeholder="Как тебя зовут в игре" autoComplete="off" />
+      <input type="text" value={name} onChange={(e) => { setName(e.target.value); setForms(null); }} placeholder="Как тебя зовут в игре" autoComplete="off" maxLength={40} />
       {f && <button className="group-toggle" onClick={() => setShowForms(!showForms)}>Падежи для текста: {f.dat}, {f.ins}… {showForms ? '▴' : '▾'}</button>}
       {f && showForms && (Object.keys(FORM_LABELS) as (keyof NameForms)[]).map((k) => (
         <div className="row" key={k} style={{ alignItems: 'center' }}>
@@ -115,9 +115,9 @@ function CharacterForm({ pid, onDone, cta }: { pid: PlayerId; onDone: (s: Player
           return (
             <div className="li" key={k} style={{ alignItems: 'center' }}>
               <span className="grow">{TRAIT_NAMES[k]}</span>
-              {editable && <button className="icon-btn" onClick={() => bump(k, -1)}>−</button>}
+              {editable ? <button className="icon-btn" onClick={() => bump(k, -1)} aria-label="Меньше">−</button> : <span className="faint small" style={{ width: 44, textAlign: 'center' }}>тело</span>}
               <b style={{ width: 22, textAlign: 'center' }}>{value(k)}</b>
-              {editable ? <button className="icon-btn" onClick={() => bump(k, 1)}>+</button> : <span className="faint small" style={{ width: 32 }}>тело</span>}
+              {editable ? <button className="icon-btn" onClick={() => bump(k, 1)} aria-label="Больше">+</button> : <span style={{ width: 44 }} />}
             </div>
           );
         })}

@@ -69,11 +69,11 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
       <Card title="Где ты">
         <b>{loc?.name ?? ch.location}</b>
         {loc?.description && <div className="muted small" style={{ marginTop: 4 }}>{loc.description}</div>}
-        <div className="li"><span className="grow">Время</span><span>{dateLabel(ch.time)}, {clock(ch.time)}</span></div>
-        <div className="li"><span className="grow">Погода</span><span>{w.tempC.toFixed(0)} °C{w.rain ? ', дождь' : ''}, ветер {w.wind} км/ч</span></div>
-        <div className="li"><span className="grow">Ощущается</span><span>{env.tempC.toFixed(0)} °C{env.wet ? ', сыро' : ''}</span></div>
-        <div className="li"><span className="grow">Светло</span><span>{hhmm(day.sunrise)}–{hhmm(day.sunset)}</span></div>
-        <div className="li"><span className="grow">Связь</span><span>{!net ? 'телефон недоступен' : [net.voice && 'звонки', net.sms && 'SMS', net.data && 'интернет'].filter(Boolean).join(', ') || 'нет сети'}</span></div>
+        <div className="li kv"><span>Время</span><span>{dateLabel(ch.time)}, <span className="nw">{clock(ch.time)}</span></span></div>
+        <div className="li kv"><span>Погода</span><span><span className="nw">{w.tempC.toFixed(0)} °C</span>{w.rain ? ', дождь' : ''}, ветер <span className="nw">{w.wind} км/ч</span></span></div>
+        <div className="li kv"><span>Ощущается</span><span><span className="nw">{env.tempC.toFixed(0)} °C</span>{env.wet ? ', сыро' : ''}</span></div>
+        <div className="li kv"><span>Светло</span><span>{hhmm(day.sunrise)}–{hhmm(day.sunset)}</span></div>
+        <div className="li kv"><span>Связь</span><span>{!net ? 'телефон недоступен' : [net.voice && 'звонки', net.sms && 'SMS', net.data && 'интернет'].filter(Boolean).join(', ') || 'нет сети'}</span></div>
       </Card>
       <Card title="Бытовые правила">
         <div className="small muted" style={{ marginBottom: 6 }}>Рутина без лишних нажатий. Сюжетных решений правила не принимают.</div>
@@ -128,7 +128,7 @@ export function Ended({ save, onReset }: { save: LocalSave; onReset: () => void 
         {(['A', 'B'] as const).map((p) => {
           const ch = s.chars[p];
           const dead = ch.body.consciousness === 'dead';
-          return <div className="li" key={p}><b className="grow">{ch.name.nom}</b><span className={`tag ${dead ? 'bad' : 'accent'}`}>{dead ? `погиб${ch.gender === 'f' ? 'ла' : ''} — ${ch.body.causeOfDeath}, ${clock(ch.body.diedAt!)}` : 'жив' + (ch.gender === 'f' ? 'а' : '')}</span></div>;
+          return <div className="li" key={p}><b className="grow">{ch.name.nom}</b><span className={`tag wrap ${dead ? 'bad' : 'accent'}`}>{dead ? `погиб${ch.gender === 'f' ? 'ла' : ''} — ${ch.body.causeOfDeath}, ${clock(ch.body.diedAt!)}` : 'жив' + (ch.gender === 'f' ? 'а' : '')}</span></div>;
         })}
       </Card>
       <Card title="Главные решения">

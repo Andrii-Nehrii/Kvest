@@ -169,7 +169,7 @@ export function People({ ctx }: { ctx: Ctx }) {
           return (
             <div className="li" key={n.id} style={{ display: 'block' }}>
               <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-                <b style={{ flex: 1 }}>{def.name}</b><span className={`tag ${tw.tone}`}>{tw.text}</span>
+                <b style={{ flex: 1, minWidth: 0 }}>{def.name}</b><span className={`tag ${tw.tone}`}>{tw.text}</span>
               </div>
               <div className="small muted">{def.intro}</div>
             </div>
