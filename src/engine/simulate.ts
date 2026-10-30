@@ -4,7 +4,8 @@ import { canAct, symptoms, tickBody } from './body';
 import { evalCond } from './conditions';
 import { applyEffects } from './effects';
 import { clamp, round } from './rng';
-import type { Activity } from './types';
+import { ch2Rules } from './rules';
+import type { Activity, ItemInstance } from './types';
 import { other } from './types';
 import {
   carriedWeight, carryLimit, countTag, environment, heldItems, itemType, log, me, network, phoneUsable, takeItems, type Ctx,
@@ -36,7 +37,7 @@ export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts:
     const overloaded = carriedWeight(ctx) > carryLimit(ctx) * 1.25;
     const act = overloaded ? HEAVIER[activity] : activity;
     const before = symptoms(ch.body, ch.time);
-    const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`);
+    const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`, ch2Rules(ctx.s));
     drainBatteries(ctx, step);
     tickControlledPartner(ctx, step);
     baseTicksDuring(ctx, ch.time, ch.time + step);
@@ -66,7 +67,7 @@ function tickControlledPartner(ctx: Ctx, minutes: number) {
   const p = ctx.s.chars[pid];
   if (p.controlledBy !== ctx.pid || p.body.consciousness === 'dead') return;
   const pctx: Ctx = { ...ctx, pid };
-  const r = tickBody(p.body, p.traits, p.time, minutes, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`);
+  const r = tickBody(p.body, p.traits, p.time, minutes, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`, ch2Rules(ctx.s));
   p.time += minutes;
   if (r.died) log(pctx, 'system', 'Смерть.');
 }
@@ -149,18 +150,33 @@ export function channelOpen(ctx: Ctx, channel: 'phone' | 'radio' | 'people' | 'a
   }
 }
 
+/**
+ * Правила главы 2: чем утолять жажду — сначала напитки (вода, молоко), затем то, что лучше утоляет жажду,
+ * при равенстве — скоропортящееся. Раньше скоропорт шёл первым, и вместо воды съедалось яблоко.
+ */
+export function drinkOrder(ctx: Ctx, a: ItemInstance, b: ItemInstance): number {
+  const ta = itemType(ctx, a.type);
+  const tb = itemType(ctx, b.type);
+  return (tb.tags.includes('drink') ? 1 : 0) - (ta.tags.includes('drink') ? 1 : 0)
+    || (tb.food?.thirst ?? 0) - (ta.food?.thirst ?? 0)
+    || (tb.spoilsAfter ? 1 : 0) - (ta.spoilsAfter ? 1 : 0)
+    || (a.id < b.id ? -1 : 1);
+}
+
 /** Бытовые правила (п. 5.1): попить/поесть в спокойной обстановке. Не принимают сюжетных решений. */
 export function applyStandingRules(ctx: Ctx) {
   const ch = me(ctx);
   if (!canAct(ch.body)) return;
   const scene = ctx.c.scenes[ch.scene];
   if (!scene?.safe && !scene?.calm) return;
+  const v2 = ch2Rules(ctx.s);
   const usable = (tag: 'thirst' | 'hunger') => heldItems(ctx)
     .filter((i) => {
       const t = itemType(ctx, i.type);
       return (t.food?.[tag] ?? 0) > 0 && !(ch.rules.keepReserve && t.tags.includes('reserve'));
     })
-    .sort((a, b) => (itemType(ctx, b.type).spoilsAfter ? 1 : 0) - (itemType(ctx, a.type).spoilsAfter ? 1 : 0) || (a.id < b.id ? -1 : 1));
+    .sort(v2 && tag === 'thirst' ? (a, b) => drinkOrder(ctx, a, b)
+      : (a, b) => (itemType(ctx, b.type).spoilsAfter ? 1 : 0) - (itemType(ctx, a.type).spoilsAfter ? 1 : 0) || (a.id < b.id ? -1 : 1));
   if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45) {
     const item = usable('thirst')[0];
     if (item) {

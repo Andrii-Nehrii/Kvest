@@ -7,6 +7,7 @@ import { evalCond } from './conditions';
 import type { Content, JointDecision, MergePolicy } from './content-types';
 import { applyEffects } from './effects';
 import { canonical, stateHash, unit } from './rng';
+import { ch2Rules } from './rules';
 import { advanceTime } from './simulate';
 import type { GameState, HistoryRecord, ItemInstance, NpcState, PlayerId, Scalar } from './types';
 import { other, PLAYERS } from './types';
@@ -175,7 +176,7 @@ function syncClocksTo(c: Content, s: GameState, target: number) {
       log(ctx, 'system', 'Время до общей точки проходит в ожидании.');
       advanceTime(ctx, target - ch.time, 'rest', { finishOnEvent: true, away: true });
     } else {
-      tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`);
+      tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`, ch2Rules(s));
       ch.time = target;
     }
   }
@@ -333,8 +334,11 @@ export function resolveJoint(c: Content, s: GameState, decisionId: string, answe
 
 // ───────────── Особые состояния и поражение ─────────────
 
-/** Если оба не могут действовать — честно проматываем время, пока кто-то не очнётся или не умрёт. */
-export function resolveHelplessness(c: Content, s: GameState): 'continue' | 'defeat' {
+/**
+ * Если оба не могут действовать — честно проматываем время, пока кто-то не очнётся или не умрёт.
+ * v2 — правила главы 2; по умолчанию — по номеру КТ мира (completeCheckpoint передаёт правила завершаемого участка).
+ */
+export function resolveHelplessness(c: Content, s: GameState, v2 = ch2Rules(s)): 'continue' | 'defeat' {
   if (PLAYERS.every((p) => isDead(s.chars[p].body))) return 'defeat';
   if (PLAYERS.some((p) => canAct(s.chars[p].body))) return 'continue';
   const limit = Math.max(s.chars.A.time, s.chars.B.time) + 14 * 1440;
@@ -347,9 +351,9 @@ export function resolveHelplessness(c: Content, s: GameState): 'continue' | 'def
         // Уход NPC (только если он заранее был рядом и согласился помогать).
         ch.body.thirst = Math.max(0, ch.body.thirst - 25);
         ch.body.hunger = Math.max(0, ch.body.hunger - 15);
-        for (const i of ch.body.injuries) if (i.treated === 'none') i.treated = 'basic';
+        for (const i of ch.body.injuries) if (i.treated === 'none') { i.treated = 'basic'; if (v2) i.treatedAt = ch.time; }
       }
-      tickBody(ch.body, ch.traits, ch.time, 60, 'rest', environment({ s, c, pid: p }), `${s.seed}:${p}`);
+      tickBody(ch.body, ch.traits, ch.time, 60, 'rest', environment({ s, c, pid: p }), `${s.seed}:${p}`, v2);
       ch.time += 60;
       if (canAct(ch.body)) return 'continue';
     }
@@ -377,9 +381,11 @@ export function completeCheckpoint(c: Content, merged: GameState, answers: Parti
   for (const id of cp.joint) {
     joint.push(resolveJoint(c, s, id, { A: answers.A?.[id], B: answers.B?.[id] }));
   }
+  // Промотка беспомощности — ещё часть завершаемого участка: правила по КТ до этой (КТ 2 считается по-старому).
+  const v2 = ch2Rules(s);
   s.checkpoint = cpIndex;
   markSegmentStart(s);
-  const verdict = resolveHelplessness(c, s);
+  const verdict = resolveHelplessness(c, s, v2);
   for (const pid of PLAYERS) {
     const ch = s.chars[pid];
     if (isDead(ch.body)) { ch.controlledBy = 'engine'; continue; }

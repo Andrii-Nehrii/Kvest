@@ -150,6 +150,9 @@ input[type=checkbox] { flex: none; width: 22px; height: 22px; margin: 0; accent-
 .stepcard.done::before { content: '✓'; background: var(--ok); border-color: var(--ok); color: #0d140f; }
 .option { display: flex; gap: 10px; align-items: flex-start; padding: 12px; margin: 6px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); text-align: left; width: 100%; }
 .option.sel { border-color: var(--accent); background: var(--accent-soft); }
+.option > :last-child { flex: 1; min-width: 0; }
+/* Здесь может оказаться имя игрока одним длинным словом — переносить где угодно. */
+.group-toggle, .btn.block { overflow-wrap: anywhere; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 20px + env(safe-area-inset-bottom)); z-index: 9;
   background: var(--surface-2); border: 1px solid var(--line); padding: 10px 16px; border-radius: 12px; font-size: 14px; max-width: 90vw; animation: rise .2s ease; }
 .toast.bad { border-color: #d4645f88; }

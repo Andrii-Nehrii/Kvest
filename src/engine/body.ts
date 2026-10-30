@@ -10,6 +10,10 @@ export interface Environment {
   outdoor: boolean;
   /** Суммарное утепление надетой одежды, 0–12. */
   warmth: number;
+  /** Правила главы 2: как быстро намокает одежда (0 — сухо или под крышей, 1 — дождь без защиты). */
+  rain?: number;
+  /** Правила главы 2: как быстро сохнет одежда, доля в час. */
+  dryPerHour?: number;
 }
 
 const ACTIVITY = {
@@ -100,14 +104,21 @@ export function capabilities(b: Body, traits: Traits, t: Minutes): Capabilities 
 }
 
 /** Текущая кровопотеря в час с учётом свёртывания и обработки. */
-function bleedRate(i: Injury, t: Minutes): number {
+function bleedRate(i: Injury, t: Minutes, v2: boolean): number {
   if (i.bleeding <= 0 || i.healed >= 1) return 0;
   const hours = (t - i.since) / 60;
   const treat = i.treated === 'proper' ? 0.05 : i.treated === 'basic' ? 0.3 : 1;
   // Мелкие раны сворачиваются сами за 10–40 мин, средние — за пару часов, тяжёлые — нет.
-  const clot = i.severity <= 2 ? Math.exp(-hours / 0.35) : i.severity === 3 ? Math.exp(-hours / 2.5) : 1;
+  let clot = i.severity <= 2 ? Math.exp(-hours / 0.35) : i.severity === 3 ? Math.exp(-hours / 2.5) : 1;
+  // Глава 2: тяжёлая рана под повязкой со временем перестаёт кровоточить (как следует — за пару часов, кое-как — дольше).
+  if (v2 && i.severity >= 4 && i.treated !== 'none') {
+    clot = Math.exp(-Math.max(0, t - (i.treatedAt ?? i.since)) / 60 / (i.treated === 'proper' ? 1 : 3));
+  }
   return i.bleeding * treat * clot;
 }
+
+/** Глава 2: слабее этого кровотечение считается остановившимся. */
+const BLEED_STOPPED = 0.01;
 
 const OPEN_WOUND = new Set(['cut', 'laceration', 'scratch', 'bite', 'burn']);
 const HEAL_DAYS: Record<string, number> = {
@@ -121,8 +132,9 @@ export interface TickResult {
 
 /**
  * Продвинуть тело на `minutes` минут. Детерминировано: все «броски» — от ключа seed+персонаж+событие.
+ * v2 — правила главы 2 (rules.ts); без него всё считается так же, как в сыгранной главе 1.
  */
-export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number, activity: Activity, env: Environment, seedKey: string): TickResult {
+export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number, activity: Activity, env: Environment, seedKey: string, v2 = false): TickResult {
   const res: TickResult = { notes: [] };
   let t = from;
   let left = minutes;
@@ -145,14 +157,31 @@ export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number
 
     // Кровь
     let bleed = 0;
-    for (const i of b.injuries) bleed += bleedRate(i, t);
+    for (const i of b.injuries) {
+      const r = bleedRate(i, t, v2);
+      // Глава 2: остановившееся кровотечение не тянется вечно (иначе кровь не восстанавливается неделями).
+      if (v2 && r > 0 && r < BLEED_STOPPED) { i.bleeding = 0; continue; }
+      bleed += r;
+    }
     if (bleed > 0) b.bloodLoss += bleed * h;
+    else if (v2 && b.bloodLoss > 0) b.bloodLoss = Math.max(0, b.bloodLoss - (b.thirst < 60 ? 0.9 : 0.5) * h);
     else if (b.thirst < 60 && b.bloodLoss > 0) b.bloodLoss = Math.max(0, b.bloodLoss - 0.9 * h);
+
+    // Одежда (глава 2): под дождём намокает за полчаса — до уровня, который пропускает защита (дождевик держит
+    // почти сухим); без дождя и под крышей сохнет со временем.
+    let wetFactor = env.wet ? 1.7 : 1;
+    if (v2) {
+      const level = clamp(env.rain ?? 0, 0, 1);
+      const w0 = b.wet ?? 0;
+      const w = w0 < level ? Math.min(level, w0 + 2 * h) : Math.max(level, w0 - (env.dryPerHour ?? 0.2) * h);
+      b.wet = w > 0 ? round(w, 3) : undefined;
+      wetFactor = 1 + 0.7 * (b.wet ?? 0);
+    }
 
     // Температура тела: стремится к норме+жар, окружающая среда может пересилить
     const target = 36.9 + fever(b, t);
     const cold = env.outdoor || env.tempC < 14
-      ? (16 - env.tempC) * (env.wet ? 1.7 : 1) - env.warmth * 3 - a.heat
+      ? (16 - env.tempC) * wetFactor - env.warmth * 3 - a.heat
       : 0;
     if (cold > 0) b.coreTemp -= cold * 0.055 * h;
     b.coreTemp += clamp(target - b.coreTemp, -1.2 * h, (cold > 0 ? 0.3 : 1.2) * h);
@@ -165,7 +194,8 @@ export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number
     for (const i of b.injuries) {
       if (i.healed >= 1) continue;
       const days = HEAL_DAYS[i.kind] * (0.6 + i.severity * 0.2) * (i.treated === 'proper' ? 0.8 : 1.15) * (i.woundInfected ? 1.6 : 1);
-      i.healed = round(clamp(i.healed + step / (days * 1440), 0, 1), 4);
+      // Глава 2: точнее — иначе округление до 0,0001 на каждом шаге меняет скорость заживления на ±20 % от шага.
+      i.healed = round(clamp(i.healed + step / (days * 1440), 0, 1), v2 ? 6 : 4);
       const key = `wound:${i.id}`;
       if (OPEN_WOUND.has(i.kind) && !b.rolled[key] && t - i.since >= 1440) {
         b.rolled[key] = true;
@@ -226,6 +256,7 @@ function setConsciousness(b: Body, c: Body['consciousness'], t: Minutes) {
   if (b.consciousness === c) return;
   b.consciousness = c;
   b.consciousSince = t;
+  if (b.faintUntil !== undefined) b.faintUntil = undefined;
   if (c === 'awake') b.awakeSince = t;
 }
 
@@ -243,8 +274,9 @@ export function checkThresholds(b: Body, t: Minutes): string | undefined {
   if (coma) setConsciousness(b, 'coma', t);
   else if (out) setConsciousness(b, 'unconscious', t);
   else if (b.consciousness === 'unconscious' || b.consciousness === 'coma') {
-    // Приходит в себя, только когда причины ушли, и не мгновенно.
-    if (t - b.consciousSince >= 30 && b.bloodLoss < 48 && b.coreTemp > 31.5) setConsciousness(b, 'awake', t);
+    // Приходит в себя, только когда причины ушли, и не мгновенно. Обморок (глава 2) — ровно в назначенное время.
+    const after = b.faintUntil ?? b.consciousSince + 30;
+    if (t >= after && b.bloodLoss < 48 && b.coreTemp > 31.5) setConsciousness(b, 'awake', t);
   }
   return undefined;
 }
@@ -269,6 +301,7 @@ export function symptoms(b: Body, t: Minutes): string[] {
   if (b.sleepDebt >= 12) s.push('Глаза слипаются, мысли путаются');
   else if (b.sleepDebt >= 8) s.push('Хочется спать');
   if (b.fatigue >= 75) s.push('Ноги ватные, сил почти нет');
+  if ((b.wet ?? 0) >= 0.5) s.push('Одежда промокла насквозь');
   if (b.bloodLoss >= 30) s.push(b.bloodLoss >= 45 ? 'Бледность, холодный пот, темнеет в глазах' : 'Слабость от потери крови');
   if (b.injuries.some((i) => i.woundInfected && i.healed < 1)) s.push('Воспалённая рана');
   for (const ill of b.illnesses) for (const x of ILLNESSES[ill.kind]?.symptoms(ill, t) ?? []) if (!s.includes(x)) s.push(x);

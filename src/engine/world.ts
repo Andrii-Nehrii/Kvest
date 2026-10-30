@@ -2,6 +2,7 @@
 import { capabilities, painLevel, type Environment } from './body';
 import type { Content, ItemType } from './content-types';
 import { unit } from './rng';
+import { ch2Rules } from './rules';
 import type { CharacterState, GameState, ItemInstance, LogEntry, PlayerId, Scalar } from './types';
 import { other } from './types';
 
@@ -107,7 +108,7 @@ export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: n
   const t = me(ctx).time;
   const stackable = !def.battery && !def.vehicle && !def.fuelCan && opts.charge === undefined && !opts.note && (opts.condition ?? 100) === 100;
   if (stackable) {
-    const existing = Object.values(ctx.s.items).find((i) => i.type === type && i.charge === undefined && !i.note && i.condition === 100
+    const existing = Object.values(ctx.s.items).find((i) => i.type === type && i.charge === undefined && !i.note && i.condition === 100 && i.uses === undefined
       && i.at.kind === to.kind && (i.at as { id?: string }).id === (to as { id?: string }).id && i.qty > 0);
     if (existing) { existing.qty += qty; existing.changedAt = t; return existing; }
   }
@@ -190,12 +191,24 @@ export function environment(ctx: Ctx): Environment {
     if (cl) slots.set(cl.slot, Math.max(slots.get(cl.slot) ?? 0, cl.warmth * (i.condition / 100)));
   }
   const warmth = [...slots.values()].reduce((a, b) => a + b, 0);
-  return {
+  const env: Environment = {
     tempC: scene?.ambient?.tempC ?? (outdoor ? weather.tempC - weather.wind * 0.15 : indoorTemp),
     wet: scene?.ambient?.wet ?? (outdoor && weather.rain),
     outdoor,
     warmth,
   };
+  if (ch2Rules(ctx.s)) {
+    // Глава 2. Надета одна вещь на слот — самая тёплая (остальное лежит в рюкзаке: не греет и не мокнет).
+    // Дождевик — поверх всего: защищает от дождя; мусорные мешки — хуже. Мокрая одежда сохнет и под крышей.
+    let shield = 0;
+    for (const i of heldItems(ctx)) {
+      const t = itemType(ctx, i.type);
+      if (t.tags.includes('waterproof')) shield = Math.max(shield, t.clothing ? 0.85 : 0.5);
+    }
+    env.rain = env.wet ? 1 - shield : 0;
+    env.dryPerHour = outdoor ? 0.15 : env.tempC >= 18 ? 0.5 : 0.2;
+  }
+  return env;
 }
 
 export function caps(ctx: Ctx, pid: PlayerId = ctx.pid) {

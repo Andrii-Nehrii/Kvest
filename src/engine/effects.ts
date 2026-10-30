@@ -3,11 +3,12 @@ import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
 import { clamp } from './rng';
+import { ch2Rules } from './rules';
 import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
 import { other } from './types';
 import {
-  fmt, getVar, giveItem, itemType, log, me, moveItems, nextId, setVar, takeItems, type Ctx,
+  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, setVar, takeItems, type Ctx,
 } from './world';
 
 export interface EffectResult {
@@ -45,6 +46,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   }
   if ('take' in e) { takeItems(ctx, (i) => i.type === e.take, e.qty ?? 1); return; }
   if ('takeTag' in e) { takeItems(ctx, (i) => itemType(ctx, i.type).tags.includes(e.takeTag), e.qty ?? 1); return; }
+  if ('use' in e) { useOnce(ctx, e.use); return; }
   if ('drop' in e) {
     moveItems(ctx, (i) => i.type === e.drop, e.qty ?? Infinity, { kind: 'char', id: ctx.pid }, { kind: 'place', id: ch.location });
     return;
@@ -58,7 +60,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('charge' in e) {
-    const item = Object.values(ctx.s.items).find((i) => i.at.kind === 'char' && i.at.id === ctx.pid && i.qty > 0
+    const item = ch2Rules(ctx.s) ? chargeTarget(ctx, e.charge, e.delta) : Object.values(ctx.s.items).find((i) => i.at.kind === 'char' && i.at.id === ctx.pid && i.qty > 0
       && (i.type === e.charge || itemType(ctx, i.type).tags.includes(e.charge)) && i.charge !== undefined);
     if (item) { item.charge = clamp((item.charge ?? 0) + e.delta, 0, 100); item.changedAt = t; }
     return;
@@ -82,9 +84,11 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     const pid = targetPid(ctx, e.target);
     const body = ctx.s.chars[pid].body;
     const rank = { none: 0, basic: 1, proper: 2 } as const;
+    const v2 = ch2Rules(ctx.s);
     for (const i of body.injuries) {
       if (i.healed >= 1 || rank[i.treated] >= rank[e.treat]) continue;
       i.treated = e.treat;
+      if (v2) i.treatedAt = t;
       // Тщательное промывание в первые полчаса немного снижает риск от возбудителя (скрытое правило §2.3).
       if (e.treat === 'proper' && i.exposure && t - i.since <= 30) i.exposure = Math.round(i.exposure * 0.75 * 1000) / 1000;
     }
@@ -136,9 +140,14 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('faint' in e) {
+    const v2 = ch2Rules(ctx.s);
     ch.body.consciousness = 'unconscious';
     ch.body.consciousSince = t;
+    // Глава 2: без сознания ровно e.faint минут (если нет других причин). Раньше — минимум 30 минут, и короткий
+    // обморок оставлял персонажа без сознания до контрольной точки, а длинный обрывался через полчаса.
+    if (v2) ch.body.faintUntil = t + Math.max(0, Math.round(e.faint));
     mergeAdvance(out, advanceTime(ctx, e.faint, 'rest', { finishOnEvent: true }));
+    if (v2) checkThresholds(ch.body, ch.time);
     out.interrupted = true;
     return;
   }
@@ -175,6 +184,41 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   if ('die' in e) { kill(ch.body, t, e.die); out.interrupted = true; return; }
   const never: never = e;
   throw new Error(`Неизвестный эффект: ${JSON.stringify(never)}`);
+}
+
+/**
+ * Глава 2: какой предмет заряжать/разряжать. Расход берётся из заряженного (пустой пауэрбанк не заряжает,
+ * пустой антисептик не тратится), заряд — в незаряженный исправный. Раньше — просто первый попавшийся.
+ */
+function chargeTarget(ctx: Ctx, what: string, delta: number) {
+  const list = heldItems(ctx).filter((i) => (i.type === what || itemType(ctx, i.type).tags.includes(what)) && i.charge !== undefined);
+  const charge = (i: { charge?: number }) => i.charge ?? 0;
+  if (delta < 0) return list.find((i) => charge(i) >= -delta) ?? list.find((i) => charge(i) > 0) ?? list[0];
+  return list.find((i) => charge(i) < 100 && i.condition > 0) ?? list.find((i) => charge(i) < 100) ?? list[0];
+}
+
+/**
+ * Использовать один раз вещь с тегом. У расходника на несколько раз (medical.uses) тратится одно использование:
+ * начатая аптечка — первой; из стопки отделяется одна начатая. Остальное списывается штукой.
+ */
+function useOnce(ctx: Ctx, tag: string) {
+  const list = heldItems(ctx).filter((i) => itemType(ctx, i.type).tags.includes(tag))
+    .sort((a, b) => (a.uses ?? 1e9) - (b.uses ?? 1e9) || (a.id < b.id ? -1 : 1));
+  const item = list[0];
+  if (!item) return;
+  const max = itemType(ctx, item.type).medical?.uses ?? 1;
+  if (max <= 1) { takeItems(ctx, (i) => i.id === item.id, 1); return; }
+  const t = me(ctx).time;
+  if (item.uses === undefined && item.qty > 1) {
+    item.qty -= 1;
+    item.changedAt = t;
+    const opened = { ...item, id: nextId(ctx, 'it'), qty: 1, uses: max - 1, changedAt: t };
+    ctx.s.items[opened.id] = opened;
+    return;
+  }
+  item.uses = (item.uses ?? max) - 1;
+  item.changedAt = t;
+  if (item.uses <= 0) { item.qty = 0; item.at = { kind: 'gone' }; }
 }
 
 function defaultBleeding(kind: string, sev: number): number {

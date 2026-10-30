@@ -35,6 +35,8 @@ export interface Injury {
   healed: number;
   /** Скрытая отметка: был ли контакт с биологическими жидкостями заражённого. */
   exposure?: number;
+  /** Когда рана обработана (правила главы 2: тяжёлая рана после обработки со временем перестаёт кровоточить). */
+  treatedAt?: Minutes;
 }
 
 export interface Illness {
@@ -61,6 +63,10 @@ export interface Body {
   coreTemp: number;    // °C
   stress: number;      // 0 … 100
   dehydratedSince?: Minutes;
+  /** Насколько промокла надетая одежда, 0–1 (правила главы 2; раньше — только «под дождём или нет»). */
+  wet?: number;
+  /** Обморок до этого времени, если нет других причин (правила главы 2). */
+  faintUntil?: Minutes;
   injuries: Injury[];
   illnesses: Illness[];
   consciousness: Consciousness;
@@ -142,6 +148,8 @@ export interface ItemInstance {
   charge?: number;
   /** Литры топлива: бак машины, канистра, бак генератора. */
   fuel?: number;
+  /** Сколько использований осталось у начатого расходника (аптечка на несколько перевязок). Нет — целый. */
+  uses?: number;
   at: ItemLocation;
   /** Игровое время последнего изменения — для слияния. */
   changedAt: Minutes;
@@ -288,6 +296,8 @@ export type Effect =
   | { give: string; qty?: number; charge?: number; condition?: number; note?: string; fuel?: number }
   | { take: string; qty?: number }
   | { takeTag: string; qty?: number }
+  /** Использовать один раз вещь с тегом: у расходника с medical.uses тратится одно использование, иначе — штука. */
+  | { use: string }
   | { drop: string; qty?: number }
   | { pickup: string; place?: string; qty?: number }
   | { place: string; at: string; qty?: number; charge?: number }
