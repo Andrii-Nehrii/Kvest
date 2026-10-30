@@ -1,4 +1,5 @@
 // «Ещё»: место и время, бытовые правила, сохранение, код мира, новая игра. Плюс экран финала.
+import { availableActions } from '../../engine/actions';
 import { daylight, clock, dateLabel, durationLabel } from '../../engine/time';
 import { environment, network, phoneUsable, type Ctx } from '../../engine/world';
 import type { NpcState, StandingRules } from '../../engine/types';
@@ -62,7 +63,7 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
   const day = daylight(ch.time);
   const net = phoneUsable(ctx) ? network(ctx) : null;
   const download = () => saveFile(`kvest-${save.me}-kt${save.base?.checkpoint ?? 0}.json`, exportSave(save));
-  const canAct = ch.body.consciousness === 'awake';
+  const avail = new Set(availableActions(ctx).filter((a) => a.enabled).map((a) => a.def.id));
   return (
     <div className="page">
       <Card title="Где ты">
@@ -79,7 +80,7 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
         {(Object.keys(RULE_LABELS) as (keyof StandingRules)[]).map((k) => (
           <label key={k} className="li" style={{ alignItems: 'center' }}>
             <span className="grow">{RULE_LABELS[k]}</span>
-            <input type="checkbox" checked={ch.rules[k]} disabled={!canAct} onChange={() => onPlan([`u:rule:${k}`])} />
+            <input type="checkbox" checked={ch.rules[k]} disabled={!avail.has(`u:rule:${k}`)} onChange={() => onPlan([`u:rule:${k}`])} />
           </label>
         ))}
       </Card>

@@ -1,5 +1,6 @@
 // Экраны состояния: вещи, тело, журнал, люди. Показывают только то, что знает персонаж.
 import { useState } from 'react';
+import { availableActions } from '../../engine/actions';
 import { painLevel, symptoms } from '../../engine/body';
 import { clock, dateLabel } from '../../engine/time';
 import { caps, carriedWeight, carryLimit, fmt, heldItems, itemsAt, itemType, type Ctx } from '../../engine/world';
@@ -27,7 +28,8 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
     ].filter(Boolean).join(' · ');
     return { t, extra };
   };
-  const canAct = ch.body.consciousness === 'awake';
+  // Кнопки — только для действий, которые движок сейчас разрешает (на точке и в «продолжение следует» их нет).
+  const avail = new Set(availableActions(ctx).filter((a) => a.enabled).map((a) => a.def.id));
   /** Ключи, телефон, лекарства, деньги: случайно оставить их — дорого обойдётся. */
   const drop = (i: (typeof held)[number], action: string) => {
     const t = itemType(ctx, i.type);
@@ -51,10 +53,10 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
                   <span className="grow">{t.name}</span><span className="muted small">{extra}</span>
                 </div>
                 {open === i.id && t.description && <div className="small muted" style={{ padding: '2px 0 6px' }}>{t.description}</div>}
-                {open === i.id && canAct && (
+                {open === i.id && avail.has(`u:drop1:${i.type}`) && (
                   <div className="row" style={{ padding: '4px 0 10px' }}>
                     <button className="btn" onClick={() => drop(i, `u:drop1:${i.type}`)}>{i.qty > 1 ? 'Оставить одну штуку' : 'Оставить здесь'}</button>
-                    {i.qty > 1 && <button className="btn" onClick={() => drop(i, `u:dropall:${i.type}`)}>Оставить все</button>}
+                    {i.qty > 1 && avail.has(`u:dropall:${i.type}`) && <button className="btn" onClick={() => drop(i, `u:dropall:${i.type}`)}>Оставить все</button>}
                   </div>
                 )}
               </div>
@@ -67,7 +69,7 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
           {here.length === 0 && <div className="muted">Ничего полезного на виду.</div>}
           {(allHere ? here : here.slice(0, HERE_SHOWN)).map((i) => {
             const { t, extra } = describe(i);
-            const takeable = !t.vehicle && t.weight <= 30000 && canAct;
+            const takeable = !t.vehicle && t.weight <= 30000 && avail.has(`u:take:${i.type}`);
             return (
               <div className="li" key={i.id}>
                 <span className="grow">{t.name}</span><span className="muted small">{extra}</span>
