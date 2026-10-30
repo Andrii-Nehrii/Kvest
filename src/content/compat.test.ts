@@ -10,7 +10,12 @@ import type { Content } from '../engine/content-types';
 import { newGame, play, replayPrefix, upgradeState, type ActionRecord } from '../engine/game';
 import { stateHash } from '../engine/rng';
 import type { GameState, PlayerId } from '../engine/types';
-import { act, refreshSave, START_TIME, type LocalSave } from '../app/session';
+import {
+  acceptInvite, acceptJoin, acceptPartnerSegment, act, createInvite, mySegmentCode, readInvite, refreshSave, START_TIME, type LocalSave,
+} from '../app/session';
+import { isServiceAction } from '../engine/actions';
+import { segmentFinished } from '../engine/game';
+import { unit } from '../engine/rng';
 import { content as c } from './index';
 
 const players = {
@@ -135,5 +140,31 @@ describe('обновление игры посреди участка', () => {
     expect(fresh.segment.length).toBe(1);
     expect(fresh.notice).toMatch(/отменены/);
     expect(fresh.state!.chars.A.scene).toBe('a_wake');
+  });
+});
+
+describe('контрольная точка на двух телефонах', () => {
+  const forms = (n: string) => ({ nom: n, gen: n, dat: n, acc: n, ins: n, pre: n });
+  const toCheckpoint = (save: LocalSave, tag: string): LocalSave => {
+    for (let i = 0; i < 300 && save.phase === 'playing' && !segmentFinished(c, save.state!, save.me); i++) {
+      const pool = availableActions({ s: save.state!, c, pid: save.me }).filter((a) => a.enabled && !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
+      const story = pool.filter((a) => !a.universal);
+      const from = story.length && unit(`${tag}:${i}`) < 0.9 ? story : pool;
+      save = act(c, save, [from[Math.floor(unit(`${tag}:${i}:p`) * from.length)].def.id]);
+    }
+    return save;
+  };
+
+  it('ход партнёра пришёл первым, приложение перезапустилось — свой код хода всё равно принимается', async () => {
+    const inv = await createInvite(c, 'A', { name: forms('А') });
+    const joined = await acceptInvite(c, await readInvite(c, inv.code), { name: forms('Б') });
+    let A = toCheckpoint(await acceptJoin(c, inv.save, joined.code), 'cp2ph:A');
+    const B = toCheckpoint(joined.save, 'cp2ph:B');
+    const before = stateHash(A.state);
+    A = await acceptPartnerSegment(c, A, await mySegmentCode(c, B));
+    expect(stateHash(A.state), 'слияние изменило сыгранный участок').toBe(before);
+    A = refreshSave(c, structuredClone(A));
+    const merged = await acceptPartnerSegment(c, B, await mySegmentCode(c, A));
+    expect(merged.cp!.mergedHash).toBe(A.cp!.mergedHash);
   });
 });

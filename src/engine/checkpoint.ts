@@ -99,6 +99,10 @@ export function controllerOf(s: GameState, pid: PlayerId): PlayerId {
  * (воспроизведённое из его журнала действий). Игрок, который не мог действовать, участка не имеет.
  */
 export function mergeSegments(c: Content, base: GameState, results: Partial<Record<PlayerId, GameState>>): GameState {
+  // Входы не трогаем: слитый мир дальше меняется (часы, сообщения), а без копий эти правки
+  // попадали бы в сыгранный участок игрока — и его код хода после перезапуска считался бы иначе.
+  base = clone(base);
+  results = clone(results);
   const pick = (pid: PlayerId) => results[pid] ?? results[controllerOf(base, pid)] ?? results[other(pid)] ?? base;
   const src: Sources = { A: pick('A'), B: pick('B') };
   const out = clone(base);
