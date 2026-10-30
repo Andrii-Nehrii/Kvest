@@ -8,7 +8,9 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "e2e": "npm run build && node scripts/e2e/run.cjs",
+    "e2e:quick": "npm run build && node scripts/e2e/run.cjs --quick"
   },
   "dependencies": {
     "react": "^19.3.1",

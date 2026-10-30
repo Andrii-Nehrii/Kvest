@@ -43,13 +43,17 @@ B — его девушка (iPhone). Владелец общается по-р�
 ```bash
 cd ~/immomio-project/kvest
 npx tsc --noEmit && npx vitest run      # типы + тесты (линтер сюжета, случайный игрок, два телефона)
+npm run e2e:quick                        # браузер: два телефона, облако (поддельный GitHub), файлы, вкладки (~7 мин)
+npm run e2e                              # то же + случайные нажатия по всем экранам (+10–15 мин)
 npm run build                            # PWA в dist/
 git push                                 # main → автосборка и выкладка на GitHub Pages (~2 мин)
 ```
 - Сайт: https://andrii-nehrii.github.io/Kvest/ . Remote — `git@github-kvest:…` (deploy key ~/.ssh/kvest_deploy).
 - Сохранения игроков: `git fetch origin saves:refs/remotes/origin/saves`, файлы `pairs/<id>/save-A|B.json`.
   Читать, чтобы понимать их прохождение; не коммитить их в main.
-- Проверка в браузере: playwright-core + `/usr/bin/google-chrome` (headless), `npx vite preview --port 4179`.
+- Проверка в браузере: сценарии в `scripts/e2e/` (Playwright + Chromium, сервер предпросмотра на порту 4179 поднимается
+  сам). Отдельный сценарий: `node scripts/e2e/run.cjs codes cloud --seed 3`. Запускать после каждой главы и крупных правок.
+  `update` дописывает в `dist/sw.js` — после прогона пересобрать.
 - Новые сцены — данные в `src/content/chapterN/`; id прошлых сцен/переменных/предметов не переименовывать
   (сохранения), поднимать `content.version` только при несовместимых изменениях.
 - Экономить лимит владельца: меньше лишних проверок, крупные шаги, коротко отчитываться.
