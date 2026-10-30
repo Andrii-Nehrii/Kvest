@@ -140,7 +140,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
             <h3>Общий мир</h3>
             <div className="world-code">{shortHash(cp.mergedHash!)}</div>
             <div className="small muted" style={{ margin: '6px 0 10px' }}>Сравните с партнёром — коды должны совпасть. {dateLabel(cp.merged.chars[save.me].time)}, {clock(cp.merged.chars[save.me].time)}.</div>
-            {fresh.map((e) => <p key={e.seq} className="story" style={{ fontSize: 15 }}>{e.text}</p>)}
+            {fresh.map((e) => <p key={e.seq} className="story">{e.text}</p>)}
           </section>
         )}
         {cp.merged && questions.length > 0 && (

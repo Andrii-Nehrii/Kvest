@@ -135,7 +135,7 @@ export function Journal({ ctx }: { ctx: Ctx }) {
     <div className="page">
       <div className="row" style={{ margin: '6px 0 10px' }}>
         {(['all', 'news', 'message', 'body'] as const).map((k) => (
-          <button key={k} className={`btn ${kind === k ? 'primary' : ''}`} style={{ minHeight: 44, padding: '0 8px', fontSize: 13 }} onClick={() => setKind(k)}>
+          <button key={k} className={`btn ${kind === k ? 'primary' : ''}`} style={{ minHeight: 44, padding: '0 8px', fontSize: 14 }} onClick={() => setKind(k)}>
             {{ all: 'Всё', news: 'Новости', message: 'Связь', body: 'Тело' }[k]}
           </button>
         ))}
