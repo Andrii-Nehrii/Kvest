@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { readdirSync, readFileSync } from 'node:fs';
 import react from '@vitejs/plugin-react';
 import type { Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
@@ -36,9 +37,19 @@ self.addEventListener('fetch', (e) => {
   };
 }
 
+/**
+ * Отпечаток кода движка: если у партнёров разные версии движка (одна обновилась, другая нет),
+ * контрольная точка сразу скажет «обновитесь оба», а не «воспроизвелось иначе».
+ */
+const engineDir = new URL('./src/engine/', import.meta.url);
+const engineHash = createHash('sha256')
+  .update(readdirSync(engineDir).filter((f) => f.endsWith('.ts') && !f.endsWith('.test.ts')).sort().map((f) => readFileSync(new URL(f, engineDir), 'utf8')).join('\n'))
+  .digest('hex').slice(0, 12);
+
 // base './' — приложение работает из любой папки (GitHub Pages: /kvest/).
 export default defineConfig({
   base: './',
+  define: { __ENGINE_HASH__: JSON.stringify(engineHash) },
   plugins: [react(), offlineServiceWorker()],
   test: { environment: 'node', include: ['src/**/*.test.ts'] },
 });

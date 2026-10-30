@@ -66,14 +66,14 @@ const clone = <T>(x: T): T => structuredClone(x);
 
 const builds = new WeakMap<Content, string>();
 /**
- * Отпечаток сборки сюжета: все данные и код погоды/связи. Если у партнёров он разный, их миры
+ * Отпечаток сборки: все данные сюжета, код погоды/связи и код движка. Если у партнёров он разный, их миры
  * посчитаются по-разному — это ловится сразу, с понятным текстом, а не загадочным расхождением.
  */
 export function contentBuild(c: Content): string {
   let b = builds.get(c);
   if (!b) {
     const { weather, network, ...data } = c;
-    b = stateHash(canonical(data) + String(weather) + String(network) + ENGINE_VERSION).slice(0, 12);
+    b = stateHash(canonical(data) + String(weather) + String(network) + ENGINE_VERSION + __ENGINE_HASH__).slice(0, 12);
     builds.set(c, b);
   }
   return b;
