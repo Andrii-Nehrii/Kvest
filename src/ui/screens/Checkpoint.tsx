@@ -172,7 +172,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
         )}
       </div>
       {readyToFinish(content, save) && (
-        <button className="btn primary block" onClick={() => onSave(finishCheckpoint(content, save))}>Завершить контрольную точку</button>
+        <button className="btn primary block" onClick={() => onSave(finishCheckpoint(content, save, { segment: segCode || undefined, answers: ansCode || undefined }))}>Завершить контрольную точку</button>
       )}
     </div>
   );
@@ -213,6 +213,7 @@ export function Resolution({ save, onClose }: { save: LocalSave; onClose: () => 
         );
       })}
       <Card title="Новый код мира"><div className="world-code">{shortHash(r.hash)}</div></Card>
+      {(save.cp!.sent?.segment || save.cp!.sent?.answers) && <div className="small muted">{fmt(ctx, 'Если {partner} ещё не {pm:получил|получила} твои коды этой точки — они остались в «Ещё».')}</div>}
       <Card title="Резервная копия" tone="warn"><div className="small">Сохрани файл игры (Ещё → Сохранение): браузер на телефоне может очистить данные.</div></Card>
       <button className="btn primary block" onClick={onClose}>Дальше</button>
     </div>

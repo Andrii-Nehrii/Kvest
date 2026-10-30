@@ -138,6 +138,7 @@ export function Create({ save, onSave, onBack, cloudToken }: { save?: LocalSave;
           <section className="card stepcard"><h3>Отправь партнёру</h3><CodeOut code={save.outgoing ?? ''} hint="Через Telegram, WhatsApp или SMS. Партнёр открывает игру → «У меня есть приглашение»." /></section>
           <section className="card stepcard"><h3>Вставь ответ партнёра</h3><CodeIn cta="Начать игру" onSubmit={async (t) => onSave(await acceptJoin(content, save, t))} /></section>
         </div>
+        <button className="btn block" style={{ marginTop: 12 }} onClick={() => { if (confirm('Отменить приглашение? Отправленный код перестанет работать.')) onBack(); }}>Отменить приглашение</button>
       </div>
     );
   }

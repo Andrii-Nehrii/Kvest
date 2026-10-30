@@ -1,7 +1,7 @@
 // «Ещё»: место и время, бытовые правила, сохранение, код мира, новая игра. Плюс экран финала.
 import { daylight, clock, dateLabel, durationLabel } from '../../engine/time';
 import { environment, network, phoneUsable, type Ctx } from '../../engine/world';
-import type { StandingRules } from '../../engine/types';
+import type { NpcState, StandingRules } from '../../engine/types';
 import { exportSave, worldCode, type LocalSave } from '../../app/session';
 import { START_TIME } from '../../app/session';
 import { content } from '../../content';
@@ -96,6 +96,13 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
       {save.outgoing && save.hashes.length <= 1 && (
         <Card title="Код для партнёра (приглашение/ответ)"><CodeOut code={save.outgoing} /></Card>
       )}
+      {save.cp?.result && save.cp.sent && (save.cp.sent.segment || save.cp.sent.answers) && (
+        <Card title={`Мои коды точки №${save.cp.index}`}>
+          <div className="small muted" style={{ marginBottom: 8 }}>Нужны, только если партнёр ещё стоит на этой точке и не получил их.</div>
+          {save.cp.sent.segment && <><div className="small"><b>Мой ход</b></div><CodeOut code={save.cp.sent.segment} /></>}
+          {save.cp.sent.answers && <><div className="small" style={{ marginTop: 10 }}><b>Мой ответ</b></div><CodeOut code={save.cp.sent.answers} /></>}
+        </Card>
+      )}
       <CloudCard cloud={cloud} onCloud={onCloud} onUpload={onUpload} />
       <Card title="Сохранение">
         <div className="small muted" style={{ marginBottom: 8 }}>Игра сохраняется сама после каждого действия. Файл — на случай, если телефон очистит данные браузера. В файле есть секрет вашей пары: не публикуй его.</div>
@@ -108,6 +115,10 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
     </div>
   );
 }
+
+const NPC_STATUS: Record<NpcState['status'], string> = {
+  ok: 'в порядке', injured: 'ранение', sick: 'болезнь', infected: 'заражение', turned: 'обращение', dead: 'нет в живых', missing: 'судьба неизвестна',
+};
 
 export function Ended({ save, onReset }: { save: LocalSave; onReset: () => void }) {
   const s = save.base!;
@@ -131,7 +142,7 @@ export function Ended({ save, onReset }: { save: LocalSave; onReset: () => void 
       </Card>
       <Card title="Люди">
         {Object.values(s.npcs).filter((n) => knownNpc(n, 'A', s.vars) || knownNpc(n, 'B', s.vars)).map((n) => (
-          <div className="li" key={n.id}><span className="grow">{content.npcs[n.id]?.name ?? n.id}</span><span className="tag">{n.alive ? n.status : 'погиб'}</span></div>
+          <div className="li" key={n.id}><span className="grow">{content.npcs[n.id]?.name ?? n.id}</span><span className="tag">{n.alive ? NPC_STATUS[n.status] : NPC_STATUS.dead}</span></div>
         ))}
       </Card>
       <button className="btn primary block" onClick={() => { if (confirm('Начать новую игру? Текущая будет удалена с телефона.')) onReset(); }}>Новая игра</button>

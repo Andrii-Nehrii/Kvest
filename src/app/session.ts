@@ -33,6 +33,8 @@ export interface CheckpointWork {
   myAnswers?: Record<string, string>;
   partnerAnswers?: Record<string, string>;
   result?: { joint: JointResult[]; hash: string };
+  /** Свои коды этой точки — переслать ещё раз, если партнёр не получил их до того, как точка была завершена. */
+  sent?: { segment?: string; answers?: string };
 }
 
 export interface LocalSave {
@@ -286,13 +288,13 @@ export function readyToFinish(c: Content, save: LocalSave): boolean {
   return true;
 }
 
-export function finishCheckpoint(c: Content, save: LocalSave): LocalSave {
+export function finishCheckpoint(c: Content, save: LocalSave, sent?: CheckpointWork['sent']): LocalSave {
   const cp = save.cp!;
   const out = completeCheckpoint(c, cp.merged!, { [save.me]: cp.myAnswers ?? {}, [partnerOf(save)]: cp.partnerAnswers ?? {} });
   const next: LocalSave = {
     ...save, phase: out.state.ended ? 'ended' : 'playing', base: out.state, baseHash: out.hash, state: clone(out.state),
     // От пройденной точки остаётся только итог: слитый мир и журнал партнёра больше не нужны.
-    segment: [], last: undefined, cp: { index: cp.index, myAnswers: cp.myAnswers, result: { joint: out.joint, hash: out.hash } }, hashes: [...save.hashes, out.hash],
+    segment: [], last: undefined, cp: { index: cp.index, myAnswers: cp.myAnswers, result: { joint: out.joint, hash: out.hash }, sent }, hashes: [...save.hashes, out.hash],
     playSeconds: 0, updatedAt: Date.now(),
   };
   return normalizePhase(c, next);
