@@ -117,13 +117,19 @@ export async function encode(p: Packet | Signed<Packet>): Promise<string> {
 }
 
 export async function decode(text: string): Promise<Signed<Packet> | Packet> {
-  const t = text.trim().replace(/\s+/g, '');
+  // Мессенджеры переносят длинные строки и дописывают подписи: берём только сам код после метки.
+  const t = text.replace(/\s+/g, '');
   const at = t.indexOf(PREFIX);
   if (at < 0) throw new Error('Это не код игры (нет метки KVEST1).');
-  const body = t.slice(at + PREFIX.length);
-  const bytes = unb64url(body.slice(1));
-  const raw = body[0] === 'z' ? await inflate(bytes) : bytes;
-  const obj = JSON.parse(new TextDecoder().decode(raw));
+  const body = /^[A-Za-z0-9_-]*/.exec(t.slice(at + PREFIX.length))![0];
+  let obj: { v?: number; type?: unknown };
+  try {
+    const bytes = unb64url(body.slice(1));
+    const raw = body[0] === 'z' ? await inflate(bytes) : bytes;
+    obj = JSON.parse(new TextDecoder().decode(raw));
+  } catch {
+    throw new Error('Код повреждён или обрезан — скопируй его целиком ещё раз.');
+  }
   if (obj?.v !== 1 || typeof obj.type !== 'string') throw new Error('Неизвестный формат кода.');
-  return obj;
+  return obj as Signed<Packet> | Packet;
 }

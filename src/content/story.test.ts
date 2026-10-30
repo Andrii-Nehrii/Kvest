@@ -1,7 +1,7 @@
 // Сквозная проверка сюжета главы 1: два «случайных, но разумных» игрока проходят участок 1, КТ 1,
 // участок 2 и КТ 2. Ловим тупики, исключения, недостижимые сцены и расхождения при воспроизведении.
 import { describe, expect, it } from 'vitest';
-import { availableActions, isServiceAction } from '../engine/actions';
+import { availableActions, isServiceAction, validatePlan } from '../engine/actions';
 import { evalCond } from '../engine/conditions';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks } from '../engine/checkpoint';
 import { newGame, play, replaySegment, segmentFinished, type ActionRecord } from '../engine/game';
@@ -41,7 +41,11 @@ function checkScreen(ctx: Ctx) {
 }
 
 /** Случайный игрок: в основном сюжетные действия, иногда — поесть/попить/передохнуть. */
-function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number) {
+/**
+ * chaos: «неаккуратный» игрок — иногда спит, бросает и подбирает вещи, переключает правила,
+ * выбирает несколько действий за раз. Так находят тупики, в которые сюжетный игрок не заходит.
+ */
+function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number, chaos = false) {
   const recs: ActionRecord[] = [];
   const visited = new Set<string>();
   let idle = 0;
@@ -49,20 +53,28 @@ function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number) {
   let sceneNow = s.chars[pid].scene;
   for (let step = 0; step < limit && !segmentFinished(c, s, pid); step++) {
     if (step % 3 === 0) checkScreen({ s, c, pid });
-    const all = availableActions({ s, c, pid }).filter((a) => a.enabled && !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
+    const avail = availableActions({ s, c, pid }).filter((a) => a.enabled);
+    const all = avail.filter((a) => !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
     const story = all.filter((a) => !a.universal);
     idle = story.length ? 0 : idle + 1;
     if (idle === 40) stuck.add(`${pid} только «подождать»: ${s.chars[pid].scene} @${s.chars[pid].location}`);
     if (s.chars[pid].scene !== sceneNow) { sceneNow = s.chars[pid].scene; sameScene = 0; }
     if (++sameScene === 80) stuck.add(`${pid} не выйти из сцены: ${sceneNow} @${s.chars[pid].location}`);
     const r = unit(`${tag}:${step}`);
-    const pool = story.length && r < 0.9 ? story : all;
+    const pool = chaos && r > 0.75 ? avail : story.length && r < 0.9 ? story : all;
     if (!pool.length) break;
     const pick = pool[Math.floor(unit(`${tag}:${step}:pick`) * pool.length)];
-    recs.push({ scene: s.chars[pid].scene, plan: [pick.def.id] });
+    // Иногда — план из нескольких совместимых действий подряд (как в интерфейсе).
+    const plan = [pick.def.id];
+    if (chaos && pick.def.combinable && unit(`${tag}:${step}:multi`) < 0.3) {
+      const more = avail.filter((a) => a.def.combinable && a.def.id !== pick.def.id && (a.def.group === undefined || a.def.group !== pick.def.group));
+      if (more.length) plan.push(more[Math.floor(unit(`${tag}:${step}:m2`) * more.length)].def.id);
+    }
+    if (plan.length > 1 && !validatePlan({ s, c, pid }, plan).ok) plan.pop();
+    recs.push({ scene: s.chars[pid].scene, plan });
     visited.add(s.chars[pid].scene);
-    const res = play(c, s, pid, [pick.def.id]);
-    for (const st of res.steps) st.text.forEach((t) => checkText(`${recs[recs.length - 1].scene}/${pick.def.id}`, t));
+    const res = play(c, s, pid, plan);
+    for (const st of res.steps) st.text.forEach((t) => checkText(`${recs[recs.length - 1].scene}/${plan.join('+')}`, t));
     checkText(`${pick.def.id} stopped`, res.stopped);
   }
   checkScreen({ s, c, pid });
@@ -206,5 +218,30 @@ describe('сюжет главы 1: полное прохождение двум�
     expect([...stuck], 'тупики').toEqual([]);
     expect(stats.cp1).toBeGreaterThanOrEqual(stats.runs * 0.9);
     expect(stats.cp2).toBeGreaterThanOrEqual(stats.runs * 0.9);
+  });
+
+  it('20 пар «неаккуратных» игроков (сон, вещи, правила, планы) — без ошибок, тупиков и расхождений', { timeout: 180000 }, () => {
+    let cp1 = 0;
+    const runs = 20;
+    for (let run = 0; run < runs; run++) {
+      const tag = `chaos-${run}`;
+      let base = newGame(c, setup(tag));
+      for (const seg of [1, 2]) {
+        const results = {} as Record<PlayerId, GameState>;
+        for (const pid of ['A', 'B'] as const) {
+          const s = structuredClone(base);
+          const r = playSegment(s, pid, `${tag}:${seg}:${pid}`, 320, true);
+          expect(stateHash(replaySegment(c, base, pid, r.recs))).toBe(stateHash(s));
+          results[pid] = s;
+        }
+        if (!(['A', 'B'] as const).every((p) => segmentFinished(c, results[p], p))) break;
+        if (seg === 1) cp1 += 1;
+        base = runCheckpoint(base, results, `${tag}:cp${seg}`).state;
+        if (base.ended) break;
+      }
+    }
+    expect([...badTexts], 'неподставленные шаблоны в текстах').toEqual([]);
+    expect([...stuck], 'тупики').toEqual([]);
+    expect(cp1).toBeGreaterThanOrEqual(runs * 0.8);
   });
 });

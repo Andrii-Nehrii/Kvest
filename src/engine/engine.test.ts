@@ -295,6 +295,10 @@ describe('пакеты синхронизации', () => {
     expect(await verify(back, secret)).toBe(true);
     expect(await verify({ ...back, actions: [{ scene: 'a_start', plan: ['stay'] }] }, secret)).toBe(false);
     expect(await verify(back, newSecret())).toBe(false);
+    // Как приходит из мессенджера: перенос строк посередине, подпись до и после.
+    const messy = `Вот код:\n${text.slice(0, 40)}\n${text.slice(40, 90)} ${text.slice(90)}\nОтправлено с iPhone`;
+    expect(await verify((await decode(messy)) as typeof signed, secret)).toBe(true);
+    await expect(decode(text.slice(0, text.length - 10))).rejects.toThrow(/повреждён|обрезан|подпис/);
   });
 });
 

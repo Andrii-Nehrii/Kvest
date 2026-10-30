@@ -38,6 +38,7 @@ export function App() {
   cloudRef.current = cloud;
   const prevSave = useRef<LocalSave | null | undefined>(undefined);
   const uploadChain = useRef<Promise<unknown>>(Promise.resolve());
+  const channel = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
     dbGet<LocalSave>('current').then((s) => {
@@ -52,7 +53,20 @@ export function App() {
     requestPersistence();
     const onUpdate = () => setUpdated(true);
     window.addEventListener('kvest-update', onUpdate);
-    return () => window.removeEventListener('kvest-update', onUpdate);
+    // Игра может быть открыта дважды (значок на экране и вкладка браузера) — хранилище у них общее.
+    // Чтобы старая копия не затёрла новые действия, каждая подхватывает то, что сохранила другая.
+    const reload = () => dbGet<LocalSave>('current').then((s) => {
+      setSave((cur) => {
+        if (!s) return null;
+        if (cur && cur.pairId === s.pairId && cur.updatedAt >= s.updatedAt) return cur;
+        return normalizePhase(content, s);
+      });
+    }).catch(() => {});
+    const bc = typeof BroadcastChannel !== 'undefined' ? new BroadcastChannel('kvest') : null;
+    if (bc) { bc.onmessage = reload; channel.current = bc; }
+    const onVisible = () => { if (document.visibilityState === 'visible') reload(); };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => { window.removeEventListener('kvest-update', onUpdate); document.removeEventListener('visibilitychange', onVisible); bc?.close(); };
   }, []);
 
   const updateCloud = (c: CloudConfig | null) => { setCloud(c); storeCloud(c).catch(() => {}); };
@@ -87,9 +101,13 @@ export function App() {
   }, [save]);
   useEffect(() => { if (toast) { const t = setTimeout(() => setToast(null), 3500); return () => clearTimeout(t); } }, [toast]);
 
-  const persist = (s: LocalSave | null) => {
+  const persist = (next: LocalSave | null) => {
+    // Метка времени — чтобы другая открытая копия игры поняла, что её версия устарела.
+    const s = next && { ...next, updatedAt: Math.max(Date.now(), (save?.updatedAt ?? 0) + 1) };
     setSave(s);
-    (s ? dbPut('current', s) : dbDelete('current')).catch(() => setToast({ text: 'Не удалось сохранить на телефоне — скачай файл сохранения.', bad: true }));
+    (s ? dbPut('current', s) : dbDelete('current'))
+      .then(() => channel.current?.postMessage('saved'))
+      .catch(() => setToast({ text: 'Не удалось сохранить на телефоне — скачай файл сохранения.', bad: true }));
   };
   const reset = () => { persist(null); setView('menu'); setTab('story'); setPendingJoin(undefined); };
 
