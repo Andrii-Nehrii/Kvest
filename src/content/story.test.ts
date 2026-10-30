@@ -16,6 +16,13 @@ import { bTownScenes } from './chapter1/b_town';
 import { openingScenes } from './chapter1/opening';
 import { content as c } from './index';
 
+// Данные сюжета заморожены: если игра где-то их меняет, одинаковые журналы на двух телефонах
+// посчитаются по-разному (у одного данные уже «поиграны»). Изменение тут же упадёт с TypeError.
+const freeze = (o: unknown, seen = new Set<unknown>()) => {
+  if (o && typeof o === 'object' && !seen.has(o)) { seen.add(o); Object.freeze(o); for (const v of Object.values(o)) freeze(v, seen); }
+};
+freeze(c);
+
 const forms = (n: string) => ({ nom: n, gen: n, dat: n, acc: n, ins: n, pre: n });
 const setup = (seed: string) => ({ pairId: 'p', seed, startTime: START_TIME, players: { A: { name: forms('Андрей') }, B: { name: forms('Аня') } } });
 
