@@ -2,10 +2,12 @@
 // участок 2 и КТ 2. Ловим тупики, исключения, недостижимые сцены и расхождения при воспроизведении.
 import { describe, expect, it } from 'vitest';
 import { availableActions, isServiceAction } from '../engine/actions';
+import { evalCond } from '../engine/conditions';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks } from '../engine/checkpoint';
 import { newGame, play, replaySegment, segmentFinished, type ActionRecord } from '../engine/game';
 import { stateHash, unit } from '../engine/rng';
 import type { Effect, GameState, PlayerId } from '../engine/types';
+import { fmt, type Ctx } from '../engine/world';
 import { START_TIME } from '../app/session';
 import { aRoadScenes } from './chapter1/a_road';
 import { aTownScenes } from './chapter1/a_town';
@@ -17,11 +19,23 @@ import { content as c } from './index';
 const forms = (n: string) => ({ nom: n, gen: n, dat: n, acc: n, ins: n, pre: n });
 const setup = (seed: string) => ({ pairId: 'p', seed, startTime: START_TIME, players: { A: { name: forms('Андрей') }, B: { name: forms('Аня') } } });
 
+/** Тексты на экране после подстановок: без шаблонов, «undefined» и т.п. */
+const badTexts = new Set<string>();
+const BAD = /[{}]|undefined|NaN|\[object|\bnull\b/;
+const checkText = (where: string, t: string | undefined) => { if (t && BAD.test(t)) badTexts.add(`${where}: ${t.slice(0, 120)}`); };
+
+function checkScreen(ctx: Ctx) {
+  const sc = c.scenes[ctx.s.chars[ctx.pid].scene];
+  for (const b of sc.text) if (evalCond(ctx, b.when)) checkText(sc.id, fmt(ctx, b.text));
+  for (const a of availableActions(ctx)) { checkText(`${sc.id}/${a.def.id}`, fmt(ctx, a.def.label)); checkText(`${sc.id}/${a.def.id}`, a.reason); }
+}
+
 /** Случайный игрок: в основном сюжетные действия, иногда — поесть/попить/передохнуть. */
 function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number) {
   const recs: ActionRecord[] = [];
   const visited = new Set<string>();
   for (let step = 0; step < limit && !segmentFinished(c, s, pid); step++) {
+    if (step % 3 === 0) checkScreen({ s, c, pid });
     const all = availableActions({ s, c, pid }).filter((a) => a.enabled && !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
     const story = all.filter((a) => !a.universal);
     const r = unit(`${tag}:${step}`);
@@ -30,8 +44,11 @@ function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number) {
     const pick = pool[Math.floor(unit(`${tag}:${step}:pick`) * pool.length)];
     recs.push({ scene: s.chars[pid].scene, plan: [pick.def.id] });
     visited.add(s.chars[pid].scene);
-    play(c, s, pid, [pick.def.id]);
+    const res = play(c, s, pid, [pick.def.id]);
+    for (const st of res.steps) st.text.forEach((t) => checkText(`${recs[recs.length - 1].scene}/${pick.def.id}`, t));
+    checkText(`${pick.def.id} stopped`, res.stopped);
   }
+  checkScreen({ s, c, pid });
   visited.add(s.chars[pid].scene);
   return { recs, visited, finished: segmentFinished(c, s, pid) };
 }
@@ -47,10 +64,20 @@ function runCheckpoint(base: GameState, results: Record<PlayerId, GameState>, ta
     const d = c.joint[id];
     for (const p of participants(c, merged, d)) {
       const opts = optionsFor(c, merged, d, p);
+      const ctx: Ctx = { s: merged, c, pid: p };
+      checkText(`${id} prompt`, fmt(ctx, d.prompt[p] ?? d.prompt.default));
+      for (const o of opts) checkText(`${id}/${o.id}`, fmt(ctx, o.label[p] ?? o.label.default));
       (answers[p] ??= {})[id] = opts[Math.floor(unit(`${tag}:${id}:${p}`) * opts.length)].id;
     }
   }
-  return completeCheckpoint(c, merged, answers);
+  const out = completeCheckpoint(c, merged, answers);
+  for (const j of out.joint) for (const p of ['A', 'B'] as const) {
+    const ctx: Ctx = { s: out.state, c, pid: p };
+    checkText(`${j.id} reason`, fmt(ctx, j.reason));
+    for (const o of j.applied) checkText(`${j.id}/${o}`, fmt(ctx, c.joint[j.id].options.find((x) => x.id === o)?.text ?? ''));
+  }
+  for (const e of out.state.log) checkText(`log ${e.kind}`, e.text);
+  return out;
 }
 
 describe('сюжет главы 1: полное прохождение двумя игроками', () => {
@@ -138,6 +165,7 @@ describe('сюжет главы 1: полное прохождение двум�
     const hh = (t: number) => `${Math.floor(((t % 1440) + 1440) % 1440 / 60)}:${String(((t % 1440) + 1440) % 1440 % 60).padStart(2, '0')}`;
     console.log(`КТ1: ${stats.cp1}/${stats.runs}, КТ2: ${stats.cp2}/${stats.runs}; решений до КТ1 ~${med(stats.steps1)}, до КТ2 ~${med(stats.steps2)}; время КТ1 ~${hh(med(stats.t1))}, КТ2 ~${hh(med(stats.t2))}`);
     console.log(`Не посещены случайными игроками: ${Object.keys(c.scenes).filter((id) => !visited.has(id)).join(', ')}`);
+    expect([...badTexts], 'неподставленные шаблоны в текстах').toEqual([]);
     expect(stats.cp1).toBeGreaterThanOrEqual(stats.runs * 0.9);
     expect(stats.cp2).toBeGreaterThanOrEqual(stats.runs * 0.9);
   });
