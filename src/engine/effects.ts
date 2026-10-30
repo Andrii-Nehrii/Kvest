@@ -14,6 +14,8 @@ export interface EffectResult {
   interrupted: boolean;
   notes: string[];
   goto?: string;
+  /** Действие не удалось (машина заглохла): переход в следующую сцену не выполняется. */
+  stay?: boolean;
 }
 
 function targetPid(ctx: Ctx, t: PlayerId | '$' | '@partner' | undefined): PlayerId {
@@ -163,7 +165,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   if ('rule' in e) { ch.rules[e.rule] = e.value; return; }
   if ('drive' in e) {
     const problem = drive(ctx, e.drive, e.km, e.to, e.jam);
-    if (problem) { out.notes.push(problem); log(ctx, 'item', problem); out.interrupted = true; }
+    if (problem) { out.notes.push(problem); log(ctx, 'item', problem); out.interrupted = true; out.stay = true; }
     return;
   }
   if ('refuel' in e) { const t2 = refuel(ctx, e.refuel, e.liters, e.fromCan); out.notes.push(t2); log(ctx, 'item', t2); return; }

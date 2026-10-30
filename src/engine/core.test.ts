@@ -13,7 +13,8 @@ import { advanceTime, applyStandingRules } from './simulate';
 import { testContent, testSetup } from './test-content';
 import { at } from './time';
 import type { GameState, PlayerId } from './types';
-import { carryLimit, countItem, environment, heldItems, type Ctx } from './world';
+import { carriedWeight, carryLimit, countItem, environment, heldItems, type Ctx } from './world';
+import { evalCond } from './conditions';
 
 const clone = <T,>(x: T): T => structuredClone(x);
 /** Вариант тестового мира: данные копируются, функции (погода, отопление) — те же. */
@@ -290,5 +291,39 @@ describe('вещи', () => {
     s.vars['w.x'] = 'abc';
     applyEffects(ctxOf(s, 'A'), [{ add: 'w.x', value: 2 }]);
     expect(s.vars['w.x']).toBe(2);
+  });
+});
+
+describe('машина, канистра, заряд', () => {
+  it('бензин кончился в пути: персонаж остаётся в сцене, а не «приезжает»', () => {
+    const c = variant((x) => {
+      x.scenes.a_start.actions.push({ id: 'far', label: 'Уехать далеко', minutes: 60, goto: 'a_start2', terminal: true, effects: [{ drive: 'golf', km: 2000, to: 'flatB' }] });
+      x.scenes.a_start2 = { id: 'a_start2', for: 'A', chapter: 't', location: 'flatB', text: [], actions: [] };
+    });
+    const s = newGame(c, testSetup);
+    const ctx: Ctx = { s, c, pid: 'A' };
+    applyEffects(ctx, [{ give: 'golf', fuel: 10 }]);
+    const car = heldItems(ctx).find((i) => i.type === 'golf')!;
+    car.at = { kind: 'place', id: s.chars.A.location };
+    play(c, s, 'A', ['far']);
+    expect(s.chars.A.scene).toBe('a_start');
+    expect(s.chars.A.location).toBe('flatA');
+    expect(car.fuel).toBe(0);
+  });
+
+  it('канистра весит вместе с топливом', () => {
+    const s = newGame(testContent, testSetup);
+    const ctx: Ctx = { s, c: testContent, pid: 'A' };
+    const before = carriedWeight(ctx);
+    applyEffects(ctx, [{ give: 'can_petrol', fuel: 10 }]);
+    expect(carriedWeight(ctx) - before).toBe(1000 + 7400);
+  });
+
+  it('условие «заряжено не меньше» смотрит на заряд, а не на наличие', () => {
+    const s = newGame(testContent, testSetup);
+    const ctx: Ctx = { s, c: testContent, pid: 'A' };
+    expect(evalCond(ctx, { charged: 'phone', atLeast: 50 })).toBe(true);
+    heldItems(ctx).find((i) => i.type === 'phone')!.charge = 10;
+    expect(evalCond(ctx, { charged: 'phone', atLeast: 50 })).toBe(false);
   });
 });

@@ -299,7 +299,7 @@ export function executePlan(ctx: Ctx, ids: string[]): PlanResult {
 
     if (eff.interrupted || adv.interrupted) interrupt = true;
     if (canAct(ch.body)) applyStandingRules(ctx);
-    if (goto && canAct(ch.body)) {
+    if (goto && canAct(ch.body) && !eff.stay) {
       const enter = enterScene(ctx, goto);
       if (ctx.c.scenes[goto].checkpoint !== undefined) result.checkpointReached = ctx.c.scenes[goto].checkpoint;
       if (enter.interrupted) interrupt = true;

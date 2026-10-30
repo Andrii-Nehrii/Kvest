@@ -284,6 +284,8 @@ export type Cond =
   | { partnerKnows: string }
   /** Предмет такого типа лежит/стоит в этом месте (например, машина на парковке). */
   | { itemAt: string; place: string }
+  /** У игрока есть вещь (тип или тег) с зарядом не меньше atLeast (пауэрбанк, антисептик). */
+  | { charged: string; atLeast: number }
   | { project: string; done?: boolean; progress?: [CmpOp, number] }
   | { stocked: string; qty: number; at?: string }
   | { always: true };

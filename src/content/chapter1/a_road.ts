@@ -158,7 +158,7 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
         text: '— Ночью у Phoenix толпа, кто-то бросался на машины, на капоты — прямо как в кино, только без музыки. Мне разбили лобовое, я поехал — и в столб. — Он трогает пластырь. — Телефон сел, зарядка в машине, машина там. Думал, пешком дойду до Дениза. Двадцать километров под дождём…',
         effects: [{ learn: 'f_kerem_story' }, { npc: 'kerem', trust: 5 }] },
       { id: 'charge', label: 'Дать ему подзарядить телефон от пауэрбанка', minutes: 3, combinable: true,
-        when: { all: [{ hasTag: 'powerbank' }, { not: { flag: '$.kerem_charged' } }] },
+        when: { all: [{ charged: 'powerbank', atLeast: 15 }, { not: { flag: '$.kerem_charged' } }] },
         text: 'Керем держит телефон так, будто это живое. Экран загорается. Пачка сообщений — от Дениза, одно за другим.',
         effects: [{ charge: 'powerbank', delta: -15 }, { set: '$.kerem_charged', value: true }, { npc: 'kerem', trust: 8 }, { npc: 'deniz', trust: 5 }] },
       { id: 'ride', label: 'Предложить отвезти его к Денизу', minutes: 10, terminal: true, goto: 'a_harburg1',

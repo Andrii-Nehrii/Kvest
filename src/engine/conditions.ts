@@ -3,7 +3,7 @@ import { canAct, isDead, isIncapacitated } from './body';
 import { daylight } from './time';
 import type { CmpOp, Cond, Scalar } from './types';
 import { other } from './types';
-import { caps, countItem, countTag, getVar, me, network, phoneUsable, type Ctx } from './world';
+import { caps, countItem, countTag, getVar, heldItems, me, network, phoneUsable, type Ctx } from './world';
 
 export function cmp(a: Scalar | undefined, op: CmpOp, b: Scalar): boolean {
   if (a === undefined) a = typeof b === 'number' ? 0 : typeof b === 'boolean' ? false : '';
@@ -84,6 +84,9 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   }
   if ('partnerAt' in c) return ctx.s.chars[other(ctx.pid)].location === c.partnerAt;
   if ('partnerKnows' in c) return !!ctx.s.knowledge[other(ctx.pid)][c.partnerKnows];
+  if ('charged' in c) {
+    return heldItems(ctx).some((i) => (i.type === c.charged || ctx.c.items[i.type]?.tags.includes(c.charged)) && (i.charge ?? 0) >= c.atLeast);
+  }
   if ('itemAt' in c) return Object.values(ctx.s.items).some((i) => i.type === c.itemAt && i.qty > 0 && i.at.kind === 'place' && i.at.id === c.place);
   if ('project' in c) {
     if (c.done !== undefined && projectDone(ctx, c.project) !== c.done) return false;

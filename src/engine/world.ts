@@ -94,7 +94,11 @@ export function countTag(ctx: Ctx, tag: string, pid: PlayerId = ctx.pid): number
 }
 
 export function carriedWeight(ctx: Ctx, pid: PlayerId = ctx.pid): number {
-  return heldItems(ctx, pid).reduce((g, i) => g + itemType(ctx, i.type).weight * i.qty, 0);
+  // Канистра весит вместе с топливом: бензин ~0,74 кг/л, дизель ~0,84 кг/л.
+  return heldItems(ctx, pid).reduce((g, i) => {
+    const t = itemType(ctx, i.type);
+    return g + t.weight * i.qty + (t.fuelCan ? Math.round((i.fuel ?? 0) * (t.fuelCan.fuel === 'diesel' ? 840 : 740)) : 0);
+  }, 0);
 }
 
 /** Комфортная нагрузка: 10 кг + 2,5 кг за единицу силы. Сверх неё растёт усталость. */
