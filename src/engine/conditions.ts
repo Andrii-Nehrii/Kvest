@@ -84,6 +84,7 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   }
   if ('partnerAt' in c) return ctx.s.chars[other(ctx.pid)].location === c.partnerAt;
   if ('partnerKnows' in c) return !!ctx.s.knowledge[other(ctx.pid)][c.partnerKnows];
+  if ('itemAt' in c) return Object.values(ctx.s.items).some((i) => i.type === c.itemAt && i.qty > 0 && i.at.kind === 'place' && i.at.id === c.place);
   if ('project' in c) {
     if (c.done !== undefined && projectDone(ctx, c.project) !== c.done) return false;
     if (c.progress && !cmp(projectProgress(ctx, c.project), c.progress[0], c.progress[1])) return false;

@@ -58,8 +58,10 @@ export function clamp(x: number, lo: number, hi: number): number {
   return x < lo ? lo : x > hi ? hi : x;
 }
 
+const POW10 = [1, 10, 100, 1000, 10000, 100000, 1000000];
+
 /** Округление, чтобы плавающая точка не давала разные хэши на разных устройствах. */
 export function round(x: number, digits = 3): number {
-  const f = 10 ** digits;
+  const f = POW10[digits] ?? 10 ** digits;
   return Math.round(x * f) / f;
 }

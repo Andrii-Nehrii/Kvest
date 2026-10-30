@@ -274,6 +274,8 @@ export type Cond =
   | { partnerAt: string }
   /** Партнёр знает этот факт (для обмена новостями при встрече на контрольной точке). */
   | { partnerKnows: string }
+  /** Предмет такого типа лежит/стоит в этом месте (например, машина на парковке). */
+  | { itemAt: string; place: string }
   | { project: string; done?: boolean; progress?: [CmpOp, number] }
   | { stocked: string; qty: number; at?: string }
   | { always: true };

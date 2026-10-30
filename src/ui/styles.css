@@ -81,6 +81,7 @@ button { cursor: pointer; }
 .plan-inner { pointer-events: auto; width: 100%; max-width: 680px; margin: 0 10px 10px; padding: 12px; border-radius: 18px;
   background: var(--surface-2); border: 1px solid var(--line); box-shadow: 0 -8px 30px #0008; animation: rise .2s ease; }
 @keyframes rise { from { transform: translateY(12px); opacity: 0; } to { transform: none; opacity: 1; } }
+.plan-rows { max-height: 24vh; overflow-y: auto; }
 .plan-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 14px; }
 .plan-row .n { color: var(--accent); width: 18px; font-weight: 600; }
 .plan-row .t { flex: 1; }

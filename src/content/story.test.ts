@@ -26,6 +26,9 @@ freeze(c);
 const forms = (n: string) => ({ nom: n, gen: n, dat: n, acc: n, ins: n, pre: n });
 const setup = (seed: string) => ({ pairId: 'p', seed, startTime: START_TIME, players: { A: { name: forms('Андрей') }, B: { name: forms('Аня') } } });
 
+/** Тупики: много шагов подряд без единого сюжетного действия (только «подождать»). */
+const stuck = new Set<string>();
+
 /** Тексты на экране после подстановок: без шаблонов, «undefined» и т.п. */
 const badTexts = new Set<string>();
 const BAD = /[{}]|undefined|NaN|\[object|\bnull\b/;
@@ -41,10 +44,13 @@ function checkScreen(ctx: Ctx) {
 function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number) {
   const recs: ActionRecord[] = [];
   const visited = new Set<string>();
+  let idle = 0;
   for (let step = 0; step < limit && !segmentFinished(c, s, pid); step++) {
     if (step % 3 === 0) checkScreen({ s, c, pid });
     const all = availableActions({ s, c, pid }).filter((a) => a.enabled && !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
     const story = all.filter((a) => !a.universal);
+    idle = story.length ? 0 : idle + 1;
+    if (idle === 40) stuck.add(`${pid} ${s.chars[pid].scene} @${s.chars[pid].location}`);
     const r = unit(`${tag}:${step}`);
     const pool = story.length && r < 0.9 ? story : all;
     if (!pool.length) break;
@@ -112,7 +118,17 @@ describe('сюжет главы 1: полное прохождение двум�
     expect(Object.keys(c.scenes).filter((id) => !seen.has(id))).toEqual([]);
   });
 
-  it('после КТ 1 из любого места, где игрок мог оказаться, есть куда идти', () => {
+  it('после КТ 1 из любого места, где игрок мог оказаться, есть куда идти — и это можно сделать', () => {
+    /** Есть доступный выход из сцены сразу или через пару доступных действий (дойти до машины и т.п.). */
+    const wayOut = (s: GameState, pid: PlayerId, depth = 2): boolean => {
+      const acts = availableActions({ s, c, pid }).filter((a) => a.enabled && !a.universal);
+      if (acts.some((a) => a.def.terminal || a.def.goto)) return true;
+      return depth > 0 && acts.some((a) => {
+        const t = structuredClone(s);
+        play(c, t, pid, [a.def.id]);
+        return t.chars[pid].scene !== s.chars[pid].scene || wayOut(t, pid, depth - 1);
+      });
+    };
     const bad: string[] = [];
     for (const pid of ['A', 'B'] as const) {
       const places = new Set<string>();
@@ -128,13 +144,23 @@ describe('сюжет главы 1: полное прохождение двум�
         for (const a of sc.actions) { walk(a.effects); a.outcomes?.forEach((o) => walk(o.effects)); }
       }
       const after = pid === 'A' ? 'a2_after_call' : 'b2_after_call';
+      // A: ключи в кармане или нет; машина — во дворе, как в начале игры.
+      const variants = pid === 'A' ? ['keys', 'no_keys'] : ['-'];
       for (const plan of ['wait', 'harburg', pid === 'A' ? 'to_b' : 'to_a']) {
         for (const loc of places) {
-          const s = newGame(c, setup('exits'));
-          s.chars[pid].scene = after;
-          s.chars[pid].location = loc;
-          s.vars[pid === 'A' ? 'w.plan_a' : 'w.plan_b'] = plan;
-          if (!availableActions({ s, c, pid }).some((a) => !a.universal && (a.def.terminal || a.def.goto))) bad.push(`${pid} ${plan} @${loc}`);
+          for (const v of variants) {
+            const s = newGame(c, setup('exits'));
+            s.chars[pid].scene = after;
+            s.chars[pid].location = loc;
+            s.vars[pid === 'A' ? 'w.plan_a' : 'w.plan_b'] = plan;
+            // Машина там, куда на ней приехали: за городом — на месте, у вокзала Harburg — на парковке.
+            const car = Object.values(s.items).find((i) => i.type === 'opel_corsa');
+            const town = ['a_flat', 'a_stairs', 'a_yard', 'a_street', 'a_brockmann', 'a_house7', 'a_market'];
+            if (pid === 'A' && car && !town.includes(loc)) car.at = { kind: 'place', id: ['harburg_station', 'harburg_kerem'].includes(loc) ? 'harburg' : loc };
+            const keys = Object.values(s.items).find((i) => i.type === 'car_keys');
+            if (pid === 'A' && keys) keys.at = v === 'keys' ? { kind: 'char', id: 'A' } : { kind: 'place', id: 'a_hospital' };
+            if (!wayOut(s, pid)) bad.push(`${pid} ${plan} @${loc} ${v}`);
+          }
         }
       }
     }
@@ -173,6 +199,7 @@ describe('сюжет главы 1: полное прохождение двум�
     console.log(`КТ1: ${stats.cp1}/${stats.runs}, КТ2: ${stats.cp2}/${stats.runs}; решений до КТ1 ~${med(stats.steps1)}, до КТ2 ~${med(stats.steps2)}; время КТ1 ~${hh(med(stats.t1))}, КТ2 ~${hh(med(stats.t2))}`);
     console.log(`Не посещены случайными игроками: ${Object.keys(c.scenes).filter((id) => !visited.has(id)).join(', ')}`);
     expect([...badTexts], 'неподставленные шаблоны в текстах').toEqual([]);
+    expect([...stuck], 'тупики: только «подождать» 40 шагов подряд').toEqual([]);
     expect(stats.cp1).toBeGreaterThanOrEqual(stats.runs * 0.9);
     expect(stats.cp2).toBeGreaterThanOrEqual(stats.runs * 0.9);
   });

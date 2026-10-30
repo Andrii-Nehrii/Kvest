@@ -14,12 +14,38 @@ const atHome: Cond = { any: [{ at: 'a_flat' }, { at: 'a_stairs' }, { at: 'a_yard
 const keremInCar: Cond = { npc: 'kerem', at: 'a_car' };
 const inCar = { outdoor: false, tempC: 17 };
 
-/** Вернуться к месту, где A сейчас находится (после КТ 1, если едет не он). */
-const backToPlace: ActionDef[] = [
+/** Сцена, в которую A возвращается из «После звонка», — по месту, где он стоит. */
+const PLACE_SCENES = [
   ['a_flat', 'a_wake'], ['a_stairs', 'a_tbc'], ['a_brockmann', 'a_tbc'], ['a_yard', 'a_yard'], ['a_street', 'a_street'], ['a_house7', 'a_yard'],
   ['a_market', 'a_market'], ['a_gas', 'a_gas'], ['deniz_workshop', 'a_deniz'], ['a_hospital', 'a_hosp_lot'], ['hof_luedemann', 'a_farm_gate'],
   ['a_road', 'a_road1'], ['harburg_station', 'a_harburg_station'], ['harburg_kerem', 'a_harburg1'],
-].map(([loc, scene]) => ({ id: `back_${loc}`, label: 'Вернуться к делам', minutes: 1, terminal: true, goto: scene, when: { all: [{ not: travels }, { at: loc }] } }));
+];
+
+/** Вернуться к месту, где A сейчас находится (после КТ 1, если едет не он). */
+const backToPlace: ActionDef[] = PLACE_SCENES.map(([loc, scene]) => ({ id: `back_${loc}`, label: 'Вернуться к делам', minutes: 1, terminal: true, goto: scene, when: { all: [{ not: travels }, { at: loc }] } }));
+
+// Решено ехать, а машины рядом нет (A дошёл куда-то пешком) или нет ключей: дойти до машины —
+// или отложить дорогу и вернуться к делам. Без этого «Сесть за руль» оставалось единственным, недоступным действием.
+const canStart: Cond = { all: [carHere, { has: 'car_keys' }] };
+const TOWN = ['a_flat', 'a_stairs', 'a_yard', 'a_street', 'a_brockmann', 'a_house7', 'a_market'];
+const NEAR_HOME = ['a_flat', 'a_stairs', 'a_yard', 'a_street', 'a_brockmann', 'a_house7'];
+const walkToCar: ActionDef[] = ['a_yard', 'a_street', 'a_market'].flatMap((spot): ActionDef[] => {
+  const carThere: Cond = { itemAt: 'opel_corsa', place: spot };
+  const near = NEAR_HOME.includes(spot);
+  return [
+    { id: `walk_car_${spot}`, label: 'Дойти пешком до машины', minutes: 15, activity: 'light', combinable: true,
+      when: { all: [travels, carThere, { not: { at: spot } }, { any: TOWN.filter((l) => !near || !NEAR_HOME.includes(l)).map((l) => ({ at: l })) }] },
+      effects: [{ move: spot }] },
+    ...(near && spot !== 'a_yard' ? [{ id: `near_car_${spot}`, label: 'Дойти до машины', minutes: 3, combinable: true,
+      when: { all: [travels, carThere, { not: { at: spot } }, { any: NEAR_HOME.map((l) => ({ at: l })) }] },
+      effects: [{ move: spot }] } as ActionDef] : []),
+  ];
+});
+const postpone: ActionDef[] = PLACE_SCENES.map(([loc, scene]) => ({ id: `later_${loc}`, label: 'Отложить дорогу и вернуться к делам', minutes: 1, terminal: true, goto: scene,
+  when: { all: [travels, { at: loc }, { not: canStart }] } }));
+/** У вокзала Harburg без ключей: уехать не на чем — вернуться к машине и решать там. */
+const strandedHarburg: ActionDef = { id: 'later_harburg', label: 'Вернуться к делам', minutes: 1, terminal: true, goto: 'a_harburg1',
+  when: { all: [{ not: travels }, { at: 'harburg' }, { not: canStart }] } };
 
 export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
   // ───────────── В больницу с Брокманами ─────────────
@@ -170,6 +196,10 @@ export const aRoadScenes: Record<string, Scene> = Object.fromEntries([
         when: { all: [planA('to_b'), { at: 'harburg' }] } },
       driveAction('return', 'Вернуться в Buchholz', 20, 30, 'a_yard', 'a_yard', { when: { all: [{ not: travels }, { at: 'harburg' }] } }),
       ...backToPlace,
+      ...walkToCar,
+      ...postpone,
+      strandedHarburg,
+      ...aTail(),
     ],
   }),
   S({

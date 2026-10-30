@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { availableActions, currentScene, isServiceAction, validatePlan, type AvailableAction } from '../../engine/actions';
 import { evalCond } from '../../engine/conditions';
 import { durationLabel } from '../../engine/time';
@@ -18,6 +18,20 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
   const daily = all.filter((a) => a.universal);
   const byId = new Map(all.map((a) => [a.def.id, a]));
   const check = sel.length ? validatePlan(ctx, sel) : null;
+  // Панель плана закреплена внизу: под ней оставляем ровно столько места, сколько она занимает,
+  // иначе нижние действия оказываются под панелью и их не нажать.
+  const planRef = useRef<HTMLDivElement>(null);
+  const [planH, setPlanH] = useState(0);
+  const planOpen = sel.length > 0;
+  useLayoutEffect(() => {
+    const el = planRef.current;
+    if (!el) { setPlanH(0); return; }
+    setPlanH(el.offsetHeight);
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setPlanH(el.offsetHeight));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [planOpen]);
 
   const toggle = (a: AvailableAction) => {
     if (!a.enabled && !(a.def.requiresDone?.length)) return;
@@ -73,8 +87,8 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
 
       {sel.length > 0 && (
         <div className="plan">
-          <div className="plan-inner">
-            {sel.map((id, i) => (
+          <div className="plan-inner" ref={planRef}>
+            <div className="plan-rows">{sel.map((id, i) => (
               <div className="plan-row" key={id}>
                 <span className="n">{i + 1}</span>
                 <span className="t">{fmt(ctx, byId.get(id)?.def.label ?? id)}</span>
@@ -84,7 +98,7 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
                 </>}
                 <button className="icon-btn" onClick={() => setSel(sel.filter((x) => x !== id))} aria-label="Убрать"><Icon name="x" size={16} /></button>
               </div>
-            ))}
+            ))}</div>
             {check && !check.ok && <div className="errors">{check.errors.join(' ')}</div>}
             <div className="row" style={{ marginTop: 8 }}>
               <button className="btn" onClick={() => setSel([])}>Отмена</button>
@@ -95,7 +109,7 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
           </div>
         </div>
       )}
-      {sel.length > 0 && <div style={{ height: 70 + sel.length * 42 }} />}
+      {planOpen && <div style={{ height: planH + 16 }} />}
     </div>
   );
 }
