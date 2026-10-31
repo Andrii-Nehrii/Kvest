@@ -19,6 +19,10 @@ import { nightScenes } from './chapter2/night';
 import { agenda2, events2, facts2, locations2, npcs2 } from './chapter2/world2';
 import type { NpcDef } from '../engine/content-types';
 
+import { scenes3 } from './chapter3';
+import { checkpoints3, focus, next } from './chapter3/kt5';
+import { agenda3, bases3, events3, facts3, locations3, projects3, stock3 } from './chapter3/world3';
+
 const characters: Record<'A' | 'B', CharacterTemplate> = {
   A: {
     pid: 'A', gender: 'm', startScene: 'a_wake', startLocation: 'a_flat',
@@ -72,10 +76,10 @@ const kt3Next = { A: dayRoutes(nightRoutes()), B: dayRoutes(nightRoutes()) };
 export const content: Content = {
   version: 'beta-0.1',
   epochLabel: '10.11.2026',
-  items, locations: { ...locations, ...locations2 }, routes: [],
-  scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes })),
-  facts: { ...facts, ...facts2 }, npcs: { ...withAgenda(npcs, agenda2), ...npcs2 }, events: [...events, ...events2],
-  joint: { ...joint, ...joint3 }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4], messages, characters,
+  items: { ...items, c3_hose: { id: 'c3_hose', name: 'шланг с хомутами', weight: 800, tags: ['parts'] } }, locations: { ...locations, ...locations2, ...locations3 }, routes: [],
+  scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes, ...scenes3 })),
+  facts: { ...facts, ...facts2, ...facts3 }, npcs: withAgenda({ ...withAgenda(npcs, agenda2), ...npcs2 }, agenda3), events: [...events, ...events2, ...events3],
+  joint: { ...joint, ...joint3, c3_focus: focus, c3_next: next }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4, ...checkpoints3], messages, characters,
   partnerContactAfter: CONTACT_AFTER,
   initialVars: {
     'w.power.buchholz': 'off', 'w.power.buchholz.since': at(10, 5, 10),
@@ -84,7 +88,9 @@ export const content: Content = {
     // Кого персонажи знают с самого начала (соседи).
     'A.met.ilse': true, 'A.met.gerd': true, 'B.met.merle': true, 'B.met.okafor': true, 'B.met.dariusz': true, 'B.met.kasia': true,
   },
+  bases: bases3, projects: projects3,
   initialPlaceItems: [
+    ...stock3,
     ...['jeans', 'hoodie', 'boots', 'winter_jacket', 'beanie', 'gloves', 'backpack', 'canned_beans', 'crackers', 'chocolate', 'coffee',
       'first_aid', 'disinfectant', 'batteries_aa', 'candles', 'lighter', 'multitool', 'kitchen_knife', 'duct_tape', 'charger', 'bank_card', 'car_keys']
       .map((type) => ({ type, at: 'a_flat' })),

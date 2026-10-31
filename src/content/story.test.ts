@@ -117,7 +117,7 @@ describe('сюжет главы 1: полное прохождение двум�
   });
 
   it('у каждой сцены, кроме контрольных точек и заглушек, есть выход', () => {
-    const STUBS = ['c5_start'];
+    const STUBS = ['c7_start'];
     const bad = Object.values(c.scenes).filter((s) => s.checkpoint === undefined && !STUBS.includes(s.id)
       && !s.actions.some((a) => a.terminal || a.goto || a.outcomes?.some((o) => o.goto))).map((s) => s.id);
     expect(bad).toEqual([]);
@@ -185,13 +185,13 @@ describe('сюжет главы 1: полное прохождение двум�
     expect(bad).toEqual([]);
   });
 
-  it('30 пар проходят четыре контрольные точки без ошибок и воспроизводятся бит в бит', { timeout: 300000 }, () => {
-    const stats = { cp1: 0, cp2: 0, cp3: 0, cp4: 0, runs: 30, steps1: [] as number[], steps2: [] as number[], steps3: [] as number[], steps4: [] as number[], t1: [] as number[], t2: [] as number[], t3: [] as number[], t4: [] as number[] };
+  it('30 пар проходят шесть контрольных точек без ошибок и воспроизводятся бит в бит', { timeout: 300000 }, () => {
+    const stats = { cp1: 0, cp2: 0, cp3: 0, cp4: 0, cp5: 0, cp6: 0, runs: 30, steps1: [] as number[], steps2: [] as number[], steps3: [] as number[], steps4: [] as number[], steps5: [] as number[], steps6: [] as number[], t1: [] as number[], t2: [] as number[], t3: [] as number[], t4: [] as number[], t5: [] as number[], t6: [] as number[] };
     const visited = new Set<string>();
     for (let run = 0; run < stats.runs; run++) {
       const tag = `story-${run}`;
       let base = newGame(c, setup(tag));
-      for (const seg of [1, 2, 3, 4] as const) {
+      for (const seg of [1, 2, 3, 4, 5, 6] as const) {
         const results = {} as Record<PlayerId, GameState>;
         for (const pid of ['A', 'B'] as const) {
           const s = structuredClone(base);
@@ -214,7 +214,7 @@ describe('сюжет главы 1: полное прохождение двум�
     }
     const med = (xs: number[]) => xs.length ? [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] : 0;
     const hh = (t: number) => `${Math.floor(((t % 1440) + 1440) % 1440 / 60)}:${String(((t % 1440) + 1440) % 1440 % 60).padStart(2, '0')}`;
-    console.log(`КТ1: ${stats.cp1}/${stats.runs}, КТ2: ${stats.cp2}/${stats.runs}, КТ3: ${stats.cp3}/${stats.runs}, КТ4: ${stats.cp4}/${stats.runs}; решений до КТ1 ~${med(stats.steps1)}, до КТ2 ~${med(stats.steps2)}, до КТ3 ~${med(stats.steps3)}, до КТ4 ~${med(stats.steps4)}; время КТ1 ~${hh(med(stats.t1))}, КТ2 ~${hh(med(stats.t2))}, КТ3 ~${hh(med(stats.t3))}, КТ4 ~${hh(med(stats.t4))}`);
+    console.log(`КТ1: ${stats.cp1}/${stats.runs}, КТ2: ${stats.cp2}/${stats.runs}, КТ3: ${stats.cp3}/${stats.runs}, КТ4: ${stats.cp4}/${stats.runs}, КТ5: ${stats.cp5}/${stats.runs}, КТ6: ${stats.cp6}/${stats.runs}; решений до КТ1 ~${med(stats.steps1)}, до КТ2 ~${med(stats.steps2)}, до КТ3 ~${med(stats.steps3)}, до КТ4 ~${med(stats.steps4)}; время КТ1 ~${hh(med(stats.t1))}, КТ2 ~${hh(med(stats.t2))}, КТ3 ~${hh(med(stats.t3))}, КТ4 ~${hh(med(stats.t4))}`);
     console.log(`Не посещены случайными игроками: ${Object.keys(c.scenes).filter((id) => !visited.has(id)).join(', ')}`);
     expect([...badTexts], 'неподставленные шаблоны в текстах').toEqual([]);
     expect([...stuck], 'тупики').toEqual([]);
@@ -222,6 +222,8 @@ describe('сюжет главы 1: полное прохождение двум�
     expect(stats.cp2).toBeGreaterThanOrEqual(stats.runs * 0.9);
     expect(stats.cp3).toBeGreaterThanOrEqual(stats.runs * 0.85);
     expect(stats.cp4).toBeGreaterThanOrEqual(stats.runs * 0.8);
+    expect(stats.cp5).toBeGreaterThanOrEqual(stats.runs * 0.75);
+    expect(stats.cp6).toBeGreaterThanOrEqual(stats.runs * 0.7);
   });
 
   it('20 пар «неаккуратных» игроков (сон, вещи, правила, планы) — без ошибок, тупиков и расхождений', { timeout: 300000 }, () => {
@@ -230,7 +232,7 @@ describe('сюжет главы 1: полное прохождение двум�
     for (let run = 0; run < runs; run++) {
       const tag = `chaos-${run}`;
       let base = newGame(c, setup(tag));
-      for (const seg of [1, 2, 3, 4]) {
+      for (const seg of [1, 2, 3, 4, 5, 6]) {
         const results = {} as Record<PlayerId, GameState>;
         for (const pid of ['A', 'B'] as const) {
           const s = structuredClone(base);
