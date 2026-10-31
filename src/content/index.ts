@@ -19,9 +19,9 @@ import { nightScenes } from './chapter2/night';
 import { agenda2, events2, facts2, locations2, npcs2 } from './chapter2/world2';
 import type { NpcDef } from '../engine/content-types';
 
-import { scenes3 } from './chapter3';
-import { checkpoints3, focus, next } from './chapter3/kt5';
-import { agenda3, bases3, events3, facts3, locations3, projects3, stock3 } from './chapter3/world3';
+import { incidentEvents3, scenes3 } from './chapter3';
+import { checkpoints3, jointChapter3 } from './chapter3/kt5';
+import { agenda3, bases3, events3, facts3, locations3, projects3, stock3, npcs3 } from './chapter3/world3';
 
 const characters: Record<'A' | 'B', CharacterTemplate> = {
   A: {
@@ -78,8 +78,8 @@ export const content: Content = {
   epochLabel: '10.11.2026',
   items: { ...items, c3_hose: { id: 'c3_hose', name: 'шланг с хомутами', weight: 800, tags: ['parts'] } }, locations: { ...locations, ...locations2, ...locations3 }, routes: [],
   scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes, ...scenes3 })),
-  facts: { ...facts, ...facts2, ...facts3 }, npcs: withAgenda({ ...withAgenda(npcs, agenda2), ...npcs2 }, agenda3), events: [...events, ...events2, ...events3],
-  joint: { ...joint, ...joint3, c3_focus: focus, c3_next: next }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4, ...checkpoints3], messages, characters,
+  facts: { ...facts, ...facts2, ...facts3 }, npcs: withAgenda({ ...withAgenda(npcs, agenda2), ...npcs2, ...npcs3 }, agenda3), events: [...events, ...events2, ...events3, ...incidentEvents3],
+  joint: { ...joint, ...joint3, ...jointChapter3 }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4, ...checkpoints3], messages, characters,
   partnerContactAfter: CONTACT_AFTER,
   initialVars: {
     'w.power.buchholz': 'off', 'w.power.buchholz.since': at(10, 5, 10),

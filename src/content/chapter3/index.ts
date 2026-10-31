@@ -1,77 +1,155 @@
 import type { Scene } from '../../engine/content-types';
-import { all, day, flag, keeper, not } from './world3';
-import { task } from './common';
+import type { Cond } from '../../engine/types';
+import { all, flag, not } from './world3';
+import { segmentEnd } from './clock';
 import { farmScenes } from './farm';
 import { messeScenes } from './messe';
-import { arrival, entry, road } from './routes';
+import { arrival, entry, relocation, road, stayRoutes } from './routes';
 import { shelterScenes } from './shelters';
+import { day13Scenes } from './day13';
+import { excursions } from './excursions';
+import { incidents } from './incidents';
+import { addRounds } from './rounds';
+import { morning12 } from './morning12';
+import { afternoon12 } from './afternoon12';
+import { morning13 } from './morning13';
+import { afternoon13 } from './afternoon13';
 
-export const scenes3: Record<string, Scene> = Object.fromEntries([
-  ...[5, 6].flatMap((n) => [entry(n), ...farmScenes(n), ...shelterScenes(n), ...messeScenes(n), {
-    id: `c${n}_cp`, for: 'any' as const, chapter: 'ch3', checkpoint: n, title: n === 5 ? 'Третий вечер' : 'Четвёртый вечер', universal: false, calm: true,
-    text: [{ text: 'Ты записываешь остатки, проверяешь дверь и оставляешь вещи под рукой. Что-то удалось. Что-то придётся отложить. Теперь нужно решить, с чего начать завтра.' }], actions: [],
-  }]), road, arrival,
-  { id: 'c7_start', for: 'any' as const, chapter: 'ch4', title: 'После четвёртого дня', universal: false,
-    text: [{ text: 'Здесь заканчивается написанная часть истории. Всё пройденное сохранено. Продолжение начнётся отсюда.' }], actions: [] },
-].map((s) => [s.id, s]));
-
-// Приоритет КТ 5 открывает разные дополнительные дела. Старые участки не затронуты.
-for (const key of ['farm', 'aflat', 'bflat', 'workshop', 'north', 'ahr', 'out', 'coop', 'messe', 'q', 'messe_yard']) {
-  const sc = scenes3[`c6_${key}`];
-  const extra = [
-    task(6, 'focus_supply', 'Сверить завтрашний запас с расходом', 30,
-      'Ты снова пересчитываешь порции, теперь по вчерашнему расходу. Один день оказался тяжелее другого. Вместо ровных чисел записываешь остаток и время следующей раздачи.',
-      [{ body: 'stress', delta: -3 }], all(day(13), { v: 'w.c3_focus', op: '==', value: 'supply' })),
-    task(6, 'focus_repair', 'Подготовить инструмент для общей работы', 25,
-      'Ты раскладываешь инструмент в порядке, в котором он понадобится. Крепёж в крышку, острое отдельно. На этот раз не придётся искать нужное на ощупь.',
-      [{ body: 'fatigue', delta: -3 }], all(day(13), { v: 'w.c3_focus', op: '==', value: 'repair' })),
-    task(6, 'focus_rest', 'Оставить полчаса без работы', 30,
-      'Ты садишься, не снимая обуви. Сначала хочется немедленно заняться чем-нибудь полезным. Потом плечи понемногу опускаются. Ты остаёшься ещё на несколько минут.',
-      [{ body: 'fatigue', delta: -12 }, { body: 'stress', delta: -5 }], all(day(13), { v: 'w.c3_focus', op: '==', value: 'rest' })),
-  ];
-  const crisis = ['messe', 'q'].includes(key) ? not(flag('w.c3_messe_outbreak')) : { always: true } as const;
-  sc.actions.splice(Math.max(0, sc.actions.length - 3), 0, ...extra.map((a) => ({ ...a, when: all(crisis, a.when!) })));
-}
-
-// Четвёртый день продолжает вчерашние занятия, а не повторяет их разговоры.
-const fourthDay: Record<string, string> = {
-  ledger: 'На полях вчерашнего списка стоят маленькие кресты. Хенрике вычитает их из запаса и молча подвигает тебе карандаш. Вчера хватало считать мешки. Сегодня приходится считать горсти.',
-  wood: 'Верхний ряд сухой, нижний отсырел от земли. Ты переносишь только сухое и подкладываешь под остаток доски. Хороших поленьев меньше, чем казалось из двери.',
-  pawel: 'Павел чинит прореху на колене толстой иглой. Телефон лежит рядом, на этот раз экраном вверх. — Сегодня гудок был, — говорит он. — Один. — Игла не проходит, он тянет её зубами.',
-  deniz: 'Дениз подписывает канистры двумя разными кусками изоленты. — Даже пустые пусть стоят отдельно. Потом кто-нибудь польёт не то. — Он ставит одну у стены и проверяет крышку ещё раз.',
-  wash: 'У печи высохла только одна пара носков. Ты снимаешь её с верёвки, трогаешь шов, снова надеваешь. На минуту ноги становятся почти тёплыми.',
-  sort: 'Ты находишь ещё два мягких клубня у самой стенки закрома. Вчера их там не было. Отодвигаешь мешок от кирпича и оставляешь между ними полоску воздуха.',
-  tracks: 'Поверх вчерашней колеи новая, более узкая. Она не доходит до калитки. Ты зовёшь Оле, показываешь молча. Он долго смотрит в сторону дороги и уходит за Хенрике.',
-  ole_talk: 'Оле смотрит на крышу за деревьями. — Он вчера дым пускал, — говорит он. — Значит, дома. — По голосу не понять, рад он этому или нет.',
-  water: 'Вёдра теперь стоят в ряд, чтобы не спорить, какое чистое. Ты поднимаешь воду и относишь на кухню. На пороге встречаешь Павла с пустым ведром. Он пропускает тебя первым.',
-  inventory: 'Ты вычёркиваешь съеденное и долго смотришь на одну нетронутую пачку. Вчера она казалась лишней тяжестью. Сегодня ставишь её ближе к руке.',
-  neighbors: 'На цепочку больше не открывают. Голос из-за двери просит назвать вчерашние имена. Ты повторяешь. Только после этого слышно, как отодвигают засов.',
-  ws_count: 'На верстаке твоя вчерашняя записка. Ты сверяешь с ней банки, воду и инструмент. Одна цифра не сходится. Потом замечаешь открытую пачку у своего локтя.',
-  ahr_merle: 'Мерле ставит на коробке маленькую черту. — Ещё день, — говорит она. Потом убирает ручку и спрашивает, не осталось ли в доме чего-нибудь сладкого. Как будто спрашивает просто так.',
-  ahr_uwe: 'Уве даёт тебе фонарь и просит включить. Свет дрожит на стене. — Контакт, — говорит он. Ты держишь крышку, пока он чистит пружину. Становится ровнее.',
-  north_stores: 'На коробках уже твои вчерашние подписи. Кто-то развернул их к стене; приходится переставить всё снова. У кухни ждёт женщина с пустым контейнером и терпеливо смотрит на твою спину.',
-  north_local: 'Местный мужчина приносит муку в бумажном мешке. Хинрихсен записывает вес и отдаёт ему пустую тару. Они долго спорят, что считать долгом, а что помощью.',
-  out_people: 'Люди с полными сумками больше не останавливаются. Ты спрашиваешь женщину у пустой тележки. Она показывает туда же, куда вчера. Хоть это пока не изменилось.',
+export const scenes3: Record<string, Scene> = {};
+const add = (scenes: Scene[]) => {
+  for (const s of scenes) scenes3[s.id] = s;
 };
-for (const s of Object.values(scenes3).filter((s) => s.id.startsWith('c6_'))) for (const a of s.actions) {
-  const text = fourthDay[a.id.replace(/^c6_/, '')];
-  if (text) a.text = text;
+for (const n of [5, 6] as const) add([entry(n), ...farmScenes(n), ...shelterScenes(n), ...messeScenes(n)]);
+for (const n of [7, 8] as const)
+  add([entry(n), ...day13Scenes(n), ...messeScenes(n).filter((s) => s.id.endsWith('_messe_exit'))]);
+add([road, arrival, relocation, ...excursions(6), ...excursions(8)]);
+for (const n of [5, 6, 7, 8]) {
+  add([
+    {
+      id: `c${n}_cp`,
+      for: 'any',
+      chapter: 'ch3',
+      checkpoint: n,
+      title: n % 2 ? 'Полдень' : 'Ночь',
+      universal: false,
+      calm: true,
+      text: [
+        {
+          text: (
+            {
+              5: 'Время до полудня уходит на дорогу, людей и воду. Ты садишься там, где видно выход. Телефон держишь экраном вверх.',
+              6: 'На двери ложится длинная тень. Ты ставишь обувь рядом с ночлегом. Рюкзак застёгнут, но ещё не убран.',
+              7: 'Свет уже высокий, но улица или двор вокруг не стали тише. Ты проверяешь руки и вещи. Под ремнём остаётся тёплая кожа.',
+              8: 'За стеной или тентом больше не видно дороги. Ты ставишь воду рядом с рукой. На холодном полу остаётся место для обуви.',
+            } as Record<number, string>
+          )[n],
+        },
+      ],
+      actions: [],
+    },
+  ]);
+  // Маршрутизатор начинает рассказ прямо в фактическом месте игрока.
+  const routes = stayRoutes(n);
+  scenes3[`c${n}_start`].text = routes.flatMap((r, i) => {
+    const guard: Cond = all(
+      ...(r.when ? [r.when] : []),
+      ...routes.slice(0, i).flatMap((x) => (x.when ? [not(x.when)] : [])),
+    );
+    return scenes3[r.scene].text.map((b) => ({ ...b, when: all(guard, ...(b.when ? [b.when] : [])) }));
+  });
+  // Время главы не прыгает на сутки от половины дня к половине дня.
+  for (const s of Object.values(scenes3).filter(
+    (s) => s.id.startsWith(`c${n}_`) && s.checkpoint === undefined,
+  )) {
+    if (s.actions.some((a) => a.id === `c${n}_go`)) {
+      const cp = s.actions.find((a) => a.id === `c${n}_go`)!;
+      s.actions = [...s.actions.filter((a) => a !== cp), cp];
+    }
+    for (const a of s.actions) {
+      if (a.id.includes('partner') || a.id.endsWith('_y_near'))
+        a.when = all({ flag: 'w.together' }, ...(a.when ? [a.when] : []));
+    }
+  }
 }
+add([
+  {
+    id: 'c9_start',
+    for: 'any',
+    chapter: 'ch4',
+    title: 'Продолжение',
+    universal: false,
+    text: [
+      {
+        text: 'Здесь заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.',
+      },
+    ],
+    actions: [],
+  },
+]);
 
-scenes3.c6_gate.actions.splice(0, 0, {
-  id: 'c6_guest', label: 'Ответить человеку у калитки', minutes: 2, terminal: true, goto: 'c6_guest',
-  when: all(day(13), flag('$.c6_guest_waiting'), not(flag('$.c6_guest_done')), keeper()),
-});
-scenes3.c6_guest = {
-  id: 'c6_guest', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'По другую сторону сетки', universal: false,
-  text: [{ text: 'За калиткой женщина с велосипедной тележкой. На дне мешок хлопьев, поверх него куртка. Она держит руки открытыми. — Еду меняю на дрова, — говорит она. — Топить нечем. Хенрике дома?' }],
-  actions: [
-    { id: 'c6_guest_call', label: 'Позвать Хенрике и помочь с обменом', minutes: 25, terminal: true, goto: 'c6_farm',
-      when: { npc: 'henrike', at: 'hof_luedemann', alive: true }, enabled: { stocked: 'firewood', qty: 8, at: 'c3_farm_stock' }, disabledReason: 'Восемь килограммов дров не набрать',
-      text: 'Хенрике выходит с весами. Сначала проверяет мешок, потом разрешает вынести дрова. Ты передаёшь поленья по одному через сетку. Женщина крепит их к тележке и кивает, только когда узел держит.',
-      effects: [{ unstock: 'firewood', qty: 8, at: 'c3_farm_stock' }, { take: 'firewood', qty: 8 }, { place: 'oats', qty: 4, at: 'c3_farm_stock' }, { set: '$.c6_guest_done', value: true }, { npc: 'henrike', trust: 3 }] },
-    { id: 'c6_guest_no', label: 'Не открывать и объяснить отказ', minutes: 10, terminal: true, goto: 'c6_farm',
-      text: 'Ты говоришь через калитку, не трогая задвижку. Женщина не спорит. Поправляет куртку на мешке и разворачивает тележку. Одно колесо у неё заметно меньше другого.',
-      effects: [{ set: '$.c6_guest_done', value: true }, { body: 'stress', delta: 3 }] },
-  ],
-};
+addRounds(scenes3);
+
+// Разговоры и помощь требуют живого человека именно в этом месте.
+const localPeople: [string, RegExp][] = [
+  ['henrike', /Хенрике/],
+  ['ole', /Оле/],
+  ['pawel', /Пав[её]л|Павл/],
+  ['deniz', /Дениз/],
+  ['kerem', /Керем/],
+  ['merle', /Мерле/],
+  ['uwe', /Уве/],
+  ['birgit', /Биргит/],
+];
+for (const s of Object.values(scenes3))
+  for (const a of s.actions) {
+    const people = localPeople.filter(([, name]) => name.test(a.label + ' ' + (a.text ?? '')));
+    if (people.length && s.location)
+      a.when = all(
+        ...(a.when ? [a.when] : []),
+        ...people.map(([npc]): Cond => ({
+          npc,
+          alive: true,
+          at: s.location === 'farm_coop' ? 'hof_luedemann' : s.location,
+        })),
+      );
+  }
+
+export const incidentEvents3 = [
+  ...incidents(5, morning12, scenes3),
+  ...incidents(6, afternoon12, scenes3),
+  ...incidents(7, morning13, scenes3),
+  ...incidents(8, afternoon13, scenes3),
+];
+// Вспышка прекращает бытовые дела и разговоры в обоих павильонах, включая внутренние сцены.
+for (const n of [7, 8])
+  for (const s of Object.values(scenes3).filter(
+    (s) =>
+      s.id.startsWith(`c${n}_`) &&
+      ['messe', 'messe_q'].includes(s.location ?? '') &&
+      !s.id.endsWith('_messe_exit') &&
+      s.checkpoint === undefined,
+  )) {
+    // Здесь нельзя спрятать острую ситуацию за универсальным сном или ожиданием.
+    s.universal = false;
+    s.safe = false;
+    s.actions = [
+      ...s.actions.map((a) => ({
+        ...a,
+        when: all(not(flag('w.c3_messe_outbreak')), ...(a.when ? [a.when] : [])),
+      })),
+      {
+        id: `c${n}_alarm`,
+        label: 'Уйти к служебной двери',
+        minutes: 0,
+        terminal: true,
+        goto: `c${n}_messe_exit`,
+        when: flag('w.c3_messe_outbreak'),
+      },
+    ];
+  }
+// Старые эпизоды не должны всплывать в следующем участке с опозданием.
+for (const n of [5, 6, 7, 8])
+  for (const s of Object.values(scenes3).filter((s) => s.id.startsWith(`c${n}_`))) {
+    for (const a of s.actions)
+      if (a.id === `c${n}_sleep` && n % 2 === 0) a.when = { before: segmentEnd(n) - 1440 };
+  }

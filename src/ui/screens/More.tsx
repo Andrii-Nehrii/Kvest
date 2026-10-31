@@ -58,6 +58,7 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
 }) {
   const ch = ctx.s.chars[ctx.pid];
   const loc = ctx.c.locations[ch.location];
+  const codes = save.cp?.result && save.cp.sent ? save.cp : save.lastCheckpoint;
   const w = ctx.c.weather(loc?.region ?? 'hh', ch.time);
   const env = environment(ctx);
   const day = daylight(ch.time);
@@ -91,11 +92,11 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
       {save.outgoing && save.hashes.length <= 1 && (
         <Card title="Код для партнёра (приглашение/ответ)"><CodeOut code={save.outgoing} /></Card>
       )}
-      {save.cp?.result && save.cp.sent && (save.cp.sent.segment || save.cp.sent.answers) && (
-        <Card title={`Мои коды точки №${save.cp.index}`}>
+      {codes?.sent && (codes.sent.segment || codes.sent.answers) && (
+        <Card title={`Мои коды точки №${codes.index}`}>
           <div className="small muted" style={{ marginBottom: 8 }}>Нужны, только если партнёр ещё стоит на этой точке и не получил их.</div>
-          {save.cp.sent.segment && <><div className="small"><b>Мой ход</b></div><CodeOut code={save.cp.sent.segment} /></>}
-          {save.cp.sent.answers && <><div className="small" style={{ marginTop: 10 }}><b>Мой ответ</b></div><CodeOut code={save.cp.sent.answers} /></>}
+          {codes.sent.segment && <><div className="small"><b>Мой ход</b></div><CodeOut code={codes.sent.segment} /></>}
+          {codes.sent.answers && <><div className="small" style={{ marginTop: 10 }}><b>Мой ответ</b></div><CodeOut code={codes.sent.answers} /></>}
         </Card>
       )}
       <CloudCard cloud={cloud} onCloud={onCloud} onUpload={onUpload} />
