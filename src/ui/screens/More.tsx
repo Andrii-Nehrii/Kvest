@@ -58,7 +58,7 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
 }) {
   const ch = ctx.s.chars[ctx.pid];
   const loc = ctx.c.locations[ch.location];
-  const codes = save.cp?.result && save.cp.sent ? save.cp : save.lastCheckpoint;
+  const codes = save.cp?.result && save.cp.sent ? save.cp : save.lastCheckpoint && save.lastCheckpoint.index >= 5 ? save.lastCheckpoint : undefined;
   const w = ctx.c.weather(loc?.region ?? 'hh', ch.time);
   const env = environment(ctx);
   const day = daylight(ch.time);

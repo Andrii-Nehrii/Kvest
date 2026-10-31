@@ -143,7 +143,7 @@ export function App() {
   const ctx: Ctx = { s: save.state!, c: content, pid: save.me };
   const ch = save.state!.chars[save.me];
   const ph = phone(ctx);
-  const completed = save.lastCheckpoint?.index === save.base!.checkpoint ? save.lastCheckpoint : undefined;
+  const completed = save.base!.checkpoint >= 5 && save.lastCheckpoint?.index === save.base!.checkpoint ? save.lastCheckpoint : undefined;
   const resultSave = completed ? { ...save, cp: { ...save.cp, ...completed } } : save;
   const continuation = save.base!.checkpoint >= 5 && !content.checkpoints.some((cp) => cp.index === save.base!.checkpoint + 1)
     ? content.scenes[`c${save.base!.checkpoint + 1}_start`] : undefined;
