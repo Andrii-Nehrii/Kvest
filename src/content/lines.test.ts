@@ -1,9 +1,9 @@
 // Главные линии главы 1, пройденные «как игрок»: утро A и B, КТ 1, оба варианта встречи, КТ 2.
 // Если правка сюжета ломает эти прохождения, тест покажет, на каком шаге и какие действия были доступны.
 import { describe, expect, it } from 'vitest';
-import { availableActions, currentScene } from '../engine/actions';
+import { availableActions, currentScene, isServiceAction } from '../engine/actions';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, syncClocks } from '../engine/checkpoint';
-import { newGame, play } from '../engine/game';
+import { newGame, play, segmentFinished } from '../engine/game';
 import { clock } from '../engine/time';
 import type { GameState, PlayerId } from '../engine/types';
 import { START_TIME } from '../app/session';
@@ -93,5 +93,71 @@ describe('главные линии главы 1', () => {
     expect(lastNotes(kt2.state, 'A')).toMatch(/Щелчок домофона/);
     expect(lastNotes(kt2.state, 'B')).toMatch(/Домофон/);
     expect(kt2.state.vars['w.shelter']).toBe('b_flat');
+  });
+});
+
+// Полное обычное прохождение: осмотреть место, отвечать на события, дойти до всех четырёх КТ.
+describe('главная линия главы 3', () => {
+  for (const place of ['hof_luedemann', 'b_flat']) it(`четыре участка в ${place}`, () => {
+    let base = newGame(c, { pairId: 'line3', seed: 'line3', startTime: START_TIME, players });
+    base.checkpoint = 4;
+    Object.assign(base.vars, { 'w.together': true, 'w.day3': 'stay', 'w.farm_welcome': true });
+    for (const e of c.events) if (e.at < 2 * 1440) {
+      for (const p of ['A', 'B']) base.firedEvents[e.scope === 'world' ? `${e.id}@${p}` : e.id] = e.at;
+    }
+    for (const [id, def] of Object.entries(c.npcs)) base.npcs[id].agendaDone = def.agenda.filter((a) => (a.at ?? 0) < 2 * 1440).map((a) => a.id);
+    for (const id of ['deniz', 'kerem', 'pawel', 'henrike', 'ole']) base.npcs[id].location = 'hof_luedemann';
+    base.npcs.merle.location = 'b_flat';
+    for (const p of ['A', 'B'] as const) {
+      base.chars[p].location = place;
+      base.chars[p].scene = 'c5_start';
+      base.chars[p].time = 1440 + 22 * 60;
+      base.vars[`seg.loc.${p}`] = place;
+      for (const i of Object.values(base.items)) if (i.at.kind === 'place' && i.at.id === (p === 'A' ? 'a_flat' : 'b_flat') && ['jeans', 'hoodie', 'boots', 'winter_jacket', 'rain_jacket', 'hoodie', 'beanie', 'gloves', 'sneakers', 'backpack'].includes(i.type)) i.at = { kind: 'char', id: p };
+    }
+    const density: Record<string, number> = {};
+    for (const n of [5, 6, 7, 8]) {
+      const ends = { A: structuredClone(base), B: structuredClone(base) };
+      for (const p of ['A', 'B'] as const) {
+        const s = ends[p], uses = new Map<string, number>(), visited = new Set<string>();
+        let decisions = 0;
+        for (let step = 0; step < 180 && !segmentFinished(c, s, p); step++) {
+          const ctx = { s, c, pid: p }, sc = currentScene(ctx);
+          visited.add(sc.id);
+          const actions = availableActions(ctx).filter((a) => a.enabled && !isServiceAction(a.def.id));
+          const story = actions.filter((a) => !a.universal && !a.def.id.endsWith('_leave') && !a.def.id.endsWith('_neighbor'));
+          // Не гоняем часы повторными переходами: каждый предмет и разговор один раз.
+          const fresh = story.filter((a) => !uses.has(`${sc.id}/${a.def.id}`));
+          const body = s.chars[p].body;
+          const care = actions.find(a => a.universal && ((a.def.id === 'u:drink' && body.thirst > 25) || (a.def.id === 'u:eat' && body.hunger > 35) || (a.def.id === 'u:tap' && body.thirst > 25) || (a.def.id === 'u:rest' && body.fatigue > 65)));
+          const pick = care ?? fresh.find((a) => a.def.id.endsWith('_approach'))
+            ?? fresh.find((a) => a.def.outcomes)
+            ?? fresh.find((a) => !a.def.goto && !a.def.repeatable && a.def.minutes <= 15 && !a.def.id.endsWith('_wait'))
+            ?? fresh.find((a) => a.def.goto && !visited.has(a.def.goto) && !a.def.id.endsWith('_go'))
+            ?? fresh.find((a) => !a.def.goto && !a.def.repeatable && !a.def.id.endsWith('_wait'))
+            ?? story.find((a) => a.def.id === `c${n}_go`)
+            ?? fresh.find((a) => a.def.goto && !a.def.id.endsWith('_go'))
+            ?? story.find((a) => a.def.goto && visited.has(a.def.goto) && (uses.get(`${sc.id}/${a.def.id}`) ?? 0) < 2)
+            ?? story.find((a) => a.def.id === `c${n}_sleep`)
+            ?? story.find((a) => a.def.id === `c${n}_wait`);
+          expect(pick, `${p} ${sc.id} ${s.chars[p].time}: нет следующего действия (${actions.map(a => a.def.id)}) после ${[...uses.keys()]}`).toBeDefined();
+          const id = pick!.def.id;
+          uses.set(`${sc.id}/${id}`, (uses.get(`${sc.id}/${id}`) ?? 0) + 1);
+          if (!id.endsWith('_wait') && !id.endsWith('_sleep')) decisions++;
+          run(s, p, [[id]]);
+        }
+        expect(c.scenes[s.chars[p].scene].checkpoint, `${p}: ${s.chars[p].scene}, ${decisions} действий`).toBe(n);
+        expect(s.chars[p].body.consciousness).toBe('awake');
+        // Отдельно от случайной матрицы: насыщенное прохождение без повторения работы.
+        density[`${p}:${n}`] = decisions;
+      }
+      const id = c.checkpoints.find((x) => x.index === n)!.joint[0];
+      base = checkpoint(base, ends.A, ends.B, { A: { [id]: 'stay' }, B: { [id]: 'stay' } }).state;
+      expect(base.ended).toBeUndefined();
+      expect(base.vars['w.together']).toBe(true);
+      expect(base.checkpoint).toBe(n);
+    }
+    for (const p of ['A', 'B'] as const) expect(base.chars[p].scene).toBe('c9_start');
+    expect(Object.entries(density).filter(([, count]) => count < 50 || count > 70), JSON.stringify(density)).toEqual([]);
   });
 });

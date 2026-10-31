@@ -340,3 +340,31 @@ describe('машина, канистра, заряд', () => {
     expect(evalCond(ctx, { charged: 'phone', atLeast: 50 })).toBe(false);
   });
 });
+
+describe('слияние одинаковой работы после КТ 4', () => {
+  for (const checkpoint of [3, 4]) it(`КТ ${checkpoint}: одинаковый вклад сохраняет правило своего участка`, () => {
+    const base = fresh(); base.checkpoint = checkpoint; base.vars['proj.tractor.progress'] = 2;
+    const a = clone(base), b = clone(base);
+    a.vars['proj.tractor.progress'] = b.vars['proj.tractor.progress'] = 3;
+    const out = mergeSegments(testContent, base, { A: a, B: b });
+    expect(out.vars['proj.tractor.progress']).toBe(checkpoint < 4 ? 3 : 4);
+    expect(stateHash(mergeSegments(testContent, base, { B: b, A: a }))).toBe(stateHash(out));
+  });
+  it('вклад одного ведущего не удваивается', () => {
+    const base = fresh(); base.checkpoint = 4; base.chars.B.controlledBy = 'A'; base.vars['proj.tractor.progress'] = 2;
+    const a = clone(base); a.vars['proj.tractor.progress'] = 3;
+    expect(mergeSegments(testContent, base, { A: a }).vars['proj.tractor.progress']).toBe(3);
+  });
+});
+
+describe('одинаковый расход вещей после КТ 4', () => {
+  for (const checkpoint of [3, 4]) it(`КТ ${checkpoint}: равное количество не теряет расход двух линий`, () => {
+    const base = fresh(); base.checkpoint = checkpoint;
+    applyEffects(ctxOf(base, 'A'), [{ place: 'water_l', at: 'shed', qty: 12 }]);
+    const water = Object.values(base.items).find((i) => i.type === 'water_l' && i.at.kind === 'place' && i.at.id === 'shed')!;
+    const a = clone(base), b = clone(base);
+    a.items[water.id].qty = b.items[water.id].qty = 9;
+    const merged = mergeSegments(testContent, base, { A: a, B: b });
+    expect(merged.items[water.id].qty).toBe(checkpoint < 4 ? 9 : 6);
+  });
+});

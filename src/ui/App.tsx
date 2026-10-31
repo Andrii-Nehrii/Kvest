@@ -1,6 +1,7 @@
 import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { clock, shortDateLabel } from '../engine/time';
-import { phone, type Ctx } from '../engine/world';
+import { fmt, phone, type Ctx } from '../engine/world';
+import { evalCond } from '../engine/conditions';
 import { dbDelete, dbGet, dbPut, requestPersistence } from '../app/db';
 import { act, exportSave, normalizePhase, refreshSave, type LocalSave } from '../app/session';
 import { cloudPaths, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
@@ -142,11 +143,16 @@ export function App() {
   const ctx: Ctx = { s: save.state!, c: content, pid: save.me };
   const ch = save.state!.chars[save.me];
   const ph = phone(ctx);
+  const completed = save.lastCheckpoint?.index === save.base!.checkpoint ? save.lastCheckpoint : undefined;
+  const resultSave = completed ? { ...save, cp: { ...save.cp, ...completed } } : save;
+  const continuation = save.base!.checkpoint >= 5 && !content.checkpoints.some((cp) => cp.index === save.base!.checkpoint + 1)
+    ? content.scenes[`c${save.base!.checkpoint + 1}_start`] : undefined;
 
   let body: ReactNode;
-  if (showResult && save.cp?.result) body = <Resolution save={save} onClose={() => setShowResult(false)} />;
+  if (showResult && resultSave.cp?.result) body = <Resolution save={resultSave} onClose={() => setShowResult(false)} />;
   else if (save.phase === 'ended') body = <Ended save={save} onReset={reset} />;
-  else if (save.phase === 'checkpoint' && tab === 'story') body = <Checkpoint save={save} cloud={cloud} onSave={(s) => { persist(s); if (s.phase !== 'checkpoint') { setShowResult(true); window.scrollTo(0, 0); } }} />;
+  else if (save.phase === 'checkpoint' && tab === 'story') body = <Checkpoint save={save} cloud={cloud} onSave={(s) => { persist(s); if (s.phase !== 'checkpoint' || s.lastCheckpoint?.index === save.cp?.index) { setShowResult(true); window.scrollTo(0, 0); } }} />;
+  else if (tab === 'story' && continuation) body = <div className="page"><div className="scene-title">{continuation.title}</div><div className="story">{continuation.text.filter((b) => evalCond(ctx, b.when)).map((b, i) => <p key={i}>{fmt(ctx, b.text)}</p>)}</div></div>;
   else if (tab === 'story') body = <Story key={save.segment.length} save={save} ctx={ctx} onPlan={onPlan} />;
   else if (tab === 'items') body = <Items ctx={ctx} onPlan={onPlan} />;
   else if (tab === 'body') body = <BodyScreen ctx={ctx} />;
