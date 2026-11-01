@@ -1,5 +1,5 @@
 // Участок 5: квартира B и соседи. Укус не означает немедленного обращения.
-import type { ActionDef, Scene, WorldEvent } from '../../engine/content-types';
+import type { ActionDef, Scene, TextBlock, WorldEvent } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { at } from '../../engine/time';
 import { once, cpAction } from './common';
@@ -25,9 +25,65 @@ const homeCheckpoint: ActionDef = { ...cpAction(5), label: 'Вернуться �
 const back: ActionDef = { id: 'c5_back', label: 'Вернуться в квартиру', minutes: 2, terminal: true, goto: 'c5_bflat' };
 const wait: ActionDef = { id: 'c5_wait', label: 'Переждать час', minutes: 60, activity: 'rest', repeatable: true, combinable: true };
 
+// Один эпизод входа c5_start: в остальном маршрутизация ночи прежняя.
+export const bflat5EntryWhen: Cond = all(
+  C5, NIGHT, { at: 'b_flat' },
+  { any: [{ me: 'B' }, flag('w.together')] }, not(flag('B.flat_lost')),
+  not(all({ npc: 'svenja', at: 'b_flat', alive: true, status: 'turned' },
+    not({ any: [{ npcVar: 'svenja', key: 'isolated' }, { npcVar: 'svenja', key: 'locked' }, { npcVar: 'svenja', key: 'tied' }] }))),
+);
+const entryTogether = all(bflat5EntryWhen, flag('w.together'), { partnerAt: 'b_flat' });
+export const bflat5EntryText: TextBlock[] = [
+  { when: all(bflat5EntryWhen, { me: 'B' }),
+    text: 'Ты тянешь дверь кухни. Она цепляет пол в том же месте. Ты перешагиваешь скол в плитке.' },
+  { when: all(entryTogether, { me: 'A' }),
+    text: 'В прихожей {partner} ловит твой взгляд. Подвигает стул к своему. — Садись рядом. — Ножка стула касается твоего ботинка.' },
+  { when: all(entryTogether, { me: 'B' }),
+    text: '{partner} останавливается на кухонном пороге. Ты подвигаешь второй стул к своему. — Садись рядом. — {pm:Он|Она} убирает руку с косяка.' },
+  { when: all(bflat5EntryWhen, { me: 'A' }, not(entryTogether)),
+    text: 'Ты останавливаешься у кухонного порога. Отодвигаешь стул, не задевая соседний. В подъезде хлопает дверь. Ты прислушиваешься.' },
+];
+export const bflat5EntryActions: ActionDef[] = [
+  {
+    id: 'c5_bflat_entry_near', label: 'Сесть рядом', minutes: 5,
+    terminal: true, goto: 'c5_bflat', when: entryTogether,
+    text: 'Ты садишься, касаясь плеча {partner.gen}. Ваши ладони ложатся рядом на стол.',
+    effects: [{ set: '$.c5_bflat_entry.result', value: 'near' }, { body: 'stress', delta: -5 }],
+  },
+  {
+    id: 'c5_bflat_entry_quiet', label: 'Сесть отдельно и помолчать', minutes: 5,
+    terminal: true, goto: 'c5_bflat', when: entryTogether,
+    text: 'Ты выбираешь стул у двери. {partner} смотрит на свободное место рядом. — Я тут, — говорит {pm:он|она}. Стул между вами остаётся пустым.',
+    effects: [{ set: '$.c5_bflat_entry.result', value: 'quiet' }, { body: 'stress', delta: -2 }],
+  },
+  {
+    id: 'c5_bflat_entry_agree', label: 'Договориться, как устроиться на ночь', minutes: 15,
+    terminal: true, goto: 'c5_bflat', when: entryTogether,
+    outcomes: [
+      { id: 'host', when: { me: 'B' },
+        text: '— Если постучат, сначала разбуди меня, — говоришь ты. {partner} смотрит на дверь. — Даже если тихо? — Ты подвигаешь стул ближе. — Особенно если тихо.',
+        effects: [{ set: '$.c5_bflat_entry.result', value: 'agree' }, { body: 'stress', delta: -4 }] },
+      { id: 'guest', when: { me: 'A' },
+        text: 'Ты спрашиваешь, открывать ли, если постучат. {partner} качает головой. — Сначала меня разбуди. — Ты подвигаешь стул к {pm:нему|ней}. Ножка скребёт пол.',
+        effects: [{ set: '$.c5_bflat_entry.result', value: 'agree' }, { body: 'stress', delta: -4 }] },
+    ],
+  },
+  {
+    id: 'c5_bflat_entry_alone', label: 'Устроиться на ночь', minutes: 5,
+    terminal: true, goto: 'c5_bflat', when: all(bflat5EntryWhen, not(entryTogether)),
+    text: 'Ты садишься напротив двери кухни. Из подъезда слышно, как кто-то поворачивает ключ. Ты отодвигаешь стул от прохода.',
+  },
+];
+
 export const bflat5Scenes: Scene[] = [
   S({ id: 'c5_bflat', for: 'any', chapter: 'ch3', location: 'b_flat', title: 'Квартира в Barmbek', safe: true,
     text: [
+      { when: all(NIGHT, not(flag('$.c5_bflat_entry.slept')), notDone('c5_partner'), result('c5_bflat_entry', 'near'), flag('w.together'), { partnerAt: 'b_flat' }),
+        text: '{partner} сдвигает локоть, освобождая тебе место на столе. Ваши стулья соприкасаются ножками.' },
+      { when: all(NIGHT, not(flag('$.c5_bflat_entry.slept')), notDone('c5_partner'), result('c5_bflat_entry', 'quiet'), flag('w.together'), { partnerAt: 'b_flat' }),
+        text: '{partner} оставляет проход между вашими стульями свободным. Когда ты поднимаешь голову, {pm:он|она} уже смотрит на тебя.' },
+      { when: all(NIGHT, not(flag('$.c5_bflat_entry.slept')), notDone('c5_partner'), result('c5_bflat_entry', 'agree'), flag('w.together'), { partnerAt: 'b_flat' }),
+        text: 'В подъезде щёлкает замок. Вы оба поворачиваетесь к двери. {partner} кладёт ладонь на стол рядом с твоей.' },
       { when: NIGHT, text: 'Кто-то в подъезде ведёт ладонью по стене. Шаги останавливаются этажом ниже. Ты смотришь на дверь, пока человек не находит ключ.' },
       { when: all(AM, { before: at(12, 10, 10) }), text: 'Снизу зовут ребёнка завтракать. Он переспрашивает: «А папа?» В ответ двигают стул. В твоей кухне слышно каждое слово.' },
       { when: { after: at(12, 10, 10) }, text: 'Внизу гремит железо. Ты подходишь к окну, но из кухни виден только край двора. Для остального придётся выйти.' },
@@ -49,7 +105,7 @@ export const bflat5Scenes: Scene[] = [
       { when: flag('proj.c3_shutters_b.done'), text: 'Дверь внизу закрывается одним тяжёлым щелчком. Женщина за стеной говорит сыну: — Теперь не дёргай. Сперва позови.' },
     ],
     actions: [
-      { id: 'c5_sleep', label: 'Лечь, не раздеваясь', minutes: 0, repeatable: true, when: NIGHT, text: 'Ты прячешь ступни под одеяло. Через стену слышно, как кто-то ставит будильник и тут же выключает. Твой телефон остаётся рядом с подушкой.', effects: [{ sleep: 360 }] },
+      { id: 'c5_sleep', label: 'Лечь, не раздеваясь', minutes: 0, repeatable: true, when: NIGHT, text: 'Ты прячешь ступни под одеяло. Через стену слышно, как кто-то ставит будильник и тут же выключает. Твой телефон остаётся рядом с подушкой.', effects: [{ set: '$.c5_bflat_entry.slept', value: true }, { sleep: 360 }] },
       { id: 'c5_partner', label: 'Посидеть с {partner.ins}', minutes: 25, combinable: true, when: all(flag('w.together'), { partnerAt: 'b_flat' }, notDone('c5_partner')),
         text: '— Ты когда-нибудь слышал{m:|а}, как здесь тихо? — спрашивает {partner}. Ты вспоминаешь музыку за стеной, злость на чужой будильник. {pm:Он|Она} притягивает к себе твою ладонь. На этот раз вы не прислушиваетесь.', effects: once('c5_partner', [{ body: 'stress', delta: -8 }]) },
       { id: 'c5_breakfast_b', label: 'Поесть перед выходом', minutes: 20, combinable: true, when: all(AM, notDone('c5_breakfast_b')), enabled: { has: 'oats', qty: 0.25 }, disabledReason: 'Крупы в рюкзаке нет',

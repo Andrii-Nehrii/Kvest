@@ -1,3 +1,4 @@
+import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import type { Outcome, Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
@@ -326,16 +327,17 @@ export function entry(n: number): Scene {
     ...start,
     text: n === 5 ? [
       { when: all({ before: at(12, 6) }, { at: 'hof_luedemann' }), text: 'Хенрике показывает тебе место у печи. На лавке лежат два свёрнутых одеяла. — Обувь в сенях. Если понадоблюсь, стучи. — Дверь своей комнаты она оставляет приоткрытой.' },
-      { when: all({ before: at(12, 6) }, { at: 'b_flat' }), text: 'Ключ проворачивается в знакомом замке. Ты снимаешь рюкзак в прихожей. За стеной кто-то двигает кровать, останавливается, снова двигает. На кухне осталась твоя кружка.' },
-      ...start.text.map(b => ({ ...b, when: all(b.when ?? { always: true }, not(all({ before: at(12, 6) }, { any: [{ at: 'hof_luedemann' }, { at: 'b_flat' }] }))) })),
+      ...bflat5EntryText,
+      ...start.text.map(b => ({ ...b, when: all(b.when ?? { always: true }, not(all({ before: at(12, 6) }, { any: [{ at: 'hof_luedemann' }, bflat5EntryWhen] }))) })),
     ] : start.text,
     actions: [
+      ...(n === 5 ? bflat5EntryActions : []),
       {
         id: `c${n}_sleep`,
         label: 'Уложить вещи на ночь',
         minutes: 5,
         terminal: true,
-        when: { before: at(segmentDay(n), 6) },
+        when: all({ before: at(segmentDay(n), 6) }, ...(n === 5 ? [not(bflat5EntryWhen)] : [])),
         outcomes: routeOutcomes(n),
       },
       {
