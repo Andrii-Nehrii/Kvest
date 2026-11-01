@@ -4,11 +4,11 @@
 import { availableActions, isServiceAction } from '../engine/actions';
 import { evalCond } from '../engine/conditions';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks } from '../engine/checkpoint';
-import { newGame, play, segmentFinished } from '../engine/game';
+import { newGame, play, replayPrefix, segmentFinished } from '../engine/game';
 import { unit } from '../engine/rng';
 import type { GameState, PlayerId } from '../engine/types';
 import { fmt, type Ctx } from '../engine/world';
-import { START_TIME } from '../app/session';
+import { START_TIME, type LocalSave } from '../app/session';
 import { content as c } from './index';
 
 export const players = {
@@ -86,13 +86,25 @@ export interface PlayOptions {
   policy?: 'curious' | 'hasty'; policyFrom?: number; write?: boolean;
   /** Пропустить прохождение, если к началу участка `from` ни один игрок не стоит здесь (и не вместе при together). */
   want?: string; together?: boolean;
+  /** Начать с настоящих сохранений пары: сыгранное повторяется, дальше — доигрывание (см. pairpaths.test.ts). */
+  saves?: Record<PlayerId, LocalSave>;
+}
+
+/** Общая точка двух сохранений и сыгранные части текущего участка. */
+export function fromSaves(saves: Record<PlayerId, LocalSave>) {
+  const ahead = (saves.A.base!.checkpoint >= saves.B.base!.checkpoint ? 'A' : 'B') as PlayerId;
+  const base = saves[ahead].base!;
+  const records = Object.fromEntries((['A', 'B'] as const).map((p) => [p, saves[p].base!.checkpoint === base.checkpoint ? saves[p].segment : []])) as Record<PlayerId, LocalSave['segment']>;
+  const played = Object.fromEntries((['A', 'B'] as const).map((p) => [p, replayPrefix(c, base, p, records[p])])) as Record<PlayerId, { state: GameState; applied: number }>;
+  return { base, records, played };
 }
 
 export function playGame(o: PlayOptions): GameRun {
   const from = o.from ?? 1, to = o.to ?? lastCp, answersWanted = o.answers ?? {};
   const run: GameRun = { segments: [], lines: [], summary: [] };
-  let base = newGame(c, { pairId: 'transcript', seed: `${o.name ?? 'play'}:${o.seed}`, startTime: START_TIME, players });
-  for (let n = 1; n <= to && !base.ended; n++) {
+  const real = o.saves ? fromSaves(o.saves) : null;
+  let base = real ? structuredClone(real.base) : newGame(c, { pairId: 'transcript', seed: `${o.name ?? 'play'}:${o.seed}`, startTime: START_TIME, players });
+  for (let n = base.checkpoint + 1; n <= to && !base.ended; n++) {
     const write = !!o.write && n >= from;
     if (n === from && o.want) {
       const here = (['A', 'B'] as const).some((p) => base.chars[p].location === o.want);
@@ -100,7 +112,7 @@ export function playGame(o: PlayOptions): GameRun {
     }
     const ends = {} as Record<PlayerId, GameState>;
     for (const pid of ['A', 'B'] as const) {
-      const s = structuredClone(base);
+      const s = structuredClone(real && n === real.base.checkpoint + 1 ? real.played[pid].state : base);
       const lines: string[] | null = write ? [] : null;
       const policy = o.policy === 'hasty' && n >= (o.policyFrom ?? 1) ? 'hasty' : 'curious';
       const st = playSegment(s, pid, n, `${o.seed}:${n}:${pid}`, policy, lines);

@@ -11,12 +11,12 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks } from '../engine/checkpoint';
-import { replayPrefix, segmentFinished } from '../engine/game';
+import { segmentFinished } from '../engine/game';
 import { unit } from '../engine/rng';
 import type { GameState, PlayerId } from '../engine/types';
 import type { LocalSave } from '../app/session';
 import { content as c } from './index';
-import { playSegment } from './playtest';
+import { fromSaves, playSegment } from './playtest';
 
 const DIR = process.env.KVEST_PAIR;
 const OLD = ['ch1', 'ch2'];
@@ -47,10 +47,7 @@ describe.runIf(!!DIR)('где пара ещё может оказаться', ()
   it(`начало участка ${AT}: места и состав`, { timeout: 1800000 }, () => {
     const saves = { A: load('A'), B: load('B') };
     // Общая точка — более поздняя из баз; у отставшего на ней ещё нет своих записей.
-    const ahead = (saves.A.base!.checkpoint >= saves.B.base!.checkpoint ? 'A' : 'B') as PlayerId;
-    const base0 = saves[ahead].base!;
-    const records = Object.fromEntries((['A', 'B'] as const).map((p) => [p, saves[p].base!.checkpoint === base0.checkpoint ? saves[p].segment : []])) as Record<PlayerId, LocalSave['segment']>;
-    const played = Object.fromEntries((['A', 'B'] as const).map((p) => [p, replayPrefix(c, base0, p, records[p])])) as Record<PlayerId, { state: GameState; applied: number }>;
+    const { base: base0, records, played } = fromSaves(saves);
     for (const p of ['A', 'B'] as const) expect(played[p].applied, `${p}: журнал из облака не повторился`).toBe(records[p].length);
 
     const tally = new Map<string, number>();

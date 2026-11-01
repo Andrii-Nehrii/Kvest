@@ -11,10 +11,13 @@
 //   KVEST_SEEDS      — сиды через запятую (по умолчанию 1,2,3);
 //   KVEST_POLICY     — curious (пробует всё новое, потом идёт к точке) или hasty (спешит к точке), KVEST_POLICY_FROM — с какого участка;
 //   KVEST_WANT       — id места, где хотя бы один игрок начинает участок KVEST_FROM: сиды перебираются (до 300), пока не
-//                      найдётся KVEST_COUNT (по умолчанию 3) прохождений; KVEST_TOGETHER=1 — ещё и вместе.
+//                      найдётся KVEST_COUNT (по умолчанию 3) прохождений; KVEST_TOGETHER=1 — ещё и вместе;
+//   KVEST_PAIR       — папка с save-A.json / save-B.json пары (как для pairpaths.test.ts): прохождение начинается с НАСТОЯЩИХ
+//                      сохранений — так читается своя часть ровно на линии пары (с KVEST_WANT и KVEST_ANSWERS).
 // В начале файла — сводка по участкам: шаги, экраны с выбором, прерывания, экраны с риском, температура тела, где закончил.
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
+import type { LocalSave } from '../app/session';
 import { lastCp, playGame } from './playtest';
 
 const NAME = process.env.KVEST_TRANSCRIPT;
@@ -25,6 +28,9 @@ const SEEDS = (process.env.KVEST_SEEDS ?? '1,2,3').split(',');
 const POLICY = process.env.KVEST_POLICY === 'hasty' ? 'hasty' : 'curious';
 const WANT = process.env.KVEST_WANT;
 const COUNT = Number(process.env.KVEST_COUNT ?? 3);
+const PAIR = process.env.KVEST_PAIR;
+const load = (pid: 'A' | 'B'): LocalSave => { const raw = JSON.parse(readFileSync(`${PAIR}/save-${pid}.json`, 'utf8')); return raw.save ?? raw; };
+const SAVES = PAIR ? { A: load('A'), B: load('B') } : undefined;
 
 describe.runIf(!!NAME)('стенограмма прохождения', () => {
   it('пишет transcripts/<имя>-<сид>.txt', { timeout: 1200000 }, () => {
@@ -34,7 +40,7 @@ describe.runIf(!!NAME)('стенограмма прохождения', () => {
     for (const seed of seeds) {
       if (written.length >= (WANT ? COUNT : seeds.length)) break;
       const r = playGame({ seed, name: NAME, from: FROM, to: TO, answers: ANSWERS, policy: POLICY, policyFrom: Number(process.env.KVEST_POLICY_FROM ?? 1),
-        write: true, want: WANT, together: process.env.KVEST_TOGETHER === '1' });
+        write: true, want: WANT, together: process.env.KVEST_TOGETHER === '1', saves: SAVES });
       if (r.skipped) continue;
       const head = `Стенограмма «${NAME}», сид ${seed}, участки ${FROM}–${TO}, ответы: ${JSON.stringify(ANSWERS)}, игрок: ${POLICY}`;
       writeFileSync(new URL(`../../transcripts/${NAME}-${seed}.txt`, import.meta.url), [head, '', ...r.summary, '', ...r.lines].join('\n'));
