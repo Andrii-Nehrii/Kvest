@@ -1,3 +1,4 @@
+import { messe5Scenes, messe5Events } from './messe5';
 import { north5Scenes, north5Events } from './north5';
 import { bflat5Scenes, bflat5Events } from './bflat5';
 import { farm5Scenes, farm5Events } from './farm5';
@@ -5,6 +6,7 @@ import type { Scene, WorldEvent } from '../../engine/content-types';
 
 // 12 ноября: утро.
 export const morning12Scenes: Scene[] = [
+  ...messe5Scenes,
   ...north5Scenes,
   ...farm5Scenes,
   ...bflat5Scenes,
@@ -994,176 +996,6 @@ export const morning12Scenes: Scene[] = [
     ]
   },
   {
-    "id": "c5_messe",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "messe",
-    "title": "Зал B1",
-    "safe": true,
-    "text": [
-      {
-        "when": {"before": 3240},
-        "text": "В соседнем ряду на телефоне смотрят видео без звука. Синее лицо появляется и пропадает над краем одеяла. Ты отворачиваешься к колонне."
-      },
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "Кто-то мелом подписал номер ряда прямо на полу. На колонне бумага отходит от скотча, лист шевелится от каждого проходящего. У кухни очередь из людей с пустыми кружками."
-      },
-      {"when": {"all": [{"after": 3600}, {"before": 3900}]}, "text": "У кухни моют пустые котлы. Ложки ударяют о металл чаще, чем слышны голоса."},
-      {
-        "when": {"after": 3900},
-        "text": "Одеяла на раскладушках похожи друг на друга. Ты узнаёшь своё место по ботинкам, поставленным рядом. В дальнем конце зала долго не гасят свет."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_blanket.result", "op": "==", "value": "facts"}, {"all": []}]},
-        "text": "У дрожащего человека теперь отдельный стул и медик рядом. Соседи сдвигают койки сами."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_blanket.result", "op": "==", "value": "insist"}, {"all": []}]},
-        "text": "Дежурный помнит твой голос. Прежде чем говорить с тобой, зовёт второго сотрудника."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_blanket.result", "op": "==", "value": "quiet"}, {"all": []}]},
-        "text": "Соседняя раскладушка стоит вплотную к твоей. Теперь дрожит и её спинка."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_locker.result", "op": "==", "value": "sort"}, {"all": []}]},
-        "text": "Женщина нашла свои таблетки. Она показывает дежурному твою койку: — Вот кто видел."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_locker.result", "op": "==", "value": "guard"}, {"all": []}]},
-        "text": "Оба рюкзака под столом солдата. Их хозяева ждут разрешения взять даже воду."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_locker.result", "op": "==", "value": "own"}, {"all": []}]},
-        "text": "Твой рюкзак застёгнут. Рядом женщина на коленях ищет таблетку под чужой обувью."
-      }
-    ],
-    "actions": [
-      {
-        "id": "c5_messe_count",
-        "label": "Проверить, где лежат свои вещи",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_count"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "Ты перекладываешь всё в один рюкзак. Одеяло остаётся на раскладушке, обувь — на ногах. Сосед смотрит на тебя и тоже начинает собирать сумку.",
-        "effects": [{"set": "$.c5_messe_count", "value": true}]
-      },
-      {
-        "id": "c5_messe_exit",
-        "label": "Проверить дверь под зелёной табличкой",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_exit"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "У двери сложены пустые картонные коробки. Ручка не заперта, но створка цепляет за пол. Ты убираешь две коробки и пробуешь ещё раз. Теперь проходит плечо.",
-        "effects": [{"set": "$.c5_messe_exit", "value": true}, {"set": "$.messe_exit", "value": true}]
-      },
-      {
-        "id": "c5_messe_kitchen",
-        "label": "Помочь разносить закрытые контейнеры",
-        "minutes": 45,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_kitchen"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "Контейнеры горячие снизу. Ты берёшь по два, ставишь на стол и возвращаешься за следующими. Волонтёр просит не подносить еду к кроватям тех, кто не отвечает.",
-        "effects": [{"set": "$.c5_messe_kitchen", "value": true}, {"body": "fatigue", "delta": 4}]
-      },
-      {
-        "id": "c5_messe_board",
-        "label": "Проверить доску объявлений",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_board"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "Новые листки приколоты поверх старых. Одну фотографию сняли, булавка осталась. Ты не знаешь, нашли человека или просто кончилось место.",
-        "effects": [{"set": "$.c5_messe_board", "value": true}, {"body": "stress", "delta": 2}]
-      },
-      {
-        "id": "c5_messe_doctor",
-        "label": "Поговорить с врачом у стола",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_doctor"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "На столе три термометра и одна ручка. Врач вытирает каждый прибор дольше, чем меряет температуру. — Если перестал отвечать, зовите нас. Не трясите за плечи, — говорит она.",
-        "effects": [{"set": "$.c5_messe_doctor", "value": true}]
-      },
-      {
-        "id": "c5_messe_report",
-        "label": "Передать наблюдения дежурному",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_report"}}, {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"knows": "f_messe_cough"}, {"not": {"flag": "w.messe_reported"}}]}]}]},
-        "text": "Ты описываешь ряд и раскладушку. Дежурный записывает, не спрашивая фамилию. — Подойдём, — говорит он. Ты остаёшься стоять, пока он не берёт рацию.",
-        "effects": [{"set": "$.c5_messe_report", "value": true}, {"set": "w.messe_reported", "value": true}]
-      },
-      {
-        "id": "c5_messe_wash",
-        "label": "Отстоять очередь к умывальнику",
-        "minutes": 30,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_wash"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "Вода течёт тонко, но течёт. Ты моешь лицо и долго трёшь ладони. Рядом мужчина держит ребёнку рукава, чтобы не намочить.",
-        "effects": [{"set": "$.c5_messe_wash", "value": true}, {"body": "stress", "delta": -4}]
-      },
-      {
-        "id": "c5_messe_food",
-        "label": "Взять свою порцию у кухни",
-        "minutes": 40,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_food"}}, {"after": 3900}]}]},
-        "text": "Хлеб завернут в салфетку, чтобы не брали руками из общей корзины. Ты доедаешь стоя: свободных стульев нет. Тёплый стакан приходится вернуть сразу.",
-        "effects": [{"set": "$.c5_messe_food", "value": true}, {"body": "hunger", "delta": -35}, {"body": "thirst", "delta": -20}]
-      },
-      {
-        "id": "c5_messe_listen",
-        "label": "Послушать дежурных у входа",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_listen"}}, {"all": [{"after": 3240}, {"before": 3900}]}]}]},
-        "text": "Они спорят о списках. В одном человек уже переведён, в другом ещё лежит в старом ряду. Солдат прижимает палец к строчке и зовёт медика.",
-        "effects": [{"set": "$.c5_messe_listen", "value": true}, {"body": "stress", "delta": 3}]
-      },
-      {
-        "id": "c5_messe_corridor",
-        "label": "Отойти к перегородке",
-        "minutes": 2,
-        "terminal": true,
-        "goto": "c5_messe_corridor",
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}]},
-        "effects": []
-      },
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"before": 3240}]},
-        "effects": [{"sleep": 360}],
-        "text": "В соседнем ряду на телефоне смотрят видео без звука. Синее лицо появляется и пропадает над краем одеяла. Ты отворачиваешься к колонне."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку.",
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}]}
-      },
-      {
-        "id": "c5_alarm",
-        "label": "Уйти от падающей перегородки",
-        "minutes": 0,
-        "terminal": true,
-        "goto": "c5_messe_exit",
-        "when": {"flag": "w.c3_messe_outbreak"},
-        "effects": []
-      },
-      {"id": "c5_blanket_approach", "label": "Проверить соседнюю раскладушку", "minutes": 1, "terminal": true, "goto": "c5_blanket", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3355}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_blanket.done"}}]}},
-      {"id": "c5_locker_approach", "label": "Разобраться с чужой сумкой", "minutes": 1, "terminal": true, "goto": "c5_locker", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3525}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_locker.done"}}]}},
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"cp": 4}, {"after": 3660}]}]}}
-    ]
-  },
-  {
     "id": "c5_q",
     "for": "any",
     "chapter": "ch3",
@@ -1318,77 +1150,6 @@ export const morning12Scenes: Scene[] = [
       },
       {"id": "c5_curtain_approach", "label": "Позвать медсестру к ширме", "minutes": 1, "terminal": true, "goto": "c5_curtain", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3370}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_curtain.done"}}]}},
       {"id": "c5_bracelet_approach", "label": "Выслушать соседку с браслетом", "minutes": 1, "terminal": true, "goto": "c5_bracelet", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3565}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_bracelet.done"}}]}},
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"cp": 4}, {"after": 3660}]}]}}
-    ]
-  },
-  {
-    "id": "c5_messe_corridor",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "messe",
-    "title": "У перегородки",
-    "safe": true,
-    "text": [
-      {"when": {"before": 3240}, "text": "Кабель у сетки тёплый. Ты замечаешь, что стоишь на нём подошвой, и переступаешь. Солдат смотрит, но ничего не говорит."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "За двойной сеткой видны чужие койки. Солдат стоит боком, чтобы видеть оба прохода. Говорить с той стороной разрешает только издали."
-      },
-      {
-        "when": {"all": [{"after": 3600}, {"before": 3900}]},
-        "text": "Люди у сетки передают номера рядов через дежурного. Он повторяет каждый номер, прежде чем записать."
-      },
-      {"when": {"after": 3900}, "text": "За сеткой горит дежурный свет. Лиц почти не различить, только движения над белыми простынями."}
-    ],
-    "actions": [
-      {
-        "id": "c5_messe_partner",
-        "label": "Поискать {partner.acc} за сеткой",
-        "minutes": 25,
-        "combinable": true,
-        "when": {"all": [{"flag": "w.together"}, {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"not": {"flag": "$.c5_messe_partner"}}]}]}]},
-        "text": "Ты долго смотришь на чужие руки и затылки. За сеткой кто-то поднимается, снова ложится. Ты оставляешь у дежурного номер своей раскладушки.",
-        "effects": [{"set": "$.c5_messe_partner", "value": true}, {"body": "stress", "delta": 3}]
-      },
-      {
-        "id": "c5_back",
-        "label": "Вернуться в свой ряд",
-        "minutes": 2,
-        "terminal": true,
-        "goto": "c5_messe",
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}]},
-        "effects": []
-      },
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"before": 3240}]},
-        "effects": [{"sleep": 360}],
-        "text": "Кабель у сетки тёплый. Ты замечаешь, что стоишь на нём подошвой, и переступаешь. Солдат смотрит, но ничего не говорит."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку.",
-        "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}]}
-      },
-      {
-        "id": "c5_alarm",
-        "label": "Уйти от падающей перегородки",
-        "minutes": 0,
-        "terminal": true,
-        "goto": "c5_messe_exit",
-        "when": {"flag": "w.c3_messe_outbreak"},
-        "effects": []
-      },
-      {"id": "c5_blanket_approach", "label": "Проверить соседнюю раскладушку", "minutes": 1, "terminal": true, "goto": "c5_blanket", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3355}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_blanket.done"}}]}},
-      {"id": "c5_locker_approach", "label": "Разобраться с чужой сумкой", "minutes": 1, "terminal": true, "goto": "c5_locker", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3525}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_locker.done"}}]}},
       {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"not": {"flag": "w.c3_messe_outbreak"}}, {"all": [{"cp": 4}, {"after": 3660}]}]}}
     ]
   },
@@ -2114,95 +1875,6 @@ export const morning12Scenes: Scene[] = [
     "location": "ahrensburg"
   },
   {
-    "id": "c5_blanket",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Проверить соседнюю раскладушку",
-    "universal": false,
-    "text": [
-      {"text": "Соседняя раскладушка качается, хотя человек на ней не шевелится. Под одеялом мелкая дрожь. Дежурный проходит мимо."},
-      {"text": "Он всё-таки садится, держась обеими руками за край. — Холодно, — говорит. Ворот рубашки мокрый насквозь."}
-    ],
-    "onEnter": [{"set": "$.c5_blanket.started", "value": true}],
-    "actions": [
-      {
-        "id": "c5_blanket_facts",
-        "label": "Рассказать только увиденное",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_messe",
-        "text": "Ты описываешь дрожь и мокрую рубашку. Медик кивает, ещё раз обращается к человеку по имени. Его уводят пешком, одеяло оставляют на койке.",
-        "effects": [
-          {"set": "$.c5_blanket.done", "value": true},
-          {"set": "$.c5_blanket.result", "value": "facts"},
-          {"if": {"any": [{"me": "A"}, {"not": {"flag": "w.together"}}]}, "then": []},
-          {"body": "stress", "delta": 4}
-        ]
-      },
-      {
-        "id": "c5_blanket_insist",
-        "label": "Потребовать отдельное место",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_messe",
-        "text": "Ты говоришь громче, чем хочется. Медик смотрит на очередь за собой. — Мест нет. Есть осмотр. — Двое солдат всё же освобождают проход.",
-        "effects": [{"set": "$.c5_blanket.done", "value": true}, {"set": "$.c5_blanket.result", "value": "insist"}, {"body": "stress", "delta": 9}]
-      },
-      {
-        "id": "c5_blanket_quiet",
-        "label": "Отойти и не вмешиваться",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_messe",
-        "text": "Ты отходишь к колонне. Медик повторяет вопрос уже другому соседу. Тот пожимает плечами, не вынимая рук из карманов.",
-        "effects": [{"set": "$.c5_blanket.done", "value": true}, {"set": "$.c5_blanket.result", "value": "quiet"}]
-      }
-    ],
-    "location": "messe"
-  },
-  {
-    "id": "c5_locker",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Разобраться с чужой сумкой",
-    "universal": false,
-    "text": [
-      {"text": "Женщина у стены держит чужой рюкзак за лямку. Мужчина тянет его к себе. Из раскрытого кармана сыплются таблетки."},
-      {"text": "Ты сдвигаешь упаковки с прохода носком ботинка. Блистер расколот, белые таблетки катятся под раскладушки. Собирать их никто не начинает."}
-    ],
-    "onEnter": [{"set": "$.c5_locker.started", "value": true}],
-    "actions": [
-      {
-        "id": "c5_locker_sort",
-        "label": "Помочь разобрать вещи при дежурном",
-        "minutes": 20,
-        "terminal": true,
-        "goto": "c5_messe",
-        "text": "Каждый вынимает своё на глазах у другого. Термос остаётся мужчине, очки женщине. Таблетки с пола медик просит выбросить. Ссора заканчивается на пустом блистере.",
-        "effects": [{"set": "$.c5_locker.done", "value": true}, {"set": "$.c5_locker.result", "value": "sort"}, {"body": "fatigue", "delta": 3}]
-      },
-      {
-        "id": "c5_locker_guard",
-        "label": "Передать оба рюкзака солдату",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_messe",
-        "text": "Солдат уносит оба рюкзака к столу. Их хозяева идут следом, уже не глядя друг на друга. На полу остаётся одна оторванная лямка.",
-        "effects": [{"set": "$.c5_locker.done", "value": true}, {"set": "$.c5_locker.result", "value": "guard"}, {"body": "stress", "delta": 4}]
-      },
-      {
-        "id": "c5_locker_own",
-        "label": "Проверить и убрать свой рюкзак",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_messe",
-        "text": "Ты возвращаешься к своей койке. Все молнии закрыты. Лямку цепляешь за ножку раскладушки и садишься, прижав её ботинком.",
-        "effects": [{"set": "$.c5_locker.done", "value": true}, {"set": "$.c5_locker.result", "value": "own"}, {"body": "stress", "delta": 5}]
-      }
-    ],
-    "location": "messe"
-  },
-  {
     "id": "c5_curtain",
     "for": "any",
     "chapter": "ch3",
@@ -2375,6 +2047,7 @@ export const morning12Scenes: Scene[] = [
 ];
 
 export const morning12Events: WorldEvent[] = [
+  ...messe5Events,
   ...north5Events,
   ...farm5Events,
   ...bflat5Events,
@@ -2449,24 +2122,6 @@ export const morning12Events: WorldEvent[] = [
     "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3510}, {"before": 3710}, {"all": [{"npc": "uwe", "alive": true, "at": "ahrensburg"}, {"npc": "birgit", "alive": true, "at": "ahrensburg"}, {"npc": "merle", "alive": true, "at": "ahrensburg"}]}, {"not": {"flag": "$.c5_socket.done"}}]}, {"at": "ahrensburg"}]},
     "effects": [],
     "news": [{"channel": "direct", "text": "В гараже хлопает автомат. Уве держит белый провод за вилку, Биргит зовёт его по имени так, будто он снова полез на крышу."}]
-  },
-  {
-    "id": "ev_c5_blanket",
-    "at": 3355,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3355}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_blanket.done"}}]}, {"at": "messe"}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "Соседняя раскладушка качается, хотя человек на ней не шевелится. Под одеялом мелкая дрожь. Дежурный проходит мимо."}]
-  },
-  {
-    "id": "ev_c5_locker",
-    "at": 3525,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3525}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_locker.done"}}]}, {"at": "messe"}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "Женщина у стены держит чужой рюкзак за лямку. Мужчина тянет его к себе. Из раскрытого кармана сыплются таблетки."}]
   },
   {
     "id": "ev_c5_curtain",
