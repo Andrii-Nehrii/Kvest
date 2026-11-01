@@ -106,6 +106,13 @@ function notes(n: number): MergeNote[] {
   };
   return [
     ...(n === 5 ? central5Notes : []),
+    ...(n === 5 ? [
+      { id: 'b5_host_meet', group: 'meet', when: all(same, { at: 'b_flat' }, { me: 'B' }), text: 'Ты придвигаешь {partner.dat} свою кружку. — Тут и скажем. — В прихожей ждут ответа. Дверь ты пока не открываешь.', effects: [{ set: 'w.together', value: true }, ...share] },
+      { id: 'b5_guest_meet', group: 'meet', when: all(same, { at: 'b_flat' }, { me: 'A' }), text: '{partner} ставит между вами кружку. Ты спрашиваешь, можно ли говорить здесь. {pm:Он|Она} кивает, не отпуская ручки.', effects: [{ set: 'w.together', value: true }, ...share] },
+      { id: 'f5_already_here', group: 'meet', when: farm, text: 'Хенрике ждёт вашего ответа у двери. {partner} подаёт тебе куртку. Ты не надеваешь её, пока не договоритесь.', effects: [{ set: 'w.together', value: true }, ...share] },
+      { id: 'n5_already_here', group: 'meet', when: all(same, { at: 'north_gym' }), text: '{partner} складывает ваши вещи на один мат. На соседний мат смотрит женщина из очереди. Вы ещё не ответили ей.', effects: [{ set: 'w.together', value: true }, ...share] },
+      { id: 'm5_already_here', group: 'meet', when: all(same, { at: 'messe' }), text: '{partner} смотрит на пустое место возле медпоста. Ты придвигаешь сумку к ногам, освобождая край раскладушки. Пока не садится ни один.', effects: [{ set: 'w.together', value: true }, ...share] },
+    ] as MergeNote[] : []),
     ...reports(n, { any: [same, { callable: true }] }),
     {
       id: 'risk',
@@ -258,19 +265,19 @@ const cityHome = all(together, same, free, atAny(['a_flat', 'b_flat']));
 const workshop = all(together, same, { at: 'deniz_workshop' });
 const crowded = all(together, same, atAny(['north_gym', 'ahrensburg', 'messe', 'c3_messe_yard']));
 function midday5(): JointDecision {
-  return decision('c3_midday5', 5,
-    'До темноты несколько часов. Уходя, вы оставите тех, кто сейчас делит с вами крышу. На что договариваетесь?', [
+  const d = decision('c3_midday5', 5,
+    'После утра вы знаете, кто остался рядом. {partner} ждёт ответа: отдадите своё место и время этим людям или сохраните их для себя?', [
     { id: 'exchange', label: { default: 'За шлангом вдвоём, отдать картошку' },
       when: { at: 'hof_luedemann' },
-      feasible: all(farm, { stocked: 'potatoes', qty: 5, at: 'c3_farm_stock' }),
-      effects: [...set('w.c3_trip5', 'exchange'), { unstock: 'potatoes', qty: 5, at: 'c3_farm_stock' }],
-      text: 'Хенрике разрешает взять мешок. Пока вас нет, Павел носит воду один. Шланг должен подойти: второй мешок она не даст.' },
+      feasible: all(farm, not(flag('proj.c3_pump.done')), { any: [{ has: 'potatoes', qty: 5 }, { stocked: 'potatoes', qty: 5, at: 'c3_farm_stock' }] }),
+      effects: [...set('w.c3_trip5', 'exchange'), { if: not({ has: 'potatoes', qty: 5 }), then: [{ unstock: 'potatoes', qty: 5, at: 'c3_farm_stock' }] }, { set: 'w.c3_exchange_load5', value: true }],
+      text: 'Хенрике ставит ваш мешок у двери. — До темноты обратно. — Кухонную работу она оставляет себе. Второго мешка не даст.' },
     { id: 'relieve', label: { default: 'Остаться, взять работу Павла на себя' },
-      when: { at: 'hof_luedemann' }, feasible: all(farm, { npc: 'pawel', alive: true, at: 'hof_luedemann' }),
+      when: all({ at: 'hof_luedemann' }, { npc: 'pawel', alive: true, at: 'hof_luedemann' }), feasible: all(farm, { npc: 'pawel', alive: true, at: 'hof_luedemann' }),
       effects: [...set('w.c3_trip5', 'relieve'), { npc: 'pawel', set: { c3_hand_rest: true } }],
       text: 'Павел остаётся у печки. До вечера воду носите вы, за деталью сегодня никто не пойдёт. Хенрике ставит два ведра у порога.' },
     { id: 'water', label: { default: 'К цистерне вдвоём, оставить дом' },
-      when: atAny(['a_flat', 'b_flat']), feasible: cityHome, effects: set('w.c3_trip5', 'water'),
+      when: atAny(['a_flat', 'b_flat']), feasible: all(cityHome, not(all({ at: 'b_flat' }, flag('w.c3_b_stairs_closed')))), effects: [...set('w.c3_trip5', 'water'), { set: 'w.c3_house_empty5', value: true }],
       text: 'Вы забираете тару и уходите вдвоём. На стук соседям некому будет ответить. Вернуться нужно до закрытия общего входа.' },
     { id: 'give', label: { default: 'Накормить соседей, вместе держать вход' },
       when: atAny(['a_flat', 'b_flat']), feasible: all(cityHome, food),
@@ -282,15 +289,25 @@ function midday5(): JointDecision {
       text: 'Чужую машину ставят внутри. Вы спите в задней комнате; к воротам нужно проходить мимо незнакомых людей.' },
     { id: 'shift', label: { default: 'Заменить дежурных вдвоём до вечера' },
       when: atAny(['north_gym', 'ahrensburg', 'messe', 'c3_messe_yard', 'deniz_workshop']), feasible: { any: [crowded, workshop] },
-      effects: set('w.c3_trip5', 'shift'),
+      effects: [...set('w.c3_trip5', 'shift'), { set: 'w.c3_shift5', value: true }],
       text: 'Вы отдаёте оставшийся день дежурству. Те, кого сменили, смогут лечь. Свои вещи оставляете там, где их не видно от двери.' },
     { id: 'bed', label: { default: 'Уступить сухое место тому, кто слабее' },
       when: atAny(['north_gym', 'ahrensburg', 'messe', 'messe_q', 'farm_coop', 'c3_messe_yard']),
-      feasible: all(together, same), effects: set('w.c3_trip5', 'bed'),
+      feasible: all(together, same), effects: [...set('w.c3_trip5', 'bed'), { set: 'w.c3_bed5_lost', value: true }],
       text: 'Вы переносите вещи ближе к проходу. Освободившееся место занимают сразу; отдохнуть там до ночи уже нельзя.' },
     { id: 'stay', label: { default: 'Остаться при своих вещах' }, effects: set('w.c3_trip5', 'stay'),
       text: 'За чужую смену и чужую дорогу не берётесь. Люди рядом распределяют работу без вас.' },
   ]);
+  d.options.splice(d.options.length - 1, 0,
+    { id: 'clinic', label: { default: 'Отдать свой день очереди раненого врача' }, when: all({ at: 'messe' }, { npc: 'c3_messe_doctor', at: 'messe', alive: true }), feasible: all(together, same, { at: 'messe' }, { npc: 'c3_messe_doctor', at: 'messe', alive: true }), effects: [...set('w.c3_trip5', 'clinic'), { set: 'w.c3_mclinic_help5', value: true }], text: 'Врач просит поднести стул к её столу. Вы освобождаете свою раскладушку пациентам и остаётесь при ней. Сумки придётся поставить под ноги.' },
+  );
+  d.arbiters = [
+    { id: 'n5_without_kitchen', when: all(together, same, { at: 'north_gym' }, flag('w.c3_north_kitchen_lost')), winner: 'shift', text: 'Хинрихсен показывает на очередь без еды. Вы замолкаете и идёте к тем, кто пытается устроить раздачу заново.' },
+    { id: 'm5_doctor_hurt', when: all(together, same, { at: 'messe' }, { npc: 'c3_messe_doctor', at: 'messe', alive: true, status: 'injured' }), winner: 'clinic', text: 'Врач не может придержать чужую повязку. Вы замечаете это одновременно и подходите с двух сторон.' },
+    ...d.arbiters,
+    { id: 'no_shared_promise5', when: all(together, same), winner: 'stay', text: 'Вы не даёте общего обещания, пока второй не согласен. Ждущему человеку приходится ответить отказом.' },
+  ];
+  return d;
 }
 function midday7(): JointDecision {
   return decision('c3_midday7', 7,
