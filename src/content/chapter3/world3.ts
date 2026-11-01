@@ -261,6 +261,9 @@ export const stock3: NonNullable<Content['initialPlaceItems']> = [
 ];
 
 export const npcs3: Record<string, NpcDef> = {
+  c3_b_landing: { id: 'c3_b_landing', name: 'Мужчина с верхнего этажа', intro: 'Работал в квартире наверху; остался в доме без еды.', initial: { alive: true, location: 'b_stairs', status: 'ok', trust: { A: 0, B: 0 }, memory: [], vars: {} }, agenda: [
+    { id: 'b6_missed_door', at: at(12, 19, 46), scope: 'world', when: all({ cp: 5 }, { v: 'w.c3_b6', op: '==', value: 'inside' }), effects: [{ npc: 'c3_b_landing', moveTo: 'b_flat' }] },
+  ] },
   c3_messe_doctor: { id: 'c3_messe_doctor', name: 'Врач-волонтёр', intro: 'Женщина лет шестидесяти в жилете; принимала в зале B1 вчера.', initial: { alive: true, location: 'messe', status: 'ok', trust: { A: 0, B: 0 }, memory: [], vars: {} }, agenda: [
     { id: 'm5_missed_knife', at: at(12, 11, 36), scope: 'world', when: all({ cp: 4 }, { v: 'w.c3_m5', op: '==', value: 'missed' }), effects: [{ npc: 'c3_messe_doctor', moveTo: 'c3_medical_van', status: 'injured' }] },
   ] },

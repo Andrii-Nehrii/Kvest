@@ -1,7 +1,9 @@
+import { bflat6Scenes, bflat6Events } from './bflat6';
 import type { Scene, WorldEvent } from '../../engine/content-types';
 
 // 12 ноября: день и вечер.
 export const afternoon12Scenes: Scene[] = [
+  ...bflat6Scenes,
   {
     "id": "c6_farm",
     "for": "any",
@@ -673,189 +675,6 @@ export const afternoon12Scenes: Scene[] = [
     ]
   },
   {
-    "id": "c6_bflat",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_flat",
-    "title": "Barmbek",
-    "safe": true,
-    "text": [
-      {"when": {"before": 3240}, "text": "Лампа на лестнице щёлкает сквозь дверь. В комнате видна одна полоска от уличного фонаря. Ты закрываешь её рукавом куртки."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "На кухонном столе — открытые пачки и листок с остатками. Через окно слышно, как внизу тянут что-то тяжёлое по асфальту. Ты отодвигаешь стул от двери, потом придвигаешь обратно."
-      },
-      {
-        "when": {"all": [{"after": 3600}, {"before": 3900}]},
-        "text": "На кухонном окне серый след ладони. Внизу медленно проезжает грузовик, но у дома не останавливается."
-      },
-      {
-        "when": {"after": 3900},
-        "text": "Стекло отражает комнату вместо улицы. Ты закрываешь занавеску до самого края. В подъезде кто-то долго возится с замком и наконец уходит вниз."
-      },
-      {
-        "when": {"npc": "svenja", "at": "b_flat", "alive": true, "status": "turned"},
-        "text": "За внутренней дверью шаркают ноги. Ты проверяешь подпорку, не трогая ручку."
-      },
-      {"when": {"v": "w.power.hh", "op": "==", "value": "on"}, "text": "Холодильник включается с тихим толчком. Ты прислушиваешься к нему дольше, чем к улице."},
-      {"when": {"v": "w.power.hh", "op": "==", "value": "off"}, "text": "Холодильник молчит. Дверцу без нужды не открываешь."},
-      {
-        "when": {"all": [{"all": [{"v": "$.c5_knock.result", "op": "==", "value": "water"}, {"npc": "okafor", "alive": true, "at": "b_okafor"}]}, {"before": 3780}]},
-        "text": "У двери напротив лежит снятое с бутылки кольцо. Окафор просит впредь ставить воду и сразу отходить."
-      },
-      {
-        "when": {"all": [{"all": [{"v": "$.c5_knock.result", "op": "==", "value": "cloth"}, {"npc": "okafor", "alive": true, "at": "b_okafor"}]}, {"before": 3780}]},
-        "text": "Твоё полотенце висит на внутренней ручке. Окафор придерживает им дверь, чтобы не касаться металла рукой."
-      },
-      {
-        "when": {"all": [{"all": [{"v": "$.c5_knock.result", "op": "==", "value": "medical"}, {"npc": "okafor", "alive": true, "at": "b_okafor"}]}, {"before": 3780}]},
-        "text": "Во дворе медик смотрит вверх, потом на очередь у машины. До вашего этажа он ещё не дошёл."
-      },
-      {
-        "when": {"all": [{"all": [{"v": "$.c5_yard.result", "op": "==", "value": "pay"}, {"all": []}]}, {"before": 3780}]},
-        "text": "Женщина катит починенный велосипед через двор. Мальчик оборачивается к твоему окну. Деньги остались у мастера."
-      },
-      {
-        "when": {"all": [{"all": [{"v": "$.c5_yard.result", "op": "==", "value": "talk"}, {"all": []}]}, {"before": 3780}]},
-        "text": "Мастер уходит с твоей пачкой хлопьев. Женщина поднимает велосипед на бордюр и машет тебе, не выпуская руля."
-      },
-      {
-        "when": {"all": [{"all": [{"v": "$.c5_yard.result", "op": "==", "value": "apart"}, {"all": []}]}, {"before": 3780}]},
-        "text": "Велосипед лежит у стены. Женщина ведёт ребёнка пешком, мужчина остался с колесом в руках."
-      },
-      {
-        "when": {"all": [{"v": "$.c6_patient.result", "op": "==", "value": "closed"}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}]},
-        "text": "Стул стоит снаружи двери Окафора. Изнутри он спрашивает, на месте ли ты, но открыть не просит."
-      },
-      {
-        "when": {"all": [{"v": "$.c6_patient.result", "op": "==", "value": "care"}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}]},
-        "text": "Твою перевязку забрали. Вода остаётся у порога, хотя из-за двери слышно сухое сглатывание."
-      },
-      {
-        "when": {"all": [{"v": "$.c6_patient.result", "op": "==", "value": "guard"}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}]},
-        "text": "Дежурный записал этаж и фамилию. Когда машина уезжает, ты ищешь глазами знакомую дверь."
-      },
-      {
-        "when": {"all": [{"v": "$.c6_chain.result", "op": "==", "value": "lift"}, {"all": []}]},
-        "text": "Матрас унесли. Старик пробует закрыть дверь и смотрит на тебя, дождавшись щелчка."
-      },
-      {
-        "when": {"all": [{"v": "$.c6_chain.result", "op": "==", "value": "cut"}, {"all": []}]},
-        "text": "На пороге клочок разрезанной ткани. Девушка несёт матрас дырой к себе, не оглядываясь."
-      },
-      {
-        "when": {"all": [{"v": "$.c6_chain.result", "op": "==", "value": "inside"}, {"all": []}]},
-        "text": "Матрас стоит внутри у стены. Чтобы открыть дверь, теперь нужно сначала отодвинуть его."
-      },
-      {
-        "when": {"v": "w.c3_trip5", "op": "==", "value": "door"},
-        "text": "У входа тебя сменяет сосед с пустой кастрюлей. Пачка пошла на общий ужин. Теперь твоя очередь держать дверь; за водой он обещал сходить сам."
-      },
-      {
-        "when": {"v": "$.c6_medicine.result", "op": "==", "value": "sit"},
-        "text": "Женщина приносит тебе стул к собственной двери. — Вам теперь посидеть, — говорит она. Коробка таблеток у неё всё ещё пустая."
-      },
-      {
-        "when": {"v": "$.c6_medicine.result", "op": "==", "value": "ask"},
-        "text": "Дежурный поднимается на третий этаж. Женщина открывает ему до стука: увидела твою руку в окне."
-      },
-      {"when": {"v": "$.c6_medicine.result", "op": "==", "value": "no"}, "text": "С третьего этажа зовут по имени женщину, которая ушла. Ответить некому."},
-      {
-        "when": {"v": "$.c6_patient.result", "op": "==", "value": "support"},
-        "text": "Ты держишься подальше от чужой ручки. Окафор просил напомнить ему самому, зачем дверь закрыта."
-      },
-      {"when": {"v": "$.c6_patient.result", "op": "==", "value": "leave"}, "text": "Ты готовишь слова для партнёра. У двери напротив всё ещё стоит стул."}
-    ],
-    "actions": [
-      {
-        "id": "c6_partner_evening",
-        "label": "Дать {partner.dat} поспать первым",
-        "minutes": 50,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c6_partner_evening"}}, {"flag": "w.together"}]},
-        "text": "{partner} ложится поверх одеяла, не разуваясь. Ты садишься у двери. Когда {pm:он|она} просыпается, твой чай уже холодный.",
-        "effects": [{"set": "$.c6_partner_evening", "value": true}, {"body": "fatigue", "delta": 7}, {"body": "stress", "delta": -5}]
-      },
-      {
-        "id": "c6_door_shift",
-        "label": "Посидеть у двери вместо соседа",
-        "minutes": 40,
-        "combinable": true,
-        "when": {"not": {"flag": "$.c6_door_shift"}},
-        "text": "Сосед спускается на два этажа и наконец садится. Ты остаёшься у глазка. Изнутри квартиры теплом касается спины сквозняк; за цепочку никто не берётся.",
-        "effects": [{"set": "$.c6_door_shift", "value": true}, {"body": "fatigue", "delta": 6}]
-      },
-      {
-        "id": "c6_evening_soup",
-        "label": "Сварить еду из своей пачки",
-        "minutes": 35,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c6_evening_soup"}}, {"has": "oats"}]},
-        "text": "Крупа липнет ко дну, пока ты прислушиваешься к лестнице. Приходится мешать всё время. Готовую еду держишь в кастрюле: миску потом тоже нужно мыть.",
-        "effects": [{"set": "$.c6_evening_soup", "value": true}, {"take": "oats"}, {"body": "hunger", "delta": -35}]
-      },
-      {
-        "id": "c6_reserve",
-        "label": "Отложить из рюкзака пачку крупы",
-        "minutes": 10,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c6_reserve"}}]},
-        "text": "На полке освобождается место рядом с общей кастрюлей. Ты убираешь туда пачку, закрыв прищепкой открытый край. Прищепка едва держится на толстом краю.",
-        "effects": [{"set": "$.c6_reserve", "value": true}, {"stock": "oats", "qty": 1, "at": "c3_b_stock"}],
-        "enabled": {"has": "oats"},
-        "disabledReason": "В рюкзаке нет хлопьев"
-      },
-      {
-        "id": "c6_draw_water",
-        "label": "Взять из общего запаса три литра",
-        "minutes": 10,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c6_draw_water"}}]},
-        "text": "На кухне хватает места только для двух бутылок. Ты наполняешь одну, закрываешь, потом берёшь вторую. Кружка остаётся рядом с общим запасом.",
-        "effects": [{"set": "$.c6_draw_water", "value": true}, {"unstock": "water_l", "qty": 3, "at": "c3_b_stock"}, {"take": "water_l", "qty": 3}, {"give": "water_15", "qty": 2}],
-        "enabled": {"stocked": "water_l", "qty": 3, "at": "c3_b_stock"},
-        "disabledReason": "В общем запасе меньше трёх литров"
-      },
-      {
-        "id": "c6_shutters",
-        "label": "Час укреплять засов подъезда",
-        "minutes": 0,
-        "activity": "moderate",
-        "repeatable": true,
-        "combinable": true,
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"not": {"flag": "proj.c3_shutters_b.done"}}, {"all": [{"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, {"not": {"npc": "svenja", "at": "b_flat", "alive": true, "status": "turned"}}]}]},
-        "text": "Ты работаешь у самого выхода, оставив дверь в квартиру на цепочке. Старый шуруп прокручивается. Приходится переставить скобу выше и сверлить вручную.",
-        "effects": [{"work": "c3_shutters_b", "hours": 1}]
-      },
-      {
-        "id": "c6_okafor",
-        "label": "Тихо постучать к Окафору",
-        "minutes": 2,
-        "terminal": true,
-        "goto": "c6_okafor",
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"npc": "okafor", "at": "b_okafor", "alive": true}]},
-        "effects": []
-      },
-      {"id": "c6_landing", "label": "Выйти на площадку", "minutes": 1, "terminal": true, "goto": "c6_landing_B", "effects": []},
-      {
-        "id": "c6_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c6_patient_approach", "label": "Ответить у двери Окафора", "minutes": 1, "terminal": true, "goto": "c6_patient", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3720}, {"before": 4200}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}, {"not": {"flag": "$.c6_patient.done"}}]}},
-      {"id": "c6_chain_approach", "label": "Спуститься на зов снизу", "minutes": 1, "terminal": true, "goto": "c6_chain", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3940}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_chain.done"}}]}},
-      {"id": "c6_medicine_approach", "label": "Ответить женщине с коробкой", "minutes": 1, "terminal": true, "goto": "c6_medicine", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3725}, {"before": 4140}, {"not": {"npcVar": "okafor", "key": "bitten"}}, {"not": {"flag": "$.c6_medicine.done"}}]}},
-      {"id": "c6_go", "label": "Ночь. Устроиться на ночлег", "minutes": 5, "terminal": true, "goto": "c6_cp", "when": {"all": [{"cp": 5}, {"after": 4140}]}}
-    ],
-    "onEnter": [
-      {"if": {"all": [{"v": "w.c3_trip5", "op": "==", "value": "door"}, {"not": {"flag": "$.c6_promise_cost"}}]}, "then": [{"set": "$.c6_promise_cost", "value": true}, {"wait": 40, "activity": "rest"}]}
-    ]
-  },
-  {
     "id": "c6_landing_A",
     "for": "any",
     "chapter": "ch3",
@@ -884,48 +703,6 @@ export const afternoon12Scenes: Scene[] = [
       },
       {"id": "c6_container_approach", "label": "Открыть окно на голос соседа", "minutes": 1, "terminal": true, "goto": "c6_container", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3755}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_container.done"}}]}},
       {"id": "c6_lamp_approach", "label": "Посмотреть на свет в подъезде", "minutes": 1, "terminal": true, "goto": "c6_lamp", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3980}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_lamp.done"}}]}},
-      {"id": "c6_go", "label": "Ночь. Устроиться на ночлег", "minutes": 5, "terminal": true, "goto": "c6_cp", "when": {"all": [{"cp": 5}, {"after": 4140}]}}
-    ]
-  },
-  {
-    "id": "c6_landing_B",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_stairs",
-    "title": "Площадка",
-    "safe": true,
-    "text": [
-      {"when": {"before": 3240}, "text": "На кнопке таймера засох отпечаток грязного пальца. Ты не нажимаешь. Сверху кто-то тяжело дышит через сон."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "Почтовые ящики раскрыты, реклама валяется у стены. На двери кто-то написал время последней раздачи воды. Ниже другим почерком: «Это было вчера»."
-      },
-      {"when": {"all": [{"after": 3600}, {"before": 3900}]}, "text": "Дверь напротив закрыта. На плитке у стены стоит забытая чашка, ручкой к твоему порогу."},
-      {"when": {"after": 3900}, "text": "Света на лестнице нет. Ты стоишь у перил и слушаешь, не двигаясь. От нижнего пролёта тянет холодом."},
-      {
-        "when": {"v": "$.c6_medicine.result", "op": "==", "value": "sit"},
-        "text": "Женщина приносит тебе стул к собственной двери. — Вам теперь посидеть, — говорит она. Коробка таблеток у неё всё ещё пустая."
-      },
-      {
-        "when": {"v": "$.c6_medicine.result", "op": "==", "value": "ask"},
-        "text": "Дежурный поднимается на третий этаж. Женщина открывает ему до стука: увидела твою руку в окне."
-      },
-      {"when": {"v": "$.c6_medicine.result", "op": "==", "value": "no"}, "text": "С третьего этажа зовут по имени женщину, которая ушла. Ответить некому."}
-    ],
-    "actions": [
-      {"id": "c6_back", "label": "Вернуться в квартиру", "minutes": 2, "terminal": true, "goto": "c6_bflat", "effects": []},
-      {
-        "id": "c6_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c6_patient_approach", "label": "Ответить у двери Окафора", "minutes": 1, "terminal": true, "goto": "c6_patient", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3720}, {"before": 4200}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}, {"not": {"flag": "$.c6_patient.done"}}]}},
-      {"id": "c6_chain_approach", "label": "Спуститься на зов снизу", "minutes": 1, "terminal": true, "goto": "c6_chain", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3940}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_chain.done"}}]}},
-      {"id": "c6_medicine_approach", "label": "Ответить женщине с коробкой", "minutes": 1, "terminal": true, "goto": "c6_medicine", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3725}, {"before": 4140}, {"not": {"npcVar": "okafor", "key": "bitten"}}, {"not": {"flag": "$.c6_medicine.done"}}]}},
       {"id": "c6_go", "label": "Ночь. Устроиться на ночлег", "minutes": 5, "terminal": true, "goto": "c6_cp", "when": {"all": [{"cp": 5}, {"after": 4140}]}}
     ]
   },
@@ -1561,48 +1338,6 @@ export const afternoon12Scenes: Scene[] = [
         "combinable": true,
         "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
       },
-      {"id": "c6_go", "label": "Ночь. Устроиться на ночлег", "minutes": 5, "terminal": true, "goto": "c6_cp", "when": {"all": [{"cp": 5}, {"after": 4140}]}}
-    ]
-  },
-  {
-    "id": "c6_okafor",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_okafor",
-    "title": "Дверь напротив",
-    "safe": false,
-    "text": [
-      {"when": {"before": 3240}, "text": "У порога Окафора лежит одна тапочка. Другая видна глубже в коридоре. Ты не двигаешь дверь."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "Ты стучишь тихо, костяшкой пальца. За дверью что-то двигается. Нужно подождать, прежде чем стучать ещё."
-      },
-      {"when": {"all": [{"after": 3600}, {"before": 3900}]}, "text": "На пороге напротив тень от перил. Ключ лежит внутри тени, не блестит."},
-      {"when": {"after": 3900}, "text": "Дверь напротив остаётся закрытой. На полу высохла узкая полоса воды. Ты не наступаешь на неё."},
-      {
-        "when": {"v": "$.c6_medicine.result", "op": "==", "value": "sit"},
-        "text": "Женщина приносит тебе стул к собственной двери. — Вам теперь посидеть, — говорит она. Коробка таблеток у неё всё ещё пустая."
-      },
-      {
-        "when": {"v": "$.c6_medicine.result", "op": "==", "value": "ask"},
-        "text": "Дежурный поднимается на третий этаж. Женщина открывает ему до стука: увидела твою руку в окне."
-      },
-      {"when": {"v": "$.c6_medicine.result", "op": "==", "value": "no"}, "text": "С третьего этажа зовут по имени женщину, которая ушла. Ответить некому."}
-    ],
-    "actions": [
-      {"id": "c6_back", "label": "Вернуться к себе на площадку", "minutes": 1, "terminal": true, "goto": "c6_landing_B", "effects": []},
-      {
-        "id": "c6_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c6_patient_approach", "label": "Ответить у двери Окафора", "minutes": 1, "terminal": true, "goto": "c6_patient", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3720}, {"before": 4200}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}, {"not": {"flag": "$.c6_patient.done"}}]}},
-      {"id": "c6_chain_approach", "label": "Спуститься на зов снизу", "minutes": 1, "terminal": true, "goto": "c6_chain", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3940}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_chain.done"}}]}},
-      {"id": "c6_medicine_approach", "label": "Ответить женщине с коробкой", "minutes": 1, "terminal": true, "goto": "c6_medicine", "when": {"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3725}, {"before": 4140}, {"not": {"npcVar": "okafor", "key": "bitten"}}, {"not": {"flag": "$.c6_medicine.done"}}]}},
       {"id": "c6_go", "label": "Ночь. Устроиться на ночлег", "minutes": 5, "terminal": true, "goto": "c6_cp", "when": {"all": [{"cp": 5}, {"after": 4140}]}}
     ]
   },
@@ -2486,172 +2221,6 @@ export const afternoon12Scenes: Scene[] = [
     "location": "a_flat"
   },
   {
-    "id": "c6_patient",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Ответить у двери Окафора",
-    "universal": false,
-    "text": [
-      {
-        "text": "— Поставь стул снаружи, — говорит Окафор. — Если я попрошу открыть, не открывай. — Ключи падают второй раз. Ты видишь их под дверью, но его руки уже не видно."
-      },
-      {"text": "За дверью царапают ножки табурета. Он всё-таки садится у себя. Ты слышишь, как спина ударяется о дерево."}
-    ],
-    "onEnter": [{"set": "$.c6_patient.started", "value": true}],
-    "actions": [
-      {
-        "id": "c6_patient_ask",
-        "label": "Спросить про температуру",
-        "minutes": 8,
-        "combinable": true,
-        "when": {"not": {"flag": "$.c6_patient.asked"}},
-        "text": "— Боль при глотании. Свет. Тридцать девять и четыре, — перечисляет он. Потом спрашивает, который час. Ты отвечаешь; через минуту он спрашивает снова.",
-        "effects": [{"set": "$.c6_patient.asked", "value": true}]
-      },
-      {
-        "id": "c6_patient_closed",
-        "label": "Пообещать не открывать",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Ты говоришь, что понял{m:|а}. Окафор просит повторить вслух. Ты повторяешь. Ключи остаются по его сторону двери.",
-        "effects": [
-          {"set": "$.c6_patient.done", "value": true},
-          {"set": "$.c6_patient.result", "value": "closed"},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": [{"set": "w.c3_okafor_closed", "value": true}]},
-          {"npc": "okafor", "trust": 5},
-          {"body": "stress", "delta": 7},
-          {"npc": "okafor", "remember": "c3_door_promise"}
-        ],
-        "when": {"all": [{"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, {"always": true}]}
-      },
-      {
-        "id": "c6_patient_care",
-        "label": "Подать воду через приоткрытую дверь",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "effects": [
-          {"set": "$.c6_patient.done", "value": true},
-          {"set": "$.c6_patient.result", "value": "care"},
-          {"takeTag": "drink"},
-          {"use": "dressing"},
-          {"npc": "okafor", "trust": 7},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": [{"set": "w.c3_okafor_closed", "value": true}]}
-        ],
-        "enabled": {"all": [{"hasTag": "drink"}, {"hasTag": "dressing"}]},
-        "risky": true,
-        "disabledReason": "Нужные вещи сейчас не при тебе",
-        "outcomes": [
-          {
-            "id": "careful",
-            "check": {"traits": ["agility", "technical"], "difficulty": 4, "uses": ["mobility", "focus"]},
-            "text": "Ты ставишь ногу у створки и проталкиваешь бутылку. Пальцы Окафора сжимают твой рукав. Он отпускает после второго «больно». Дверь закрываешь плечом."
-          },
-          {
-            "id": "hurt",
-            "text": "Его пальцы соскальзывают с ткани на кожу. Ты выдёргиваешь руку; на запястье выступает кровь. Из-за двери он сразу начинает извиняться.",
-            "effects": [{"injure": "scratch", "site": "leftArm", "severity": 2, "bleeding": 1, "exposure": 0.15}, {"body": "stress", "delta": 12}]
-          }
-        ],
-        "when": {"all": [{"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, {"always": true}]}
-      },
-      {
-        "id": "c6_patient_guard",
-        "label": "Сообщить дежурному у машины",
-        "minutes": 25,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Дежурный записывает номер двери на запястье маркером. Медика сейчас нет. Ты возвращаешься наверх один{m:|а}, и ключи всё ещё лежат за порогом.",
-        "effects": [
-          {"set": "$.c6_patient.done", "value": true},
-          {"set": "$.c6_patient.result", "value": "guard"},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": [{"set": "w.c3_okafor_reported", "value": true}]},
-          {"body": "fatigue", "delta": 4}
-        ],
-        "when": {"all": [{"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, {"always": true}]}
-      },
-      {
-        "id": "c6_patient_support",
-        "label": "Поддержать его просьбу не открывать",
-        "minutes": 10,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "when": {"not": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}},
-        "text": "Ты говоришь Окафору, что слышал{m:|а} его просьбу. За дверью долго молчат. Потом тихо отвечают: — Спасибо. Напомни, если забуду.",
-        "effects": [{"set": "$.c6_patient.done", "value": true}, {"set": "$.c6_patient.result", "value": "support"}, {"body": "stress", "delta": 8}]
-      },
-      {
-        "id": "c6_patient_leave",
-        "label": "Вернуться и предупредить {partner.acc}",
-        "minutes": 10,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "when": {"not": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}},
-        "text": "Ты отходишь от двери, не касаясь стула. {partner} должен{pm:|на} знать, что здесь происходит. Слова сначала приходится проговорить про себя.",
-        "effects": [{"set": "$.c6_patient.done", "value": true}, {"set": "$.c6_patient.result", "value": "leave"}, {"body": "stress", "delta": 5}]
-      }
-    ],
-    "location": "b_flat"
-  },
-  {
-    "id": "c6_chain",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Спуститься на зов снизу",
-    "universal": false,
-    "text": [
-      {"text": "У входа в дом старик держит дверь, пока девушка пытается вынести матрас. Матрас застрял поперёк прохода. С улицы уже кричат."},
-      {"text": "Девушка отпускает и сразу садится на матрас. — Одна не могу, — говорит. Из рукава у неё торчит бинт."}
-    ],
-    "onEnter": [{"set": "$.c6_chain.started", "value": true}],
-    "actions": [
-      {
-        "id": "c6_chain_lift",
-        "label": "Поднять угол вместе с девушкой",
-        "minutes": 20,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Вы разворачиваете матрас на ребро. Проволока выходит из косяка, старик выдыхает. Матрас оказывается на тележке, дверь можно наконец закрыть.",
-        "effects": [
-          {"set": "$.c6_chain.done", "value": true},
-          {"set": "$.c6_chain.result", "value": "lift"},
-          {"body": "fatigue", "delta": 6},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": []}
-        ]
-      },
-      {
-        "id": "c6_chain_cut",
-        "label": "Помочь срезать зацепившуюся ткань",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Девушка сама держит нож. Ты натягиваешь ткань подальше от её пальцев. Матрас сходит с косяка, оставляя клок шерсти на щепке.",
-        "effects": [
-          {"set": "$.c6_chain.done", "value": true},
-          {"set": "$.c6_chain.result", "value": "cut"},
-          {"body": "stress", "delta": 4},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": []}
-        ]
-      },
-      {
-        "id": "c6_chain_inside",
-        "label": "Попросить вернуть матрас в подъезд",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Вы заталкиваете матрас на первый пролёт. Девушка остаётся рядом с ним. Старик запирает вход и долго не отпускает ручку.",
-        "effects": [
-          {"set": "$.c6_chain.done", "value": true},
-          {"set": "$.c6_chain.result", "value": "inside"},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": [{"set": "w.c3_bdoor_blocked", "value": true}]},
-          {"body": "stress", "delta": 5}
-        ]
-      }
-    ],
-    "location": "b_flat"
-  },
-  {
     "id": "c6_returned",
     "for": "any",
     "chapter": "ch3",
@@ -3220,52 +2789,10 @@ export const afternoon12Scenes: Scene[] = [
         "effects": [{"set": "$.c6_cold.done", "value": true}, {"set": "$.c6_cold.result", "value": "service"}, {"body": "fatigue", "delta": 6}]
       }
     ]
-  },
-  {
-    "id": "c6_medicine",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_flat",
-    "title": "У нижней двери",
-    "universal": false,
-    "text": [
-      {
-        "text": "Женщина снизу ставит на ступеньку пустую коробку таблеток. — Отец на третьем. Он сам не спустится. — Она просит посидеть с ним, пока сходит к дежурным. Дверь внизу остаётся открытой."
-      }
-    ],
-    "actions": [
-      {
-        "id": "c6_medicine_sit",
-        "label": "Посидеть с ним до её возвращения",
-        "minutes": 45,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Мужчина спрашивает, который час, и извиняется за холод. Ты сидишь у двери, пока на лестнице не появляются знакомые шаги. Женщина вернулась без таблеток.",
-        "effects": [{"set": "$.c6_medicine.result", "value": "sit"}, {"body": "fatigue", "delta": 5}, {"set": "$.c6_medicine.done", "value": true}]
-      },
-      {
-        "id": "c6_medicine_ask",
-        "label": "Сходить за дежурным вместо неё",
-        "minutes": 35,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Ты находишь дежурного у машины. Он записывает название с коробки и обещает подойти после очереди. Женщина остаётся с отцом; за окном уже сумерки.",
-        "effects": [{"set": "$.c6_medicine.result", "value": "ask"}, {"body": "fatigue", "delta": 7}, {"set": "$.c6_medicine.done", "value": true}]
-      },
-      {
-        "id": "c6_medicine_no",
-        "label": "Отказаться уходить от своей двери",
-        "minutes": 3,
-        "terminal": true,
-        "goto": "c6_bflat",
-        "text": "Женщина поднимает коробку. — Я ненадолго, — говорит она уже отцу, а не тебе. Шаги вниз быстрые, вверх он не идёт.",
-        "effects": [{"set": "$.c6_medicine.result", "value": "no"}, {"body": "stress", "delta": 7}, {"set": "$.c6_medicine.done", "value": true}]
-      }
-    ]
-  }
-];
+  }];
 
 export const afternoon12Events: WorldEvent[] = [
+  ...bflat6Events,
   {
     "id": "ev_c6_visitor",
     "at": 3740,
@@ -3319,24 +2846,6 @@ export const afternoon12Events: WorldEvent[] = [
     "when": {"all": [{"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3980}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_lamp.done"}}]}, {"any": [{"at": "a_flat"}, {"at": "a_stairs"}]}]},
     "effects": [],
     "news": [{"channel": "direct", "text": "Внизу вдруг загорается яркая переноска. Чужие голоса смеются у распахнутой входной двери. Свет идёт по перилам до твоего этажа."}]
-  },
-  {
-    "id": "ev_c6_patient",
-    "at": 3720,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3720}, {"before": 4200}, {"all": [{"npc": "okafor", "alive": true, "at": "b_okafor"}, {"npcVar": "okafor", "key": "bitten"}]}, {"not": {"flag": "$.c6_patient.done"}}]}, {"any": [{"at": "b_flat"}, {"at": "b_stairs"}, {"at": "b_okafor"}]}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "Окафор дважды роняет связку ключей. Потом просит через дверь поставить стул на площадке. Голос у него ломается на гласных."}]
-  },
-  {
-    "id": "ev_c6_chain",
-    "at": 3940,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3940}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_chain.done"}}]}, {"any": [{"at": "b_flat"}, {"at": "b_stairs"}, {"at": "b_okafor"}]}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "У входа в дом старик держит дверь, пока девушка пытается вынести матрас. Матрас застрял поперёк прохода. С улицы уже кричат."}]
   },
   {
     "id": "ev_c6_returned",
@@ -3445,13 +2954,4 @@ export const afternoon12Events: WorldEvent[] = [
     "when": {"all": [{"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 4060}, {"before": 4200}, {"all": []}, {"not": {"flag": "$.c6_cold.done"}}]}, {"scene": "c6_out"}]},
     "effects": [],
     "news": [{"channel": "direct", "text": "У соседней стены кашляет человек в тонкой куртке. Он сел недавно и уже не держит голову прямо. Сумка у него раскрыта."}]
-  },
-  {
-    "id": "ev_c6_medicine",
-    "at": 3725,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 5}, {"not": {"cp": 6}}, {"after": 3725}, {"before": 4140}, {"not": {"npcVar": "okafor", "key": "bitten"}}, {"not": {"flag": "$.c6_medicine.done"}}]}, {"any": [{"at": "b_flat"}, {"at": "b_stairs"}, {"at": "b_okafor"}]}]},
-    "news": [{"channel": "direct", "text": "На лестнице женщина спрашивает, кто может посидеть с её отцом. Он наверху, сам не спускается."}]
-  }
-];
+  }];

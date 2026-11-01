@@ -1,5 +1,13 @@
 // Отклики центральных сцен: видимы после слияния и в следующем участке.
 import type { MergeNote, Scene, TextBlock } from '../../engine/content-types';
+import { all, flag, not } from './world3';
+const firstHistory = (b: TextBlock): TextBlock => ({ ...b, when: all(b.when ?? { always: true }, not(flag('$.c6_history_seen'))) });
+
+export const central6Notes: MergeNote[] = [
+ { id: 'b6_close_note', when: { v: 'w.c3_b6', op: '==', value: 'close' }, text: 'Вы пробуете закрыть дверь без плеча. Не выходит. {partner} подаёт тебе пуговицу, оставшуюся внутри. На ночь её кладёте рядом с ключом.' },
+ { id: 'b6_inside_note', when: { v: 'w.c3_b6', op: '==', value: 'inside' }, text: 'Человек с площадки ночует на вашем сухом месте. Вы разговариваете у окна: в кухне он услышит. Куртки пока не снимаете.' },
+ { id: 'b6_food_note', when: { v: 'w.c3_b6', op: '==', value: 'food' }, text: 'Вы вспоминаете, кто протянул еду через дверную ручку. Пачки больше нет. {partner} спрашивает, где сейчас сидит тот человек; ты слушаешь площадку.' },
+];
 
 export const central5Notes: MergeNote[] = [
   { id: 'm5_hold_note', when: { v: 'w.c3_m5', op: '==', value: 'hold' }, text: 'Врач осталась в зале с перевязанной шеей. Вы показываете друг другу руки. К столу уже снова подходят люди; никто не знает, можно ли её сейчас звать.' },
@@ -32,7 +40,18 @@ const promise5After: TextBlock[] = [
  { when: { flag: 'w.c3_mclinic_help5' }, text: 'Врач ждёт вас возле стула, который вы ей принесли. {partner} снимает куртку с вашей бывшей раскладушки. Пациент садится, придерживая повязку.' },
 ];
 export function withCentralEchoes(scene: Scene): Scene {
-  if (['c6_bflat', 'c6_north', 'c6_farm', 'c6_messe'].includes(scene.id)) scene = { ...scene, text: [...promise5After, ...scene.text] };
+  if (scene.id === 'c7_bflat') return { ...scene, text: [
+    { when: { v: 'w.c3_b6', op: '==', value: 'close' }, text: 'Утром ты открываешь дверь обеими руками. Человек этажом выше застёгивает куртку, оставляя один край свободным. Ты вспоминаешь пуговицу возле ключа.' },
+    { when: { v: 'w.c3_b6', op: '==', value: 'inside' }, text: 'На вашем месте спит вчерашний человек. Носки он положил под голову. Ты поднимаешь свой рюкзак с пола.' },
+    { when: { v: 'w.c3_b6', op: '==', value: 'food' }, text: 'Ты выходишь на площадку. Мужчина подметает оболочку хлебцев к стене. Увидев тебя, берёт её рукой.' },
+    ...scene.text] };
+  if (['c6_bflat', 'c6_north', 'c6_farm', 'c6_messe'].includes(scene.id)) scene = { ...scene, text: [...promise5After.map(firstHistory), ...scene.text], actions: scene.actions.map(a => ({ ...a, effects: [...(a.effects ?? []), { set: '$.c6_history_seen', value: true }, ...(scene.id === 'c6_bflat' ? [
+ { if: flag('w.c3_b_note'), then: [{ set: '$.c6_note_echo', value: true }] },
+ { if: flag('$.c6_chair_lost'), then: [{ set: '$.c6_chair_echo', value: true }] },
+ { if: flag('$.c6_water.gave'), then: [{ set: '$.c6_water_echo', value: true }] },
+ { if: flag('$.c6_pair.said'), then: [{ set: '$.c6_pair_echo', value: true }] },
+ { if: flag('$.c6_call.listened'), then: [{ set: '$.c6_call_echo', value: true }] },
+ ] as import('../../engine/types').Effect[] : [])] })) };
   if (scene.id === 'c6_messe') return { ...scene, text: [
     { when: { v: 'w.c3_m5', op: '==', value: 'hold' }, text: 'Врач говорит шёпотом. К ней наклоняются слишком близко; она отстраняет пациента ладонью. На стуле перед ней сидит очередь.' },
     { when: { v: 'w.c3_m5', op: '==', value: 'door' }, text: 'Кольцо забирает солдат в бумажном пакете. Он спрашивает, чьё. Ответить успевают сразу трое.' },
@@ -43,7 +62,7 @@ export function withCentralEchoes(scene: Scene): Scene {
     { when: { v: 'w.c3_f5', op: '==', value: 'coop' }, text: 'Из курятника стучат ложкой по двери. Хенрике ставит миску на подоконник. — Отнесёшь. — Ключа возле миски нет.' },
     { when: { v: 'w.c3_f5', op: '==', value: 'leave' }, text: 'На крючке осталась запасная Павлова куртка. Хенрике снимает её и уносит в сени. Ты ещё слышишь, как он просил стереть номер.' },
     ...scene.text] };
-  if (scene.id === 'c6_north') return { ...scene, text: [...n5After, ...scene.text] };
-  if (scene.id === 'c6_bflat') return { ...scene, text: [...b5After, ...scene.text] };
+  if (scene.id === 'c6_north') return { ...scene, text: [...n5After.map(firstHistory), ...scene.text] };
+  if (scene.id === 'c6_bflat') return { ...scene, text: [...b5After.map(firstHistory), ...scene.text] };
   return scene;
 }
