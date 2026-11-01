@@ -104,6 +104,7 @@ export const nightScenes: Record<string, Scene> = Object.fromEntries([
       { when: EVE, text: 'Стемнело ещё в половине пятого. С восьми — комендантский час, и улица под окнами пустеет раньше: люди не ждут восьми.' },
       { when: { all: [{ not: NIGHT }, svenjaHere, { npc: 'svenja', status: 'infected' }, { npcVar: 'svenja', key: 'locked' }] }, text: 'Из-за двери спальни — удары. Ровные. Без остановки.' },
       { when: { all: [{ not: NIGHT }, svenjaHere, { npc: 'svenja', status: 'infected' }, { npcVar: 'svenja', key: 'tied' }, { not: { npcVar: 'svenja', key: 'locked' } }] }, text: 'Свенья лежит на полу гостиной, связанная, и тянет шею в твою сторону. Звук, который она издаёт, не стихает ни на минуту.' },
+      { when: NIGHT, text: 'До утра ещё долго. Можно лечь спать — если ночью в доме что-то случится, ты услышишь.' },
     ],
     actions: [
       radio2('radio', 'Включить радио на кухне'),
@@ -315,6 +316,7 @@ export const nightScenes: Record<string, Scene> = Object.fromEntries([
       { when: PM, text: 'День второй в Buchholz. Тока нет, воды нет, телефон молчит. Квартира остывает, и ты ходишь по ней в куртке.' },
       { when: EVE, text: 'Темнеет рано. Свечей осталось мало, и ты зажигаешь одну, на кухне, подальше от окна.' },
       { when: { all: [{ not: NIGHT }, { npc: 'ilse', at: 'a_flat' }, { npcVar: 'ilse', key: 'isolated' }, { any: [{ npc: 'ilse', status: 'infected' }, { npc: 'ilse', status: 'turned' }] }] }, text: 'Из спальни — удары в дверь и скрежет. Стул под ручкой держит.' },
+      { when: NIGHT, text: 'До рассвета ещё часы. Можно лечь спать, не раздеваясь: если внизу что-то случится, разбудит.' },
     ],
     actions: [
       { id: 'c2_window', label: 'Выглянуть во двор', minutes: 3, combinable: true, repeatable: true,
