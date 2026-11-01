@@ -324,6 +324,7 @@ agenda3.kerem = [
   },
 ];
 agenda3.pawel = [
+  { id: 'c3_pawel_coop', at: at(12, 11, 41), scope: 'world', when: all({ cp: 4 }, { v: 'w.c3_f5', op: '==', value: 'coop' }, { npc: 'pawel', at: 'hof_luedemann' }), effects: [{ npc: 'pawel', moveTo: 'farm_coop', set: { c3_locked_out: true } }] },
   {
     id: 'c3_hand_rest',
     at: at(12, 18),
