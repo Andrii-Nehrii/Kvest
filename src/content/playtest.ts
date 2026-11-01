@@ -4,7 +4,7 @@
 import { availableActions, isServiceAction } from '../engine/actions';
 import { evalCond } from '../engine/conditions';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, participants, syncClocks } from '../engine/checkpoint';
-import { newGame, play, replayPrefix, segmentFinished } from '../engine/game';
+import { newGame, play, replayPrefix, segmentFinished, upgradeState } from '../engine/game';
 import { unit } from '../engine/rng';
 import type { GameState, PlayerId } from '../engine/types';
 import { fmt, type Ctx } from '../engine/world';
@@ -93,7 +93,9 @@ export interface PlayOptions {
 /** Общая точка двух сохранений и сыгранные части текущего участка. */
 export function fromSaves(saves: Record<PlayerId, LocalSave>) {
   const ahead = (saves.A.base!.checkpoint >= saves.B.base!.checkpoint ? 'A' : 'B') as PlayerId;
-  const base = saves[ahead].base!;
+  // Как при открытии игры (refreshSave): новые NPC, переменные и предметы глав доезжают в сохранение.
+  const base = structuredClone(saves[ahead].base!);
+  upgradeState(c, base);
   const records = Object.fromEntries((['A', 'B'] as const).map((p) => [p, saves[p].base!.checkpoint === base.checkpoint ? saves[p].segment : []])) as Record<PlayerId, LocalSave['segment']>;
   const played = Object.fromEntries((['A', 'B'] as const).map((p) => [p, replayPrefix(c, base, p, records[p])])) as Record<PlayerId, { state: GameState; applied: number }>;
   return { base, records, played };

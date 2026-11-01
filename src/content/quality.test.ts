@@ -5,11 +5,18 @@
 //
 // По частям: KVEST_QUALITY_FILES=chapter3/farm5.ts,chapter3/bflat5.ts npx vitest run src/content/quality.test.ts —
 // проверяются только сцены, объявленные в этих файлах, и прохождения, которые через них прошли.
+// С KVEST_PAIR=<папка с save-A.json/save-B.json> прохождения начинаются с настоящих сохранений пары (CONTEXT.md §4) —
+// так проверяются места, до которых случайная игра с первой минуты почти не доходит.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { Scene } from '../engine/content-types';
 import { content as c } from './index';
+import type { LocalSave } from '../app/session';
 import { playGame, type SegStats } from './playtest';
+
+const PAIR = process.env.KVEST_PAIR;
+const loadSave = (pid: 'A' | 'B'): LocalSave => { const raw = JSON.parse(readFileSync(`${PAIR}/save-${pid}.json`, 'utf8')); return raw.save ?? raw; };
+const SAVES = PAIR ? { A: loadSave('A'), B: loadSave('B') } : undefined;
 
 const OLD = ['ch1', 'ch2'];
 const CONTENT = new URL('./', import.meta.url);
@@ -142,8 +149,8 @@ describe.runIf(byChapter.size > 0)('ЖЁСТКИЙ СТАНДАРТ: качес�
   const newSegs = [...new Set(newScenes.map((s) => Number(s.id.match(/^c(\d+)_/)?.[1])).filter((n) => n > lastOld && c.checkpoints.some((cp) => cp.index === n)))].sort((a, b) => a - b);
   it(`прохождение как игрок: участки ${newSegs.join(', ') || '—'} не хуже глав 1–2`, { timeout: 600000 }, () => {
     const runs: SegStats[] = [];
-    for (let seed = 1, found = 0; seed <= (PART_FILES.length ? 80 : 16) && found < (PART_FILES.length ? 10 : 16); seed++) {
-      const segs = playGame({ seed: String(seed), name: 'quality' }).segments.filter((x) => newSegs.includes(x.n) && (!PART_FILES.length || [...x.scenes].some((id) => partIds.has(id))));
+    for (let seed = 1, found = 0; seed <= (PART_FILES.length ? (SAVES ? 160 : 80) : 16) && found < (PART_FILES.length ? 10 : 16); seed++) {
+      const segs = playGame({ seed: String(seed), name: 'quality', saves: SAVES }).segments.filter((x) => newSegs.includes(x.n) && (!PART_FILES.length || [...x.scenes].some((id) => partIds.has(id))));
       if (segs.length) found++;
       runs.push(...segs);
     }
