@@ -26,6 +26,9 @@ A — он (Android), B — его девушка (iPhone). Владелец п�
 Строго по `docs/hidden/CHAPTER_GUIDE.md` (процесс, устройство, два телефона, тесты, чек-лист) и
 `docs/hidden/WRITING_GUIDE.md` (голос, стиль, образцы). Сначала план `docs/hidden/CHAPTER<N>_PLAN.md`, потом код в
 `src/content/chapter<N>/`, тесты `src/content/chapter<N>.test.ts`, самопроверка по чек-листу, затем PR (не сливать).
+**Качество важнее скорости:** главу писать частями (одно место за один участок), каждую часть — через цикл
+`CHAPTER_GUIDE.md` §8: `quality.test.ts` зелёный, стенограмма `transcript.test.ts` прочитана целиком, самооценка ≥ 4
+по всем шести пунктам с цитатами. Не переходить к следующей части, пока текущая не дотягивает до глав 1–2.
 Где остановилась история и какие флаги есть — `docs/hidden/STORY_STATE.md`; в конце дописать туда раздел о новой главе
 (и `docs/ARCHITECTURE.md` §14, «Следующий шаг» в `CLAUDE.md`).
 
@@ -36,6 +39,8 @@ npm ci                                  # зависимости
 npx tsc --noEmit && npx vitest run      # типы + все тесты (линтер сюжета, стиль текстов, случайные пары, два телефона, совместимость)
 npm run e2e:quick                       # браузер (Playwright + Chromium): два телефона, облако, файлы (~7–10 мин)
 node scripts/e2e/run.cjs codes          # один сценарий: обмен кодами через все КТ
+npx vitest run src/content/quality.test.ts   # качество новых глав против глав 1–2
+KVEST_TRANSCRIPT=имя KVEST_FROM=5 npx vitest run src/content/transcript.test.ts   # стенограмма в transcripts/ — читать целиком
 npm run build                           # PWA в dist/
 ```
 Перед PR: всё зелёное. Если браузер недоступен в среде — сказать об этом в PR одной строкой, без сюжета.
