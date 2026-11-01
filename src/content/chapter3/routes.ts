@@ -326,7 +326,8 @@ export function entry(n: number): Scene {
     ...start,
     text: n === 5 ? [
       { when: all({ before: at(12, 6) }, { at: 'hof_luedemann' }), text: 'Хенрике показывает тебе место у печи. На лавке лежат два свёрнутых одеяла. — Обувь в сенях. Если понадоблюсь, стучи. — Дверь своей комнаты она оставляет приоткрытой.' },
-      ...start.text.map(b => ({ ...b, when: all(b.when ?? { always: true }, not(all({ before: at(12, 6) }, { at: 'hof_luedemann' }))) })),
+      { when: all({ before: at(12, 6) }, { at: 'b_flat' }), text: 'Ключ проворачивается в знакомом замке. Ты снимаешь рюкзак в прихожей. За стеной кто-то двигает кровать, останавливается, снова двигает. На кухне осталась твоя кружка.' },
+      ...start.text.map(b => ({ ...b, when: all(b.when ?? { always: true }, not(all({ before: at(12, 6) }, { any: [{ at: 'hof_luedemann' }, { at: 'b_flat' }] }))) })),
     ] : start.text,
     actions: [
       {
