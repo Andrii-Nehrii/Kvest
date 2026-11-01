@@ -1,3 +1,4 @@
+import { central5Notes } from './continuity';
 import type { CheckpointDef, JointDecision, JointOption, MergeNote } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { atAny, CITY, SOUTH, carIn, partnerAtAny, locations2 } from '../chapter2/world2';
@@ -104,6 +105,7 @@ function notes(n: number): MergeNote[] {
       'Ты узнаёшь {partner.acc} у ограды по рюкзаку. Между вами больше нет рядов койки или сетки. Прежде чем говорить, вы оба несколько раз проверяете взглядом, что второй здесь.',
   };
   return [
+    ...(n === 5 ? central5Notes : []),
     ...reports(n, { any: [same, { callable: true }] }),
     {
       id: 'risk',

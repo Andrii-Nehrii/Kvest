@@ -36,6 +36,7 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
       region: id === 'b' ? 'hh' : 'buchholz',
       indoor: true,
     })),
+    { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
     {
       id: 'c3_messe_yard',
@@ -49,6 +50,7 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
 
 export const facts3: Record<string, FactDef> = Object.fromEntries(
   [
+    ['f_c3_okafor_name', 'Соседа-медбрата напротив зовут Окафор.'],
     ['f_c3_well', 'У колодца на хуторе треснул шланг ручного насоса. Ведро и ворот работают и без него.'],
     ['f_c3_exchange', 'Сосед хутора готов обменять рабочий шланг и крепёж на картошку. В долг не даёт.'],
     ['f_c3_okafor', 'Окафор после укуса заперся у себя. Просит не входить, даже если перестанет отвечать.'],
@@ -61,6 +63,7 @@ export const facts3: Record<string, FactDef> = Object.fromEntries(
 
 export const agenda3: Record<string, AgendaItem[]> = {
   okafor: [
+    { id: 'c3_stair_depart', at: at(12, 11, 56), scope: 'world', when: all({ cp: 4 }, { v: 'w.c3_b5', op: '==', value: 'missed' }, { npc: 'okafor', at: 'b_okafor', alive: true }), effects: [{ npc: 'okafor', moveTo: 'c3_medical_van', set: { c3_hand_crushed: true } }] },
     {
       id: 'c3_fever',
       at: at(12, 13, 10),
