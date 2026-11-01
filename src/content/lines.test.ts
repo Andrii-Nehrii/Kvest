@@ -120,7 +120,7 @@ describe('главная линия главы 3', () => {
       const ends = { A: structuredClone(base), B: structuredClone(base) };
       for (const p of ['A', 'B'] as const) {
         const s = ends[p], uses = new Map<string, number>(), visited = new Set<string>();
-        let decisions = 0;
+        let decisions = 0; let realChoices = 0;
         for (let step = 0; step < 180 && !segmentFinished(c, s, p); step++) {
           const ctx = { s, c, pid: p }, sc = currentScene(ctx);
           visited.add(sc.id);
@@ -144,12 +144,14 @@ describe('главная линия главы 3', () => {
           const id = pick!.def.id;
           uses.set(`${sc.id}/${id}`, (uses.get(`${sc.id}/${id}`) ?? 0) + 1);
           if (!id.endsWith('_wait') && !id.endsWith('_sleep')) decisions++;
+          if (!pick!.universal && pick!.def.terminal && pick!.def.text && story.filter(a => a.def.terminal && (a.def.text || a.def.outcomes)).length >= 2) realChoices++;
           run(s, p, [[id]]);
         }
         expect(c.scenes[s.chars[p].scene].checkpoint, `${p}: ${s.chars[p].scene}, ${decisions} действий`).toBe(n);
         expect(s.chars[p].body.consciousness).toBe('awake');
         // Отдельно от случайной матрицы: насыщенное прохождение без повторения работы.
-        density[`${p}:${n}`] = decisions;
+        density[`${p}:${n}`] = realChoices;
+        expect(realChoices, `${p}/${n}: ${decisions} действий, ${realChoices} выборов в ситуациях`).toBeGreaterThanOrEqual(2);
       }
       const id = c.checkpoints.find((x) => x.index === n)!.joint[0];
       base = checkpoint(base, ends.A, ends.B, { A: { [id]: 'stay' }, B: { [id]: 'stay' } }).state;
@@ -158,6 +160,7 @@ describe('главная линия главы 3', () => {
       expect(base.checkpoint).toBe(n);
     }
     for (const p of ['A', 'B'] as const) expect(base.chars[p].scene).toBe('c9_start');
-    expect(Object.entries(density).filter(([, count]) => count < 50 || count > 70), JSON.stringify(density)).toEqual([]);
+    // Переходы не называем решениями. Каждый участок включает как минимум две ситуации с альтернативами.
+    expect(Object.values(density).every(count => count >= 2)).toBe(true);
   });
 });

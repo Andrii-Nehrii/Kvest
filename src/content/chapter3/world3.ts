@@ -312,7 +312,7 @@ agenda3.kerem = [
       { cp: 6 },
       { npc: 'kerem', at: 'hof_luedemann' },
       not(flag('w.c3_kerem_stays')),
-      flag('w.c3_kerem_road'),
+      not({ npcVar: 'kerem', key: 'c3_waits' }),
     ),
     effects: [{ npc: 'kerem', moveTo: 'b75_road' }],
   },
@@ -326,7 +326,14 @@ agenda3.pawel = [
       { cp: 5 },
       { npc: 'pawel', at: 'hof_luedemann' },
       not({ npcVar: 'pawel', key: 'c3_hand_treated' }),
+      not({ npcVar: 'pawel', key: 'c3_hand_rest' }),
     ),
     effects: [{ npc: 'pawel', set: { c3_rest_hand: true } }],
   },
 ];
+
+agenda3.kerem.push({
+  id: 'c3_waited_back', at: at(13, 18, 20), scope: 'world',
+  when: all({ cp: 7 }, { npc: 'kerem', alive: true, at: 'b75_road' }, flag('w.c3_wait_kerem')),
+  effects: [{ npc: 'kerem', moveTo: 'hof_luedemann', remember: 'c3_waited_at_road', set: { c3_returned: true } }],
+});

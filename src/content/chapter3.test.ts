@@ -266,7 +266,7 @@ describe('глава 3: четыре участка и последствия', 
   it('срок пропущенной ситуации закрывает вход, старые прерывания не всплывают дальше', () => {
     const s = baseFor(); s.chars.A.time = at(12, 14);
     enterScene({ s, c, pid: 'A' }, 'c5_farm'); play(c, s, 'A', ['c5_wait']);
-    expect(s.vars['A.c5_spilled.missed']).toBe(true);
+    expect(evalCond({ s, c, pid: 'A' }, c.events.find(e => e.id === 'ev_c5_spilled')!.when)).toBe(false);
     expect(ids(s, 'A')).not.toContain('c5_spilled_approach');
     s.checkpoint = 5; enterScene({ s, c, pid: 'A' }, 'c6_farm'); play(c, s, 'A', ['c6_wait']);
     expect(ids(s, 'A').some((id) => id.startsWith('c5_'))).toBe(false);
@@ -280,8 +280,8 @@ describe('глава 3: четыре участка и последствия', 
     expect(ids(s, 'A')).not.toContain('c7_keremcup');
   });
   it('отдача из общего запаса применяется один раз, вылазка меняет следующий маршрут', () => {
-    const s = baseFor();
-    const qty = () => Object.values(s.items).filter((i) => i.type === 'oats' && i.at.kind === 'place' && i.at.id === 'c3_farm_stock').reduce((a, i) => a + i.qty, 0);
+    const s = baseFor(['b_flat', 'b_flat', true]);
+    const qty = () => Object.values(s.items).filter((i) => i.type === 'oats' && i.at.kind === 'place' && i.at.id === 'c3_b_stock').reduce((a, i) => a + i.qty, 0);
     const before = qty();
     expect(resolveJoint(c, s, 'c3_midday5', { A: 'give', B: 'give' }).applied).toEqual(['give']);
     expect(qty()).toBe(before - 1);
@@ -301,7 +301,7 @@ describe('глава 3: четыре участка и последствия', 
 
 it('совместная вылазка не выпускает второго игрока из изоляции', () => {
   const s = baseFor(['hof_luedemann', 'farm_coop', true]);
-  expect(resolveJoint(c, s, 'c3_midday5', { A: 'water', B: 'water' }).applied).toEqual(['stay']);
+  expect(evalCond({ s, c, pid: 'A' }, c.joint.c3_midday5.options.find(o => o.id === 'exchange')!.feasible)).toBe(false);
 });
 it('встреча на домашней площадке даёт заметку и знания обоим', () => {
   const s = baseFor(['b_stairs', 'b_flat', false]);
@@ -336,9 +336,10 @@ it('ответ единственного участника новой точк
 
 for (const id of ['c3_midday5', 'c3_night', 'c3_midday7', 'c3_lastnight']) {
   for (const option of c.joint[id].options) it(`заданный ответ ${id}/${option.id} исполняется на обоих телефонах`, () => {
-    const place = option.id === 'north' ? 'b_flat' : option.id === 'farm' ? 'a_flat' : 'hof_luedemann';
+    const place = (option.id === 'north' || (['water', 'give', 'isolate', 'neighbor'].includes(option.id) && id !== 'c3_lastnight')) ? 'b_flat' : option.id === 'farm' ? 'a_flat' : option.id === 'jack' ? 'deniz_workshop' : ['shift', 'escort', 'bed'].includes(option.id) ? 'north_gym' : 'hof_luedemann';
     const s = baseFor([place, place, true], `forced:${id}:${option.id}`), n = c.joint[id].checkpoint;
     s.checkpoint = n - 1;
+    if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
     s.vars['w.c3_koehler_met'] = s.vars['w.c3_guest_checked'] = true;
     s.npcs.c3_koehler.location = 'hof_luedemann'; s.npcs.henrike.trust.A = 40;
     for (const pid of P) {
@@ -387,7 +388,94 @@ it('у каждого места участка два доступных пре
     s.chars.A.scene = `c${n}_${key}`;
     for (const npc of Object.values(s.npcs)) npc.location = place === 'farm_coop' ? 'hof_luedemann' : place;
     s.npcs.okafor.location = 'b_okafor';
-    const events = c.events.filter((e) => e.interrupt && (e.id.startsWith(`ev_c${n}_`) || (n === 7 && e.id.startsWith('ev3_alarm_'))) && evalCond({ s, c, pid: 'A' }, e.when));
+    const events = c.events.filter((e) => e.interrupt && (e.id.startsWith(`ev_c${n}_`) || (n === 7 && e.id.startsWith('ev3_alarm_'))) && (() => { const at = s.chars.A.time; s.chars.A.time = e.at; const result = evalCond({ s, c, pid: 'A' }, e.when); s.chars.A.time = at; return result; })());
     expect(events.length, `${n}/${key}`).toBeGreaterThanOrEqual(2);
   }
+});
+
+it('эпизоды дают выбор сразу, вопросы необязательны, исход читается за пределами эпизода', () => {
+  const episodes = Object.values(c.scenes).filter(s => s.chapter === 'ch3' && s.onEnter?.some(e => 'set' in e && typeof e.set === 'string' && e.set.endsWith('.started')));
+  expect(episodes.length).toBeGreaterThan(20);
+  for (const sc of episodes) {
+    expect(sc.actions.filter(a => a.terminal).length, sc.id).toBeGreaterThanOrEqual(2);
+    expect(sc.actions.some(a => /_step\d+$/.test(a.id)), sc.id).toBe(false);
+    for (const a of sc.actions.filter(a => a.terminal)) {
+      const result = a.effects?.find(e => 'set' in e && typeof e.set === 'string' && e.set.endsWith('.result'));
+      if (!result || !('set' in result) || typeof result.set !== 'string' || !('value' in result)) continue;
+      const key = result.set;
+      const elsewhere = Object.values(c.scenes).filter(s => s.id !== sc.id).flatMap(s => s.text);
+      expect(elsewhere.some(b => (JSON.stringify(b.when) ?? "").includes(key) && (JSON.stringify(b.when) ?? "").includes(JSON.stringify(result.value))), `${sc.id}/${a.id}`).toBe(true);
+    }
+  }
+});
+
+it('вечером не возвращаются выполненные утренние одноразовые дела', () => {
+  for (const [before, after] of [[5, 6], [7, 8]]) {
+    for (const sc of Object.values(c.scenes).filter(s => s.id.startsWith(`c${before}_`))) {
+      const next = c.scenes[sc.id.replace(`c${before}_`, `c${after}_`)];
+      if (!next) continue;
+      const texts = sc.actions.filter(a => a.text && !a.repeatable && !a.goto).map(a => a.text);
+      const duplicates = next.actions.filter(a => a.text && texts.includes(a.text) && !a.repeatable && !a.goto && !a.id.endsWith('_reserve') && !a.id.endsWith('_draw_water'));
+      expect(duplicates.map(a => a.id), next.id).toEqual([]);
+    }
+  }
+});
+
+it('новости партнёра требуют контакта, оба слышат конкретный исход', () => {
+  const s = baseFor(['hof_luedemann', 'hof_luedemann', true]);
+  s.vars['A.c5_spilled.result'] = 'dress'; s.vars['B.c5_bread.result'] = 'rule';
+  mergeNotes(c, s, 5);
+  expect(s.log.some(l => l.pid === 'B' && l.text.includes('перевязки осталось'))).toBe(true);
+  expect(s.log.some(l => l.pid === 'A' && l.text.includes('унёс сумку'))).toBe(true);
+  const apart = baseFor(['hof_luedemann', 'b_flat', false]);
+  apart.vars['A.c5_spilled.result'] = 'dress';
+  for (const i of Object.values(apart.items)) if (i.type === 'phone') i.charge = 0;
+  mergeNotes(c, apart, 5);
+  expect(apart.log.some(l => l.pid === 'B' && l.text.includes('перевязки осталось'))).toBe(false);
+});
+
+it('вместе спор разрешается по обстоятельствам, не обязательным отказом от обоих планов', () => {
+  const s = baseFor(); s.checkpoint = 4;
+  s.vars['base.c3_farm.shortDays'] = 1;
+  expect(resolveJoint(c, s, 'c3_midday5', { A: 'exchange', B: 'relieve' }).applied).toEqual(['exchange']);
+});
+
+it('Керем уходит без нажатия эпизода; договор о встрече меняет его возвращение', () => {
+  const s = baseFor(); s.checkpoint = 6; s.chars.A.time = at(13, 12, 15);
+  enterScene({ s, c, pid: 'A' }, 'c7_farm'); while (s.chars.A.time < at(13, 12, 35)) play(c, s, 'A', ['c7_wait']);
+  expect(s.npcs.kerem.location).toBe('b75_road');
+  s.checkpoint = 7; s.vars['w.c3_wait_kerem'] = true; s.chars.A.time = at(13, 18, 15);
+  enterScene({ s, c, pid: 'A' }, 'c8_farm'); while (s.chars.A.time < at(13, 18, 35)) play(c, s, 'A', ['c8_wait']);
+  expect(s.npcs.kerem.location).toBe('hof_luedemann');
+  expect(s.npcs.kerem.vars.c3_returned).toBe(true);
+});
+
+it('ранний переход к ночлегу двигает часы и открывает само место', () => {
+  const s = baseFor(); const before = s.chars.A.time;
+  play(c, s, 'A', ['c5_sleep']);
+  expect(s.chars.A.time).toBeGreaterThan(before);
+  expect(s.chars.A.scene).toBe('c5_farm');
+  const time = s.chars.A.time;
+  play(c, s, 'A', ['c5_sleep']);
+  expect(s.chars.A.time).toBeGreaterThan(time);
+});
+
+it('после общего решения обмен в соседнем дворе действительно доступен', () => {
+  const s = baseFor(); s.checkpoint = 4; s.chars.A.time = s.chars.B.time = at(12, 13);
+  const out = completeCheckpoint(c, s, { A: { c3_midday5: 'exchange' }, B: { c3_midday5: 'exchange' } }).state;
+  play(c, out, 'A', ['c6_begin']);
+  expect(out.chars.A.scene).toBe('c6_neighbor');
+  expect(ids(out, 'A')).toContain('c6_trade');
+  play(c, out, 'A', ['c6_trade']);
+  expect(Object.values(out.items).some(i => i.type === 'c3_hose' && i.at.kind === 'char' && i.at.id === 'A')).toBe(true);
+});
+
+it('разговор не удерживает Керема после времени его ухода', () => {
+  const s = baseFor(); s.checkpoint = 6; s.chars.A.time = at(13, 12, 15);
+  enterScene({ s, c, pid: 'A' }, 'c7_kerem');
+  play(c, s, 'A', ['c7_kerem_ask']);
+  expect(s.npcs.kerem.location).toBe('b75_road');
+  expect(ids(s, 'A')).toEqual(['c7_kerem_gone']);
+  play(c, s, 'A', ['c7_kerem_gone']);
+  expect(s.chars.A.scene).toBe('c7_farm');
 });

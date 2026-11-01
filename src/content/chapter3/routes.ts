@@ -326,11 +326,11 @@ export function entry(n: number): Scene {
     actions: [
       {
         id: `c${n}_sleep`,
-        label: 'Устроиться на ночь и попытаться уснуть',
-        minutes: 0,
-        repeatable: true,
+        label: 'Уложить вещи на ночь',
+        minutes: 5,
+        terminal: true,
         when: { before: at(segmentDay(n), 6) },
-        effects: [{ sleep: 360 }],
+        outcomes: routeOutcomes(n),
       },
       {
         id: `c${n}_begin`,
@@ -353,6 +353,9 @@ export function entry(n: number): Scene {
                   goto: `c${n}_neighbor`,
                 },
               ]
+            : []),
+          ...(n === 8
+            ? [{ id: 'new_road', when: { any: [{ v: 'w.c3_trip7', op: '==', value: 'farm' }, { v: 'w.c3_trip7', op: '==', value: 'north' }] } as Cond, goto: 'c8_relocate' }]
             : []),
           ...(n === 7
             ? [
@@ -404,8 +407,10 @@ export const arrival = hub(
   ],
 );
 
-export const relocation: Scene = {
-  id: 'c7_relocate',
+export function relocate(n: 7 | 8): Scene {
+  const planKey = n === 7 ? 'w.c3_night' : 'w.c3_trip7';
+  return {
+  id: `c${n}_relocate`,
   for: 'any',
   chapter: 'ch3',
   title: 'Утренняя дорога',
@@ -417,15 +422,15 @@ export const relocation: Scene = {
   ],
   actions: [
     {
-      id: 'c7_relocate_go',
+      id: `c${n}_relocate_go`,
       label: 'Идти по согласованному пути',
       minutes: 20,
       terminal: true,
       outcomes: [
         trip(
           'farm',
-          { v: 'w.c3_night', op: '==', value: 'farm' },
-          'c7_farm',
+          { v: planKey, op: '==', value: 'farm' },
+          `c${n}_farm`,
           'hof_luedemann',
           7,
           SOUTH,
@@ -434,16 +439,18 @@ export const relocation: Scene = {
         ),
         trip(
           'north',
-          { v: 'w.c3_night', op: '==', value: 'north' },
-          'c7_north',
+          { v: planKey, op: '==', value: 'north' },
+          `c${n}_north`,
           'north_gym',
           40,
           CITY,
           480,
           'У поста на севере очередь короче вчерашней. В спортзале сперва проверяют руки, потом показывают, куда поставить вещи.',
         ),
-        ...routeOutcomes(7),
+        ...routeOutcomes(n),
       ],
     },
   ],
 };
+
+}
