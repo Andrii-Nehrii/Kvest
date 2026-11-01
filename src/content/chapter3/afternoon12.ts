@@ -10,6 +10,9 @@ export const afternoon12Scenes: Scene[] = [
     "title": "Хутор",
     "safe": true,
     "text": [
+      { when: { all: [{ v: '$.c5_letter.result', op: '==', value: 'promise' }, { npc: 'pawel', at: 'hof_luedemann', alive: true }] }, text: 'Павел ловит твой взгляд от двери. — Есть? — Ты проверяешь сохранённое сообщение. Подтверждения доставки нет. Он кивает, словно именно этого и ждал.' },
+      { when: { all: [{ v: '$.c5_letter.result', op: '==', value: 'honest' }, { npc: 'pawel', at: 'hof_luedemann', alive: true }] }, text: 'Павел показывает тебе тот же черновик. Приписал: «Не приезжай за мной». Теперь спрашивает, не слишком ли страшно получилось.' },
+
       {
         "when": {"all": [{"before": 3240}, {"npc": "henrike", "at": "hof_luedemann", "alive": true}]},
         "text": "У печки сохнут две пары сапог. Хенрике переворачивает подошвой к огню только свои. Из сарая один раз кашляет Павел."

@@ -560,3 +560,27 @@ it('участок 5: перед разговором на КТ возвраща
   expect(s.chars.B.location).toBe('b_flat');
   expect(optionsFor(c, s, c.joint.c3_midday5, 'B').map(o => o.id)).toContain('water');
 });
+
+it('часть 1: неудача у ворота травмирует руку и не объявляет цепь безопасной', () => {
+  let failures = 0;
+  for (let i = 0; i < 20; i++) {
+    const s = baseFor(undefined, `chain-review4:${i}`); s.chars.A.time = at(12, 8);
+    enterScene({ s, c, pid: 'A' }, 'c5_spilled');
+    play(c, s, 'A', ['c5_spilled_chain']);
+    if (!s.vars['A.c5_chain_failed']) continue;
+    failures++;
+    expect(s.vars['w.c3_chain_safe']).not.toBe(true);
+    expect(evalCond({ s, c, pid: 'A' }, { injured: 'bruise', site: 'hands' })).toBe(true);
+    expect(s.chars.A.scene).toBe('c5_farm');
+  }
+  expect(failures).toBeGreaterThan(0);
+});
+
+it('часть 1: безопасная помощь с водой закрывает обе альтернативы', () => {
+  const s = baseFor(); s.chars.A.time = at(12, 8);
+  enterScene({ s, c, pid: 'A' }, 'c5_well');
+  play(c, s, 'A', ['c5_water_together']);
+  expect(ids(s, 'A')).not.toContain('c5_water');
+  expect(ids(s, 'A')).not.toContain('c5_water_together');
+  expect(evalCond({ s, c, pid: 'A' }, { injured: 'sprain' })).toBe(false);
+});

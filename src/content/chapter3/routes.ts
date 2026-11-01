@@ -313,8 +313,7 @@ export function entry(n: number): Scene {
       ],
     }),
   );
-  return {
-    ...hub(
+  const start = hub(
       n,
       'start',
       undefined,
@@ -322,7 +321,13 @@ export function entry(n: number): Scene {
       'Свет доходит до застёжки рюкзака. Ты проверяешь, сухая ли ткань под ремнём. Шнурки остаются завязанными с ночи.',
       'Снаружи уже темно. Ты берёшь рюкзак за обе лямки. Одна перекручена, и ты расправляешь её перед первым шагом.',
       [],
-    ),
+    );
+  return {
+    ...start,
+    text: n === 5 ? [
+      { when: all({ before: at(12, 6) }, { at: 'hof_luedemann' }), text: 'Хенрике показывает тебе место у печи. На лавке лежат два свёрнутых одеяла. — Обувь в сенях. Если понадоблюсь, стучи. — Дверь своей комнаты она оставляет приоткрытой.' },
+      ...start.text.map(b => ({ ...b, when: all(b.when ?? { always: true }, not(all({ before: at(12, 6) }, { at: 'hof_luedemann' }))) })),
+    ] : start.text,
     actions: [
       {
         id: `c${n}_sleep`,
