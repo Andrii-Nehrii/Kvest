@@ -1,9 +1,11 @@
+import { bflat5Scenes, bflat5Events } from './bflat5';
 import { farm5Scenes, farm5Events } from './farm5';
 import type { Scene, WorldEvent } from '../../engine/content-types';
 
 // 12 ноября: утро.
 export const morning12Scenes: Scene[] = [
   ...farm5Scenes,
+  ...bflat5Scenes,
   {
     "id": "c5_neighbor",
     "for": "any",
@@ -374,179 +376,6 @@ export const morning12Scenes: Scene[] = [
     ]
   },
   {
-    "id": "c5_bflat",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_flat",
-    "title": "Barmbek",
-    "safe": true,
-    "text": [
-      {"when": {"before": 3240}, "text": "Лампа на лестнице щёлкает сквозь дверь. В комнате видна одна полоска от уличного фонаря. Ты закрываешь её рукавом куртки."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "На кухонном столе — открытые пачки и листок с остатками. Через окно слышно, как внизу тянут что-то тяжёлое по асфальту. Ты отодвигаешь стул от двери, потом придвигаешь обратно."
-      },
-      {
-        "when": {"all": [{"after": 3600}, {"before": 3900}]},
-        "text": "На кухонном окне серый след ладони. Внизу медленно проезжает грузовик, но у дома не останавливается."
-      },
-      {
-        "when": {"after": 3900},
-        "text": "Стекло отражает комнату вместо улицы. Ты закрываешь занавеску до самого края. В подъезде кто-то долго возится с замком и наконец уходит вниз."
-      },
-      {
-        "when": {"npc": "svenja", "at": "b_flat", "alive": true, "status": "turned"},
-        "text": "За внутренней дверью шаркают ноги. Ты проверяешь подпорку, не трогая ручку."
-      },
-      {"when": {"v": "w.power.hh", "op": "==", "value": "on"}, "text": "Холодильник включается с тихим толчком. Ты прислушиваешься к нему дольше, чем к улице."},
-      {"when": {"v": "w.power.hh", "op": "==", "value": "off"}, "text": "Холодильник молчит. Дверцу без нужды не открываешь."},
-      {
-        "when": {"all": [{"v": "$.c5_knock.result", "op": "==", "value": "water"}, {"npc": "okafor", "alive": true, "at": "b_okafor"}]},
-        "text": "У двери напротив лежит снятое с бутылки кольцо. Окафор просит впредь ставить воду и сразу отходить."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_knock.result", "op": "==", "value": "cloth"}, {"npc": "okafor", "alive": true, "at": "b_okafor"}]},
-        "text": "Твоё полотенце висит на внутренней ручке. Окафор придерживает им дверь, чтобы не касаться металла рукой."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_knock.result", "op": "==", "value": "medical"}, {"npc": "okafor", "alive": true, "at": "b_okafor"}]},
-        "text": "Во дворе медик смотрит вверх, потом на очередь у машины. До вашего этажа он ещё не дошёл."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_yard.result", "op": "==", "value": "pay"}, {"all": []}]},
-        "text": "Женщина катит починенный велосипед через двор. Ребёнок в кресле держит твои пять евро — мастер вернул деньги ему."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_yard.result", "op": "==", "value": "talk"}, {"all": []}]},
-        "text": "Мужчина принимает предложенную работу вместо оплаты. Женщина задерживается у подъезда: ждёт, когда он отпустит раму."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_yard.result", "op": "==", "value": "apart"}, {"all": []}]},
-        "text": "Велосипед лежит у стены. Женщина ведёт ребёнка пешком, мужчина остался с колесом в руках."
-      }
-    ],
-    "actions": [
-      {
-        "id": "c5_reserve",
-        "label": "Отложить из рюкзака пачку крупы",
-        "minutes": 10,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_reserve"}}]},
-        "text": "На полке освобождается место рядом с общей кастрюлей. Ты убираешь туда пачку, закрыв прищепкой открытый край. Прищепка едва держится на толстом краю.",
-        "effects": [{"set": "$.c5_reserve", "value": true}, {"stock": "oats", "qty": 1, "at": "c3_b_stock"}],
-        "enabled": {"has": "oats"},
-        "disabledReason": "В рюкзаке нет хлопьев"
-      },
-      {
-        "id": "c5_draw_water",
-        "label": "Взять из общего запаса три литра",
-        "minutes": 10,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_draw_water"}}]},
-        "text": "На кухне хватает места только для двух бутылок. Ты наполняешь одну, закрываешь, потом берёшь вторую. Кружка остаётся рядом с общим запасом.",
-        "effects": [{"set": "$.c5_draw_water", "value": true}, {"unstock": "water_l", "qty": 3, "at": "c3_b_stock"}, {"take": "water_l", "qty": 3}, {"give": "water_15", "qty": 2}],
-        "enabled": {"stocked": "water_l", "qty": 3, "at": "c3_b_stock"},
-        "disabledReason": "В общем запасе меньше трёх литров"
-      },
-      {
-        "id": "c5_window",
-        "label": "Убрать свет от окна",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_window"}}, {"all": [{"after": 3240}, {"before": 3900}]}]},
-        "text": "Ты закрепляешь плотную ткань так, чтобы её можно было снять одним движением. С улицы окно должно остаться чёрным. В комнате сразу становится теснее.",
-        "effects": [{"set": "$.c5_window", "value": true}, {"body": "stress", "delta": -2}]
-      },
-      {
-        "id": "c5_shutters",
-        "label": "Час укреплять засов подъезда",
-        "minutes": 0,
-        "activity": "moderate",
-        "repeatable": true,
-        "combinable": true,
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"not": {"flag": "proj.c3_shutters_b.done"}}, {"all": [{"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, {"not": {"npc": "svenja", "at": "b_flat", "alive": true, "status": "turned"}}]}]},
-        "text": "Ты работаешь у самого выхода, оставив дверь в квартиру на цепочке. Старый шуруп прокручивается. Приходится переставить скобу выше и сверлить вручную.",
-        "effects": [{"work": "c3_shutters_b", "hours": 1}]
-      },
-      {
-        "id": "c5_water_queue",
-        "label": "Сходить с бутылками к раздаче",
-        "minutes": 75,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_water_queue"}}, {"all": [{"all": [{"after": 3360}, {"before": 3840}]}, {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, {"not": {"npc": "svenja", "at": "b_flat", "alive": true, "status": "turned"}}]}]},
-        "text": "Цистерна опаздывает. Люди держат очередь пустыми вёдрами, спорят о том, кто стоял за кем. Когда вода наконец идёт, солдат наливает молча. Обратно бутылки стучат друг о друга на каждом шаге.",
-        "effects": [{"set": "$.c5_water_queue", "value": true}, {"place": "water_l", "qty": 6, "at": "c3_b_stock"}, {"body": "fatigue", "delta": 6}]
-      },
-      {
-        "id": "c5_neighbors",
-        "label": "Поговорить с соседями через дверь",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_neighbors"}}, {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"not": {"npc": "svenja", "at": "b_flat", "alive": true, "status": "turned"}}]}]},
-        "text": "Дверь открывают на цепочку. Чужая рука протягивает карандаш: записать, кто ещё в доме. Ты пишешь только имена. Про еду никто не спрашивает первым.",
-        "effects": [{"set": "$.c5_neighbors", "value": true}, {"body": "stress", "delta": -2}]
-      },
-      {
-        "id": "c5_warm",
-        "label": "Устроить одно тёплое место",
-        "minutes": 30,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_warm"}}, {"all": [{"after": 3240}, {"before": 3900}]}]},
-        "text": "Матрас от стены, одеяло под спину, сухое полотенце к ногам. Ты проверяешь щель у окна ладонью. От неё тянет, и ты снова сворачиваешь край ткани.",
-        "effects": [{"set": "$.c5_warm", "value": true}, {"body": "stress", "delta": -4}]
-      },
-      {
-        "id": "c5_partner",
-        "label": "Посидеть с {partner.ins} на кухне",
-        "minutes": 30,
-        "combinable": true,
-        "when": {"all": [{"flag": "w.together"}, {"all": [{"not": {"flag": "$.c5_partner"}}, {"flag": "w.together"}]}]},
-        "text": "На две кружки одно блюдце. Вы переставляете его друг к другу, хотя класть туда нечего. {partner} касается твоей руки под столом. В подъезде хлопает дверь, и вы одновременно оборачиваетесь.",
-        "effects": [{"set": "$.c5_partner", "value": true}, {"body": "stress", "delta": -8}]
-      },
-      {
-        "id": "c5_listen",
-        "label": "Послушать дом у двери",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_listen"}}, {"after": 3900}]},
-        "text": "Ты не касаешься глазком лба: металл холодный. На нижней площадке гаснет фонарь, слышно, как кто-то считает ступени. До вашей двери не поднимаются.",
-        "effects": [{"set": "$.c5_listen", "value": true}, {"body": "stress", "delta": 3}]
-      },
-      {
-        "id": "c5_okafor",
-        "label": "Тихо постучать к Окафору",
-        "minutes": 2,
-        "terminal": true,
-        "goto": "c5_okafor",
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"npc": "okafor", "at": "b_okafor", "alive": true}]},
-        "effects": []
-      },
-      {"id": "c5_landing", "label": "Выйти на площадку", "minutes": 1, "terminal": true, "goto": "c5_landing_B", "effects": []},
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"before": 3240},
-        "effects": [{"sleep": 360}],
-        "text": "Лампа на лестнице щёлкает сквозь дверь. В комнате видна одна полоска от уличного фонаря. Ты закрываешь её рукавом куртки."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c5_knock_approach", "label": "Подойти к стуку напротив", "minutes": 1, "terminal": true, "goto": "c5_knock", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3320}, {"before": 3710}, {"npc": "okafor", "alive": true, "at": "b_okafor"}, {"not": {"flag": "$.c5_knock.done"}}]}},
-      {"id": "c5_yard_approach", "label": "Посмотреть на спор во дворе", "minutes": 1, "terminal": true, "goto": "c5_yard", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3490}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_yard.done"}}]}},
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
-    ]
-  },
-  {
     "id": "c5_landing_A",
     "for": "any",
     "chapter": "ch3",
@@ -593,56 +422,6 @@ export const morning12Scenes: Scene[] = [
       },
       {"id": "c5_stairs_approach", "label": "Прислушаться к лестнице", "minutes": 1, "terminal": true, "goto": "c5_stairs", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3365}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_stairs.done"}}]}},
       {"id": "c5_tap_approach", "label": "Проверить стук в трубе", "minutes": 1, "terminal": true, "goto": "c5_tap", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3505}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_tap.done"}}]}},
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
-    ]
-  },
-  {
-    "id": "c5_landing_B",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_stairs",
-    "title": "Площадка",
-    "safe": true,
-    "text": [
-      {"when": {"before": 3240}, "text": "На кнопке таймера засох отпечаток грязного пальца. Ты не нажимаешь. Сверху кто-то тяжело дышит через сон."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "Почтовые ящики раскрыты, реклама валяется у стены. На двери кто-то написал время последней раздачи воды. Ниже другим почерком: «Это было вчера»."
-      },
-      {"when": {"all": [{"after": 3600}, {"before": 3900}]}, "text": "Дверь напротив закрыта. На плитке у стены стоит забытая чашка, ручкой к твоему порогу."},
-      {"when": {"after": 3900}, "text": "Света на лестнице нет. Ты стоишь у перил и слушаешь, не двигаясь. От нижнего пролёта тянет холодом."}
-    ],
-    "actions": [
-      {
-        "id": "c5_landing_B_listen",
-        "label": "Прислушаться у нижнего пролёта",
-        "minutes": 10,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_landing_B_listen"}}]},
-        "text": "Снизу доносится скрежет. Потом звякает стекло и кто-то тихо ругается. Ты отступаешь к своей двери, чтобы видеть лестницу целиком.",
-        "effects": [{"set": "$.c5_landing_B_listen", "value": true}, {"body": "stress", "delta": 3}]
-      },
-      {"id": "c5_back", "label": "Вернуться в квартиру", "minutes": 2, "terminal": true, "goto": "c5_bflat", "effects": []},
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"before": 3240},
-        "effects": [{"sleep": 360}],
-        "text": "На кнопке таймера засох отпечаток грязного пальца. Ты не нажимаешь. Сверху кто-то тяжело дышит через сон."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c5_knock_approach", "label": "Подойти к стуку напротив", "minutes": 1, "terminal": true, "goto": "c5_knock", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3320}, {"before": 3710}, {"npc": "okafor", "alive": true, "at": "b_okafor"}, {"not": {"flag": "$.c5_knock.done"}}]}},
-      {"id": "c5_yard_approach", "label": "Посмотреть на спор во дворе", "minutes": 1, "terminal": true, "goto": "c5_yard", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3490}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_yard.done"}}]}},
       {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
     ]
   },
@@ -1402,83 +1181,6 @@ export const morning12Scenes: Scene[] = [
         "combinable": true,
         "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
       },
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
-    ]
-  },
-  {
-    "id": "c5_okafor",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "b_okafor",
-    "title": "Дверь напротив",
-    "safe": false,
-    "text": [
-      {"when": {"before": 3240}, "text": "У порога Окафора лежит одна тапочка. Другая видна глубже в коридоре. Ты не двигаешь дверь."},
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "Ты стучишь тихо, костяшкой пальца. За дверью что-то двигается. Нужно подождать, прежде чем стучать ещё."
-      },
-      {"when": {"all": [{"after": 3600}, {"before": 3900}]}, "text": "На пороге напротив тень от перил. Ключ лежит внутри тени, не блестит."},
-      {"when": {"after": 3900}, "text": "Дверь напротив остаётся закрытой. На полу высохла узкая полоса воды. Ты не наступаешь на неё."}
-    ],
-    "actions": [
-      {
-        "id": "c5_okafor_voice",
-        "label": "Поговорить, не открывая дверь",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_okafor_voice"}}, {"all": [{"npc": "okafor", "at": "b_okafor", "alive": true}, {"npcVar": "okafor", "key": "bitten"}, {"not": {"npc": "okafor", "status": "turned"}}]}]},
-        "text": "— Не входите, — говорит Окафор. Голос сухой, с остановками. — Сначала руки. Потом лицо. Чужая кровь — не ваша работа без перчаток. — Он будто снова читает инструктаж на смене.",
-        "effects": [{"set": "$.c5_okafor_voice", "value": true}, {"learn": "f_c3_okafor"}, {"npc": "okafor", "trust": 3}]
-      },
-      {
-        "id": "c5_okafor_healthy",
-        "label": "Спросить, чем помочь соседям",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_okafor_healthy"}}, {"all": [{"npc": "okafor", "at": "b_okafor", "alive": true}, {"not": {"npcVar": "okafor", "key": "bitten"}}]}]},
-        "text": "Окафор открывает на цепочку. — Без обходов квартир. Кто хочет помощи, пусть сначала ответит. — Он достаёт чистый лист. На нём три номера дверей. — Этих я слышал сегодня. Про остальных не знаю.",
-        "effects": [{"set": "$.c5_okafor_healthy", "value": true}, {"npc": "okafor", "trust": 4}]
-      },
-      {
-        "id": "c5_okafor_water",
-        "label": "Оставить закрытую бутылку у порога",
-        "minutes": 5,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_okafor_water"}}, {"all": [{"has": "water_05"}, {"npc": "okafor", "at": "b_okafor", "alive": true}]}]},
-        "text": "Ты ставишь бутылку так, чтобы дверь не сбила её. Стучишь один раз и отходишь к своей площадке. Заберёт ли — не видно.",
-        "effects": [{"set": "$.c5_okafor_water", "value": true}, {"take": "water_05"}, {"body": "stress", "delta": -2}]
-      },
-      {
-        "id": "c5_okafor_listen",
-        "label": "Послушать с лестницы",
-        "minutes": 10,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_okafor_listen"}}, {"all": [{"npc": "okafor", "at": "b_okafor", "alive": true}, {"npc": "okafor", "status": "turned"}]}]},
-        "text": "За дверью шаги от одной стены к другой. Иногда скребёт металл. Ты отступаешь на ступеньку, не трогая ручку.",
-        "effects": [{"set": "$.c5_okafor_listen", "value": true}, {"body": "stress", "delta": 6}]
-      },
-      {"id": "c5_back", "label": "Вернуться к себе на площадку", "minutes": 1, "terminal": true, "goto": "c5_landing_B", "effects": []},
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"before": 3240},
-        "effects": [{"sleep": 360}],
-        "text": "У порога Окафора лежит одна тапочка. Другая видна глубже в коридоре. Ты не двигаешь дверь."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c5_knock_approach", "label": "Подойти к стуку напротив", "minutes": 1, "terminal": true, "goto": "c5_knock", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3320}, {"before": 3710}, {"npc": "okafor", "alive": true, "at": "b_okafor"}, {"not": {"flag": "$.c5_knock.done"}}]}},
-      {"id": "c5_yard_approach", "label": "Посмотреть на спор во дворе", "minutes": 1, "terminal": true, "goto": "c5_yard", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3490}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_yard.done"}}]}},
       {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
     ]
   },
@@ -2370,113 +2072,6 @@ export const morning12Scenes: Scene[] = [
     "location": "a_flat"
   },
   {
-    "id": "c5_knock",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Подойти к стуку напротив",
-    "universal": false,
-    "text": [
-      {
-        "text": "Окафор отвечает через дверь. — Бутылку поставь. Потом отойди. Перчатки — всегда. — В щели появляется рука, он сразу прячет её. На полу возле порога лежат ножницы."
-      },
-      {"text": "Он отвечает, что просит не для себя. Он слышит шаги на твоей площадке. После паузы добавляет: — Руку держу чистой."}
-    ],
-    "onEnter": [{"set": "$.c5_knock.started", "value": true}],
-    "actions": [
-      {
-        "id": "c5_knock_ask",
-        "label": "Попросить говорить громче",
-        "minutes": 8,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_knock.asked"}}, {"npcVar": "okafor", "key": "bitten"}]},
-        "text": "— Это царапина? — спрашиваешь ты. Он долго молчит. — Я просил не входить. — Голос ровный, как на осмотре. Только ножницы он поднять не может.",
-        "effects": [{"set": "$.c5_knock.asked", "value": true}]
-      },
-      {
-        "id": "c5_knock_water",
-        "label": "Оставить воду у двери",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_bflat",
-        "text": "Ты ставишь бутылку боком к стене, чтобы не сбили дверью. Стучишь один раз и отходишь. Бутылку забирают, когда тебя уже нет у глазка.",
-        "effects": [{"set": "$.c5_knock.done", "value": true}, {"set": "$.c5_knock.result", "value": "water"}, {"takeTag": "drink"}, {"npc": "okafor", "trust": 5}],
-        "enabled": {"hasTag": "drink"},
-        "disabledReason": "Нужные вещи сейчас не при тебе"
-      },
-      {
-        "id": "c5_knock_cloth",
-        "label": "Передать чистое полотенце",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_bflat",
-        "text": "Ты проталкиваешь край полотенца через щель. Он тянет медленно, не касаясь твоих пальцев. — Вот так. Правильно, — говорит он.",
-        "effects": [{"set": "$.c5_knock.done", "value": true}, {"set": "$.c5_knock.result", "value": "cloth"}, {"take": "towel"}, {"npc": "okafor", "trust": 6}],
-        "enabled": {"has": "towel"},
-        "disabledReason": "Нужные вещи сейчас не при тебе"
-      },
-      {
-        "id": "c5_knock_medical",
-        "label": "Позвать медика с улицы",
-        "minutes": 25,
-        "terminal": true,
-        "goto": "c5_bflat",
-        "text": "Внизу у машины медик даже не снимает перчаток. Ты объясняешь про дверь, руку, голос. Он просит номер квартиры и показывает ждать наверху. За тобой не идёт.",
-        "effects": [
-          {"set": "$.c5_knock.done", "value": true},
-          {"set": "$.c5_knock.result", "value": "medical"},
-          {"body": "fatigue", "delta": 4},
-          {"if": {"npcVar": "okafor", "key": "bitten"}, "then": [{"learn": "f_c3_okafor"}]},
-          {"if": {"any": [{"me": "B"}, {"not": {"flag": "w.together"}}]}, "then": [{"set": "w.c3_okafor_reported", "value": true}]}
-        ]
-      }
-    ],
-    "location": "b_flat"
-  },
-  {
-    "id": "c5_yard",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Посмотреть на спор во дворе",
-    "universal": false,
-    "text": [
-      {"text": "Во дворе ругаются из-за велосипеда. Мужчина в рабочей куртке держит колесо, женщина — раму. Детское кресло лежит отдельно."},
-      {"text": "Женщина говорит, что велосипед её. Мужчина показывает велосипедный ключ: чинил, теперь хочет плату. Оба ждут ответа сверху."}
-    ],
-    "onEnter": [{"set": "$.c5_yard.started", "value": true}],
-    "actions": [
-      {
-        "id": "c5_yard_pay",
-        "label": "Заплатить за ремонт",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_bflat",
-        "text": "Ты передаёшь пять евро через приоткрытую дверь. Мужчина пересчитывает, ставит колесо в вилку. Женщина надевает ребёнку шлем уже на ходу.",
-        "effects": [{"set": "$.c5_yard.done", "value": true}, {"set": "$.c5_yard.result", "value": "pay"}, {"take": "cash_eur", "qty": 5}],
-        "enabled": {"has": "cash_eur", "qty": 5},
-        "disabledReason": "Нужные вещи сейчас не при тебе"
-      },
-      {
-        "id": "c5_yard_talk",
-        "label": "Предложить обмен вместо денег",
-        "minutes": 20,
-        "terminal": true,
-        "goto": "c5_bflat",
-        "text": "Женщина вынимает из сумки закрытую пачку кофе. Мужчина долго смотрит, потом берёт. Колесо ставят молча. Путь наконец свободен.",
-        "effects": [{"set": "$.c5_yard.done", "value": true}, {"set": "$.c5_yard.result", "value": "talk"}, {"body": "stress", "delta": 5}]
-      },
-      {
-        "id": "c5_yard_apart",
-        "label": "Попросить освободить проход",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_bflat",
-        "text": "Ты показываешь на женщину с сумками. Спорящие отступают, каждый со своей половиной велосипеда. Пакеты проходят между ними, задевая раму.",
-        "effects": [{"set": "$.c5_yard.done", "value": true}, {"set": "$.c5_yard.result", "value": "apart"}, {"body": "stress", "delta": 3}]
-      }
-    ],
-    "location": "b_flat"
-  },
-  {
     "id": "c5_rollers",
     "for": "any",
     "chapter": "ch3",
@@ -3063,6 +2658,7 @@ export const morning12Scenes: Scene[] = [
 
 export const morning12Events: WorldEvent[] = [
   ...farm5Events,
+  ...bflat5Events,
   {
     "id": "ev_c5_rattle",
     "at": 3350,
@@ -3098,24 +2694,6 @@ export const morning12Events: WorldEvent[] = [
     "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3505}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_tap.done"}}]}, {"any": [{"at": "a_flat"}, {"at": "a_stairs"}]}]},
     "effects": [],
     "news": [{"channel": "direct", "text": "В кухонной трубе грохот и свист. Из крана вылетает бурый плевок, потом ещё один. Снизу кто-то кричит закрыть воду."}]
-  },
-  {
-    "id": "ev_c5_knock",
-    "at": 3320,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3320}, {"before": 3710}, {"npc": "okafor", "alive": true, "at": "b_okafor"}, {"not": {"flag": "$.c5_knock.done"}}]}, {"any": [{"at": "b_flat"}, {"at": "b_stairs"}, {"at": "b_okafor"}]}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "В дверь напротив стучат изнутри: два раза, пауза, ещё два. Потом слышен голос Окафора, совсем тихий."}]
-  },
-  {
-    "id": "ev_c5_yard",
-    "at": 3490,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3490}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_yard.done"}}]}, {"any": [{"at": "b_flat"}, {"at": "b_stairs"}, {"at": "b_okafor"}]}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "Во дворе ругаются из-за велосипеда. Мужчина в рабочей куртке держит колесо, женщина — раму. Детское кресло лежит отдельно."}]
   },
   {
     "id": "ev_c5_rollers",

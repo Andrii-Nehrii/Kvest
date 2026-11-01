@@ -10,6 +10,7 @@ import { content as c } from './index';
 // Частичный прогон не заменяет общий: без переменной проверяется вся новая глава.
 const PART = process.env.KVEST_QUALITY_PART;
 const parts: Record<string, { scenes: string[]; files: string[] }> = {
+  bflat5: { scenes: ['c5_bflat', 'c5_landing_B', 'c5_okafor', 'c5_knock', 'c5_yard', 'c5_cans'], files: ['chapter3/bflat5.ts'] },
   farm5: { scenes: ['c5_farm', 'c5_cellar', 'c5_well', 'c5_gate', 'c5_spilled', 'c5_bread'], files: ['chapter3/farm5.ts'] },
 };
 if (PART && !parts[PART]) throw new Error(`Неизвестная часть: ${PART}`);

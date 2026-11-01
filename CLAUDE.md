@@ -68,7 +68,7 @@ git push                                 # main → автосборка и вы
 ## Следующий шаг
 
 Главы 1–2 выпущены. Глава 3 — на проверке (`docs/hidden/CHAPTER3_REVIEW3.md`), в main не слита; дописывается частями по
-`docs/hidden/CHAPTER_GUIDE.md` §8. Качество новых глав: `src/content/quality.test.ts` (пороги по главе 2) и стенограммы
+`docs/hidden/CHAPTER_GUIDE.md` §8. Части 1–2 прошли отдельный цикл; далее — оставшиеся места участка 5 и затем его КТ. Общая проверка качества пока не зелёная. Качество новых глав: `src/content/quality.test.ts` (пороги по главе 2) и стенограммы
 `src/content/transcript.test.ts` (читать целиком). Эталон `fixtures/release-2.json` — когда пара пройдёт КТ 2. После главы 3 — глава 4 по `docs/hidden/STORY_STATE.md`,
 `docs/hidden/CHAPTER_GUIDE.md` и `docs/hidden/WRITING_GUIDE.md`. Конец доступной части — `c9_start` после КТ 8.
 Всё новое поведение следующей главы включать с `{ cp: 8 }`; версии контента и движка не менять.

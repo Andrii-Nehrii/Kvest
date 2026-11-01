@@ -1,0 +1,170 @@
+// Участок 5: квартира B и соседи. Укус не означает немедленного обращения.
+import type { ActionDef, Scene, WorldEvent } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { at } from '../../engine/time';
+import { once, cpAction } from './common';
+import { all, not, flag, keeper, npcHere } from './world3';
+
+const S = (s: Scene) => s;
+const AM = all({ after: at(12, 6) }, { before: at(12, 13) });
+const NIGHT: Cond = { before: at(12, 6) };
+const C5 = all({ cp: 4 }, not({ cp: 5 }));
+const okaforHere = npcHere('okafor', 'b_okafor');
+const bitten: Cond = { npcVar: 'okafor', key: 'bitten' };
+const speaking = all(okaforHere, not({ npc: 'okafor', status: 'turned' }));
+const atHome: Cond = { any: [{ at: 'b_flat' }, { at: 'b_stairs' }, { at: 'b_okafor' }] };
+const notDone = (id: string) => not(flag(`$.${id}`));
+const result = (id: string, value: string): Cond => ({ v: `$.${id}.result`, op: '==', value });
+const knock = all(C5, speaking, { after: at(12, 7, 20) }, { before: at(12, 13) }, notDone('c5_knock.done'));
+const cans = all(C5, not(speaking), { after: at(12, 7, 20) }, { before: at(12, 13) }, notDone('c5_cans.done'));
+const yard = all(C5, { after: at(12, 10, 10) }, { before: at(12, 13) }, notDone('c5_yard.done'));
+const toKnock: ActionDef = { id: 'c5_knock_approach', label: 'Ответить Окафору', minutes: 1, terminal: true, goto: 'c5_knock', when: knock };
+const toCans: ActionDef = { id: 'c5_cans_approach', label: 'Ответить соседке у двери', minutes: 1, terminal: true, goto: 'c5_cans', when: cans };
+const toYard: ActionDef = { id: 'c5_yard_approach', label: 'Спуститься на голоса во дворе', minutes: 4, terminal: true, goto: 'c5_yard', when: yard };
+const homeCheckpoint: ActionDef = { ...cpAction(5), label: 'Вернуться домой и связаться', effects: [{ move: 'b_flat' }] };
+const back: ActionDef = { id: 'c5_back', label: 'Вернуться в квартиру', minutes: 2, terminal: true, goto: 'c5_bflat' };
+const wait: ActionDef = { id: 'c5_wait', label: 'Переждать час', minutes: 60, activity: 'rest', repeatable: true, combinable: true };
+
+export const bflat5Scenes: Scene[] = [
+  S({ id: 'c5_bflat', for: 'any', chapter: 'ch3', location: 'b_flat', title: 'Квартира в Barmbek', safe: true,
+    text: [
+      { when: NIGHT, text: 'Кто-то в подъезде ведёт ладонью по стене. Шаги останавливаются этажом ниже. Ты лежишь лицом к двери, пока человек не находит ключ.' },
+      { when: all(AM, { before: at(12, 10, 10) }), text: 'Снизу зовут ребёнка завтракать. Он переспрашивает: «А папа?» В ответ двигают стул. В твоей кухне слышно каждое слово.' },
+      { when: { after: at(12, 10, 10) }, text: 'Внизу гремит железо. Ты подходишь к окну, но из кухни виден только край двора. Для остального придётся выйти.' },
+      { when: all({ npc: 'svenja', at: 'b_flat', alive: true }, { npc: 'svenja', status: 'turned' }), text: 'За внутренней дверью шаркают ноги. Подпорка дрожит, потом замирает. Ты отодвигаешь от неё свои ботинки.' },
+      { when: result('c5_knock', 'water'), text: 'На площадке щёлкает пластмассовая крышка. Ты узнаёшь звук своей бутылки. Окафор пьёт в несколько приёмов, долго между ними молчит.' },
+      { when: result('c5_knock', 'refuse'), text: 'Окафор стучит ещё раз. Ты отвечаешь, что слышишь. После этого за его дверью тихо.' },
+      { when: result('c5_knock', 'cloth'), text: 'Твоего полотенца на крючке нет. Вымыв руки, ты по привычке тянешься к нему. Приходится вытереть их о брюки.' },
+      { when: result('c5_knock', 'medical'), text: 'У подъезда всё ещё стоит машина медиков. Ты считаешь людей, которых проводят к ней. До вашей двери никто не поднялся.' },
+      { when: all(result('c5_yard', 'pay'), notDone('c5_yard_after')), text: 'Женщина возвращается за второй варежкой. — Спасибо за ремонт, — говорит мальчик. Мать поправляет: — Не ремонт. — И замолкает.' },
+      { when: all(result('c5_yard', 'work'), notDone('c5_yard_after')), text: 'От твоих рук пахнет смазкой. Женщина с велосипедом ждёт у входа. — Он отпустил? — спрашивает она, словно ты тоже был{m:|а} залогом.' },
+      { when: all(result('c5_yard', 'talk'), notDone('c5_yard_after')), text: 'Мастер уносит твою пачку под курткой. Мальчик держит отремонтированный велосипед за руль, пока мать пристёгивает кресло. У неё дрожит застёжка в руках.' },
+      { when: flag('$.c5_yard_after'), text: 'У входа больше никого нет. На ступеньке лежит билет, выпавший из её кармана. Ты прижимаешь его камнем, чтобы не унесло ветром.' },
+      { when: result('c5_yard', 'apart'), text: 'Во дворе прислонена к стене рама без колеса. В детском кресле лежит варежка. Женщина уже увела ребёнка.' },
+      { when: flag('$.c5_cans.done'), text: 'Соседка оставила у твоей двери пустую канистру. На ручке висит детская варежка: так её найдут после раздачи.' },
+      { when: flag('proj.c3_shutters_b.done'), text: 'Дверь внизу закрывается одним тяжёлым щелчком. Женщина за стеной говорит сыну: — Теперь не дёргай. Сперва позови.' },
+    ],
+    actions: [
+      { id: 'c5_sleep', label: 'Лечь, не раздеваясь', minutes: 0, repeatable: true, when: NIGHT, text: 'Ты прячешь ступни под одеяло. Через стену слышно, как кто-то ставит будильник и тут же выключает. Твой телефон остаётся рядом с подушкой.', effects: [{ sleep: 360 }] },
+      { id: 'c5_partner', label: 'Посидеть с {partner.ins}', minutes: 25, combinable: true, when: all(flag('w.together'), { partnerAt: 'b_flat' }, notDone('c5_partner')),
+        text: '— Ты когда-нибудь слышал{m:|а}, как здесь тихо? — спрашивает {partner}. Ты вспоминаешь музыку за стеной, злость на чужой будильник. {pm:Он|Она} притягивает к себе твою ладонь. На этот раз вы не прислушиваетесь.', effects: once('c5_partner', [{ body: 'stress', delta: -8 }]) },
+      { id: 'c5_breakfast_b', label: 'Поесть перед выходом', minutes: 20, combinable: true, when: all(AM, notDone('c5_breakfast_b')), enabled: { has: 'oats', qty: 0.25 }, disabledReason: 'Крупы в рюкзаке нет',
+        text: 'Ты размачиваешь хлопья в кружке. Снизу мальчик спрашивает мать, можно ли сахар. Она отвечает: — Когда вернёмся. — Ты ешь быстрее, стараясь не слушать.', effects: once('c5_breakfast_b', [{ take: 'oats', qty: 0.25 }, { body: 'hunger', delta: -20 }]) },
+      { id: 'c5_reserve', label: 'Оставить пачку на общей кухне', minutes: 10, combinable: true, when: all(AM, notDone('c5_reserve')), enabled: { has: 'oats' }, disabledReason: 'Нужна пачка крупы',
+        text: 'Ты ставишь хлопья у кастрюли. На её крышке прежний стикер Мерле: «моё». Ты не отдираешь его. Просто поворачиваешь кастрюлю к стене.', effects: once('c5_reserve', [{ stock: 'oats', qty: 1, at: 'c3_b_stock' }]) },
+      { id: 'c5_draw_water', label: 'Набрать три литра в дорогу', minutes: 10, combinable: true, when: all(AM, notDone('c5_draw_water')), enabled: { stocked: 'water_l', qty: 3, at: 'c3_b_stock' }, disabledReason: 'В общем запасе меньше трёх литров',
+        text: 'Ты наполняешь две бутылки. Шум воды заставляет замолчать ребёнка этажом ниже. Когда ты закрываешь вторую, он зовёт мать шёпотом.', effects: once('c5_draw_water', [{ unstock: 'water_l', qty: 3, at: 'c3_b_stock' }, { take: 'water_l', qty: 3 }, { give: 'water_15', qty: 2 }]) },
+      { id: 'c5_shutters', label: 'Час укреплять входную дверь', minutes: 0, repeatable: true, combinable: true, when: all(AM, not(flag('proj.c3_shutters_b.done'))),
+        text: 'Сосед снизу держит фонарь. — Только меня не заприте. Я ещё за женой. — Когда ты примеряешь скобу, он просит показать, как отодвигать её снаружи. Ты объясняешь, что снаружи не получится.', effects: [{ work: 'c3_shutters_b', hours: 1 }] },
+      toKnock, toCans, toYard,
+      { id: 'c5_landing', label: 'Выйти на площадку', minutes: 2, terminal: true, goto: 'c5_landing_B', when: AM },
+      { id: 'c5_okafor', label: 'Подойти к двери Окафора', minutes: 2, terminal: true, goto: 'c5_okafor', when: AM },
+      { id: 'c5_yard_after', label: 'Окликнуть женщину с велосипедом', minutes: 15, combinable: true, when: all(AM, flag('$.c5_yard.done'), not(result('c5_yard', 'apart')), notDone('c5_yard_after')),
+        text: '— На вокзал, — отвечает она. — Куда ещё. — Мальчик просит взять канистру, но она показывает на кресло: некуда. Ты придерживаешь дверь, пока они протискиваются мимо.', effects: once('c5_yard_after', [{ body: 'stress', delta: 3 }]) },
+      wait, homeCheckpoint,
+    ],
+  }),
+  S({ id: 'c5_landing_B', for: 'any', chapter: 'ch3', location: 'b_stairs', title: 'Лестничная площадка', calm: true,
+    text: [
+      { when: { before: at(12, 7, 20) }, text: 'На ступеньке стоит детский ботинок. Снизу шепчут: — Я же велела рядом держать. — Ты ставишь ботинок на перила, где его видно.' },
+      { when: all({ after: at(12, 7, 20) }, { before: at(12, 10, 10) }), text: 'Соседка тащит канистру за ручку. Мальчик помогает с другой стороны, хотя канистра пустая. Они останавливаются перед каждым пролётом.' },
+      { when: all({ after: at(12, 10, 10) }, notDone('c5_yard.done')), text: 'Открытая дверь впускает шум двора. В проёме лежит гайка; ты чуть не наступаешь на неё. Из-за стены слышно: — Моё колесо. Положи.' },
+      { when: flag('$.c5_yard.done'), text: 'Внизу тихо. На стене осталась чёрная полоса от покрышки. Ты закрываешь дверь, которую оставили настежь.' },
+      { when: flag('$.c5_neighbors'), text: 'На стене карандашом написано «11:00». Ниже соседка приписала: «не вчерашнее». Подчеркнула дважды.' },
+    ],
+    actions: [
+      { id: 'c5_neighbors', label: 'Спросить соседку о раздаче', minutes: 12, combinable: true, when: all(AM, notDone('c5_neighbors'), notDone('c5_yard.done')),
+        text: '— В одиннадцать. Сказали вчера, — отвечает она. Ты показываешь на старую запись. — Нет, это позавчера. — Она стирает цифры рукавом, но они только размазываются.', effects: once('c5_neighbors') },
+      { id: 'c5_water_queue', label: 'Идти с соседями за водой', minutes: 80, combinable: true, when: all(AM, { after: at(12, 11) }, keeper('B'), notDone('c5_water_queue')),
+        text: 'Женщина впереди держит место пустым ведром. — Тут я, — говорит она каждому. Солдат наполняет твою канистру и отводит шланг, прежде чем ты успеваешь поблагодарить. Шесть литров бьют по колену всю дорогу обратно.',
+        effects: once('c5_water_queue', [{ place: 'water_l', qty: 6, at: 'c3_b_stock' }, { body: 'fatigue', delta: 6 }]) },
+
+      toKnock, toCans, toYard, back, wait, homeCheckpoint,
+    ],
+  }),
+  S({ id: 'c5_okafor', for: 'any', chapter: 'ch3', location: 'b_okafor', title: 'За дверью Окафора', calm: true,
+    text: [
+      { when: all(speaking, bitten), text: 'За дверью плещут водой из бутылки. Потом Окафор роняет крышку и долго ищет её на полу. Ты узнаёшь его кашель. Сегодня он старается кашлять тише.' },
+      { when: all(speaking, not(bitten)), text: '— Секунду. Перчатки сниму. — Окафор отвечает, не подходя к двери. Что-то падает в ведро. Он ругается, потом говорит: — Теперь слушаю.' },
+      { when: not(speaking), text: 'Ты зовёшь Окафора через дверь. Прикладываешь ухо. Собственное дыхание мешает услышать что-нибудь ещё.' },
+      { when: result('c5_knock', 'cloth'), text: 'Окафор придерживает дверь твоим полотенцем. — Отойди, пожалуйста. — Он ждёт, пока ты уберёшь ногу с порога.' },
+      { when: result('c5_knock', 'medical'), text: '— Ты им сказал{m:|а}? — спрашивает он. Ты отвечаешь. За дверью долго не двигаются.' },
+    ],
+    actions: [
+      { id: 'c5_okafor_voice', label: 'Спросить, что с его рукой', minutes: 15, combinable: true, when: all(AM, speaking, bitten, notDone('c5_okafor_voice')),
+        text: '— Укус, — говорит Окафор. Сразу добавляет: — Вчера. Я обработал. — На слове «обработал» голос срывается. Ты смотришь на свою руку возле его звонка и опускаешь её.', effects: once('c5_okafor_voice', [{ learn: 'f_c3_okafor' }, { npc: 'okafor', trust: 3 }]) },
+      { id: 'c5_okafor_healthy', label: 'Узнать, кто ещё остался в доме', minutes: 20, combinable: true, when: all(AM, speaking, not(bitten), notDone('c5_okafor_healthy')),
+        text: 'Окафор называет три квартиры. — Этих слышал. Остальные не отвечают. — Ты спрашиваешь, проверял ли он. — По звонку. Без спроса не заходи. — Раньше он говорил это с улыбкой.', effects: once('c5_okafor_healthy', [{ npc: 'okafor', trust: 4 }]) },
+      toKnock, toCans, toYard, back, wait, homeCheckpoint,
+    ],
+  }),
+  S({ id: 'c5_knock', for: 'any', chapter: 'ch3', location: 'b_okafor', title: 'Просьба через дверь', universal: false,
+    text: [
+      { when: all(speaking, bitten, notDone('c5_knock.asked')), text: 'Окафор открывает на цепочку. Ты видишь мокрый лоб и забинтованную кисть. Когда дверь упирается, он дёргается всем телом. — Не сюда. Бутылку на пол.' },
+      { when: all(speaking, not(bitten)), text: 'Окафор держит дверь локтем. На рукаве кровь, но руки целы. — Соседу снизу плохо. Я ходил к нему. Воды нет даже вымыться. — Он не приглашает войти.' },
+      { when: all(speaking, bitten, flag('$.c5_knock.asked')), text: 'В щели видны его пальцы. Окафор обхватывает здоровой рукой больную. — Я слышу тебя. Не кричи. — Дверь между вами дрожит.' },
+      { when: not(speaking), text: 'Ответа нет. Цепочка внутри двери не звенит. Ты отступаешь от щели.' },
+    ],
+    onEnter: [{ set: '$.c5_knock.started', value: true }],
+    actions: [
+      { id: 'c5_knock_ask', label: 'Спросить, пустит ли он помощь', minutes: 8, combinable: true, when: all(speaking, notDone('c5_knock.asked')),
+        text: '— Врач пусть приходит. Соседи — нет, — говорит он. Ты спрашиваешь, ждать ли рядом. Ответ приходит после паузы. — Ты мне ничего не {m:должен|должна}.', effects: once('c5_knock.asked') },
+      { id: 'c5_knock_water', label: 'Отдать свою бутылку воды', minutes: 8, terminal: true, goto: 'c5_bflat', when: speaking, enabled: { hasTag: 'drink' }, disabledReason: 'Питья при тебе нет',
+        text: 'Ты ставишь бутылку у косяка. Окафор ждёт, пока ты отойдёшь, и тянется за ней двумя руками. — Спасибо. Дверь свою запри. — Это он говорит уже из темноты.',
+        effects: [...once('c5_knock.done'), { set: '$.c5_knock.result', value: 'water' }, { takeTag: 'drink' }, { npc: 'okafor', trust: 5 }] },
+      { id: 'c5_knock_cloth', label: 'Отдать ему своё полотенце', minutes: 10, terminal: true, goto: 'c5_bflat', when: speaking, enabled: { has: 'towel' }, disabledReason: 'Полотенца при тебе нет',
+        text: 'Окафор просит бросить полотенце на порог. Ты наклоняешься, и он резко придерживает дверь. — Не надо. Я сам. — Ты выпрямляешься медленнее, чем нужно.',
+        effects: [...once('c5_knock.done'), { set: '$.c5_knock.result', value: 'cloth' }, { take: 'towel' }, { npc: 'okafor', trust: 6 }] },
+      { id: 'c5_knock_medical', label: 'Идти за медиком к машине', minutes: 35, terminal: true, goto: 'c5_bflat', when: speaking,
+        text: 'Медик слушает, пока достаёт новую пару перчаток. — Этаж? Сам ходит? — Он записывает номер и отворачивается к носилкам. Ты стоишь рядом ещё минуту. Лестницу он даже не ищет.',
+        effects: [...once('c5_knock.done'), { set: '$.c5_knock.result', value: 'medical' }, { body: 'fatigue', delta: 4 }, { if: keeper('B'), then: [{ set: 'w.c3_okafor_reported', value: true }] }] },
+      { id: 'c5_knock_refuse', label: 'Сказать, что сейчас не поможешь', minutes: 5, terminal: true, goto: 'c5_bflat', when: speaking,
+        text: '— Хорошо, — говорит Окафор. Ты начинаешь объяснять, но дверь уже закрывается. Цепочку он не снимает.',
+        effects: [...once('c5_knock.done'), { set: '$.c5_knock.result', value: 'refuse' }, { npc: 'okafor', trust: -4 }, { body: 'stress', delta: 4 }] },
+      { id: 'c5_knock_leave', label: 'Вернуться и запереть свою дверь', minutes: 2, terminal: true, goto: 'c5_bflat', when: not(speaking), effects: once('c5_knock.done') },
+    ],
+  }),
+  S({ id: 'c5_cans', for: 'any', chapter: 'ch3', location: 'b_stairs', title: 'Пустая канистра', universal: false,
+    text: [
+      { text: 'Соседка стоит с мальчиком у перил. Он держит чашку, она — канистру. — Нам до раздачи. На один чай, — говорит женщина. — Я верну.' },
+      { text: 'Мальчик смотрит в чашку. На дне нарисована собака. Он закрывает её ладонью, когда замечает твой взгляд.' },
+    ],
+    actions: [
+      { id: 'c5_cans_water', label: 'Отдать свою бутылку', minutes: 8, terminal: true, goto: 'c5_bflat', enabled: { hasTag: 'drink' }, disabledReason: 'Питья при тебе нет',
+        text: 'Женщина сразу наливает мальчику. Он держит чашку обеими руками, пока она считает глотки. — Остальное на потом, — говорит она. Он не спорит.', effects: [...once('c5_cans.done'), { set: '$.c5_cans.result', value: 'water' }, { takeTag: 'drink' }] },
+      { id: 'c5_cans_stock', label: 'Взять литр из общего запаса', minutes: 12, terminal: true, goto: 'c5_bflat', enabled: { stocked: 'water_l', qty: 1, at: 'c3_b_stock' }, disabledReason: 'В общем запасе нет литра',
+        text: 'Женщина ждёт у двери. — Больше не надо, — говорит она, когда вода закрывает дно канистры. Ты доливаешь литр. Мальчик берётся за ручку вместе с ней.', effects: [...once('c5_cans.done'), { set: '$.c5_cans.result', value: 'stock' }, { unstock: 'water_l', qty: 1, at: 'c3_b_stock' }, { take: 'water_l', qty: 1 }] },
+      { id: 'c5_cans_refuse', label: 'Оставить воду себе', minutes: 3, terminal: true, goto: 'c5_bflat',
+        text: '— Понятно, — говорит женщина. Мальчик поднимает чашку, но она уже тянет его за рукав. Пластмасса стукает о перила на каждом пролёте.', effects: [...once('c5_cans.done'), { set: '$.c5_cans.result', value: 'refuse' }, { body: 'stress', delta: 4 }] },
+    ],
+  }),
+  S({ id: 'c5_yard', for: 'any', chapter: 'ch3', location: 'b_yard', title: 'Колесо', universal: false, ambient: { outdoor: true },
+    text: [
+      { when: notDone('c5_yard.asked'), text: 'Мастер держит колесо над головой. Женщина держит раму. Между ними мальчик в велосипедном шлеме. — Пять евро, — говорит мастер. — Камера моя.' },
+      { when: notDone('c5_yard.asked'), text: 'Женщина выворачивает карман. Выпадает билет. Мальчик тянется поднять его, и мастер резко опускает колесо. Ты успеваешь оттянуть ребёнка за капюшон.' },
+      { when: flag('$.c5_yard.asked'), text: 'Мальчик стоит у твоей ноги. Женщина держит пустой кошелёк обеими руками. Мастер стучит ключом по ободу. — Пять евро. Или помоги мне здесь.' },
+      { when: result('c5_cans', 'refuse'), text: 'Женщина узнаёт тебя и отворачивается. Мальчик не отходит от твоей руки. Его чашка торчит из кармана куртки.' },
+      { when: { any: [result('c5_cans', 'water'), result('c5_cans', 'stock')] }, text: '— Это нам воду дали, — говорит мальчик. Женщина кивает. Одной рукой она по-прежнему держит раму.' },
+    ],
+    onEnter: [{ set: '$.c5_yard.started', value: true }],
+    actions: [
+      { id: 'c5_yard_ask', label: 'Спросить мастера, что за долг', minutes: 5, combinable: true, when: notDone('c5_yard.asked'),
+        text: '— За спасибо я чиню дома, — говорит он. — У меня тоже едят. — Женщина показывает пустой кошелёк. Он даже не смотрит.', effects: once('c5_yard.asked') },
+      { id: 'c5_yard_pay', label: 'Заплатить за неё пять евро', minutes: 12, terminal: true, goto: 'c5_bflat', enabled: { has: 'cash_eur', qty: 5 }, disabledReason: 'Нужно пять евро',
+        text: 'Мастер разглаживает твою купюру о колено. Женщина отворачивается, пока он ставит колесо. Мальчик спрашивает, можно ли теперь ехать. Отвечаешь ему ты.', effects: [...once('c5_yard.done'), { set: '$.c5_yard.result', value: 'pay' }, { take: 'cash_eur', qty: 5 }] },
+      { id: 'c5_yard_talk', label: 'Отдать свою крупу за ремонт', minutes: 15, terminal: true, goto: 'c5_bflat', enabled: { has: 'oats' }, disabledReason: 'Нужна пачка крупы',
+        text: 'Ты предлагаешь хлопья. Мастер смотрит на пачку, на мальчика, снова на пачку. — Ладно. — Женщина придерживает велосипед, пока он затягивает гайку. Тебя она благодарит спиной.', effects: [...once('c5_yard.done'), { set: '$.c5_yard.result', value: 'talk' }, { take: 'oats' }] },
+      { id: 'c5_yard_work', label: 'Отработать ремонт за неё', minutes: 55, terminal: true, goto: 'c5_bflat',
+        text: 'Мастер показывает на колёса у стены. — Камеры вынешь. Все. — Женщина ждёт у ворот, удерживая велосипед за руль. Мастер пересчитывает вынутые камеры: — Теперь {m:свободен|свободна}.',
+        effects: [...once('c5_yard.done'), { set: '$.c5_yard.result', value: 'work' }, { body: 'fatigue', delta: 8 }] },
+      { id: 'c5_yard_apart', label: 'Увести ребёнка, не платить долг', minutes: 8, terminal: true, goto: 'c5_bflat',
+        text: 'Ты выводишь мальчика из-за рамы. Женщина идёт за вами, держа его шлем. — Пойдём пешком, — говорит она. Мастер окликает её один раз. Колесо не отдаёт.', effects: [...once('c5_yard.done'), { set: '$.c5_yard.result', value: 'apart' }, { body: 'stress', delta: 5 }] },
+    ],
+  }),
+];
+
+export const bflat5Events: WorldEvent[] = [
+  { id: 'ev_c5_knock', at: at(12, 7, 20), scope: 'world', interrupt: true, when: all(knock, atHome, notDone('c5_knock.started')), effects: [], news: [{ channel: 'direct', text: 'Окафор стучит изнутри: два раза, пауза, ещё два. Потом называет номер вашей квартиры. Голос слышно через обе двери.' }] },
+  { id: 'ev_c5_cans', at: at(12, 7, 20), scope: 'world', interrupt: true, when: all(cans, atHome), effects: [], news: [{ channel: 'direct', text: 'В дверь стучат снизу, детским кулаком. Женщина шепчет: «Не так громко». Потом стучит сама.' }] },
+  { id: 'ev_c5_yard', at: at(12, 10, 10), scope: 'world', interrupt: true, when: all(yard, atHome, notDone('c5_yard.started')), effects: [], news: [{ channel: 'direct', text: 'Во дворе спорят о велосипеде. Мальчик кричит: «Мам». Сквозь окно слышно, как металл ударяет о стену.' }] },
+];

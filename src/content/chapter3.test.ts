@@ -516,3 +516,47 @@ it('участок 5: завтрак расходует существующий
   expect(oats()).toBeCloseTo(before - 0.25);
   expect(ids(s, 'A')).not.toContain('c5_breakfast');
 });
+
+it('участок 5: здоровый Окафор не признаётся в укусе, отсутствующего заменяет другая просьба', () => {
+  const s = baseFor(['b_flat', 'b_flat', true]); s.chars.B.time = at(12, 8);
+  s.npcs.okafor.alive = true; s.npcs.okafor.location = 'b_okafor'; s.npcs.okafor.status = 'ok';
+  delete s.npcs.okafor.vars.bitten;
+  enterScene({ s, c, pid: 'B' }, 'c5_okafor');
+  expect(ids(s, 'B')).not.toContain('c5_okafor_voice');
+  expect(ids(s, 'B')).toContain('c5_okafor_healthy');
+  s.npcs.okafor.alive = false;
+  enterScene({ s, c, pid: 'B' }, 'c5_bflat');
+  expect(ids(s, 'B')).not.toContain('c5_knock_approach');
+  expect(ids(s, 'B')).toContain('c5_cans_approach');
+});
+
+it('участок 5: обмен во дворе тратит свою еду, бесплатный выход сохраняет потерю велосипеда', () => {
+  const s = baseFor(['b_flat', 'b_flat', true]); s.chars.B.time = at(12, 11);
+  enterScene({ s, c, pid: 'B' }, 'c5_yard');
+  const food = Object.values(s.items).find(i => i.type === 'oats')!;
+  food.at = { kind: 'char', id: 'B' }; food.qty = 2;
+  play(c, s, 'B', ['c5_yard_talk']);
+  expect(food.qty).toBe(1);
+  expect(s.vars['B.c5_yard.result']).toBe('talk');
+  expect(s.chars.B.location).toBe('b_flat');
+  expect(c.scenes.c6_bflat.text.some(b => b.text.includes('твоей пачкой хлопьев'))).toBe(true);
+});
+
+
+it('участок 5: работа над засовом действительно двигает время и проект', () => {
+  const s = baseFor(['b_flat', 'b_flat', true]); s.chars.B.time = at(12, 9);
+  enterScene({ s, c, pid: 'B' }, 'c5_bflat');
+  const before = s.chars.B.time;
+  play(c, s, 'B', ['c5_shutters']);
+  expect(s.chars.B.time).toBeGreaterThan(before);
+  expect(Number(s.vars['proj.c3_shutters_b.progress'])).toBeGreaterThan(0);
+});
+
+it('участок 5: перед разговором на КТ возвращаемся с площадки домой', () => {
+  const s = baseFor(['b_flat', 'b_flat', true]); s.chars.B.time = at(12, 13);
+  enterScene({ s, c, pid: 'B' }, 'c5_landing_B');
+  play(c, s, 'B', ['c5_go']);
+  expect(s.chars.B.scene).toBe('c5_cp');
+  expect(s.chars.B.location).toBe('b_flat');
+  expect(optionsFor(c, s, c.joint.c3_midday5, 'B').map(o => o.id)).toContain('water');
+});
