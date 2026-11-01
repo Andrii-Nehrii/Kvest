@@ -4,6 +4,14 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
+    # Документы, тесты и проверки не меняют игру — не пересобирать сайт ради них.
+    paths-ignore:
+      - 'docs/**'
+      - '**/*.md'
+      - '**/*.test.ts'
+      - 'src/content/playtest.ts'
+      - 'src/content/fixtures/**'
+      - '.github/workflows/**'
   workflow_dispatch:
 
 permissions:
