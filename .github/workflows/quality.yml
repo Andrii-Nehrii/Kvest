@@ -1,0 +1,42 @@
+# Жёсткий стандарт качества глав: проверка каждого PR в main.
+# Работает по версии из main (pull_request_target): ветка главы не может ни отключить её, ни ослабить пороги —
+# защищённые файлы берутся из main, а их изменение в ветке само по себе — провал.
+name: Quality gate
+
+on:
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened, ready_for_review]
+
+permissions:
+  contents: read
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Защищённые файлы не изменены в ветке
+        run: |
+          git fetch --no-tags origin main
+          PROTECTED="src/content/quality.test.ts src/content/playtest.ts src/content/transcript.test.ts src/content/compat.test.ts src/content/fixtures docs/hidden/CHAPTER_GUIDE.md docs/hidden/WRITING_GUIDE.md AGENTS.md .github"
+          CHANGED=$(git diff --name-only origin/main HEAD -- $PROTECTED)
+          if [ -n "$CHANGED" ]; then
+            echo "::error::Ветка меняет защищённые файлы (их меняют только в main): $CHANGED"
+            echo "Вернуть их как в main: git checkout origin/main -- $CHANGED"
+            exit 1
+          fi
+      - name: Проверки из main поверх ветки
+        run: git checkout origin/main -- src/content/quality.test.ts src/content/playtest.ts src/content/transcript.test.ts src/content/compat.test.ts src/content/fixtures
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - name: Все тесты, включая жёсткий стандарт качества
+        run: npx vitest run
