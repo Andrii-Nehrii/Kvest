@@ -34,9 +34,12 @@ const players = {
 };
 const lastCp = Math.max(...c.checkpoints.map((x) => x.index));
 const FROM = Number(process.env.KVEST_FROM ?? lastCp - 1);
+// Для чтения одной части; по умолчанию по-прежнему до последней КТ.
+const TO = Number(process.env.KVEST_TO ?? lastCp);
 const ANSWERS = Object.fromEntries((process.env.KVEST_ANSWERS ?? '').split(',').filter(Boolean).map((p) => p.split('=')));
 const SEEDS = (process.env.KVEST_SEEDS ?? '1,2,3').split(',');
 const POLICY = process.env.KVEST_POLICY ?? 'curious';
+const POLICY_FROM = Number(process.env.KVEST_POLICY_FROM ?? 1);
 const WANT = process.env.KVEST_WANT;
 const TOGETHER = process.env.KVEST_TOGETHER === '1';
 const COUNT = Number(process.env.KVEST_COUNT ?? 3);
@@ -72,8 +75,10 @@ function segment(s: GameState, pid: PlayerId, tag: string, out: string[] | null)
     const care = need ? enabled.filter((a) => a.universal && /drink|eat/.test(a.def.id)) : [];
     const fresh = story.filter((a) => !seen.has(a.def.id) && !/wait/.test(a.def.id) && !leadsToCheckpoint(a.def.goto));
     const toCp = story.filter((a) => leadsToCheckpoint(a.def.goto));
+    // Спешащий ждёт открытия точки; terminal сам по себе — часто обратная дверь, а не путь вперёд.
+    const skip = story.filter(a => /wait|_sleep$/.test(a.def.id));
     const pool = care.length ? care
-      : POLICY === 'hasty' ? (toCp.length ? toCp : story.filter((a) => a.def.terminal).length ? story.filter((a) => a.def.terminal) : story)
+      : POLICY === 'hasty' && s.checkpoint + 1 >= POLICY_FROM ? (toCp.length ? toCp : skip.length ? skip : story.filter((a) => a.def.terminal).length ? story.filter((a) => a.def.terminal) : story)
       : fresh.length ? fresh : toCp.length ? toCp : story.length ? story : enabled;
     if (!pool.length) { out?.push('!!! НЕТ ДОСТУПНЫХ ДЕЙСТВИЙ'); break; }
     const pick = pool[Math.floor(unit(`${tag}:${step}`) * pool.length)];
@@ -96,10 +101,10 @@ function segment(s: GameState, pid: PlayerId, tag: string, out: string[] | null)
 
 function run(seed: string): string[] | null {
   {
-    const out: string[] = [`Стенограмма «${NAME}», сид ${seed}, участки ${FROM}–${lastCp}, ответы: ${JSON.stringify(ANSWERS)}, игрок: ${POLICY}`];
+    const out: string[] = [`Стенограмма «${NAME}», сид ${seed}, участки ${FROM}–${TO}, ответы: ${JSON.stringify(ANSWERS)}, игрок: ${POLICY}`];
     const summary: string[] = [];
     let base = newGame(c, { pairId: 'transcript', seed: `${NAME}:${seed}`, startTime: START_TIME, players });
-    for (let n = 1; n <= lastCp && !base.ended; n++) {
+    for (let n = 1; n <= TO && !base.ended; n++) {
       const write = n >= FROM;
       if (n === FROM && WANT) {
         const here = (['A', 'B'] as const).some((p) => base.chars[p].location === WANT);

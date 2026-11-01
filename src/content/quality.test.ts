@@ -7,12 +7,19 @@ import { describe, expect, it } from 'vitest';
 import type { Scene } from '../engine/content-types';
 import { content as c } from './index';
 
+// Частичный прогон не заменяет общий: без переменной проверяется вся новая глава.
+const PART = process.env.KVEST_QUALITY_PART;
+const parts: Record<string, { scenes: string[]; files: string[] }> = {
+  farm5: { scenes: ['c5_farm', 'c5_cellar', 'c5_well', 'c5_gate', 'c5_spilled', 'c5_bread'], files: ['chapter3/farm5.ts'] },
+};
+if (PART && !parts[PART]) throw new Error(`Неизвестная часть: ${PART}`);
+const selection = PART ? parts[PART] : undefined;
 const OLD = ['ch1', 'ch2'];
-const newScenes = Object.values(c.scenes).filter((s) => !OLD.includes(s.chapter) && s.checkpoint === undefined);
+const newScenes = Object.values(c.scenes).filter((s) => !OLD.includes(s.chapter) && s.checkpoint === undefined && (!selection || selection.scenes.includes(s.id)));
 const byChapter = new Map<string, Scene[]>();
 for (const s of newScenes) byChapter.set(s.chapter, [...(byChapter.get(s.chapter) ?? []), s]);
 // Заглушка «продолжение следует» в конце написанной части — не глава.
-for (const [ch, list] of byChapter) if (list.length < 5) byChapter.delete(ch);
+for (const [ch, list] of byChapter) if (!selection && list.length < 5) byChapter.delete(ch);
 
 /** Подписи «бытовых мелочей». В главах 1–2 таких подписей 3–4 %. */
 const CHORE = /^(Проверить|Осмотреть|Посмотреть|Убрать|Положить|Поправить|Подложить|Вымыть|Сменить|Отнести|Подать|Придержать|Подержать|Перенести|Поставить|Разобрать|Протереть|Закрепить|Снять|Освободить|Вычистить|Подтянуть|Прибить|Сложить|Переложить|Отодвинуть|Подвинуть)(?=\s)/;
@@ -28,6 +35,9 @@ const textsOf = (list: Scene[]) => [...new Set(list.flatMap((s) => [
 const share = (part: number, all: number) => (all ? part / all : 0);
 
 describe.runIf(byChapter.size > 0)('качество новых глав (эталон — главы 1–2)', () => {
+  if (selection) it('все сцены выбранной части существуют', () => {
+    expect(newScenes.map(s => s.id).sort()).toEqual([...selection.scenes].sort());
+  });
   for (const [ch, list] of byChapter) {
     const labels = list.flatMap((s) => s.actions.filter((a) => !/wait|_go$/.test(a.id)).map((a) => a.label));
     const texts = textsOf(list);
@@ -81,6 +91,7 @@ describe.runIf(byChapter.size > 0)('качество новых глав (эта
     const dirs = readdirSync(new URL('./', import.meta.url)).filter((d) => /^chapter\d+$/.test(d) && Number(d.slice(7)) >= 3);
     const bad: string[] = [];
     for (const d of dirs) for (const f of readdirSync(new URL(`./${d}/`, import.meta.url))) {
+      if (selection && !selection.files.includes(`${d}/${f}`)) continue;
       const url = new URL(`./${d}/${f}`, import.meta.url);
       if (!statSync(url).isFile()) continue;
       const src = readFileSync(url, 'utf8');

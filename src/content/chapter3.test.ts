@@ -161,9 +161,10 @@ describe('глава 3: расход и маршруты', () => {
   it('общая добыча и обмен принадлежат только одной линии, работа обеих складывается', () => {
     const base = baseFor();
     base.chars.A.time = base.chars.B.time = at(12, 10);
-    for (const p of P) enterScene({ s: base, c, pid: p }, 'c5_farm');
+    for (const p of P) enterScene({ s: base, c, pid: p }, 'c5_cellar');
     const a = structuredClone(base), b = structuredClone(base);
-    expect(ids(a, 'A')).toContain('c5_wood'); expect(ids(b, 'B')).not.toContain('c5_wood');
+    expect(ids(a, 'A')).toContain('c5_exchange_sack'); expect(ids(b, 'B')).not.toContain('c5_exchange_sack');
+    enterScene({ s: a, c, pid: 'A' }, 'c5_gate'); enterScene({ s: b, c, pid: 'B' }, 'c5_gate');
     play(c, a, 'A', ['c5_fence']); play(c, b, 'B', ['c5_fence']);
     const merged = mergeSegments(c, base, { A: a, B: b });
     expect(merged.vars['proj.c3_fence.progress']).toBe(Number(a.vars['proj.c3_fence.progress']) + Number(b.vars['proj.c3_fence.progress']));
@@ -478,4 +479,40 @@ it('разговор не удерживает Керема после врем�
   expect(ids(s, 'A')).toEqual(['c7_kerem_gone']);
   play(c, s, 'A', ['c7_kerem_gone']);
   expect(s.chars.A.scene).toBe('c7_farm');
+});
+
+it('участок 5: мокрая одежда в кухне сохнет, ночлег не превращается в улицу', () => {
+  const s = baseFor();
+  s.chars.B.body.wet = 1;
+  enterScene({ s, c, pid: 'B' }, 'c5_farm');
+  let min = 40;
+  for (let i = 0; i < 8; i++) {
+    play(c, s, 'B', ['c5_wait']);
+    min = Math.min(min, s.chars.B.body.coreTemp);
+  }
+  expect(min).toBeGreaterThanOrEqual(36);
+  expect(s.chars.B.body.wet ?? 0).toBeLessThan(1);
+  expect(s.chars.B.body.consciousness).not.toBe('unconscious');
+  for (const place of ['c5_well', 'c5_gate']) {
+    enterScene({ s, c, pid: 'B' }, place);
+    expect(ids(s, 'B')).not.toContain('u:sleep');
+    expect(ids(s, 'B')).not.toContain('c5_sleep');
+  }
+});
+
+it('участок 5: ночью на хуторе нет дневных работ и разговоров', () => {
+  const s = baseFor(); s.chars.A.time = at(12, 2);
+  enterScene({ s, c, pid: 'A' }, 'c5_farm');
+  const story = availableActions({ s, c, pid: 'A' }).filter(a => !a.universal).map(a => a.def.id);
+  expect(story.sort()).toEqual(['c5_partner', 'c5_sleep', 'c5_wait']);
+});
+
+it('участок 5: завтрак расходует существующий запас один раз', () => {
+  const s = baseFor(); s.chars.A.time = at(12, 6, 10);
+  enterScene({ s, c, pid: 'A' }, 'c5_farm');
+  const oats = () => Object.values(s.items).filter(i => i.type === 'oats').reduce((n, i) => n + i.qty, 0);
+  const before = oats();
+  expect(ids(s, 'A')).toContain('c5_breakfast'); play(c, s, 'A', ['c5_breakfast']);
+  expect(oats()).toBeCloseTo(before - 0.25);
+  expect(ids(s, 'A')).not.toContain('c5_breakfast');
 });
