@@ -44,8 +44,26 @@ function checkpoint(base: GameState, A: GameState, B: GameState, answers: Record
   return completeCheckpoint(c, merged, answers).state;
 }
 
-/** Три участка главы 1 по главной линии «B едет к A». */
-function buildFixture(): Fixture {
+/** Участок «как игрок»: пробует новое, потом идёт к точке; записывает журнал (детерминированно по метке). */
+function curious(s: GameState, pid: PlayerId, tag: string): ActionRecord[] {
+  const recs: ActionRecord[] = [];
+  const seen = new Set<string>();
+  for (let i = 0; i < 300 && !segmentFinished(c, s, pid); i++) {
+    const story = availableActions({ s, c, pid }).filter((a) => a.enabled && !isServiceAction(a.def.id) && a.def.id !== 'u:sleep' && !a.universal);
+    const toCp = story.filter((a) => a.def.goto && c.scenes[a.def.goto]?.checkpoint !== undefined);
+    const fresh = story.filter((a) => !seen.has(a.def.id) && !/wait/.test(a.def.id) && !toCp.includes(a));
+    const pool = fresh.length ? fresh : toCp.length ? toCp : story;
+    if (!pool.length) break;
+    const pick = pool[Math.floor(unit(`${tag}:${i}`) * pool.length)];
+    seen.add(pick.def.id);
+    recs.push({ scene: s.chars[pid].scene, plan: [pick.def.id] });
+    play(c, s, pid, [pick.def.id]);
+  }
+  return recs;
+}
+
+/** Главная линия «B едет к A» через главу 1; для release-2 и далее — ещё два участка главы 2 (хутор). */
+function buildFixture(release = 'release-1'): Fixture {
   const A1 = [['dress', 'warm', 'pack', 'docs', 'window'], ['alert', 'kitchen'], ['door'], ['ask'], ['open'], ['ask_more', 'promise'], ['look'], ['examine'], ['carry'],
     ['to_car'], ['window', 'go'], ['guard'], ['tent'], ['ask', 'tell'], ['comfort'], ['take_home'], ['tea', 'food'], ['radio'], ['leave'], ['yard'], ['car'],
     ['fuel', 'glovebox', 'charge'], ['to_deniz'], ['news', 'petrol'], ['help'], ['farm', 'buy'], ['hamburg'], ['shelter'], ['refuel'], ['stay'], ['stay'], ['cp1_call']];
@@ -66,6 +84,15 @@ function buildFixture(): Fixture {
     legs.push({ base: noLog(base), records, endHash: { A: stateHash(a), B: stateHash(b) } });
     base = checkpoint(base, a, b, answers as Record<PlayerId, Record<string, string>>);
   }
+  if (release !== 'release-1') {
+    for (const [seg, answers] of [[3, { day2: 'farm' }], [4, { day3: 'farm' }]] as const) {
+      const a = structuredClone(base);
+      const b = structuredClone(base);
+      const records = { A: curious(a, 'A', `${release}:${seg}:A`), B: curious(b, 'B', `${release}:${seg}:B`) };
+      legs.push({ base: noLog(base), records, endHash: { A: stateHash(a), B: stateHash(b) } });
+      base = checkpoint(base, a, b, { A: answers, B: answers } as Record<PlayerId, Record<string, string>>);
+    }
+  }
   legs.push({ base: noLog(base), records: { A: [], B: [] }, endHash: { A: stateHash(base), B: stateHash(base) } });
   return { content: c.version, legs };
 }
@@ -74,10 +101,10 @@ const target = process.env.KVEST_FIXTURE;
 if (target) {
   const file = new URL(`${target}.json`, FIXTURES);
   if (existsSync(file)) throw new Error(`${target}.json уже есть — выпущенные журналы не перезаписываются`);
-  writeFileSync(file, JSON.stringify(buildFixture()));
+  writeFileSync(file, JSON.stringify(buildFixture(target)));
 }
 
-const releases = ['release-1'].filter((r) => existsSync(new URL(`${r}.json`, FIXTURES)));
+const releases = ['release-1', 'release-2'].filter((r) => existsSync(new URL(`${r}.json`, FIXTURES)));
 
 describe.runIf(releases.length > 0)('сохранения прошлых версий продолжают играть', () => {
   for (const r of releases) {
