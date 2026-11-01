@@ -1,9 +1,11 @@
+import { north5Scenes, north5Events } from './north5';
 import { bflat5Scenes, bflat5Events } from './bflat5';
 import { farm5Scenes, farm5Events } from './farm5';
 import type { Scene, WorldEvent } from '../../engine/content-types';
 
 // 12 ноября: утро.
 export const morning12Scenes: Scene[] = [
+  ...north5Scenes,
   ...farm5Scenes,
   ...bflat5Scenes,
   {
@@ -811,199 +813,6 @@ export const morning12Scenes: Scene[] = [
       },
       {"id": "c5_merle_approach", "label": "Проверить, почему Мерле не встаёт", "minutes": 1, "terminal": true, "goto": "c5_merle", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3345}, {"before": 3710}, {"all": [{"npc": "merle", "alive": true, "at": "ahrensburg"}, {"npc": "birgit", "alive": true, "at": "ahrensburg"}]}, {"not": {"flag": "$.c5_merle.done"}}]}},
       {"id": "c5_socket_approach", "label": "Подойти к Уве в гараже", "minutes": 1, "terminal": true, "goto": "c5_socket", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3510}, {"before": 3710}, {"all": [{"npc": "uwe", "alive": true, "at": "ahrensburg"}, {"npc": "birgit", "alive": true, "at": "ahrensburg"}, {"npc": "merle", "alive": true, "at": "ahrensburg"}]}, {"not": {"flag": "$.c5_socket.done"}}]}},
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
-    ]
-  },
-  {
-    "id": "c5_north",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "north_gym",
-    "title": "Спортзал",
-    "safe": true,
-    "text": [
-      {
-        "when": {"before": 3240},
-        "text": "Над матами горит зелёный прямоугольник выхода. Кто-то во сне тянет на себя одеяло, и раскладушка скрипит. Через ряд отвечают таким же скрипом."
-      },
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "На стене новый лист: дежурства, вода, кухня. Три фамилии вычеркнуты. Возле каждой подписано «уехали», хотя машины у зала стоят те же."
-      },
-      {
-        "when": {"all": [{"after": 3600}, {"before": 3900}]},
-        "text": "На стене спортзала ползёт прямоугольник света. Люди под ним сушат носки, повернувшись к окну спиной."
-      },
-      {
-        "when": {"after": 3900},
-        "text": "Светят только лампы у выходов. На баскетбольном щите висит куртка, сохнет после стирки. Под ней кто-то чинит лямку детского рюкзака."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_child.result", "op": "==", "value": "portion"}, {"all": []}]},
-        "text": "Мальчик ест твою порцию, закрыв миску локтем. Тебе у котла показывают на пустой противень."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_child.result", "op": "==", "value": "search"}, {"all": []}]},
-        "text": "Женщина с найденным ребёнком садится у выхода. На всякий случай держит его за капюшон."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_child.result", "op": "==", "value": "crackers"}, {"all": []}]},
-        "text": "От пачки осталась обёртка. Мальчик разглаживает её и прячет к себе, будто там ещё что-то есть."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_local.result", "op": "==", "value": "work"}, {"all": []}]},
-        "text": "Мужчина пропускает раскладушку через вымытый тобой вход. — Только одну, — говорит уже тише."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_local.result", "op": "==", "value": "talk"}, {"all": []}]},
-        "text": "Хинрихсен ставит стул в дверях и сама проверяет каждого. Мужчина в свитере ушёл внутрь."
-      },
-      {
-        "when": {"all": [{"v": "$.c5_local.result", "op": "==", "value": "support"}, {"all": []}]},
-        "text": "Чужую раскладушку уносят обратно. За стеклом остаётся женщина с сумкой; в зале стало тише."
-      }
-    ],
-    "actions": [
-      {
-        "id": "c5_north_reg",
-        "label": "Записаться на полезную работу",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_reg"}}, {"all": [{"after": 3240}, {"before": 3900}]}]},
-        "text": "Фрау Хинрихсен двигает к тебе тетрадь. — Что умеете? — Ты отвечаешь. Она находит свободную строку без улыбки и без недоверия. Просто строку.",
-        "effects": [{"set": "$.c5_north_reg", "value": true}]
-      },
-      {
-        "id": "c5_north_pots",
-        "label": "Помочь отмыть кухонные котлы",
-        "minutes": 50,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_pots"}}, {"all": [{"after": 3240}, {"before": 3900}]}]},
-        "text": "Жир прилипает к холодному металлу. Воду приходится менять дважды, экономя горячую. Когда дно наконец светлое, в котёл сразу наливают новую порцию.",
-        "effects": [{"set": "$.c5_north_pots", "value": true}, {"body": "fatigue", "delta": 5}]
-      },
-      {
-        "id": "c5_north_local",
-        "label": "Послушать местных у двери",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_local"}}, {"all": [{"after": 3360}, {"before": 3840}]}]},
-        "text": "Вчера говорили о приезжих. Сегодня — кто ещё может привезти муку. Мужчина с красными руками спрашивает, есть ли среди вас пекарь. Никто не отвечает, и он остаётся стоять.",
-        "effects": [{"set": "$.c5_north_local", "value": true}]
-      },
-      {
-        "id": "c5_north_repair",
-        "label": "Зашить порванные ремни раскладушек",
-        "minutes": 45,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_repair"}}, {"all": [{"after": 3240}, {"before": 3900}]}]},
-        "text": "Игла гнётся в плотной ленте. Ты тянешь её плоскогубцами, по одному стежку. На готовую раскладушку садится старуха и сначала пробует ногой пол.",
-        "effects": [{"set": "$.c5_north_repair", "value": true}, {"body": "fatigue", "delta": 3}]
-      },
-      {
-        "id": "c5_north_food",
-        "label": "Дождаться своей очереди к кухне",
-        "minutes": 35,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_food"}}, {"after": 3900}]},
-        "text": "Сегодня половник меньше. Пожарный держит его ровно, чтобы никому не досталось больше. Ты берёшь миску обеими руками и отходишь от стола.",
-        "effects": [{"set": "$.c5_north_food", "value": true}, {"body": "hunger", "delta": -30}, {"body": "thirst", "delta": -20}]
-      },
-      {
-        "id": "c5_north_watch",
-        "label": "Дежурить у боковой двери",
-        "minutes": 60,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_watch"}}, {"after": 3900}]},
-        "text": "Фрау Хинрихсен оставляет тебе колокольчик. — Не открывать, позвать меня. — Она уходит. Ты крутишь колокольчик в пальцах, стараясь не задеть язычок.",
-        "effects": [{"set": "$.c5_north_watch", "value": true}, {"body": "fatigue", "delta": 4}]
-      },
-      {
-        "id": "c5_north_partner",
-        "label": "Поговорить с {partner.ins} вполголоса",
-        "minutes": 20,
-        "combinable": true,
-        "when": {"all": [{"flag": "w.together"}, {"all": [{"not": {"flag": "$.c5_north_partner"}}, {"flag": "w.together"}]}]},
-        "text": "Здесь слышно каждое слово. Вы накрываетесь курткой от чужих взглядов и говорите о том, как затекли ноги. {partner} улыбается в темноте. По голосу слышно.",
-        "effects": [{"set": "$.c5_north_partner", "value": true}, {"body": "stress", "delta": -8}]
-      },
-      {"id": "c5_north_door", "label": "Проверить боковой выход", "minutes": 2, "terminal": true, "goto": "c5_north_door", "effects": []},
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"before": 3240},
-        "effects": [{"sleep": 360}],
-        "text": "Над матами горит зелёный прямоугольник выхода. Кто-то во сне тянет на себя одеяло, и раскладушка скрипит. Через ряд отвечают таким же скрипом."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c5_child_approach", "label": "Остановиться у перевёрнутой миски", "minutes": 1, "terminal": true, "goto": "c5_child", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3390}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_child.done"}}]}},
-      {"id": "c5_local_approach", "label": "Выслушать человека у двери", "minutes": 1, "terminal": true, "goto": "c5_local", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3555}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_local.done"}}]}},
-      {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
-    ]
-  },
-  {
-    "id": "c5_north_door",
-    "for": "any",
-    "chapter": "ch3",
-    "location": "north_gym",
-    "title": "Боковая дверь",
-    "safe": true,
-    "text": [
-      {
-        "when": {"before": 3240},
-        "text": "От стеклянной двери тянет холодом. Снаружи на ступеньке прилипла мокрая газета. Ты отступаешь за светящуюся полосу на полу."
-      },
-      {
-        "when": {"all": [{"all": [{"after": 3240}, {"before": 3900}]}, {"before": 3600}]},
-        "text": "За стеклом спортивная площадка и складные столы. Дверь открывается наружу. Перед ней аккуратно оставлена свободная полоса."
-      },
-      {
-        "when": {"all": [{"after": 3600}, {"before": 3900}]},
-        "text": "На площадке у двери раскладные столы. Дежурный берёт один и ставит вдоль стены, освобождая выход."
-      },
-      {"when": {"after": 3900}, "text": "В стекле видно зал, на улице ничего. Ты прикрываешь ладонью отражение и смотришь ещё раз."}
-    ],
-    "actions": [
-      {
-        "id": "c5_north_clear",
-        "label": "Убрать стол от прохода",
-        "minutes": 15,
-        "combinable": true,
-        "when": {"all": [{"not": {"flag": "$.c5_north_clear"}}, {"all": [{"after": 3240}, {"before": 3900}]}]},
-        "text": "Стол снова придвинут к выходу. Ты относишь его к стене и оставляешь на полу полоску картона. Может быть, следующий человек поймёт без слов.",
-        "effects": [{"set": "$.c5_north_clear", "value": true}]
-      },
-      {"id": "c5_back", "label": "Вернуться в зал", "minutes": 2, "terminal": true, "goto": "c5_north", "effects": []},
-      {
-        "id": "c5_sleep",
-        "label": "Попытаться поспать до рассвета",
-        "minutes": 0,
-        "repeatable": true,
-        "when": {"before": 3240},
-        "effects": [{"sleep": 360}],
-        "text": "От стеклянной двери тянет холодом. Снаружи на ступеньке прилипла мокрая газета. Ты отступаешь за светящуюся полосу на полу."
-      },
-      {
-        "id": "c5_wait",
-        "label": "Переждать час",
-        "minutes": 60,
-        "activity": "rest",
-        "repeatable": true,
-        "combinable": true,
-        "text": "Ты ждёшь. Минуты тянутся; прислушиваешься к каждому звуку."
-      },
-      {"id": "c5_child_approach", "label": "Остановиться у перевёрнутой миски", "minutes": 1, "terminal": true, "goto": "c5_child", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3390}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_child.done"}}]}},
-      {"id": "c5_local_approach", "label": "Выслушать человека у двери", "minutes": 1, "terminal": true, "goto": "c5_local", "when": {"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3555}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_local.done"}}]}},
       {"id": "c5_go", "label": "Полдень. Связаться", "minutes": 5, "terminal": true, "goto": "c5_cp", "when": {"all": [{"cp": 4}, {"after": 3660}]}}
     ]
   },
@@ -2305,97 +2114,6 @@ export const morning12Scenes: Scene[] = [
     "location": "ahrensburg"
   },
   {
-    "id": "c5_child",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Остановиться у перевёрнутой миски",
-    "universal": false,
-    "text": [
-      {"text": "У раздачи падает миска. Мальчик держит пустую ложку, женщина в красной куртке отводит его от котла. Он не плачет."},
-      {"text": "Он показывает ложкой на зал. Там одинаковые одеяла и чужие спины. Имя взрослого мальчик повторяет слишком тихо."}
-    ],
-    "onEnter": [{"set": "$.c5_child.started", "value": true}],
-    "actions": [
-      {
-        "id": "c5_child_portion",
-        "label": "Отдать свою очередь ребёнку",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_north",
-        "text": "Ты отходишь в сторону. Пожарный наливает в чистую миску, мальчик берёт её двумя руками. Ложка всё ещё зажата в локте.",
-        "effects": [{"set": "$.c5_child.done", "value": true}, {"set": "$.c5_child.result", "value": "portion"}, {"body": "hunger", "delta": 10}]
-      },
-      {
-        "id": "c5_child_search",
-        "label": "Пойти с дежурной искать взрослого",
-        "minutes": 25,
-        "terminal": true,
-        "goto": "c5_north",
-        "text": "Ты обходишь ряды с одной стороны, Хинрихсен с другой. Женщина в красной куртке встаёт с пола у туалетов. Мальчик впервые издаёт звук и бежит к ней.",
-        "effects": [{"set": "$.c5_child.done", "value": true}, {"set": "$.c5_child.result", "value": "search"}, {"body": "fatigue", "delta": 5}]
-      },
-      {
-        "id": "c5_child_crackers",
-        "label": "Дать свои хлебцы",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_north",
-        "text": "Ты раскрываешь пачку перед ним, не касаясь еды. Мальчик берёт один хлебец и смотрит на Хинрихсен. Она кивает, только тогда он кусает.",
-        "effects": [{"set": "$.c5_child.done", "value": true}, {"set": "$.c5_child.result", "value": "crackers"}, {"take": "crackers"}],
-        "enabled": {"has": "crackers"},
-        "disabledReason": "Нужные вещи сейчас не при тебе"
-      }
-    ],
-    "location": "north_gym"
-  },
-  {
-    "id": "c5_local",
-    "for": "any",
-    "chapter": "ch3",
-    "title": "Выслушать человека у двери",
-    "universal": false,
-    "text": [
-      {"text": "У входа мужчина в свитере не даёт пронести новую раскладушку. Показывает на зал: «Voll». Женщина из DRK просит его отойти."},
-      {"text": "— Школа наша, — говорит он. — Наши дети сюда ходят. — На свитере вышито название пожарной команды."}
-    ],
-    "onEnter": [{"set": "$.c5_local.started", "value": true}],
-    "actions": [
-      {
-        "id": "c5_local_work",
-        "label": "Взять ведро и убрать вход",
-        "minutes": 25,
-        "terminal": true,
-        "goto": "c5_north",
-        "text": "Ты ставишь раскладушку и берёшь ведро. Мужчина молча отходит от прохода. Когда вода становится чёрной, он приносит чистую тряпку.",
-        "effects": [
-          {"set": "$.c5_local.done", "value": true},
-          {"set": "$.c5_local.result", "value": "work"},
-          {"body": "fatigue", "delta": 6},
-          {"if": {"any": [{"me": "A"}, {"not": {"flag": "w.together"}}]}, "then": []}
-        ]
-      },
-      {
-        "id": "c5_local_talk",
-        "label": "Попросить решить это с Хинрихсен",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_north",
-        "text": "Ты зовёшь дежурную по имени. Она выводит мужчину за дверь и закрывает её за собой. Раскладушку проносят, пока они говорят.",
-        "effects": [{"set": "$.c5_local.done", "value": true}, {"set": "$.c5_local.result", "value": "talk"}, {"body": "stress", "delta": 4}]
-      },
-      {
-        "id": "c5_local_support",
-        "label": "Согласиться ограничить приём",
-        "minutes": 12,
-        "terminal": true,
-        "goto": "c5_north",
-        "text": "Дежурная смотрит на тебя и убирает ведро. — Кто тогда останется снаружи? — спрашивает она. Ты слышишь за дверью кашель и не отвечаешь сразу.",
-        "effects": [{"set": "$.c5_local.done", "value": true}, {"set": "$.c5_local.result", "value": "support"}, {"body": "stress", "delta": 7}]
-      }
-    ],
-    "location": "north_gym"
-  },
-  {
     "id": "c5_blanket",
     "for": "any",
     "chapter": "ch3",
@@ -2657,6 +2375,7 @@ export const morning12Scenes: Scene[] = [
 ];
 
 export const morning12Events: WorldEvent[] = [
+  ...north5Events,
   ...farm5Events,
   ...bflat5Events,
   {
@@ -2730,24 +2449,6 @@ export const morning12Events: WorldEvent[] = [
     "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3510}, {"before": 3710}, {"all": [{"npc": "uwe", "alive": true, "at": "ahrensburg"}, {"npc": "birgit", "alive": true, "at": "ahrensburg"}, {"npc": "merle", "alive": true, "at": "ahrensburg"}]}, {"not": {"flag": "$.c5_socket.done"}}]}, {"at": "ahrensburg"}]},
     "effects": [],
     "news": [{"channel": "direct", "text": "В гараже хлопает автомат. Уве держит белый провод за вилку, Биргит зовёт его по имени так, будто он снова полез на крышу."}]
-  },
-  {
-    "id": "ev_c5_child",
-    "at": 3390,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3390}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_child.done"}}]}, {"at": "north_gym"}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "У раздачи падает миска. Мальчик держит пустую ложку, женщина в красной куртке отводит его от котла. Он не плачет."}]
-  },
-  {
-    "id": "ev_c5_local",
-    "at": 3555,
-    "scope": "world",
-    "interrupt": true,
-    "when": {"all": [{"all": [{"cp": 4}, {"not": {"cp": 5}}, {"after": 3555}, {"before": 3710}, {"all": []}, {"not": {"flag": "$.c5_local.done"}}]}, {"at": "north_gym"}]},
-    "effects": [],
-    "news": [{"channel": "direct", "text": "У входа мужчина в свитере не даёт пронести новую раскладушку. Показывает на зал: «Voll». Женщина из DRK просит его отойти."}]
   },
   {
     "id": "ev_c5_blanket",
