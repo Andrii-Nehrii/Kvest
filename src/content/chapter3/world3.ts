@@ -36,6 +36,7 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
       region: id === 'b' ? 'hh' : 'buchholz',
       indoor: true,
     })),
+    { id: 'c3_farm_shed', name: 'Отдельный сарай', region: 'lk', indoor: true },
     { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
     {
@@ -261,6 +262,11 @@ export const stock3: NonNullable<Content['initialPlaceItems']> = [
 ];
 
 export const npcs3: Record<string, NpcDef> = {
+  c3_mailman: { id: 'c3_mailman', name: 'Мартин Ребер', intro: 'Бывший почтальон, которого узнала Хенрике у ограды.', initial: { alive: true, location: 'b75_road', status: 'infected', trust: { A: 0, B: 0 }, memory: [], vars: {} }, agenda: [
+    { id: 'f7_shelter', at: at(13, 9, 10), scope: 'world', when: all({ cp: 6 }, { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', moveTo: 'c3_farm_shed' }] },
+    { id: 'f7_turn', at: at(13, 11, 10), scope: 'world', when: all({ cp: 6 }, { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', status: 'turned' }] },
+    { id: 'f7_locked', at: at(13, 11, 46), scope: 'world', when: all({ cp: 6 }, { v: 'w.c3_f7', op: '==', value: 'missed' }, { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', set: { locked: true } }] },
+  ] },
   c3_b_landing: { id: 'c3_b_landing', name: 'Мужчина с верхнего этажа', intro: 'Работал в квартире наверху; остался в доме без еды.', initial: { alive: true, location: 'b_stairs', status: 'ok', trust: { A: 0, B: 0 }, memory: [], vars: {} }, agenda: [
     { id: 'b6_missed_door', at: at(12, 19, 46), scope: 'world', when: all({ cp: 5 }, { v: 'w.c3_b6', op: '==', value: 'inside' }), effects: [{ npc: 'c3_b_landing', moveTo: 'b_flat' }] },
   ] },
@@ -332,6 +338,7 @@ agenda3.kerem = [
 agenda3.deniz = [
   { id: 'f6_missed_leg', at: at(12, 19, 21), scope: 'world', when: all({ cp: 5 }, { v: 'w.c3_f6', op: '==', value: 'missed' }, { npc: 'deniz', alive: true, at: 'hof_luedemann' }), effects: [{ npc: 'deniz', status: 'injured', set: { c3_cart_leg: true }, remember: 'c3_cart_crushed_leg' }] },
 ];
+npcs3.c3_koehler.agenda!.push({ id: 'f7_hurt_hand', at: at(13, 11, 46), scope: 'world', when: all({ cp: 6 }, { v: 'w.c3_f7', op: '==', value: 'missed' }, { npc: 'c3_koehler', alive: true }), effects: [{ npc: 'c3_koehler', status: 'injured', set: { c3_shed_hand: true }, remember: 'c3_door_hurt_hand' }] });
 agenda3.pawel = [
   { id: 'c3_pawel_coop', at: at(12, 11, 41), scope: 'world', when: all({ cp: 4 }, { v: 'w.c3_f5', op: '==', value: 'coop' }, { npc: 'pawel', at: 'hof_luedemann' }), effects: [{ npc: 'pawel', moveTo: 'farm_coop', set: { c3_locked_out: true } }] },
   {

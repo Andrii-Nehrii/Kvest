@@ -1,4 +1,4 @@
-import { central5Notes, central6Notes } from './continuity';
+import { central5Notes, central6Notes, central7Notes } from './continuity';
 import type { CheckpointDef, JointDecision, JointOption, MergeNote } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { atAny, CITY, SOUTH, carIn, partnerAtAny, locations2 } from '../chapter2/world2';
@@ -107,6 +107,7 @@ function notes(n: number): MergeNote[] {
   return [
     ...(n === 5 ? central5Notes : []),
     ...(n === 6 ? central6Notes : []),
+    ...(n === 7 ? central7Notes : []),
     ...(n === 6 ? [{ id: 'f6_already_here', group: 'meet', when: all(farm, flag('w.c3_koehler_met'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: '{partner} держит ваше сложенное одеяло. — Я хотел{pm:|а} просто лечь. С тобой. — Кёлер ждёт у стола.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 5 ? [
       { id: 'b5_host_meet', group: 'meet', when: all(same, { at: 'b_flat' }, { me: 'B' }), text: 'Ты придвигаешь {partner.dat} свою кружку. — Тут и скажем. — В прихожей ждут ответа. Дверь ты пока не открываешь.', effects: [{ set: 'w.together', value: true }, ...share] },
