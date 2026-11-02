@@ -169,10 +169,25 @@ export function act(c: Content, save: LocalSave, plan: string[]): LocalSave {
  * участок текущей версией — ровно так, как его посчитает партнёр. Если какое-то действие стало
  * невозможным, участок обрезается перед ним, а игрок видит, сколько действий нужно повторить.
  */
+/**
+ * Пары, начавшие игру до выхода главы 3: мир точек раньше указанной партнёр уже мог посчитать прежней сборкой —
+ * без людей и запасов главы 3. Такие базы не дополняются (а дополненные по ошибке — очищаются), иначе общий мир точки
+ * у двух телефонов расходится. С базы указанной точки довоз идёт как обычно, в том числе сразу при завершении точки.
+ */
+const LATE_FROM: Record<string, number> = { Uwz9uRin2OZVCugy: 3 };
+const frozenBase = (pairId: string, base: GameState) => (LATE_FROM[pairId] ?? 0) > base.checkpoint;
+function stripLate(s: GameState): boolean {
+  let changed = false;
+  for (const id of Object.keys(s.npcs)) if (id.startsWith('c3_')) { delete s.npcs[id]; changed = true; }
+  for (const id of Object.keys(s.items)) if (id.startsWith('it-K-c3-')) { delete s.items[id]; changed = true; }
+  for (const k of Object.keys(s.vars)) if (k.startsWith('sys.item.c3-')) { delete s.vars[k]; delete s.varTime[k]; changed = true; }
+  return changed;
+}
+
 export function refreshSave(c: Content, save: LocalSave): LocalSave {
   if (!save.base || !save.state || save.phase === 'invited' || save.phase === 'ended') return save;
   const s = clone(save);
-  if (upgradeState(c, s.base!)) {
+  if (frozenBase(s.pairId, s.base!) ? stripLate(s.base!) : upgradeState(c, s.base!)) {
     s.baseHash = stateHash(s.base);
     s.hashes = [...s.hashes.slice(0, -1), s.baseHash];
   }
@@ -298,10 +313,12 @@ export function readyToFinish(c: Content, save: LocalSave): boolean {
 export function finishCheckpoint(c: Content, save: LocalSave, sent?: CheckpointWork['sent']): LocalSave {
   const cp = save.cp!;
   const out = completeCheckpoint(c, cp.merged!, { [save.me]: cp.myAnswers ?? {}, [partnerOf(save)]: cp.partnerAnswers ?? {} });
+  // Новая база сразу получает довоз (как у партнёра, который откроет игру позже) — иначе коды участка разойдутся.
+  const baseHash = !frozenBase(save.pairId, out.state) && upgradeState(c, out.state) ? stateHash(out.state) : out.hash;
   const next: LocalSave = {
-    ...save, phase: out.state.ended ? 'ended' : 'playing', base: out.state, baseHash: out.hash, state: clone(out.state),
+    ...save, phase: out.state.ended ? 'ended' : 'playing', base: out.state, baseHash, state: clone(out.state),
     // От пройденной точки остаётся только итог: слитый мир и журнал партнёра больше не нужны.
-    segment: [], last: undefined, cp: { index: cp.index, myAnswers: cp.myAnswers, result: { joint: out.joint, hash: out.hash }, sent }, hashes: [...save.hashes, out.hash],
+    segment: [], last: undefined, cp: { index: cp.index, myAnswers: cp.myAnswers, result: { joint: out.joint, hash: out.hash }, sent }, hashes: [...save.hashes, baseHash],
     ...(cp.index >= 5 ? { lastCheckpoint: { index: cp.index, result: { joint: out.joint, hash: out.hash }, sent } } : {}),
     playSeconds: 0, updatedAt: Date.now(),
   };
