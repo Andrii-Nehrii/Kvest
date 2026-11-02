@@ -5,7 +5,7 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import { availableActions } from '../engine/actions';
-import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, syncClocks } from '../engine/checkpoint';
+import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, syncClocks } from '../engine/checkpoint';
 import type { Content } from '../engine/content-types';
 import { newGame, play, replayPrefix, upgradeState, type ActionRecord } from '../engine/game';
 import { stateHash } from '../engine/rng';
@@ -62,7 +62,7 @@ function curious(s: GameState, pid: PlayerId, tag: string): ActionRecord[] {
   return recs;
 }
 
-/** Главная линия «B едет к A» через главу 1; для release-2 и далее — ещё два участка главы 2 (хутор). */
+/** Главная линия «B едет к A» через главу 1; для release-2 и далее — ещё два участка главы 2 (хутор); для release-3 — участок 5 главы 3. */
 function buildFixture(release = 'release-1'): Fixture {
   const A1 = [['dress', 'warm', 'pack', 'docs', 'window'], ['alert', 'kitchen'], ['door'], ['ask'], ['open'], ['ask_more', 'promise'], ['look'], ['examine'], ['carry'],
     ['to_car'], ['window', 'go'], ['guard'], ['tent'], ['ask', 'tell'], ['comfort'], ['take_home'], ['tea', 'food'], ['radio'], ['leave'], ['yard'], ['car'],
@@ -93,6 +93,15 @@ function buildFixture(release = 'release-1'): Fixture {
       base = checkpoint(base, a, b, { A: answers, B: answers } as Record<PlayerId, Record<string, string>>);
     }
   }
+  if (release !== 'release-1' && release !== 'release-2') {
+    // Глава 3, участок 5 (хутор, вместе) и КТ 5: ответ — первый доступный каждому вариант.
+    const a = structuredClone(base);
+    const b = structuredClone(base);
+    const records = { A: curious(a, 'A', `${release}:5:A`), B: curious(b, 'B', `${release}:5:B`) };
+    legs.push({ base: noLog(base), records, endHash: { A: stateHash(a), B: stateHash(b) } });
+    const pick = (pid: PlayerId, s: GameState) => ({ c3_midday5: optionsFor(c, s, c.joint.c3_midday5, pid)[0].id });
+    base = checkpoint(base, a, b, { A: pick('A', a), B: pick('B', b) });
+  }
   legs.push({ base: noLog(base), records: { A: [], B: [] }, endHash: { A: stateHash(base), B: stateHash(base) } });
   return { content: c.version, legs };
 }
@@ -104,7 +113,7 @@ if (target) {
   writeFileSync(file, JSON.stringify(buildFixture(target)));
 }
 
-const releases = ['release-1', 'release-2'].filter((r) => existsSync(new URL(`${r}.json`, FIXTURES)));
+const releases = ['release-1', 'release-2', 'release-3'].filter((r) => existsSync(new URL(`${r}.json`, FIXTURES)));
 
 describe.runIf(releases.length > 0)('сохранения прошлых версий продолжают играть', () => {
   for (const r of releases) {

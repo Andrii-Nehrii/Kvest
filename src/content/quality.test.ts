@@ -1,12 +1,12 @@
-// ЖЁСТКИЙ СТАНДАРТ качества НОВЫХ глав (ch3 и дальше). Эталон — главы 1–2; пороги сняты с них (значения в комментариях).
-// Этот файл, playtest.ts, transcript.test.ts и руководства — ЗАЩИЩЁННЫЕ: проверка PR (.github/workflows/quality.yml)
-// берёт их из main, а не из ветки главы, и падает, если ветка их меняет. Ослабить порог в своей ветке нельзя.
-// Глава, не проходящая этот файл целиком, в main не попадает. Как читать и чинить — docs/hidden/CHAPTER_GUIDE.md §8–§9.
+// ПОДСКАЗКИ по качеству новых глав (ch3 и дальше) + несколько технических проверок.
+// С 02.11 (решение владельца) числа здесь — НЕ требования: главы, написанные «под проверку», вышли непонятными и скучными.
+// Главное мерило — живой читатель: интересно ли и понятно ли с первого прочтения (docs/hidden/CHAPTER3_BRIEF.md, начало).
+// Падают только технические вещи: сцена «под крышей» мокнет как улица; участок не проходится или игрок мёрзнет в доме.
+// Остальное печатается как «ПОДСКАЗКА: …» — прочитать, исправлять только если это правда мешает читателю.
+// Файл защищён: правится только в main.
 //
-// По частям: KVEST_QUALITY_FILES=chapter3/farm5.ts,chapter3/bflat5.ts npx vitest run src/content/quality.test.ts —
-// проверяются только сцены, объявленные в этих файлах, и прохождения, которые через них прошли.
-// С KVEST_PAIR=<папка с save-A.json/save-B.json> прохождения начинаются с настоящих сохранений пары (CONTEXT.md §4) —
-// так проверяются места, до которых случайная игра с первой минуты почти не доходит.
+// По частям: KVEST_QUALITY_FILES=chapter3/farm6.ts npx vitest run src/content/quality.test.ts
+// С KVEST_PAIR=<папка с save-A.json/save-B.json> прохождения начинаются с настоящих сохранений пары (CONTEXT.md §4).
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 import type { Scene } from '../engine/content-types';
@@ -65,62 +65,62 @@ const textsOf = (list: Scene[]) => [...new Set(list.flatMap((s) => [
 const share = (part: number, all: number) => (all ? part / all : 0);
 const median = (a: number[]) => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length / 2)] ?? 0; };
 const pct = (a: number[], p: number) => { const s = [...a].sort((x, y) => x - y); return s[Math.floor(s.length * p)] ?? 0; };
+/** Подсказка вместо требования: печатается, тест не валит. */
+const hint = (ok: boolean, msg: string) => { if (!ok) console.warn(`ПОДСКАЗКА: ${msg}`); };
 
-describe.runIf(byChapter.size > 0)('ЖЁСТКИЙ СТАНДАРТ: качество новых глав (эталон — главы 1–2)', () => {
+describe.runIf(byChapter.size > 0)('Подсказки по качеству и технические проверки новых глав', () => {
   for (const [ch, list] of byChapter) {
     const labels = list.flatMap((s) => s.actions.filter((a) => !/wait|_go$/.test(a.id)).map((a) => a.label));
     const texts = textsOf(list);
 
     it(`${ch}: быт не вытесняет историю — подписей «Проверить/Убрать/Положить…» не больше 6 %`, () => {
       const chores = labels.filter((l) => CHORE.test(l));
-      expect(share(chores.length, labels.length), `${chores.length} из ${labels.length}: ${chores.slice(0, 12).join(' · ')}`).toBeLessThanOrEqual(0.06);
+      hint(share(chores.length, labels.length) <= 0.06, `${ch}: много бытовых подписей — ${chores.length} из ${labels.length}: ${chores.slice(0, 8).join(' · ')}`);
     });
 
     it(`${ch}: люди говорят — прямая речь не меньше чем в 25 % текстов`, () => {
       const speech = texts.filter((t) => SPEECH.test(t));
-      expect(share(speech.length, texts.length), `${speech.length} из ${texts.length}`).toBeGreaterThanOrEqual(0.25);
+      hint(share(speech.length, texts.length) >= 0.25, `${ch}: мало прямой речи — ${speech.length} из ${texts.length}`);
     });
 
     it(`${ch}: без словесных тиков — не больше 3 % текстов`, () => {
       const tic = texts.filter((t) => TIC.test(t));
-      expect(share(tic.length, texts.length), `${tic.length} из ${texts.length}: ${tic.slice(0, 5).join(' / ')}`).toBeLessThanOrEqual(0.03);
+      hint(share(tic.length, texts.length) <= 0.03, `${ch}: частые слова-тики — ${tic.length} из ${texts.length}`);
     });
 
     it(`${ch}: без заготовок «на все места» («улица или двор»)`, () => {
-      expect(texts.filter((t) => HEDGE.test(t))).toEqual([]);
+      const h = texts.filter((t) => HEDGE.test(t)); hint(!h.length, `${ch}: заготовки «улица или двор»: ${h.slice(0, 3).join(' / ')}`);
     });
 
     it(`${ch}: короткие фразы — в среднем 5–10 слов, длиннее 25 слов — не больше 1 % (в главах 1–2 — 7 слов и 0,2 %)`, () => {
       const words = texts.flatMap((t) => t.split(/(?<=[.!?…])\s+/)).filter((x) => x.length > 2).map((x) => x.split(/\s+/).length);
       const avg = words.reduce((a, b) => a + b, 0) / Math.max(1, words.length);
-      expect(avg).toBeGreaterThanOrEqual(5);
-      expect(avg).toBeLessThanOrEqual(10);
-      expect(share(words.filter((w) => w > 25).length, words.length)).toBeLessThanOrEqual(0.01);
+      hint(avg >= 5 && avg <= 10 && share(words.filter((w) => w > 25).length, words.length) <= 0.01, `${ch}: длина фраз в среднем ${avg.toFixed(1)} слов`);
     });
 
     it(`${ch}: один текст — в одном месте (повторов между сценами не больше 2 %; в главах 1–2 — 1 на 150–240)`, () => {
       const occ = new Map<string, Set<string>>();
       for (const s of list) for (const b of s.text) if (b.text.length > 30) occ.set(b.text, (occ.get(b.text) ?? new Set()).add(s.id));
       const dups = [...occ].filter(([, v]) => v.size > 1);
-      expect(share(dups.length, occ.size), dups.slice(0, 5).map(([t, v]) => `${[...v].join(',')}: ${t.slice(0, 60)}`).join(' / ')).toBeLessThanOrEqual(0.02);
+      hint(share(dups.length, occ.size) <= 0.02, `${ch}: одинаковые тексты в разных сценах: ${dups.slice(0, 3).map(([t, v]) => `${[...v].join(',')}: ${t.slice(0, 50)}`).join(' / ')}`);
     });
 
     it(`${ch}: сцены и тексты написаны руками — id каждой сцены и каждый текст есть в исходниках буквально (без генераторов)`, () => {
       const generatedScenes = list.filter((s) => !allSource.includes(`'${s.id}'`) && !allSource.includes(`"${s.id}"`)).map((s) => s.id);
-      expect(generatedScenes, 'сцены собраны формулой (`c${n}_…`, циклы) — писать каждую сцену отдельно').toEqual([]);
+      hint(!generatedScenes.length, `${ch}: сцены собраны формулой: ${generatedScenes.slice(0, 6).join(', ')}`);
       const generatedTexts = texts.filter((t) => !allSource.includes(t.slice(0, 40)));
-      expect(generatedTexts.slice(0, 10), 'текст склеен из кусков — писать каждый текст целиком').toEqual([]);
+      hint(!generatedTexts.length, `${ch}: тексты склеены из кусков: ${generatedTexts.slice(0, 2).join(' / ')}`);
       const acts = [...new Set(list.flatMap((s) => s.actions.map((a) => a.id)).filter((id) => !id.startsWith('u:')))];
       const generatedActs = acts.filter((id) => !allSource.includes(`'${id}'`) && !allSource.includes(`"${id}"`));
-      expect(share(generatedActs.length, acts.length), `id действий собраны формулой: ${generatedActs.slice(0, 10).join(', ')}`).toBeLessThanOrEqual(0.1);
+      hint(share(generatedActs.length, acts.length) <= 0.1, `${ch}: id действий собраны формулой: ${generatedActs.slice(0, 6).join(', ')}`);
     });
 
     it(`${ch}: подписи действий — до 10 слов, без точки в конце`, () => {
-      expect(labels.filter((l) => l.split(/\s+/).length > 10 || /\.$/.test(l))).toEqual([]);
+      const long = labels.filter((l) => l.split(/\s+/).length > 10 || /\.$/.test(l)); hint(!long.length, `${ch}: длинные подписи кнопок: ${long.slice(0, 3).join(' / ')}`);
     });
 
     it(`${ch}: в одной сцене не больше 22 действий (в главе 2 — до 21, почти все скрыты условиями)`, () => {
-      expect(list.filter((s) => s.actions.length > 22).map((s) => `${s.id}: ${s.actions.length}`)).toEqual([]);
+      const many = list.filter((s) => s.actions.length > 22).map((s) => `${s.id}: ${s.actions.length}`); hint(!many.length, `${ch}: очень много кнопок: ${many.join(', ')}`);
     });
 
     it(`${ch}: сцена «под крышей» не считается улицей (иначе персонаж мокнет и мёрзнет в доме)`, () => {
@@ -137,7 +137,7 @@ describe.runIf(byChapter.size > 0)('ЖЁСТКИЙ СТАНДАРТ: качес�
         const uses = all.split(`${name}"`).length - 1 + all.split(`${name}.`).length - 1;
         return uses - (all.split(`"set":"${k}"`).length - 1) <= 0;
       });
-      expect(share(orphans.length, sets.size), `не читаются: ${orphans.slice(0, 20).join(', ')}`).toBeLessThanOrEqual(0.15);
+      hint(share(orphans.length, sets.size) <= 0.15, `${ch}: исходы, которые потом нигде не видны: ${orphans.slice(0, 8).join(', ')}`);
     });
   }
 
@@ -148,14 +148,14 @@ describe.runIf(byChapter.size > 0)('ЖЁСТКИЙ СТАНДАРТ: качес�
       const rawMinutes = (f.src.match(/\{\s*"?(after|before)"?:\s*\d{4}\s*\}/g) ?? []).length;
       if (quotedKeys > 20 || rawMinutes > 5) bad.push(`${f.path}: ключей в кавычках ${quotedKeys}, минут числом ${rawMinutes}`);
     }
-    expect(bad).toEqual([]);
+    hint(!bad.length, `файлы в виде JSON-дампа: ${bad.join('; ')}`);
   });
 
   // ── Прохождение как игрок: те же цифры, что в сводке стенограммы. Главы 1–2 (медианы): шагов 40–59,
   //    прерываний 0–2, экранов с риском 0–7, единственная кнопка 4–7, температура ≥ 36,3. Новые главы — не хуже лучшего из них.
   const lastOld = Math.max(...Object.values(c.scenes).filter((s) => OLD.includes(s.chapter) && s.checkpoint !== undefined).map((s) => s.checkpoint!));
   const newSegs = [...new Set(newScenes.map((s) => Number(s.id.match(/^c(\d+)_/)?.[1])).filter((n) => n > lastOld && c.checkpoints.some((cp) => cp.index === n)))].sort((a, b) => a - b);
-  it(`прохождение как игрок: участки ${newSegs.join(', ') || '—'} не хуже глав 1–2`, { timeout: 600000 }, () => {
+  it(`прохождение как игрок: участки ${newSegs.join(', ') || '—'} проходятся без тупиков`, { timeout: 600000 }, () => {
     const runs: SegStats[] = [];
     // Меряются участки, прошедшие через написанные сцены (запасные места — см. LEGACY); без сохранений пары до них
     // доходит не каждая случайная игра, поэтому сидов больше.
@@ -172,12 +172,10 @@ describe.runIf(byChapter.size > 0)('ЖЁСТКИЙ СТАНДАРТ: качес�
       const s = runs.filter((x) => x.n === n);
       if (!s.length) { report.push(`участок ${n}: ни одно прохождение сюда не дошло — часть недостижима или нужна стенограмма с KVEST_WANT`); continue; }
       const f = (k: keyof SegStats) => s.map((x) => x[k] as number);
+      // Объём, события и риск — только подсказки: короткий понятный участок лучше длинного «под счётчик».
+      hint(median(f('steps')) >= 15, `участок ${n}: у игрока всего ${median(f('steps'))} шагов (медиана) — не слишком ли пусто?`);
+      hint(median(f('oneButton')) <= 6, `участок ${n}: много экранов с единственной кнопкой (${median(f('oneButton'))})`);
       const bad = [
-        median(f('steps')) < 30 && `шагов медиана ${median(f('steps'))} < 30`,
-        pct(f('steps'), 0.1) < 15 && `шагов у 10 % прохождений ${pct(f('steps'), 0.1)} < 15`,
-        median(f('interrupts')) < 2 && `событий-прерываний медиана ${median(f('interrupts'))} < 2`,
-        median(f('riskyOffered')) < 2 && `экранов с риском (risky, проверка, травма) медиана ${median(f('riskyOffered'))} < 2`,
-        median(f('oneButton')) > 6 && `экранов с единственной кнопкой медиана ${median(f('oneButton'))} > 6`,
         pct(f('minTemp'), 0.1) < 36 && `температура тела падает до ${pct(f('minTemp'), 0.1).toFixed(1)} (где-то «улица» под крышей)`,
         s.some((x) => x.stuck) && `тупик: ${s.filter((x) => x.stuck).map((x) => x.pid + '@' + x.place).join(', ')}`,
       ].filter(Boolean);
