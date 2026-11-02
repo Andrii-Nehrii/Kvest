@@ -43,6 +43,8 @@ export interface LocalSave {
   pairId: string;
   secret: string;
   seed: string;
+  /** Отдельное повторное прохождение: прежние коды и облачные ходы к нему не относятся. */
+  replay?: string;
   phase: 'invited' | 'playing' | 'checkpoint' | 'ended';
   setups: Partial<Record<PlayerId, PlayerSetup>>;
   base?: GameState;
@@ -228,10 +230,11 @@ export function normalizePhase(c: Content, save: LocalSave): LocalSave {
 export const needPartnerSegment = (save: LocalSave) => hadSegment(save.base!, partnerOf(save));
 
 export async function mySegmentCode(c: Content, save: LocalSave): Promise<string> {
-  const p: SegmentPacket = {
+  const p: SegmentPacket & { replay?: string } = {
     v: 1, type: 'segment', pairId: save.pairId, from: save.me, checkpoint: save.base!.checkpoint + 1,
     baseHash: save.baseHash!, engine: ENGINE_VERSION, content: c.version, build: contentBuild(c), actions: save.segment,
     endHash: stateHash(save.state), finish: myFinish(c, save),
+    ...(save.replay ? { replay: save.replay } : {}),
   };
   return encode(await sign(p, save.secret));
 }
@@ -242,6 +245,7 @@ async function readPacket<T extends SegmentPacket | AnswersPacket>(c: Content, s
   if (p.pairId !== save.pairId) throw new Error('Код от другой игры.');
   if (p.from === save.me) throw new Error('Это твой собственный код — нужен код партнёра.');
   if (!(await verify(p, save.secret))) throw new Error('Подпись не совпала — код повреждён или изменён.');
+  if (save.base!.checkpoint >= 5 && (p as T & { replay?: string }).replay !== save.replay) throw new Error('Код относится к другому прохождению. Получите новый код у партнёра.');
   if (p.checkpoint !== save.base!.checkpoint + 1) throw new Error(`Код для контрольной точки №${p.checkpoint}, а у тебя №${save.base!.checkpoint + 1}.`);
   if ('engine' in p) checkVersions(c, p as SegmentPacket);
   return p;
@@ -290,7 +294,7 @@ export const shouldSendAnswers = (c: Content, save: LocalSave): boolean => !!sav
 export const optionsForMe = (c: Content, save: LocalSave, d: JointDecision) => optionsFor(c, save.cp!.merged!, d, save.me);
 
 export async function myAnswersCode(save: LocalSave): Promise<string> {
-  const p: AnswersPacket = { v: 1, type: 'answers', pairId: save.pairId, from: save.me, checkpoint: save.cp!.index, mergedHash: save.cp!.mergedHash!, answers: save.cp!.myAnswers ?? {} };
+  const p: AnswersPacket & { replay?: string } = { v: 1, type: 'answers', pairId: save.pairId, from: save.me, checkpoint: save.cp!.index, mergedHash: save.cp!.mergedHash!, answers: save.cp!.myAnswers ?? {}, ...(save.replay ? { replay: save.replay } : {}) };
   return encode(await sign(p, save.secret));
 }
 

@@ -1,6 +1,6 @@
 // Контрольная точка: обмен ходами → общий мир → совместные вопросы → итог.
 import { useEffect, useRef, useState } from 'react';
-import { cloudPaths, getFile, putFile, type CloudConfig } from '../../app/cloud';
+import { cloudPairId, cloudPaths, getFile, putFile, type CloudConfig } from '../../app/cloud';
 import type { JointResult } from '../../engine/checkpoint';
 import { evalCond } from '../../engine/conditions';
 import { clock, dateLabel } from '../../engine/time';
@@ -50,19 +50,19 @@ function useCloudExchange(save: LocalSave, cloud: CloudConfig | null | undefined
       const errors: string[] = [];
       const step = async (f: () => Promise<void>) => { try { await f(); } catch (e) { errors.push(e instanceof Error ? e.message : String(e)); } };
       if (segPending) await step(async () => {
-        await putFile(token!, cloudPaths.segment(s.pairId, s.cp!.index, s.me), segCode, `${s.me}: ход на КТ${s.cp!.index}`);
+        await putFile(token!, cloudPaths.segment(cloudPairId(s), s.cp!.index, s.me), segCode, `${s.me}: ход на КТ${s.cp!.index}`);
         if (!stop) setSent((x) => ({ ...x, seg: segCode }));
       });
       if (ansPending) await step(async () => {
-        await putFile(token!, cloudPaths.answers(s.pairId, s.cp!.index, s.me), ansCode, `${s.me}: ответ на КТ${s.cp!.index}`);
+        await putFile(token!, cloudPaths.answers(cloudPairId(s), s.cp!.index, s.me), ansCode, `${s.me}: ответ на КТ${s.cp!.index}`);
         if (!stop) setSent((x) => ({ ...x, ans: ansCode }));
       });
       if (waitingSeg) await step(async () => {
-        const t = await getFile(token!, cloudPaths.segment(s.pairId, s.cp!.index, partner));
+        const t = await getFile(token!, cloudPaths.segment(cloudPairId(s), s.cp!.index, partner));
         if (t && !stop) onSave(await acceptPartnerSegment(content, s, t));
       });
       else if (waitingAns) await step(async () => {
-        const t = await getFile(token!, cloudPaths.answers(s.pairId, s.cp!.index, partner));
+        const t = await getFile(token!, cloudPaths.answers(cloudPairId(s), s.cp!.index, partner));
         if (t && !stop) onSave(await acceptPartnerAnswers(content, s, t));
       });
       if (!stop) setNote(errors.join(' '));
