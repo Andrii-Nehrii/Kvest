@@ -67,10 +67,15 @@ git push                                 # main → автосборка и вы
 
 ## Следующий шаг
 
-Главы 1–2 выпущены. Глава 3 — на проверке (`docs/hidden/CHAPTER3_REVIEW4.md`), в main не слита; дописывается частями по
-`docs/hidden/CHAPTER_GUIDE.md` §8. Части 1–2 повторно прошли жёсткий стандарт по файлам; дальше — по одной части из списка реальных путей пары (CONTEXT.md). Общая проверка качества пока не зелёная. Качество новых глав: `src/content/quality.test.ts` (пороги по главе 2) и стенограммы
-`src/content/transcript.test.ts` (читать целиком). Эталон `fixtures/release-2.json` создан (пара прошла КТ 2 — 01.11); `release-3` — когда пара пройдёт КТ 4. После главы 3 — глава 4 по `docs/hidden/STORY_STATE.md`,
-`docs/hidden/CHAPTER_GUIDE.md` и `docs/hidden/WRITING_GUIDE.md`. Конец доступной части — `c9_start` после КТ 8.
-Всё новое поведение следующей главы включать с `{ cp: 8 }`; версии контента и движка не менять.
-Эталоны `fixtures/release-*.json` сохранять. Следующий эталон добавлять только после прохождения соответствующей КТ
-на выпущенной версии; журналы настоящей пары лежат в ветке `saves`.
+Главы 1–2 выпущены. Пара: КТ 3 пройдена, A прошёл участок 4, B доигрывает (02.11). Эталон `release-2` есть;
+`release-3` — когда пара пройдёт КТ 4 (`KVEST_FIXTURE=release-3`, расширить `buildFixture` при необходимости).
+Глава 3 пишется в ветке `chapter-3` (PR #1), только для места пары (хутор, вместе) — очередь в
+`docs/hidden/CHAPTER3_BRIEF.md`, память агента — `docs/hidden/CONTEXT.md` (журнал сессий), метод — `docs/hidden/PART_METHOD.md`,
+навык — `.codex/skills/kvest-strong-scenes`. Роль проверяющего: по «смотри» — оценка 1–5 (5 = главы 1–2) по шести пунктам
+(структура; объём и плотность; напряжение и выборы; решения на точках; стиль и голоса; техника), без сюжета в чате;
+замечания — в `docs/hidden/CHAPTER3_REVIEW*.md` и журнал `CONTEXT.md` на его ветке.
+Инструменты проверки (защищённые, правятся только в main): `quality.test.ts` (жёсткий стандарт; `KVEST_QUALITY_FILES`,
+`KVEST_PAIR`), `transcript.test.ts` (стенограмма; `KVEST_PAIR`, `KVEST_WANT`), `pairpaths.test.ts` (где пара может оказаться),
+`.github/workflows/quality.yml` (проверка PR из main). Настоящие сохранения: `git show origin/saves:pairs/Uwz9uRin2OZVCugy/save-A|B.json
+> transcripts/pair/…` (не коммитить). Слияние главы в main — после зелёных `tsc`+`vitest`, `e2e:quick`, `codes` через все КТ
+и проверки сохранений пары (`refreshSave` без обрезки); выложить до того, как пара дойдёт до главы.
