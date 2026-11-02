@@ -6,6 +6,7 @@ import { locations } from '../world';
 import { all, flag, not, together, locations3 } from './world3';
 import { reports } from './reports';
 import { segmentEnd } from './clock';
+import { farm6bNight, farm6bNotes } from './farm6b';
 
 const groups = [
   ['a_flat', 'a_stairs', 'a_yard'],
@@ -547,18 +548,19 @@ function lastNight8(): JointDecision {
   return d;
 }
 export const jointChapter3: Record<string, JointDecision> = {
+  c3_new_night6: farm6bNight,
   c3_midday5: midday5(),
   c3_midday7: midday7(),
   c3_night: night6(),
   c3_lastnight: lastNight8(),
 };
 /** До какой точки глава написана: после неё игроки видят экран «продолжение» (`c{N+1}_start` в chapter3/index.ts). */
-export const WRITTEN_TO = 5;
+export const WRITTEN_TO = 6;
 export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
   index: n,
   title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Четвёртый полдень', 8: 'Четвёртая ночь' }[n],
   syncNotBefore: segmentEnd(n),
-  joint: [n === 5 || n === 7 ? `c3_midday${n}` : n === 6 ? 'c3_night' : 'c3_lastnight'],
-  onMerge: notes(n),
+  joint: [n === 5 || n === 7 ? `c3_midday${n}` : n === 6 ? 'c3_new_night6' : 'c3_lastnight'],
+  onMerge: n === 6 ? farm6bNotes : notes(n),
   next: { A: [{ scene: `c${n + 1}_start` }], B: [{ scene: `c${n + 1}_start` }] },
 }));

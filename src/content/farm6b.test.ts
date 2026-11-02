@@ -1,0 +1,99 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+import { availableActions } from '../engine/actions';
+import { completeCheckpoint, mergeNotes, mergeSegments, optionsFor, syncClocks } from '../engine/checkpoint';
+import { play, replayPrefix, replaySegment, segmentFinished, type ActionRecord } from '../engine/game';
+import { applyEffects } from '../engine/effects';
+import { stateHash } from '../engine/rng';
+import type { GameState, PlayerId } from '../engine/types';
+import { content as c } from './index';
+
+const release = JSON.parse(readFileSync(new URL('./fixtures/release-3.json', import.meta.url), 'utf8')) as { legs: { base: GameState }[] };
+const base = () => {
+  const s = structuredClone(release.legs.find(x => x.base.checkpoint === 5)!.base);
+  Object.assign(s.vars, { 'w.c3_trip5': 'relieve', 'w.c3_f5': 'shield', 'w.c3_farm_gun_lost': true });
+  s.npcs.pawel.location = 'hof_luedemann';
+  s.npcs.pawel.vars.c3_hand_rest = true;
+  if (!Object.values(s.items).some(i => i.type === 'potatoes' && i.at.kind === 'char' && i.at.id === 'A' && i.qty >= 5)) {
+    applyEffects({ s, c, pid: 'A' }, [{ give: 'potatoes', qty: 5 }]);
+  }
+  return s;
+};
+function finish(start: GameState, pid: PlayerId, branch: number) {
+  const s = structuredClone(start), records: ActionRecord[] = [];
+  const host = (branch & 1) !== 0;
+  const plan = pid === 'A'
+    ? ['c6_rev_begin', 'c6_r_a_yard', host ? 'c6_r_a_return' : 'c6_r_a_work', (branch & 2) ? 'c6_r_pay_stock' : 'c6_r_pay_bag', (branch & 4) ? 'c6_r_a_witness' : 'c6_r_a_boundary', 'c6_r_rest', 'c6_r_to_checkpoint']
+    : ['c6_rev_begin', host ? 'c6_r_b_host' : 'c6_r_b_stay', (branch & 2) ? (host ? 'c6_r_b_terms' : 'c6_r_b_company') : (host ? 'c6_r_b_water_h' : 'c6_r_b_water_p'), (branch & 4) ? 'c6_r_b_offer' : 'c6_r_b_honest', 'c6_r_rest', 'c6_r_to_checkpoint'];
+  for (const id of plan) {
+    expect(availableActions({ s, c, pid }).some(a => a.enabled && a.def.id === id), `${pid}/${s.chars[pid].scene}/${id}`).toBe(true);
+    records.push({ scene: s.chars[pid].scene, plan: [id] });
+    play(c, s, pid, [id]);
+  }
+  expect(segmentFinished(c, s, pid)).toBe('checkpoint');
+  expect(s.chars[pid].body.consciousness).toBe('awake');
+  expect(stateHash(replaySegment(c, start, pid, records))).toBe(stateHash(s));
+  return s;
+}
+const qty = (s: GameState, type: string, owner: string) => Object.values(s.items).filter(i => i.type === type && 'id' in i.at && i.at.id === owner).reduce((sum, i) => sum + i.qty, 0);
+const merge = (s: GameState, a: number, b: number) => {
+  const m = mergeSegments(c, s, { A: finish(s, 'A', a), B: finish(s, 'B', b) });
+  syncClocks(c, m, c.checkpoints.find(x => x.index === 6)!.syncNotBefore);
+  mergeNotes(c, m, 6);
+  return m;
+};
+
+describe('переработанный участок 6', () => {
+  it('оба телефона проходят все свои ветки и воспроизводятся точно', () => {
+    for (const pid of ['A', 'B'] as const) for (let branch = 0; branch < 8; branch++) finish(base(), pid, branch);
+  });
+  it('старые начала не повторяются, участки 7–8 не подключены', () => {
+    for (const pid of ['A', 'B'] as const) for (const action of ['c6_begin', 'c6_new_begin']) {
+      const s = base(), r = replayPrefix(c, s, pid, [{ scene: 'c6_start', plan: [action] }]);
+      expect(r.applied).toBe(0); expect(stateHash(r.state)).toBe(stateHash(s));
+    }
+    for (const id of ['c6_farm', 'c7_farm', 'c8_farm', 'c6_new_well']) expect(c.scenes[id]).toBeUndefined();
+    expect(c.checkpoints.some(x => x.index > 6)).toBe(false);
+  });
+  it('расчёт из другого источника действительно сохраняет мешок, а не списывает его дважды', () => {
+    const s = base(), bag = qty(s, 'potatoes', 'A'), stock = qty(s, 'potatoes', 'c3_farm_stock');
+    const given = finish(s, 'A', 0), kept = finish(s, 'A', 2);
+    expect(qty(given, 'potatoes', 'A')).toBe(bag - 5);
+    expect(qty(given, 'potatoes', 'c3_farm_stock')).toBe(stock);
+    expect(qty(kept, 'potatoes', 'A')).toBe(bag);
+    expect(qty(kept, 'potatoes', 'c3_farm_stock')).toBe(stock - 5);
+  });
+  it('отказ от работы оставляет общий долг, выполненные доли действительно снимают его', () => {
+    for (const [a, b, extra] of [[0, 0, false], [1, 0, true], [0, 2, true], [1, 2, true]] as const) {
+      const s = base(), m = merge(s, a, b), water = qty(m, 'water_l', 'c3_farm_stock');
+      expect(m.vars['w.c6_r_morning_extra']).toBe(extra);
+      mergeNotes(c, m, 6);
+      expect(qty(m, 'water_l', 'c3_farm_stock')).toBe(water);
+    }
+  });
+  it('три согласованных ответа дают разные судьбы; отказ от личного обещания остаётся виден', () => {
+    const m = merge(base(), 0, 4), d = c.joint.c3_new_night6;
+    for (const a of optionsFor(c, m, d, 'A')) for (const b of optionsFor(c, m, d, 'B')) {
+      const answers = { A: { [d.id]: a.id }, B: { [d.id]: b.id } };
+      const out = completeCheckpoint(c, structuredClone(m), answers);
+      expect(stateHash(out.state)).toBe(stateHash(completeCheckpoint(c, structuredClone(m), answers).state));
+      const chosen = a.id === b.id ? a.id : 'beside';
+      expect(out.joint[0].applied).toEqual([chosen]);
+      expect(out.state.npcs.pawel.vars.c6_r_depart_at_dawn).toBe(chosen !== 'beside');
+      expect(!!out.state.vars['w.c6_r_leave_farm']).toBe(chosen === 'go_with');
+      expect(!!out.state.npcs.pawel.vars.c6_r_b_promise_broken).toBe(chosen === 'own_sleep');
+      for (const pid of ['A', 'B'] as const) expect(out.state.chars[pid].scene).toBe('c7_start');
+    }
+  });
+  it('вход закрыт до КТ5, после КТ6 и вне написанной линии', () => {
+    for (const variant of ['before', 'after', 'elsewhere', 'apart', 'missing']) {
+      const s = base();
+      if (variant === 'before') s.checkpoint = 4;
+      if (variant === 'after') s.checkpoint = 6;
+      if (variant === 'elsewhere') s.chars.A.location = s.chars.B.location = 'b_flat';
+      if (variant === 'apart') s.chars.B.location = 'b_flat';
+      if (variant === 'missing') s.npcs.pawel.location = 'farm_coop';
+      for (const pid of ['A', 'B'] as const) expect(availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal)).toEqual([]);
+    }
+  });
+});

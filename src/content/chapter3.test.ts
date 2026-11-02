@@ -9,6 +9,7 @@ import type { GameState, PlayerId } from '../engine/types';
 import { fmt } from '../engine/world';
 import { START_TIME, shouldSendAnswers, myAnswersCode, acceptPartnerAnswers, readyToFinish, finishCheckpoint, type LocalSave } from '../app/session';
 import { stayRoutes } from './chapter3/routes';
+import { farm6bAvailable } from './chapter3/farm6b';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
 const written = (n: number) => c.checkpoints.some((cp) => cp.index === n);
@@ -82,6 +83,8 @@ describe('глава 3', () => {
     for (let run = 0; run < 2; run++) {
       let base = baseFor(x, `matrix3:${i}:${run}`);
       for (const n of SEGS) {
+        // Новый участок 6 написан только для сохранившейся линии пары; остальные ждут продолжения.
+        if (n === 6 && !P.every(pid => evalCond({ s: base, c, pid }, farm6bAvailable))) break;
         const ends = { A: leg(base, 'A', `${i}:${run}:${n}:A`), B: leg(base, 'B', `${i}:${run}:${n}:B`) };
         base = cp(base, ends, 'stay');
         if (base.ended) break;
@@ -270,7 +273,7 @@ it('ответ единственного участника новой точк
   expect(shouldSendAnswers(c, b)).toBe(false);
 });
 
-for (const id of ['c3_midday5', 'c3_night', 'c3_midday7', 'c3_lastnight'].filter((d) => written(c.joint[d].checkpoint))) {
+for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.joint)) {
   for (const option of c.joint[id].options) it(`заданный ответ ${id}/${option.id} исполняется на обоих телефонах`, () => {
     // Вариант проверяется там, где он есть: сначала прежнее место по смыслу, затем остальные домашние места главы.
     const guess = (option.id === 'north' || (['water', 'give', 'isolate', 'neighbor'].includes(option.id) && id !== 'c3_lastnight')) ? 'b_flat' : option.id === 'farm' ? 'a_flat' : option.id === 'jack' ? 'deniz_workshop' : ['shift', 'escort', 'bed'].includes(option.id) ? 'north_gym' : 'hof_luedemann';
@@ -299,23 +302,26 @@ for (const id of ['c3_midday5', 'c3_night', 'c3_midday7', 'c3_lastnight'].filter
     const out = completeCheckpoint(c, s, { A: answers, B: answers });
     expect(out.joint[0].applied).toEqual([option.id]);
     for (const pid of P) expect(out.state.chars[pid].scene).toBe(`c${n + 1}_start`);
-    if (written(n + 1)) for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
+    if (written(n + 1) && (n + 1 !== 6 || P.every(pid => evalCond({ s: out.state, c, pid }, farm6bAvailable)))) {
+      for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
+    }
   }, 120000);
 }
 
 
-it('у каждого места участка два доступных прерывания, включая второе при здоровом соседе', () => {
+it('у каждого места выпущенного участка 5 сохранены два доступных прерывания', () => {
   const places: [string, string][] = [
     ['farm', 'hof_luedemann'], ['coop', 'farm_coop'], ['aflat', 'a_flat'], ['bflat', 'b_flat'],
     ['workshop', 'deniz_workshop'], ['ahr', 'ahrensburg'], ['north', 'north_gym'], ['out', 'harburg_station'],
   ];
-  for (const n of SEGS) for (const [key, place] of [...places, ...(n <= 7 ? [['messe', 'messe'], ['q', 'messe_q']] as [string, string][] : [])]) {
+  // Для нового участка 6 число прерываний не норма: центральная сцена следует из действий.
+  for (const n of SEGS.filter(n => n === 5)) for (const [key, place] of [...places, ...(n <= 7 ? [['messe', 'messe'], ['q', 'messe_q']] as [string, string][] : [])]) {
     const s = baseFor([place, place, true]); s.checkpoint = n - 1;
     s.chars.A.time = at(n < 7 ? 12 : 13, n % 2 ? 12 : 20, 30);
     s.chars.A.scene = `c${n}_${key}`;
     for (const npc of Object.values(s.npcs)) npc.location = place === 'farm_coop' ? 'hof_luedemann' : place;
     s.npcs.okafor.location = 'b_okafor';
-    const events = c.events.filter((e) => e.interrupt && (/^ev_[cfnmb]/.test(e.id) && e.id.startsWith(`ev_${e.id[3]}${n}_`) || (n === 7 && e.id.startsWith('ev3_alarm_'))) && (() => { const at = s.chars.A.time; s.chars.A.time = e.at; const result = evalCond({ s, c, pid: 'A' }, e.when); s.chars.A.time = at; return result; })());
+    const events = c.events.filter((e) => e.interrupt && /^ev_[cfnmb]/.test(e.id) && e.id.startsWith(`ev_${e.id[3]}${n}_`) && (() => { const at = s.chars.A.time; s.chars.A.time = e.at; const result = evalCond({ s, c, pid: 'A' }, e.when); s.chars.A.time = at; return result; })());
     expect(events.length, `${n}/${key}`).toBeGreaterThanOrEqual(2);
   }
 });
