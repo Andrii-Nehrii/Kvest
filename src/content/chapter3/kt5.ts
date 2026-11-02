@@ -107,6 +107,7 @@ function notes(n: number): MergeNote[] {
   return [
     ...(n === 5 ? central5Notes : []),
     ...(n === 6 ? central6Notes : []),
+    ...(n === 6 ? [{ id: 'f6_already_here', group: 'meet', when: all(farm, flag('w.c3_koehler_met'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: '{partner} держит ваше сложенное одеяло. — Я хотел{pm:|а} просто лечь. С тобой. — Кёлер ждёт у стола.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 5 ? [
       { id: 'b5_host_meet', group: 'meet', when: all(same, { at: 'b_flat' }, { me: 'B' }), text: 'Ты придвигаешь {partner.dat} свою кружку. — Тут и скажем. — В прихожей ждут ответа. Дверь ты пока не открываешь.', effects: [{ set: 'w.together', value: true }, ...share] },
       { id: 'b5_guest_meet', group: 'meet', when: all(same, { at: 'b_flat' }, { me: 'A' }), text: '{partner} ставит между вами кружку. Ты спрашиваешь, можно ли говорить здесь. {pm:Он|Она} кивает, не отпуская ручки.', effects: [{ set: 'w.together', value: true }, ...share] },
@@ -209,7 +210,7 @@ function notes(n: number): MergeNote[] {
         { npc: 'henrike', alive: true, at: 'hof_luedemann' },
         { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' },
       ),
-      text: 'Хенрике подходит к разговору сама. Кёлер ещё ждёт снаружи у тележки. — На еду место найдём. На ночлег сначала спросим, — говорит хозяйка.',
+      text: 'Хенрике остаётся у стола. — В дом — ваш угол отдайте. В сарае — место освобожу. Еда в обоих случаях ваша.',
     },
   ];
 }
@@ -349,38 +350,52 @@ function midday7(): JointDecision {
       text: 'Вы оставляете место за собой. Помощь придётся искать у других; ваши вещи готовы, если дверь всё же придётся закрыть снаружи.' },
   ]);
 }
-export const jointChapter3: Record<string, JointDecision> = {
-  c3_midday5: midday5(),
-  c3_midday7: midday7(),
-  c3_night: decision(
+function night6(): JointDecision {
+  const d = decision(
     'c3_night',
     6,
-    'На ночь нужно договориться не о намерениях, а о людях под крышей. У Хенрике последнее слово за ней; на чужую ночёвку уйдёт часть общего запаса.',
+    'Где вы будете спать и кому уступите место? Прежде чем обещать за двоих, выслушай {partner.acc}.',
     [
       {
         id: 'inside',
-        label: { default: 'Пустить Кёлер с разрешения хозяйки' },
-        when: flag('w.c3_koehler_met'),
-        feasible: checkedGuest,
+        label: { default: 'Отдать Кёлер наш угол и пачку овсянки' },
+        when: all(farm, flag('w.c3_koehler_met'), not(flag('w.c3_guest_contract'))),
+        feasible: all(checkedGuest, food, { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }, not(flag('w.c3_guest_contract'))),
         effects: [
           ...set('w.c3_night', 'stay'),
           { set: 'w.c3_guest_contract', value: true },
           { set: 'w.c3_owed_food', value: true },
-          { npc: 'c3_koehler', moveTo: 'hof_luedemann' },
+          { set: 'w.c3_f6_bed_lost', value: true },
+          ...foodGift,
+          { npc: 'c3_koehler', moveTo: 'hof_luedemann', set: { separate: false }, remember: 'c3_given_their_bed' },
         ],
-        text: 'Хенрике разрешает место в доме. Кёлер ест из общего запаса и завтра работает вместе со всеми. За её право остаться отвечает и ваше слово.',
+        text: 'Хенрике разрешает. Вы отдаёте Кёлер свой угол и пачку овсянки. {partner} переносит ваше одеяло к кухонной двери. — Тут вдвоём поместимся?',
       },
       {
         id: 'separate',
-        label: { default: 'Дать только отдельную ночёвку' },
-        when: flag('w.c3_koehler_met'),
-        feasible: all(farm, { npc: 'c3_koehler', alive: true }, not({ partnerAt: 'farm_coop' })),
+        label: { default: 'Устроить Кёлер в сарае, дать пачку овсянки' },
+        when: all(farm, flag('w.c3_koehler_met'), not(flag('w.c3_guest_contract'))),
+        feasible: all(farm, food, { npc: 'henrike', alive: true, at: 'hof_luedemann' }, { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }, not(flag('w.c3_guest_contract'))),
         effects: [
           ...set('w.c3_night', 'stay'),
           { set: 'w.c3_guest_contract', value: true },
-          { npc: 'c3_koehler', moveTo: 'hof_luedemann', set: { separate: true } },
+          ...foodGift,
+          { npc: 'c3_koehler', moveTo: 'hof_luedemann', set: { separate: true }, remember: 'c3_given_barn' },
         ],
-        text: 'Хозяйка выделяет угол в сарае. Еду всё равно даёте свою. Дверь в дом на ночь остаётся закрытой.',
+        text: 'Хенрике освобождает место в сарае. Вы отдаёте Кёлер пачку овсянки; она спрашивает, где набрать воды. — В дом ночью постучать можно? — Хозяйка велит стучать громче.',
+      },
+      {
+        id: 'farm_food', label: { default: 'Дать Кёлер пачку овсянки без ночлега' },
+        when: all(farm, flag('w.c3_koehler_met'), not(flag('w.c3_guest_contract'))),
+        feasible: all(farm, food, { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }, not(flag('w.c3_guest_contract'))),
+        effects: [...set('w.c3_night', 'stay'), ...foodGift, { set: 'w.c3_guest_food_only', value: true }, { npc: 'c3_koehler', remember: 'c3_food_without_roof' }],
+        text: 'Кёлер берёт пачку. — Спасибо. А лечь где? — Ты повторяешь, что места не обещаешь. Она уносит еду во двор.',
+      },
+      {
+        id: 'farm_no', label: { default: 'Сохранить наш угол и еду, отказать Кёлер' },
+        when: all(farm, flag('w.c3_koehler_met'), not(flag('w.c3_guest_contract'))), feasible: farm,
+        effects: [...set('w.c3_night', 'stay'), { set: 'w.c3_f6_refused', value: true }, { npc: 'c3_koehler', remember: 'c3_refused_at_night' }],
+        text: 'Ты говоришь, что за двоих ночлега не обещаешь. Кёлер берёт пальто с твоей лавки. Хенрике открывает ей дверь во двор. — Фонарь оставь до утра, — просит женщина.',
       },
       {
         id: 'neighbor', label: { default: 'Пустить соседа, уступить своё место' },
@@ -392,6 +407,7 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'give',
         label: { default: 'Дать еду, не обещать ночлег' },
+        when: not(farm),
         feasible: all(together, same, food),
         effects: [...set('w.c3_night', 'stay'), ...foodGift, { set: 'w.c3_guest_food_only', value: true }],
         text: 'Закрытую пачку отдаёте снаружи. Места под своей крышей не обещаете. Запаса стало меньше, людей внутри столько же.',
@@ -399,7 +415,7 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'farm',
         label: { default: 'Утром перейти на хутор' },
-        when: atAny(SOUTH),
+        when: all(atAny(SOUTH), not({ at: 'hof_luedemann' })),
         feasible: farmRoad,
         effects: set('w.c3_night', 'farm'),
         text: 'Утром идёте к хозяйке хутора. Её согласие уже есть, но дорога и проверка у ворот остаются.',
@@ -415,11 +431,27 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'stay',
         label: { default: 'Ночевать здесь без новых обещаний' },
+        when: { any: [not(farm), flag('w.c3_guest_contract'), not(flag('w.c3_koehler_met'))] },
         effects: set('w.c3_night', 'stay'),
         text: 'Проверяете дверь и остаётесь на ночь там, где вы есть. За новых людей своего слова не даёте.',
       },
     ],
-  ),
+  );
+  d.arbiters = [
+    { id: 'f6_empty_food', when: all(farm, not(food)), winner: 'farm_no', text: 'Хенрике показывает пустую пачку. — На утро самим нечего. Не обещайте еду, которой нет.' },
+    { id: 'f6_gate_broken', when: all(farm, flag('w.c3_f6_gate_lost')), winner: 'inside', text: 'Хенрике смотрит на открытую щель у ворот. — Ещё и сарай ночью проверять некому. Осмотрена — пусть в доме. Угол освободите.' },
+    { id: 'f6_flour_spilled', when: all(farm, flag('w.c3_f6_flour_lost')), winner: 'inside', text: 'Хенрике смотрит на разрезанный мешок. — С неё хватит. Теперь наше отдаём. — Кёлер ждёт, пока вы уберёте вещи.' },
+    ...d.arbiters,
+    { id: 'f6_barn_available', when: all(farm, food, { npc: 'henrike', alive: true, at: 'hof_luedemann' }), winner: 'separate', text: 'Хенрике приносит ключ от сарая. — Там переночует. В дом я пока не согласна. — Кёлер соглашается на сарай.' },
+    { id: 'f6_food_available', when: all(farm, food), winner: 'farm_food', text: 'Хенрике подвигает закрытую пачку к женщине. — Это можем. Ночлега двое не обещали. — Кёлер забирает еду.' },
+    { id: 'f6_no_place_promised', when: farm, winner: 'farm_no', text: 'Хенрике ждёт, пока вы договорите. — За вас обещать не буду. — Кёлер поднимает пальто.' },
+  ];
+  return d;
+}
+export const jointChapter3: Record<string, JointDecision> = {
+  c3_midday5: midday5(),
+  c3_midday7: midday7(),
+  c3_night: night6(),
   c3_lastnight: decision(
     'c3_lastnight',
     8,

@@ -1,6 +1,8 @@
 // Отклики центральных сцен: видимы после слияния и в следующем участке.
 import type { MergeNote, Scene, TextBlock } from '../../engine/content-types';
 import { all, flag, not } from './world3';
+import { at } from '../../engine/time';
+const morning7 = { after: at(13, 6) };
 const firstHistory = (b: TextBlock): TextBlock => ({ ...b, when: all(b.when ?? { always: true }, not(flag('$.c6_history_seen'))) });
 
 export const central6Notes: MergeNote[] = [
@@ -45,10 +47,14 @@ const promise5After: TextBlock[] = [
 ];
 export function withCentralEchoes(scene: Scene): Scene {
   if (scene.id === 'c7_farm') return { ...scene, text: [
-    { when: { v: 'w.c3_f6', op: '==', value: 'gate' }, text: 'Хенрике будит дежурного у ворот. Дениз просит ещё минуту и поднимается без помощи. Створка всё ещё лежит поперёк тележки.' },
-    { when: all({ v: 'w.c3_f6', op: '==', value: 'flour' }, { npc: 'kerem', alive: true, at: 'hof_luedemann' }, { npc: 'deniz', alive: true, at: 'hof_luedemann' }), text: 'Керем смотрит на белую корку у ворот. — Я бы тоже разрезал. — Дениз просит его говорить тише.' },
-    { when: { v: 'w.c3_f6', op: '==', value: 'missed' }, text: 'Керем придерживает брата, пока тот идёт к выходу. Дениз ругается на тесную обувь. Свой ботинок он так и не надел.' },
-    ...scene.text] };
+    { when: all(morning7, flag('w.c3_f6_bed_lost'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: 'Кёлер лежит на вашем вчерашнем месте. {partner} встаёт возле двери, держась за поясницу. — Сегодня я лягу раньше. Договорились?' },
+    { when: all(morning7, flag('w.c3_guest_contract'), { npcVar: 'c3_koehler', key: 'separate' }, { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: 'Кёлер возвращает хозяйке ключ от сарая. — Стучала ночью. Вы не слышали? — Хенрике отодвигает ей место у печи.' },
+    { when: all(morning7, flag('w.c3_f6_refused')), text: '{partner} спрашивает, где переночевала женщина. Хенрике показывает на двор. Следы от тележки уходят к дороге.' },
+    { when: all(morning7, flag('w.c3_guest_food_only')), text: 'Хенрике подбирает у ворот обёртку от пачки. — Ушла. — Ты смотришь на дорогу, по которой женщина приходила вчера.' },
+    { when: all(morning7, { v: 'w.c3_f6', op: '==', value: 'gate' }), text: 'Хенрике будит дежурного у ворот. Дениз просит ещё минуту и поднимается без помощи. Створка всё ещё лежит поперёк тележки.' },
+    { when: all(morning7, { v: 'w.c3_f6', op: '==', value: 'flour' }, { npc: 'kerem', alive: true, at: 'hof_luedemann' }, { npc: 'deniz', alive: true, at: 'hof_luedemann' }), text: 'Керем смотрит на белую корку у ворот. — Я бы тоже разрезал. — Дениз просит его говорить тише.' },
+    { when: all(morning7, { v: 'w.c3_f6', op: '==', value: 'missed' }), text: 'Керем придерживает брата, пока тот идёт к выходу. Дениз ругается на тесную обувь. Свой ботинок он так и не надел.' },
+    ...scene.text], onEnter: [...(scene.onEnter ?? []), { if: all(flag('w.c3_f6_bed_lost'), not(flag('$.c3_f6_sleep_cost'))), then: [{ set: '$.c3_f6_sleep_cost', value: true }, { body: 'sleepDebt', delta: 2 }] }] };
   if (scene.id === 'c7_bflat') return { ...scene, text: [
     { when: { v: 'w.c3_b6', op: '==', value: 'close' }, text: 'Утром ты открываешь дверь обеими руками. Человек этажом выше застёгивает куртку, оставляя один край свободным. Ты вспоминаешь пуговицу возле ключа.' },
     { when: { v: 'w.c3_b6', op: '==', value: 'inside' }, text: 'На вашем месте спит вчерашний человек. Носки он положил под голову. Ты поднимаешь свой рюкзак с пола.' },
