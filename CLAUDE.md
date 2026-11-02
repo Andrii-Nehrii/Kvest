@@ -67,8 +67,15 @@ git push                                 # main → автосборка и вы
 
 ## Следующий шаг
 
-Глава 1 (10.11, КТ 1–2) и глава 2 (11.11: ночь и утро, КТ 3, дорога и первый день на новом месте, КТ 4) написаны.
-Дальше — глава 3 (дни 3–4, режим базы) по STORY_DESIGN §10 и `docs/hidden/STORY_STATE.md`: заглушка `c5_start`
-превращается в настоящие сцены, КТ 4 ведёт туда по `w.day3`; базы (`BaseDef`, `from: 4`) — хутор и квартиры.
-Эталон `fixtures/release-2.json` (главы 1–2, пара прошла КТ 2 — 01.11) создан и подключён; `release-3` — когда пара пройдёт КТ 4. Проверки сюжета: `story.test.ts` (30 пар через 4 КТ), `chapter2.test.ts`
-(второй день из разных положений), `lines.test.ts` (главные линии).
+Главы 1–2 выпущены. Пара: КТ 3 пройдена, A прошёл участок 4, B доигрывает (02.11). Эталон `release-2` есть;
+`release-3` — когда пара пройдёт КТ 4 (`KVEST_FIXTURE=release-3`, расширить `buildFixture` при необходимости).
+Глава 3 пишется ChatGPT/Codex в ветке `chapter-3` (PR #1), только для места пары (хутор, вместе) — очередь в
+`docs/hidden/CHAPTER3_BRIEF.md`, память агента — `docs/hidden/CONTEXT.md` (журнал сессий), метод — `docs/hidden/PART_METHOD.md`,
+навык — `.codex/skills/kvest-strong-scenes`. Роль проверяющего: по «смотри» — оценка 1–5 (5 = главы 1–2) по шести пунктам
+(структура; объём и плотность; напряжение и выборы; решения на точках; стиль и голоса; техника), без сюжета в чате;
+замечания — в `docs/hidden/CHAPTER3_REVIEW*.md` и журнал `CONTEXT.md` на его ветке.
+Инструменты проверки (защищённые, правятся только в main): `quality.test.ts` (жёсткий стандарт; `KVEST_QUALITY_FILES`,
+`KVEST_PAIR`), `transcript.test.ts` (стенограмма; `KVEST_PAIR`, `KVEST_WANT`), `pairpaths.test.ts` (где пара может оказаться),
+`.github/workflows/quality.yml` (проверка PR из main). Настоящие сохранения: `git show origin/saves:pairs/Uwz9uRin2OZVCugy/save-A|B.json
+> transcripts/pair/…` (не коммитить). Слияние главы в main — после зелёных `tsc`+`vitest`, `e2e:quick`, `codes` через все КТ
+и проверки сохранений пары (`refreshSave` без обрезки); выложить до того, как пара дойдёт до главы.
