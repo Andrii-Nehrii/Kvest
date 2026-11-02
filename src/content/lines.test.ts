@@ -98,7 +98,7 @@ describe('главные линии главы 1', () => {
 
 // Полное обычное прохождение: осмотреть место, отвечать на события, дойти до всех четырёх КТ.
 describe('главная линия главы 3', () => {
-  for (const place of ['hof_luedemann', 'b_flat']) it(`четыре участка в ${place}`, () => {
+  for (const place of ['hof_luedemann', 'b_flat']) it(`написанные участки в ${place}`, () => {
     let base = newGame(c, { pairId: 'line3', seed: 'line3', startTime: START_TIME, players });
     base.checkpoint = 4;
     Object.assign(base.vars, { 'w.together': true, 'w.day3': 'stay', 'w.farm_welcome': true });
@@ -116,7 +116,8 @@ describe('главная линия главы 3', () => {
       for (const i of Object.values(base.items)) if (i.at.kind === 'place' && i.at.id === (p === 'A' ? 'a_flat' : 'b_flat') && ['jeans', 'hoodie', 'boots', 'winter_jacket', 'rain_jacket', 'hoodie', 'beanie', 'gloves', 'sneakers', 'backpack'].includes(i.type)) i.at = { kind: 'char', id: p };
     }
     const density: Record<string, number> = {};
-    for (const n of [5, 6, 7, 8]) {
+    const SEGS = [5, 6, 7, 8].filter((n) => c.checkpoints.some((cp) => cp.index === n));
+    for (const n of SEGS) {
       const ends = { A: structuredClone(base), B: structuredClone(base) };
       for (const p of ['A', 'B'] as const) {
         const s = ends[p], uses = new Map<string, number>(), visited = new Set<string>();
@@ -163,7 +164,7 @@ describe('главная линия главы 3', () => {
       expect(base.vars['w.together']).toBe(true);
       expect(base.checkpoint).toBe(n);
     }
-    for (const p of ['A', 'B'] as const) expect(base.chars[p].scene).toBe('c9_start');
+    for (const p of ['A', 'B'] as const) expect(base.chars[p].scene).toBe(`c${SEGS[SEGS.length - 1] + 1}_start`);
     // Переходы не называем решениями. Каждый участок включает как минимум две ситуации с альтернативами.
     expect(Object.values(density).every(count => count >= 2)).toBe(true);
   });

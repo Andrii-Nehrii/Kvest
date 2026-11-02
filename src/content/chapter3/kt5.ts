@@ -552,7 +552,9 @@ export const jointChapter3: Record<string, JointDecision> = {
   c3_night: night6(),
   c3_lastnight: lastNight8(),
 };
-export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8] as const).map((n) => ({
+/** До какой точки глава написана: после неё игроки видят экран «продолжение» (`c{N+1}_start` в chapter3/index.ts). */
+export const WRITTEN_TO = 5;
+export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
   index: n,
   title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Четвёртый полдень', 8: 'Четвёртая ночь' }[n],
   syncNotBefore: segmentEnd(n),

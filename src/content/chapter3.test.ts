@@ -10,6 +10,9 @@ import { fmt } from '../engine/world';
 import { START_TIME, shouldSendAnswers, myAnswersCode, acceptPartnerAnswers, readyToFinish, finishCheckpoint, type LocalSave } from '../app/session';
 import { stayRoutes } from './chapter3/routes';
 import { content as c } from './index';
+/** Написанные участки главы 3 (после последнего — экран продолжения). */
+const written = (n: number) => c.checkpoints.some((cp) => cp.index === n);
+const SEGS = [5, 6, 7, 8].filter(written);
 const forms = (n: string) => ({ nom: n, gen: n, dat: n, acc: n, ins: n, pre: n });
 const P = ['A', 'B'] as const;
 const BAD = /[{}]|undefined|NaN|\[object/;
@@ -78,7 +81,7 @@ describe('глава 3', () => {
   for (const [i, x] of SETUPS.entries()) it(`матрица ${i + 1}: ${x[0]} / ${x[1]}`, () => {
     for (let run = 0; run < 2; run++) {
       let base = baseFor(x, `matrix3:${i}:${run}`);
-      for (const n of [5, 6, 7, 8]) {
+      for (const n of SEGS) {
         const ends = { A: leg(base, 'A', `${i}:${run}:${n}:A`), B: leg(base, 'B', `${i}:${run}:${n}:B`) };
         base = cp(base, ends, 'stay');
         if (base.ended) break;
@@ -90,7 +93,7 @@ describe('глава 3', () => {
   it('каждая домашняя локация и редкий старт имеют определённый маршрут', () => {
     for (const loc of ['a_flat', 'a_stairs', 'a_yard', 'a_street', 'a_brockmann', 'b_flat', 'b_stairs', 'b_yard', 'b_street', 'b_okafor', 'b_nowak', 'b_kiosk', 'hof_luedemann', 'farm_coop', 'deniz_workshop', 'ahrensburg', 'b_van', 'north_gym', 'messe', 'messe_q', 'c3_messe_yard', 'hh_city', 'elbbruecken']) {
       const s = baseFor(); s.chars.A.location = loc;
-      for (const n of [5, 6, 7, 8]) expect(c.scenes[stayRoutes(n).find((r) => evalCond({ s, c, pid: 'A' }, r.when))!.scene]).toBeDefined();
+      for (const n of SEGS) expect(c.scenes[stayRoutes(n).find((r) => evalCond({ s, c, pid: 'A' }, r.when))!.scene]).toBeDefined();
     }
   });
   for (const choice of ['farm', 'workshop', 'a_flat', 'b_flat', 'messe', 'north']) it(`план КТ 4: ${choice}, обе линии воспроизводятся`, () => {
@@ -136,28 +139,6 @@ describe('глава 3', () => {
     s.chars.A.time = at(12, 12); enterScene({ s, c, pid: 'A' }, 'c5_farm');
     for (let i = 0; i < 25; i++) play(c, s, 'A', ['c5_wait']);
     expect(s.npcs.okafor.status).toBe('turned');
-  });
-  it('наблюдение нельзя покинуть по дорожному плану, вспышку — переждать за работой', () => {
-    const s = baseFor(['messe_q', 'messe_q', true]); s.vars['w.day3'] = 'farm'; s.chars.A.time = at(12, 8);
-    play(c, s, 'A', ['c5_begin']); expect(s.chars.A.scene).toBe('c5_q');
-    s.checkpoint = 6; s.chars.A.time = at(13, 8, 59); enterScene({ s, c, pid: 'A' }, 'c7_q');
-    while (s.chars.A.time < at(13, 9)) play(c, s, 'A', ['c7_wait']);
-    expect(ids(s, 'A')).toEqual(['c7_alarm']);
-    play(c, s, 'A', ['c7_alarm']); play(c, s, 'A', ['c7_exit_staff']);
-    expect(s.chars.A.location).toBe('c3_messe_yard');
-  });
-  it('на КТ 5 встречу и знания получают обе линии', () => {
-    const s = baseFor(); s.vars['w.together'] = false;
-    s.knowledge.A.f_c3_well = { kind: 'fact', at: 0, source: 'test' };
-    s.knowledge.B.f_c3_exchange = { kind: 'fact', at: 0, source: 'test' };
-    s.chars.A.time = s.chars.B.time = at(12, 21); mergeNotes(c, s, 6);
-    expect(s.knowledge.A.f_c3_exchange).toBeTruthy(); expect(s.knowledge.B.f_c3_well).toBeTruthy();
-    for (const pid of P) expect(s.log.some((e) => e.pid === pid && e.kind === 'checkpoint')).toBe(true);
-  });
-  it('карантин снимается лично, без выпуска больного партнёра', () => {
-    const s = baseFor(['farm_coop', 'farm_coop', true]); s.chars.A.time = s.chars.B.time = at(12, 20);
-    s.chars.B.body.coreTemp = 38.2; mergeNotes(c, s, 6);
-    expect(s.vars['A.c3_coop_clear']).toBe(true); expect(s.vars['B.c3_coop_clear']).toBeUndefined();
   });
 });
 
@@ -236,63 +217,12 @@ it('новая регистрация в Messe учитывает риск на 
 });
 
 describe('глава 3: четыре участка и последствия', () => {
-  it('четыре точки стоят в середине дня и ночью; заглушка только после восьмой', () => {
-    expect(c.checkpoints.filter((x) => x.index >= 5).map((x) => [x.index, x.syncNotBefore])).toEqual([
-      [5, at(12, 13)], [6, at(12, 21)], [7, at(13, 13)], [8, at(13, 21)],
-    ]);
-    expect(c.scenes.c9_start.actions).toEqual([]);
-    for (const n of [5, 6, 7, 8]) expect(c.scenes[`c${n}_cp`].checkpoint).toBe(n);
-  });
-  it('новому прибывшему не снимают карантин раньше следующей ночи', () => {
-    const s = baseFor(['farm_coop', 'farm_coop', true]);
-    s.vars['A.c3_new_coop'] = true;
-    for (const [n, time] of [[6, at(12, 21)], [7, at(13, 13)]] as const) {
-      s.checkpoint = n - 1; s.chars.A.time = s.chars.B.time = time;
-      mergeNotes(c, s, n); expect(s.vars['A.c3_coop_clear']).toBeUndefined();
-    }
-    s.checkpoint = 7; s.chars.A.time = s.chars.B.time = at(13, 21);
-    mergeNotes(c, s, 8); expect(s.vars['A.c3_coop_clear']).toBe(true);
-  });
   it('живой Герд на лестнице не пропускает с улицы в квартиру', () => {
     const s = baseFor(['a_yard', 'a_flat', true]);
     Object.assign(s.npcs.gerd, { alive: true, status: 'turned', location: 'a_stairs', vars: {} });
     expect(stayRoutes(5).find((r) => evalCond({ s, c, pid: 'A' }, r.when))!.scene).toBe('c5_out');
     s.npcs.gerd.alive = false;
     expect(stayRoutes(5).find((r) => evalCond({ s, c, pid: 'A' }, r.when))!.scene).toBe('c5_aflat');
-  });
-  it('события дома слышны с лестницы и у соседней двери', () => {
-    const s = baseFor(['b_okafor', 'b_flat', true]);
-    s.chars.A.time = at(13, 14, 11); s.checkpoint = 7;
-    enterScene({ s, c, pid: 'A' }, 'c8_okafor');
-    play(c, s, 'A', ['c8_wait']);
-    s.chars.A.time = at(13, 17, 16); play(c, s, 'A', ['c8_wait']);
-    expect(ids(s, 'A').some((id) => /c8_(lightless|medbag)_approach/.test(id))).toBe(true);
-  });
-  it('срок пропущенной ситуации закрывает вход, старые прерывания не всплывают дальше', () => {
-    const s = baseFor(); s.chars.A.time = at(12, 14);
-    enterScene({ s, c, pid: 'A' }, 'c5_farm'); play(c, s, 'A', ['c5_wait']);
-    expect(evalCond({ s, c, pid: 'A' }, c.events.find(e => e.id === 'ev_c5_spilled')!.when)).toBe(false);
-    expect(ids(s, 'A')).not.toContain('c5_spilled_approach');
-    s.checkpoint = 5; enterScene({ s, c, pid: 'A' }, 'c6_farm'); play(c, s, 'A', ['c6_fwait']);
-    expect(ids(s, 'A').some((id) => id.startsWith('c5_'))).toBe(false);
-  });
-  it('погибшие и уехавшие не участвуют в новых разговорах', () => {
-    const s = baseFor(); s.chars.A.time = at(13, 8); s.checkpoint = 6;
-    for (const id of ['pawel', 'kerem', 'deniz', 'ole', 'henrike']) s.npcs[id].alive = false;
-    enterScene({ s, c, pid: 'A' }, 'c7_farm'); play(c, s, 'A', ['c7_fwait']);
-    for (const id of ['c7_boots', 'c7_keremcup', 'c7_denizbolt', 'c7_olepath', 'c7_kerem_approach', 'c7_trough_approach', 'c7_fpawel_go', 'c7_fleg_go', 'c7_fbrothers_go', 'c7_fwood']) expect(ids(s, 'A')).not.toContain(id);
-    s.npcs.kerem.alive = true; s.npcs.kerem.location = 'b75_road';
-    expect(ids(s, 'A')).not.toContain('c7_keremcup');
-  });
-  it('отдача из общего запаса применяется один раз, вылазка меняет следующий маршрут', () => {
-    const s = baseFor(['b_flat', 'b_flat', true]);
-    const qty = () => Object.values(s.items).filter((i) => i.type === 'oats' && i.at.kind === 'place' && i.at.id === 'c3_b_stock').reduce((a, i) => a + i.qty, 0);
-    const before = qty();
-    expect(resolveJoint(c, s, 'c3_midday5', { A: 'give', B: 'give' }).applied).toEqual(['give']);
-    expect(qty()).toBe(before - 1);
-    resolveJoint(c, s, 'c3_midday5', { A: 'water', B: 'water' });
-    s.checkpoint = 5; s.chars.A.scene = 'c6_start'; s.chars.A.time = at(12, 13);
-    play(c, s, 'A', ['c6_begin']); expect(s.chars.A.scene).toBe('c6_supply');
   });
   it('проверка хозяйки ограничивает совместный приём, согласие меняет состав базы', () => {
     const s = baseFor(); s.checkpoint = 5;
@@ -340,7 +270,7 @@ it('ответ единственного участника новой точк
   expect(shouldSendAnswers(c, b)).toBe(false);
 });
 
-for (const id of ['c3_midday5', 'c3_night', 'c3_midday7', 'c3_lastnight']) {
+for (const id of ['c3_midday5', 'c3_night', 'c3_midday7', 'c3_lastnight'].filter((d) => written(c.joint[d].checkpoint))) {
   for (const option of c.joint[id].options) it(`заданный ответ ${id}/${option.id} исполняется на обоих телефонах`, () => {
     // Вариант проверяется там, где он есть: сначала прежнее место по смыслу, затем остальные домашние места главы.
     const guess = (option.id === 'north' || (['water', 'give', 'isolate', 'neighbor'].includes(option.id) && id !== 'c3_lastnight')) ? 'b_flat' : option.id === 'farm' ? 'a_flat' : option.id === 'jack' ? 'deniz_workshop' : ['shift', 'escort', 'bed'].includes(option.id) ? 'north_gym' : 'hof_luedemann';
@@ -369,35 +299,17 @@ for (const id of ['c3_midday5', 'c3_night', 'c3_midday7', 'c3_lastnight']) {
     const out = completeCheckpoint(c, s, { A: answers, B: answers });
     expect(out.joint[0].applied).toEqual([option.id]);
     for (const pid of P) expect(out.state.chars[pid].scene).toBe(`c${n + 1}_start`);
-    if (n < 8) for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
+    if (written(n + 1)) for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
   }, 120000);
 }
 
-it('следующее ожидание не теряет итог и коды новой точки; граница главы не создаёт КТ 9', () => {
-  const merged = baseFor(); merged.chars.A.body.consciousness = 'dead';
-  const phone: LocalSave = {
-    schema: 1, me: 'A', pairId: merged.pairId, secret: 'eA', seed: merged.seed,
-    phase: 'checkpoint', setups: {}, base: merged, state: merged, baseHash: stateHash(merged),
-    segment: [], hashes: [], playSeconds: 0, updatedAt: 0,
-    cp: { index: 5, merged, mergedHash: stateHash(merged), partnerAnswers: { c3_midday5: optionsFor(c, merged, c.joint.c3_midday5, 'B')[0].id } },
-  };
-  const waiting = finishCheckpoint(c, phone, { segment: 'test-segment' });
-  expect(waiting.phase).toBe('checkpoint'); expect(waiting.cp!.index).toBe(6);
-  expect(waiting.lastCheckpoint!.index).toBe(5);
-  expect(waiting.lastCheckpoint!.result!.hash).toBe(waiting.baseHash);
-  expect(waiting.lastCheckpoint!.sent!.segment).toBe('test-segment');
-  merged.checkpoint = 7;
-  phone.cp = { index: 8, merged, mergedHash: stateHash(merged), partnerAnswers: { c3_lastnight: optionsFor(c, merged, c.joint.c3_lastnight, 'B')[0].id } };
-  const end = finishCheckpoint(c, phone);
-  expect(end.base!.checkpoint).toBe(8); expect(end.phase).toBe('playing'); expect(end.cp!.index).toBe(8);
-});
 
 it('у каждого места участка два доступных прерывания, включая второе при здоровом соседе', () => {
   const places: [string, string][] = [
     ['farm', 'hof_luedemann'], ['coop', 'farm_coop'], ['aflat', 'a_flat'], ['bflat', 'b_flat'],
     ['workshop', 'deniz_workshop'], ['ahr', 'ahrensburg'], ['north', 'north_gym'], ['out', 'harburg_station'],
   ];
-  for (const n of [5, 6, 7, 8]) for (const [key, place] of [...places, ...(n <= 7 ? [['messe', 'messe'], ['q', 'messe_q']] as [string, string][] : [])]) {
+  for (const n of SEGS) for (const [key, place] of [...places, ...(n <= 7 ? [['messe', 'messe'], ['q', 'messe_q']] as [string, string][] : [])]) {
     const s = baseFor([place, place, true]); s.checkpoint = n - 1;
     s.chars.A.time = at(n < 7 ? 12 : 13, n % 2 ? 12 : 20, 30);
     s.chars.A.scene = `c${n}_${key}`;
@@ -410,7 +322,7 @@ it('у каждого места участка два доступных пре
 
 it('эпизоды дают выбор сразу, вопросы необязательны, исход читается за пределами эпизода', () => {
   const episodes = Object.values(c.scenes).filter(s => s.chapter === 'ch3' && s.onEnter?.some(e => 'set' in e && typeof e.set === 'string' && e.set.endsWith('.started')));
-  expect(episodes.length).toBeGreaterThan(20);
+  expect(episodes.length).toBeGreaterThan(5);
   for (const sc of episodes) {
     expect(sc.actions.filter(a => a.terminal).length, sc.id).toBeGreaterThanOrEqual(2);
     expect(sc.actions.some(a => /_step\d+$/.test(a.id)), sc.id).toBe(false);
@@ -455,15 +367,6 @@ it('вместе спор разрешается по обстоятельств
   expect(resolveJoint(c, s, 'c3_midday5', { A: 'exchange', B: 'relieve' }).applied).toEqual(['exchange']);
 });
 
-it('Керем уходит без нажатия эпизода; договор о встрече меняет его возвращение', () => {
-  const s = baseFor(); s.checkpoint = 6; s.chars.A.time = at(13, 12, 15);
-  enterScene({ s, c, pid: 'A' }, 'c7_farm'); while (s.chars.A.time < at(13, 12, 35)) play(c, s, 'A', ['c7_fwait']);
-  expect(s.npcs.kerem.location).toBe('b75_road');
-  s.checkpoint = 7; s.vars['w.c3_wait_kerem'] = true; s.chars.A.time = at(13, 18, 15);
-  enterScene({ s, c, pid: 'A' }, 'c8_farm'); while (s.chars.A.time < at(13, 18, 35)) play(c, s, 'A', ['c8_fwait']);
-  expect(s.npcs.kerem.location).toBe('hof_luedemann');
-  expect(s.npcs.kerem.vars.c3_returned).toBe(true);
-});
 
 it('ранний переход к ночлегу двигает часы и открывает само место', () => {
   const s = baseFor(); const before = s.chars.A.time;
@@ -475,15 +378,6 @@ it('ранний переход к ночлегу двигает часы и о�
   expect(s.chars.A.time).toBeGreaterThan(time);
 });
 
-it('после общего решения обмен в соседнем дворе действительно доступен', () => {
-  const s = baseFor(); s.checkpoint = 4; s.chars.A.time = s.chars.B.time = at(12, 13);
-  const out = completeCheckpoint(c, s, { A: { c3_midday5: 'exchange' }, B: { c3_midday5: 'exchange' } }).state;
-  play(c, out, 'A', ['c6_begin']);
-  expect(out.chars.A.scene).toBe('c6_neighbor');
-  expect(ids(out, 'A')).toContain('c6_trade');
-  play(c, out, 'A', ['c6_trade']);
-  expect(Object.values(out.items).some(i => i.type === 'c3_hose' && i.at.kind === 'char' && i.at.id === 'A')).toBe(true);
-});
 
 // Старая сцена разговора с Керемом (c7_kerem) заменена хабом farm7; уход без нажатия проверяет тест «Керем уходит без нажатия эпизода».
 
@@ -545,7 +439,6 @@ it('участок 5: обмен во дворе тратит свою еду, �
   expect(food.qty).toBe(1);
   expect(s.vars['B.c5_yard.result']).toBe('talk');
   expect(s.chars.B.location).toBe('b_flat');
-  expect(c.scenes.c6_bflat.text.some(b => b.text.includes('твоей пачкой хлопьев'))).toBe(true);
 });
 
 

@@ -33,7 +33,8 @@ for (const index of [1, 2, 3, 4]) it(`КТ ${index}: старый формат �
   expect(finished.cp!.sent).toBeUndefined();
 });
 
-for (const index of [5, 6, 7, 8]) it(`КТ ${index}: один отвечающий, одинаковый мир и сохранённый код`, async () => {
+const LAST = Math.max(...c.checkpoints.map((cp) => cp.index));
+for (const index of [5, 6, 7, 8].filter((n) => n <= LAST)) it(`КТ ${index}: один отвечающий, одинаковый мир и сохранённый код`, async () => {
   let a = phone(index, 'A'); const b = phone(index, 'B');
   const id = c.checkpoints.find(cp => cp.index === index)!.joint[0];
   b.cp!.myAnswers = { [id]: optionsFor(c, b.cp!.merged!, c.joint[id], 'B')[0].id };
@@ -46,9 +47,9 @@ for (const index of [5, 6, 7, 8]) it(`КТ ${index}: один отвечающи
   expect(left.baseHash).toBe(right.baseHash);
   expect(right.lastCheckpoint!.index).toBe(index);
   expect(right.lastCheckpoint!.sent!.answers).toBe(answer);
-  if (index === 8) {
+  if (index === LAST) {
     expect(left.phase).toBe('playing');
-    expect(left.cp!.index).toBe(8);
+    expect(left.cp!.index).toBe(LAST);
   } else {
     expect(left.phase).toBe('checkpoint');
     expect(left.cp!.index).toBe(index + 1);

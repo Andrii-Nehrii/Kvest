@@ -191,6 +191,8 @@ async function afterCheckpoint(A, B, n, log) {
   const cb = await worldCode(B);
   log(`КТ${n} пройдена: код мира A=${ca} B=${cb}`);
   if (ca !== cb) throw new Error(`КТ${n}: после точки миры разошлись`);
+  // После последней написанной точки — экран продолжения: дальше играть нечего.
+  if (await A.getByText('написанная часть истории').count()) { log(`КТ${n}: дальше экран продолжения`); return 'end'; }
   return ca;
 }
 
