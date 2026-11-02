@@ -51,6 +51,8 @@ export interface LocalSave {
   segment: ActionRecord[];
   last?: PlanResult;
   cp?: CheckpointWork;
+  /** Последняя завершённая точка, в том числе при немедленном ожидании следующей. */
+  lastCheckpoint?: Pick<CheckpointWork, 'index' | 'result' | 'sent'>;
   /** Согласованные хэши мира после каждой контрольной точки. */
   hashes: string[];
   /** Секунды реальной игры в текущем участке (для статистики, в мир не входит). */
@@ -202,6 +204,8 @@ export function refreshSave(c: Content, save: LocalSave): LocalSave {
 export function normalizePhase(c: Content, save: LocalSave): LocalSave {
   if (save.phase !== 'playing' || !save.base) return save;
   if (save.base.ended) return { ...save, phase: 'ended' };
+  // На границе написанного продолжения нет следующей точки, которую можно ждать.
+  if (save.base.checkpoint >= 5 && !c.checkpoints.some((cp) => cp.index === save.base!.checkpoint + 1)) return save;
   if (!hadSegment(save.base, save.me)) return maybeMerge(c, { ...save, phase: 'checkpoint', cp: { index: save.base.checkpoint + 1 } });
   return save;
 }
@@ -265,6 +269,9 @@ export function jointFor(c: Content, save: LocalSave, pid: PlayerId): JointDecis
 
 export const myQuestions = (c: Content, save: LocalSave) => jointFor(c, save, save.me);
 export const partnerAnswers = (c: Content, save: LocalSave) => jointFor(c, save, partnerOf(save)).length > 0;
+/** С КТ 5 ответ единственного участника тоже нужен второму телефону для общего результата. */
+export const shouldSendAnswers = (c: Content, save: LocalSave): boolean => !!save.cp?.myAnswers
+  && (partnerAnswers(c, save) || (save.cp.index >= 5 && myQuestions(c, save).length > 0));
 export const optionsForMe = (c: Content, save: LocalSave, d: JointDecision) => optionsFor(c, save.cp!.merged!, d, save.me);
 
 export async function myAnswersCode(save: LocalSave): Promise<string> {
@@ -295,6 +302,7 @@ export function finishCheckpoint(c: Content, save: LocalSave, sent?: CheckpointW
     ...save, phase: out.state.ended ? 'ended' : 'playing', base: out.state, baseHash: out.hash, state: clone(out.state),
     // От пройденной точки остаётся только итог: слитый мир и журнал партнёра больше не нужны.
     segment: [], last: undefined, cp: { index: cp.index, myAnswers: cp.myAnswers, result: { joint: out.joint, hash: out.hash }, sent }, hashes: [...save.hashes, out.hash],
+    ...(cp.index >= 5 ? { lastCheckpoint: { index: cp.index, result: { joint: out.joint, hash: out.hash }, sent } } : {}),
     playSeconds: 0, updatedAt: Date.now(),
   };
   return normalizePhase(c, next);

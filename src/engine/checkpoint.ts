@@ -42,9 +42,14 @@ function tieBreak(seed: string, key: string): PlayerId {
 
 interface Sources { A: GameState; B: GameState }
 
-function mergeScalar(c: Content, seed: string, key: string, base: Scalar | undefined, src: Sources, timeOf: (p: PlayerId) => number, conflicts: string[]): Scalar | undefined {
+function mergeScalar(c: Content, seed: string, key: string, base: Scalar | undefined, src: Sources, timeOf: (p: PlayerId) => number, conflicts: string[], sumEqualDeltas = false): Scalar | undefined {
   const a = src.A.vars[key];
   const b = src.B.vars[key];
+  // С КТ 4 равный вклад двух независимых линий тоже складывается: два часа работы — не один.
+  // Раньше этого участка сохраняем прежнее воспроизведение; одну линию ведущего не удваиваем.
+  if (sumEqualDeltas && policyFor(c, key) === 'delta' && typeof a === 'number' && typeof b === 'number') {
+    return Math.round((a + b - (typeof base === 'number' ? base : 0)) * 1000) / 1000;
+  }
   if (a === b) return a;
   if (a === base) return b;
   if (b === base) return a;
@@ -96,10 +101,10 @@ function mergeNpc(seed: string, id: string, base: NpcState | undefined, a: NpcSt
   return out;
 }
 
-function mergeItem(seed: string, id: string, base: ItemInstance | undefined, a: ItemInstance | undefined, b: ItemInstance | undefined): ItemInstance {
+function mergeItem(seed: string, id: string, base: ItemInstance | undefined, a: ItemInstance | undefined, b: ItemInstance | undefined, sumEqualDeltas = false): ItemInstance {
   if (!a) return clone(b!);
   if (!b) return clone(a);
-  if (same(a, b)) return clone(a);
+  if (same(a, b) && !sumEqualDeltas) return clone(a);
   if (base && same(a, base)) return clone(b);
   if (base && same(b, base)) return clone(a);
   const later = a.changedAt !== b.changedAt ? (a.changedAt > b.changedAt ? a : b) : tieBreak(seed, `item:${id}`) === 'A' ? a : b;
@@ -160,7 +165,7 @@ export function mergeSegments(c: Content, base: GameState, results: Partial<Reco
   out.vars = {};
   out.varTime = {};
   for (const k of keys) {
-    const v = mergeScalar(c, base.seed, k, base.vars[k], src, (p) => src[p].varTime[k] ?? -1, conflicts);
+    const v = mergeScalar(c, base.seed, k, base.vars[k], src, (p) => src[p].varTime[k] ?? -1, conflicts, base.checkpoint >= 4 && !!results.A && !!results.B && controllerOf(base, 'A') !== controllerOf(base, 'B'));
     if (v !== undefined) out.vars[k] = v;
     out.varTime[k] = Math.max(src.A.varTime[k] ?? -1, src.B.varTime[k] ?? -1);
   }
@@ -172,7 +177,7 @@ export function mergeSegments(c: Content, base: GameState, results: Partial<Reco
 
   out.items = {};
   for (const id of [...new Set([...Object.keys(src.A.items), ...Object.keys(src.B.items)])].sort()) {
-    out.items[id] = mergeItem(base.seed, id, base.items[id], src.A.items[id], src.B.items[id]);
+    out.items[id] = mergeItem(base.seed, id, base.items[id], src.A.items[id], src.B.items[id], base.checkpoint >= 4 && !!results.A && !!results.B && controllerOf(base, 'A') !== controllerOf(base, 'B'));
   }
 
   out.firedEvents = { ...src.A.firedEvents };

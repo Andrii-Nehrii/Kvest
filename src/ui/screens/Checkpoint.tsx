@@ -9,7 +9,7 @@ import type { PlayerId } from '../../engine/types';
 import { shortHash } from '../../engine/rng';
 import {
   acceptPartnerAnswers, acceptPartnerSegment, finishCheckpoint, myAnswersCode, myFinish, myQuestions, mySegmentCode,
-  needPartnerSegment, optionsForMe, partnerAnswers, partnerOf, readyToFinish, type LocalSave,
+  needPartnerSegment, optionsForMe, partnerAnswers, partnerOf, readyToFinish, shouldSendAnswers, type LocalSave,
 } from '../../app/session';
 import { content } from '../../content';
 import { Card, CodeIn, CodeOut } from '../kit';
@@ -87,9 +87,10 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
   const needPartner = needPartnerSegment(save);
   const questions = myQuestions(content, save);
   const partnerQ = partnerAnswers(content, save);
+  const sendAnswer = shouldSendAnswers(content, save);
 
   useEffect(() => { if (iPlayed) mySegmentCode(content, save).then(setSegCode); }, [save.segment.length, save.baseHash]);
-  useEffect(() => { if (cp.myAnswers && partnerQ) myAnswersCode(save).then(setAnsCode); }, [cp.myAnswers, cp.mergedHash]);
+  useEffect(() => { if (sendAnswer) myAnswersCode(save).then(setAnsCode); }, [cp.myAnswers, cp.mergedHash, sendAnswer]);
   const net = useCloudExchange(save, cloud, segCode, ansCode, onSave);
   const own: Ctx = { s: save.state!, c: content, pid: save.me };
   const sceneDef = content.scenes[save.state!.chars[save.me].scene];
@@ -114,7 +115,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
           <div className="small">
             {iPlayed && (net.sent.seg ? 'Твой ход выложен. ' : 'Выкладываю твой ход… ')}
             {net.waitingSeg && 'Жду ход партнёра — проверяю каждые 12 секунд, пока экран открыт. '}
-            {cp.myAnswers && partnerQ && (net.sent.ans ? 'Твой ответ выложен. ' : 'Выкладываю ответ… ')}
+            {sendAnswer && (net.sent.ans ? 'Твой ответ выложен. ' : 'Выкладываю ответ… ')}
             {net.waitingAns && 'Жду ответ партнёра… '}
             {!net.waitingSeg && !net.waitingAns && cp.merged && (!partnerQ || cp.partnerAnswers) && 'Обмен завершён.'}
           </div>
@@ -165,7 +166,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
                 Подтвердить ответ
               </button>
             )}
-            {cp.myAnswers && partnerQ && (ansCode ? <CodeOut code={ansCode} hint="Отправь свой ответ партнёру. Кто что выбрал, станет видно только в итоге." /> : null)}
+            {sendAnswer && (ansCode ? <CodeOut code={ansCode} hint="Отправь свой ответ партнёру. Кто что выбрал, станет видно только в итоге." /> : null)}
           </section>
         )}
         {cp.merged && partnerQ && (
@@ -175,7 +176,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
           </section>
         )}
       </div>
-      {readyToFinish(content, save) && net.on && cp.myAnswers && partnerQ && !net.sent.ans && (
+      {readyToFinish(content, save) && net.on && sendAnswer && !net.sent.ans && (
         <div className="errors">Твой ответ ещё не ушёл в облако — без него {fmt(ctx, '{partner}')} не сможет закончить точку. Подожди немного или отправь код ответа вручную.</div>
       )}
       {readyToFinish(content, save) && (

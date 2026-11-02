@@ -25,7 +25,7 @@ async function phone(browser, tag, errors, { width = 360, height = 740, route } 
 
 const code = async (p, sel = '.code-box') => (await p.locator(sel).first().textContent()).trim();
 const inSection = (p, title) => p.locator('section', { has: p.locator(`h3:text-is("${title}")`) });
-const worldCode = async (p) => { await p.getByRole('button', { name: 'Ещё' }).click(); const w = await p.locator('.world-code').first().textContent(); await p.getByRole('button', { name: 'История' }).click(); return w; };
+const worldCode = async (p) => { await p.getByRole('button', { name: 'Ещё' }).click(); const w = await p.locator('.world-code').first().textContent(); await p.locator('nav button').first().click(); return w; };
 
 /** A создаёт приглашение, B принимает, A вставляет ответ. beforeCreate — например, подключить облако у A. */
 async function pair(A, B, { beforeCreate } = {}) {
@@ -177,7 +177,7 @@ async function exchangeByCodes(A, B, n, rnd, errors, log) {
   await A.getByRole('button', { name: 'Ещё' }).click();
   const fromMore = ans.A ? (await inSection(A, `Мои коды точки №${n}`).locator('.code-box').last().textContent()).trim() : null;
   if (ans.A && fromMore !== ans.A) errors.push(`КТ${n}: код ответа в «Ещё» не совпал`);
-  await A.getByRole('button', { name: 'История' }).click();
+  await A.locator('nav button').first().click();
   await accept(B, fromMore);
   await finish(B);
   await B.getByRole('button', { name: 'Дальше' }).click();
