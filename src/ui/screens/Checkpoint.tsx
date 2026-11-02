@@ -13,6 +13,7 @@ import {
 } from '../../app/session';
 import { content } from '../../content';
 import { Card, CodeIn, CodeOut } from '../kit';
+import { Narrative } from '../Narrative';
 
 const FINISH_TEXT = {
   checkpoint: 'Ты {m:дошёл|дошла} до контрольной точки.',
@@ -105,10 +106,10 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
       <div className="h1">{def?.title ?? 'Синхронизация'}</div>
       {save.last && save.last.steps.length > 0 && (
         <div className="result">
-          {save.last.steps.map((st, i) => <div key={i}>{st.text.map((t, j) => <p key={j}>{t}</p>)}</div>)}
+          {save.last.steps.map((st, i) => <div key={i}>{st.text.map((t, j) => <Narrative key={j} text={t} />)}</div>)}
         </div>
       )}
-      {finish === 'checkpoint' && sceneText.length > 0 && <div className="story">{sceneText.map((t, i) => <p key={i}>{t}</p>)}</div>}
+      {finish === 'checkpoint' && sceneText.length > 0 && <div className="story">{sceneText.map((t, i) => <Narrative key={i} text={t} />)}</div>}
       <p className="lead">{fmt({ ...ctx, s: save.state! }, FINISH_TEXT[finish])}</p>
       {net.on && (
         <Card title="Облако">
@@ -141,7 +142,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
             <h3>Общий мир</h3>
             <div className="world-code">{shortHash(cp.mergedHash!)}</div>
             <div className="small muted" style={{ margin: '6px 0 10px' }}>Сравните с партнёром — коды должны совпасть. {dateLabel(cp.merged.chars[save.me].time)}, {clock(cp.merged.chars[save.me].time)}.</div>
-            {fresh.map((e) => <p key={e.seq} className="story">{e.text}</p>)}
+            {fresh.map((e) => <Narrative key={e.seq} className="story" text={e.text} />)}
           </section>
         )}
         {cp.merged && questions.length > 0 && (
@@ -149,7 +150,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
             <h3>Решение</h3>
             {questions.map((d) => (
               <div key={d.id} style={{ marginBottom: 12 }}>
-                <p className="story">{fmt(ctx, d.prompt[save.me] ?? d.prompt.default)}</p>
+                <Narrative className="story" text={fmt(ctx, d.prompt[save.me] ?? d.prompt.default)} />
                 {optionsForMe(content, save, d).map((o) => {
                   const chosen = (cp.myAnswers ?? draft)[d.id] === o.id;
                   return (
@@ -215,8 +216,8 @@ export function Resolution({ save, onClose }: { save: LocalSave; onClose: () => 
                 <div key={p} className="small muted">{who === save.me ? 'Ты' : fmt(ctx, '{partner}')}: «{fmt({ ...ctx, pid: who }, o?.label[who] ?? o?.label.default ?? a)}»</div>
               );
             })}
-            {!GENERIC_REASON.has(j.kind) && <p className="story" style={{ marginTop: 8 }}>{fmt(ctx, j.reason)}</p>}
-            {j.applied.map((id) => <p key={id} className="story">{fmt(ctx, d.options.find((o) => o.id === id)?.text ?? '')}</p>)}
+            {!GENERIC_REASON.has(j.kind) && <div style={{ marginTop: 8 }}><Narrative className="story" text={fmt(ctx, j.reason)} /></div>}
+            {j.applied.map((id) => <Narrative key={id} className="story" text={fmt(ctx, d.options.find((o) => o.id === id)?.text ?? '')} />)}
           </Card>
         );
       })}

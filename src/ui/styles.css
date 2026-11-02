@@ -57,6 +57,9 @@ button { cursor: pointer; }
 .scene-title { font: 600 13px/1 var(--ui); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin: 18px 0 10px; }
 .story { font: 17px/1.62 var(--story); color: var(--text); }
 .story p { margin: 0 0 .85em; }
+.dialogue { padding-left: .85em; text-indent: -.85em; }
+.journal-text p { margin: 0 0 .65em; }
+.journal-text p:last-child { margin-bottom: 0; }
 .result { border-left: 2px solid var(--line); padding: 2px 0 2px 14px; margin: 6px 0 18px; }
 .result .step { font: 15px/1.3 var(--ui); color: var(--muted); margin: 10px 0 4px; }
 .result .step b { color: var(--text); font-weight: 600; }

@@ -5,6 +5,7 @@ import { durationLabel } from '../../engine/time';
 import { fmt, type Ctx } from '../../engine/world';
 import type { LocalSave } from '../../app/session';
 import { Icon } from '../kit';
+import { Narrative } from '../Narrative';
 
 export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan: (plan: string[]) => void }) {
   const scene = currentScene(ctx);
@@ -60,7 +61,7 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
           {last.steps.map((st, i) => (
             <div key={i}>
               <div className="step"><b>{fmt(ctx, st.label)}</b> · {durationLabel(st.minutes)}</div>
-              {st.text.map((t, j) => <p key={j}>{t}</p>)}
+              {st.text.map((t, j) => <Narrative key={j} text={t} />)}
             </div>
           ))}
           {last.stopped && <div className="stopped">{last.stopped}</div>}
@@ -69,7 +70,7 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
       {scene.title && <div className="scene-title">{scene.title}</div>}
       {stayed && !showScene
         ? <button className="group-toggle" onClick={() => setShowScene(true)}><Icon name="chevron" size={16} />Обстановка</button>
-        : <div className="story">{scene.text.filter((b) => evalCond(ctx, b.when)).map((b, i) => <p key={i}>{fmt(ctx, b.text)}</p>)}</div>}
+        : <div className="story">{scene.text.filter((b) => evalCond(ctx, b.when)).map((b, i) => <Narrative key={i} text={fmt(ctx, b.text)} />)}</div>}
 
       <div className="actions">
         {sceneActions.map((a) => <ActionCard key={a.def.id} a={a} n={sel.indexOf(a.def.id)} ctx={ctx} onTap={() => toggle(a)} />)}
