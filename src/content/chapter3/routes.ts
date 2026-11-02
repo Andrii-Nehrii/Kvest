@@ -348,6 +348,7 @@ export function entry(n: number): Scene {
         when: { after: at(segmentDay(n), 6) },
         outcomes: [
           ...(n === 5 ? [{ id: 'road', when: plannedAway, goto: 'c5_road' }] : []),
+          ...(n === 6 ? [{ id: 'farm_water', when: all({ at: 'hof_luedemann' }, { v: 'w.c3_trip5', op: '==', value: 'relieve' }, not(flag('$.c6_promise_cost'))), goto: 'c6_fwater' }] : []),
           ...(n === 6 || n === 8
             ? [
                 {

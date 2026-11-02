@@ -19,6 +19,16 @@ const wait: ActionDef = { id: 'c6_fwait', label: 'Передохнуть у пе
   text: 'Хенрике проходит мимо твоего места. — Сиди, пока не зову. — Ты откидываешь голову к стене.' };
 
 export const farm6Scenes: Scene[] = [
+ S({ id: 'c6_fwater', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Обещанная смена', calm: true, ambient: { outdoor: true },
+  text: [{ text: 'Хенрике ждёт тебя с двумя вёдрами. — Павел лёг. До ужина вы. — Она показывает, куда сливать воду. После первой ходки ты перестаёшь считать оставшиеся.' }, { when: pair, text: '{partner} берётся за вторую ручку. — До порога вместе. Там поменяемся. — Хенрике оставляет вам дверь открытой.' }], actions: [
+   { id: 'c6_fwater_work', label: 'Отнести воду за обещанный час', minutes: 55, terminal: true, goto: 'c6_farm', text: 'Хенрике проверяет воду в бочке и снимает с тебя пустое ведро. — Хватит. — Ты садишься на ступеньку, прежде чем разогнуть пальцы.', effects: once('c6_promise_cost', [{ body: 'fatigue', delta: 8 }]) },
+   { id: 'c6_fwater_slow', label: 'Носить понемногу, беречь руки', minutes: 75, terminal: true, goto: 'c6_farm', text: 'Хенрике ворчит, что полдня возишься. Последнее ведро она берёт сама. — Другой раз сразу говори, сколько можешь.', effects: once('c6_promise_cost', [{ body: 'fatigue', delta: 4 }, { npc: 'henrike', trust: -2 }]) },
+  ] }),
+ S({ id: 'c6_froad', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'За створкой', calm: true, ambient: { outdoor: false, wet: false, tempC: 18 },
+  text: [{ text: 'Оле возвращается к лампе. — Ушёл. К повороту. — Керем спрашивает, почему тот не отвечал на окрики. Оле качает головой. — Утром посмотрим из-за ограды.' }], actions: [
+   { id: 'c6_froad_ask', label: 'Спросить, видел ли Оле его лицо', minutes: 8, when: fresh('c6_froad_ask'), text: '— Лоб весь разбит. На ноги не смотрит. — Оле садится напротив двери. — Днём там не ходите одни.', effects: once('c6_froad_ask') },
+   { id: 'c6_froad_end', label: 'Дождаться, пока Оле вернётся к двери', minutes: 15, terminal: true, goto: 'c6_farm', text: 'Ты гасишь свет у окна. Оле проверяет задвижку. Снаружи слышно только собаку; она уже не лает.', effects: once('c6_froad.done') },
+  ] }),
  S({ id: 'c6_farm', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Вторая смена', safe: true, ambient: { outdoor: false, wet: false, tempC: 18 },
   text: [
    { when: all({ before: at(12, 17) }, henrike, fresh('c6_history_seen')), text: 'Хенрике останавливает тебя возле печи. — Куртку оставь. Поговорим сначала. — С твоего места она снимает свои рукавицы.' },
@@ -27,7 +37,7 @@ export const farm6Scenes: Scene[] = [
    { when: all({ v: 'w.c3_trip5', op: '==', value: 'relieve' }, pawel, fresh('c6_fwork_echo')), text: 'Павел просыпается, когда ты возвращаешься с водой. — Я думал, уже вечер. — Он снова ложится.' },
    { when: all(flag('$.c6_fletter.sent'), pawel, fresh('c6_fletter.echo')), text: 'Павел спрашивает, доставилось ли сообщение. Ты показываешь экран: отметки нет. — Может, ещё дойдёт. — Телефон он оставляет рядом.' },
    { when: all(flag('$.c6_fbrace_lost'), ole, not(flag('w.c3_f6_done'))), text: 'Оле ставит треснувший брус к стене. — Вот столько и держал. — Он показывает ладонями ширину щели у ворот.' },
-   { when: all(flag('$.c6_fvisitor.done'), guest, fresh('c6_fcart.done'), not(flag('w.c3_f6_done'))), text: 'Кёлер ждёт Хенрике возле тележки. Мешок накрывает своим пальто. — Про ночь спроси, — просит она тебя. — Пока я всё не отдала.' },
+   { when: all(flag('$.c6_fvisitor.done'), guest, fresh('c6_fcart.done'), fresh('c6_fguest_echo'), fresh('c6_fhenrike.done'), not(flag('w.c3_f6_done'))), text: 'Кёлер ждёт Хенрике возле тележки. Мешок накрывает своим пальто. — Про ночь спроси, — просит она тебя. — Пока я всё не отдала.' },
    { when: all(flag('$.c6_fsupper.gave'), guest, fresh('c6_fsupper.echo')), text: 'Кёлер возвращает тебе вымытую миску. — Свою посуду я не довезла. — Она проводит пальцем по краю и отдаёт.' },
    { when: all(result('gate'), deniz), text: 'Дениз прижимает створку спиной. — Теперь у меня работа до утра. — Керем приносит ему стул. Сесть здесь нельзя.' },
    { when: all(result('flour'), guest), text: 'Кёлер выскребает муку из сгиба мешка. Дениз предлагает помочь. — Ботинками не ходи, — говорит она. Он отступает.' },
@@ -35,9 +45,8 @@ export const farm6Scenes: Scene[] = [
    { when: all({ after: at(12, 16, 30) }, { before: at(12, 17) }, henrike), text: 'Хенрике отводит тебе место у печи. — До ужина посиди. Потом позову. — Ты оставляешь обувь возле своих вещей.' },
    { when: all({ after: at(12, 20) }, { before: at(12, 21) }, henrike), text: 'Хенрике показывает на печь. — Можно лечь. Только в девять сначала договоримся, где кто спит. — Она оставляет лампу на столе.' },
    { when: all({ after: at(12, 21) }, henrike), text: 'Хенрике ждёт вас у лампы. — Пора решать про ночь. Потом спать. — Ты пододвигаешь место для {partner.gen}.' },
-  ], onEnter: [
-   { if: all({ v: 'w.c3_trip5', op: '==', value: 'relieve' }, fresh('c6_promise_cost')), then: [{ set: '$.c6_promise_cost', value: true }, { wait: 55, activity: 'moderate' }, { body: 'fatigue', delta: 8 }] },
   ], actions: [
+   { id: 'c6_froad_go', label: 'Выслушать Оле перед ночлегом', minutes: 2, terminal: true, goto: 'c6_froad', when: all(ole, { after: at(12, 19, 50) }, fresh('c6_froad.done')) },
    { id: 'c6_fpair_go', label: 'Поговорить с {partner.ins} без хозяйки', minutes: 2, terminal: true, goto: 'c6_fpair', when: all(pair, fresh('c6_fpair.done')) },
    { id: 'c6_fvisitor_go', label: 'К женщине с тележкой', minutes: 2, terminal: true, goto: 'c6_visitor', when: all({ after: at(12, 14) }, guest, henrike, fresh('c6_fvisitor.done')) },
    { id: 'c6_fpawel_go', label: 'Посидеть с Павлом', minutes: 2, terminal: true, goto: 'c6_fpawel', when: all(pawel, fresh('c6_fpawel.done')) },
@@ -46,7 +55,7 @@ export const farm6Scenes: Scene[] = [
    { id: 'c6_fsupper_go', label: 'Разделить ужин с {partner.ins}', minutes: 2, terminal: true, goto: 'c6_fsupper', when: all(pair, { after: at(12, 17) }, fresh('c6_fsupper.done')) },
    { id: 'c6_fbrothers_go', label: 'К братьям у машины', minutes: 2, terminal: true, goto: 'c6_fbrothers', when: all(deniz, kerem, fresh('c6_fbrothers.done'), { before: at(12, 18, 40) }) },
    { id: 'c6_fafter_go', label: 'К тем, кто остался у ворот', minutes: 2, terminal: true, goto: 'c6_fafter', when: all(flag('w.c3_f6_done'), fresh('c6_fafter.done')) },
-   { id: 'c6_fnight_go', label: 'Ответить женщине перед сном', minutes: 2, terminal: true, goto: 'c6_fnight', when: all(guest, { after: at(12, 19, 20) }, fresh('c6_fnight.done')) },
+   { id: 'c6_fnight_go', label: 'Ответить женщине перед сном', minutes: 2, terminal: true, goto: 'c6_fnight', when: all(guest, { any: [flag('$.c6_fcart.done'), flag('w.c3_f6_done')] }, fresh('c6_fnight.done')) },
    { id: 'c6_fpump_shift', label: 'Час чинить насос с Денизом', minutes: 0, combinable: true, when: all(deniz, { before: at(12, 16) }, { has: 'c3_hose' }, not(flag('proj.c3_pump.done')), fresh('c6_fpump_shift')), text: 'Дениз примеряет шланг к насосу. — Подержи. Если польётся, тоже держи. — Ты упираешься ногой в основание, пока он затягивает хомут.', effects: once('c6_fpump_shift', [{ work: 'c3_pump', hours: 1 }]) },
    wait, cpAction(6),
   ] }),
@@ -57,7 +66,7 @@ export const farm6Scenes: Scene[] = [
    { id: 'c6_fpair_stay', label: 'Пообещать сначала советоваться с {partner.ins}', minutes: 10, terminal: true, goto: 'c6_farm', text: '— Не разрешения просить, — уточняет {partner}. — Дать мне услышать. — Ты соглашаешься. Руку {pm:он|она} убирает с твоего рукава сам{pm:|а}.', effects: once('c6_fpair.done', [{ set: '$.c6_fpair.promised', value: true }, { body: 'stress', delta: -4 }]) },
    { id: 'c6_fpair_no', label: 'Сказать, что ждать сможешь не всегда', minutes: 8, terminal: true, goto: 'c6_farm', text: '{partner} кивает. — Тогда не обещай. — Вы сидите рядом, пока Хенрике не возвращается. Вставать {pm:он|она} начинает раньше тебя.', effects: once('c6_fpair.done', [{ body: 'stress', delta: 5 }]) },
   ] }),
- S({ id: 'c6_visitor', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Женщина у калитки', calm: true,
+ S({ id: 'c6_visitor', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Женщина у калитки', calm: true, ambient: { outdoor: true },
   text: [
    { text: 'Женщина придерживает тележку коленом. — Элке Кёлер. От соседа. Муку на дрова меняю. — Хенрике смотрит на завязанный мешок. — И про ночь хотела спросить, — добавляет женщина.' },
    { when: pair, text: '{partner} подходит с твоей стороны калитки. — Нам за неё решать нельзя. — Кёлер слышит. — Я хозяйку и спрашиваю.' },
@@ -124,7 +133,7 @@ export const farm6Scenes: Scene[] = [
    ] },
    { id: 'c6_fcart_cut', label: 'Разрезать мешок, высыпать муку в грязь', minutes: 6, terminal: true, goto: 'c6_fafter', text: 'Хенрике даёт тебе нож. Мука сыплется под колесо; Дениз выкатывает облегчённую тележку с ноги. Керем захлопывает ворота перед чужим лицом. Кёлер опускается возле разрезанного мешка.', effects: [...once('c6_fcart.done'), { body: 'stress', delta: 14 }, { if: keeper(), then: [{ set: 'w.c3_f6', value: 'flour' }, { set: 'w.c3_f6_done', value: true }, { set: 'w.c3_f6_flour_lost', value: true }, { npc: 'c3_koehler', remember: 'c3_cut_my_flour' }, { npc: 'deniz', remember: 'c3_saved_with_flour' }] }] },
   ] }),
- S({ id: 'c6_fafter', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'После ворот', calm: true,
+ S({ id: 'c6_fafter', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'После ворот', calm: true, ambient: { outdoor: true },
   text: [
    { when: result('gate'), text: 'Дениз встаёт, пробует наступить на ногу. — Ходит. — Хенрике показывает на пустую петлю. — А это до утра держать будем. — Он возвращается к створке.' },
    { when: result('flour'), text: 'Кёлер зажимает разрез на мешке обеими руками. Дениз говорит, что отдаст свою еду. — Сколько? — спрашивает она. Он оглядывается на брата.' },
@@ -138,17 +147,18 @@ export const farm6Scenes: Scene[] = [
  S({ id: 'c6_fnight', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Просьба на ночь', calm: true, ambient: { outdoor: false, tempC: 18 },
   text: [
    { when: all(fresh('c6_fvisitor.done'), fresh('c6_fcart.done')), text: 'Женщина у кухонной двери протягивает руку. — Элке Кёлер. Вы меня днём не услышали. Сейчас можно?' },
-   { text: 'Кёлер останавливает тебя перед кухней. — Я осмотра не боюсь. Я боюсь лечь снаружи и не проснуться. — Хенрике слышит её из дома.' },
+   { text: 'Кёлер ждёт тебя за кухонным столом. — Я осмотра не боюсь. Я боюсь лечь снаружи и не проснуться. — Хенрике слышит её из дома.' },
    { when: pair, text: '{partner} подходит к тебе. — Если наше место — сначала скажи мне. — Кёлер ждёт, не вмешиваясь.' },
   ], actions: [
    { id: 'c6_fnight_check', label: 'Попросить хозяйку провести осмотр', minutes: 12, when: all(henrike, fresh('c6_fnight_check'), not(flag('w.c3_guest_checked'))), text: 'Хенрике выводит женщину к лампе. — Рукава выше. Обе руки. — Кёлер исполняет и спрашивает, можно ли теперь войти. Хозяйка смотрит на вас.', effects: [...once('c6_fnight_check'), { set: 'w.c3_guest_checked', value: true }, { npc: 'henrike', trust: 3 }] },
    { id: 'c6_fnight_ask', label: 'Спросить, на что она согласна', minutes: 8, when: fresh('c6_fnight_ask'), text: '— На сарай согласна. На работу согласна. На то, чтобы каждый вечер просить заново, — нет. — Кёлер снимает фартук. Под ним обычное тёмное платье.', effects: once('c6_fnight_ask') },
-   { id: 'c6_fnight_end', label: 'Позвать {partner.acc} и хозяйку решать вместе', minutes: 8, terminal: true, goto: 'c6_farm', text: 'Ты просишь Хенрике выслушать вас обоих. Она впускает Кёлер на кухню до конца разговора. — Стоя не спят. Садись.', effects: once('c6_fnight.done', [{ if: keeper(), then: [{ set: 'w.c3_koehler_met', value: true }] }]) },
+   { id: 'c6_fnight_end', label: 'Позвать {partner.acc} и хозяйку решать вместе', minutes: 8, terminal: true, goto: 'c6_farm', text: 'Ты просишь Хенрике выслушать вас обоих. Хозяйка пододвигает Кёлер стул. — До конца разговора здесь. Садись.', effects: once('c6_fnight.done', [{ if: keeper(), then: [{ set: 'w.c3_koehler_met', value: true }] }]) },
   ] }),
 ].map((scene): Scene => scene.id === 'c6_fcart' ? scene : ({ ...scene, actions: [
  { id: 'c6_fcart_go', label: 'К крику Дениза у ворот', minutes: 1, terminal: true, goto: 'c6_fcart', when: alarm },
  ...scene.actions.map((a) => ({ ...a, when: all(a.when ?? { always: true }, not(alarm)), effects: [...(a.effects ?? []), ...(scene.id === 'c6_farm' ? [
   { set: '$.c6_frest_echo', value: true }, { set: '$.c6_fwork_echo', value: true },
+  { if: flag('$.c6_fvisitor.done'), then: [{ set: '$.c6_fguest_echo', value: true }] },
   { if: flag('$.c6_fletter.sent'), then: [{ set: '$.c6_fletter.echo', value: true }] },
   { if: flag('$.c6_fsupper.gave'), then: [{ set: '$.c6_fsupper.echo', value: true }] },
  ] as import('../../engine/types').Effect[] : [])] })),

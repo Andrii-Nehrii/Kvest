@@ -28,6 +28,12 @@ const back: ActionDef = { id: 'c5_back', label: 'Вернуться в дом', 
 const wait: ActionDef = { id: 'c5_wait', label: 'Переждать час', minutes: 60, activity: 'rest', repeatable: true, combinable: true };
 
 export const farm5Scenes: Scene[] = [
+  S({ id: 'c5_noon', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'До второй смены', calm: true, ambient: house,
+    text: [{ text: '{partner} зовёт тебя к печи. — Дай посмотреть, пока опять не ушли. — {pm:Он|Она} просит повернуть ладони. Из кухни Хенрике спрашивает, сможете ли вы работать после обеда.' }], actions: [
+      { id: 'c5_noon_ask', label: 'Спросить, как {partner} держится после утра', minutes: 8, when: notDone('c5_noon_ask'), text: '— На ногах держусь. Этого все и спрашивают. — {partner} прислоняется к стене. — Посиди хоть ты.', effects: once('c5_noon_ask') },
+      { id: 'c5_noon_stay', label: 'Побыть рядом до общего разговора', minutes: 18, terminal: true, goto: 'c5_farm', text: 'Ты садишься рядом. Хенрике заглядывает и закрывает дверь со своей стороны. {partner} кладёт голову тебе на плечо.', effects: once('c5_noon.done', [{ body: 'stress', delta: -4 }]) },
+      { id: 'c5_noon_leave', label: 'Сказать, что ещё нужно закончить дело', minutes: 5, terminal: true, goto: 'c5_farm', text: '{partner} выпускает твой рукав. — Только вернись перед тем, как ей обещать. — Ты оставляешь телефон возле {pm:него|неё}.', effects: once('c5_noon.done', [{ body: 'stress', delta: 3 }]) },
+    ] }),
   S({ id: 'c5_farm', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Кухня хутора', safe: true, ambient: house,
     text: [
       { when: NIGHT, text: 'Хенрике велела ложиться до рассвета. Можно лечь у печи — если ночью позовут, разбудят.' },
@@ -58,6 +64,7 @@ export const farm5Scenes: Scene[] = [
       { when: flag('$.c5_fafter.watch'), text: 'Возле двери висит приготовленная тебе куртка. Оле узнаёт её и ставит рядом свои сапоги.' },
     ],
     actions: [
+      { id: 'c5_noon_go', label: 'Сесть с {partner.ins} перед связью', minutes: 2, terminal: true, goto: 'c5_noon', when: all(pair, { after: at(12, 12) }, notDone('c5_noon.done')) },
       { id: 'c5_sleep', label: 'Лечь у печи до рассвета', minutes: 0, repeatable: true, when: NIGHT, effects: [{ set: '$.c5_lay_down', value: true }, { sleep: 600 }], text: 'Ты ложишься в одежде. За стенкой кто-то кашляет и долго наливает воду. Когда ведро перестаёт звенеть, слышно дыхание спящих.' },
       { id: 'c5_partner', label: 'Побыть рядом с {partner.ins}', minutes: 25, combinable: true, when: all(flag('w.together'), { partnerAt: 'hof_luedemann' }, notDone('c5_partner')),
         outcomes: [
@@ -76,7 +83,7 @@ export const farm5Scenes: Scene[] = [
           { id: 'other', text: 'Керем сидит на ступеньке. — Дениз говорит: потерпи. Он всегда так говорит. — Подвинувшись, Керем освобождает тебе половину доски. — Ты бы остал{m:ся|ась}?', effects: once('c5_kerem_after', [{ npc: 'kerem', trust: 2 }]) },
         ] },
       { id: 'c5_cellar', label: 'Помочь Хенрике в погребе', minutes: 2, terminal: true, goto: 'c5_cellar', when: all(AM, henrikeHere) },
-      { id: 'c5_well', label: 'К Павлу и насосу', minutes: 2, terminal: true, goto: 'c5_well', when: AM },
+      { id: 'c5_well', label: 'К Павлу и насосу', minutes: 2, terminal: true, goto: 'c5_well', when: all(AM, not(spilled)) },
       { id: 'c5_gate', label: 'Выйти к Оле', minutes: 2, terminal: true, goto: 'c5_gate', when: all(AM, oleHere) },
       { id: 'c5_meeting', label: 'Обсудить с Хенрике вторую смену', minutes: 20, combinable: true, when: all(AM, { after: at(12, 10, 30) }, henrikeHere, notDone('c5_meeting')),
         outcomes: [{ id: 'missing', when: not(pawelHere), text: 'Хенрике ставит пустое ведро на стол. — Его работу кто делать будет? — Показывает на мешок у лестницы. — Соседу пять кило. Или вы здесь до вечера.' }, { id: 'here', text: '— Павел до вечера с ведром не вытянет. Или вы меняетесь, или добываете шланг. — Хенрике показывает на мешок. — Соседу пять кило. Мне — человека на кухню.' }],
@@ -103,7 +110,7 @@ export const farm5Scenes: Scene[] = [
   }),
   S({ id: 'c5_cellar', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'Погреб', ambient: { outdoor: false, wet: false, tempC: 8 },
     text: [
-      { when: henrikeHere, text: 'Хенрике спускается боком, держась за стену. — Лампу выше. — На нижней ступеньке она останавливается перевести дыхание. Тебе делает знак идти перв{m:ым|ой}.' },
+      { when: all(henrikeHere, notDone('c5_sort')), text: 'Хенрике спускается боком, держась за стену. — Лампу выше. — На нижней ступеньке она останавливается перевести дыхание. Тебе делает знак идти перв{m:ым|ой}.' },
       { when: not(henrikeHere), text: 'На нижней ступеньке стоит мешок. Обойти его можно только боком. Ты цепляешься за стену; известка осыпается за ворот.' },
       { when: flag('$.c5_sort'), text: 'У лестницы стоит ведро для кухни. Хенрике велела отнести его наверх. На дне — яблоко, которое она положила отдельно для Павла.' },
       { when: pair, text: '{partner} остаётся на верхней ступеньке с лампой. — Назад тоже посветить? — Хенрике не оборачивается. — Не уходи.' },
@@ -147,8 +154,9 @@ export const farm5Scenes: Scene[] = [
   }),
   S({ id: 'c5_gate', for: 'any', chapter: 'ch3', location: 'hof_luedemann', title: 'У калитки', ambient: { outdoor: true },
     text: [
-      { when: oleHere, text: 'Оле стоит со стороны петель, за столбом. Ты становишься рядом, и он сдвигает тебя локтем. — Не в проёме. — На дороге никого нет.' },
+      { when: all(oleHere, notDone('c5_ole_talk'), notDone('c5_ole_watch'), notDone('c5_fence_worked')), text: 'Оле стоит со стороны петель, за столбом. Ты становишься рядом, и он сдвигает тебя локтем. — Не в проёме. — На дороге никого нет.' },
       { when: not(oleHere), text: 'Калитка заперта изнутри. Ты касаешься задвижки, и жестянка на проволоке звенит так громко, что хочется её поймать.' },
+      { when: all(oleHere, { any: [flag('$.c5_ole_talk'), flag('$.c5_ole_watch'), flag('$.c5_fence_worked')] }), text: 'Оле продолжает смотреть на дорогу. — Говори отсюда. — Теперь он сам оставляет тебе место у столба.' },
       { when: flag('proj.c3_fence.done'), text: 'Поперечина входит в скобы до конца. Оле дёргает калитку с другой стороны. — Годится. — Лишь теперь он выпускает собаку.' },
       { when: pair, text: '{partner} останавливается по твою сторону столба. Оле показывает дальше от дороги. — И ты тоже. — {pm:Он|Она} отступает вместе с тобой.' },
     ],
@@ -158,7 +166,7 @@ export const farm5Scenes: Scene[] = [
         effects: once('c5_ole_talk', [{ learn: 'f_c3_exchange' }, { npc: 'ole', trust: 2 }]) },
       { id: 'c5_ole_watch', label: 'Спросить, кого он боится не заметить', minutes: 4, when: all(AM, oleHere, notDone('c5_ole_watch')), text: '— Мать в темноте. Она к курям ходит, лампу забывает. — Оле отодвигает задвижку и сразу возвращает её на место. — Скажи ей, чтоб светила.', effects: once('c5_ole_watch') },
       { id: 'c5_fence', label: 'Час помогать Оле с поперечиной', minutes: 0, repeatable: true, combinable: true, when: all(AM, oleHere, not(flag('proj.c3_fence.done'))),
-        text: 'Оле держит брус, пока ты снимаешь стружку. Ты зовёшь его в дом. — Вижу лучше. — Он смотрит поверх твоего плеча, на поворот дороги.', effects: [{ work: 'c3_fence', hours: 1 }] },
+        text: 'Оле держит брус, пока ты снимаешь стружку. Ты зовёшь его в дом. — Вижу лучше. — Он смотрит поверх твоего плеча, на поворот дороги.', effects: [{ work: 'c3_fence', hours: 1 }, { set: '$.c5_fence_worked', value: true }] },
       { id: 'c5_neighbor', label: 'Идти к соседу по полю', minutes: 18, terminal: true, goto: 'c5_neighbor', when: all(AM, { after: at(12, 8) }, keeper(), { knows: 'f_c3_exchange' }), effects: [{ move: 'c3_neighbor' }] },
       back, toSpilled, toBread, wait, cpAction(5),
     ],
@@ -246,7 +254,17 @@ export const farm5Scenes: Scene[] = [
       { id: 'c5_fafter_watch', label: 'Согласиться выйти к воротам после обеда', minutes: 5, terminal: true, goto: 'c5_farm', text: 'Хенрике берёт твою куртку с лавки. — Эту? — Ты киваешь. Она вешает её у двери, поверх своей.', effects: [{ set: '$.c5_fafter.watch', value: true }, { body: 'stress', delta: 3 }] },
       { id: 'c5_fafter_no', label: 'Оставить дежурство семье хозяйки', minutes: 3, terminal: true, goto: 'c5_farm', text: '— Ясно. — Хенрике надевает своё пальто. До нижней пуговицы не дотягивается и выходит так.', effects: [{ body: 'stress', delta: 6 }, { npc: 'henrike', trust: -2 }] },
     ] }),
-].map((scene): Scene => scene.id === 'c5_fdoor' ? { ...scene, actions: scene.actions.map(a => a.terminal ? { ...a, goto: 'c5_fafter' } : a) } : ({ ...scene, actions: [
+].map((scene): Scene => {
+  if (scene.id !== 'c5_farm') return scene.id === 'c5_noon' ? scene : { ...scene, actions: [
+    { id: 'c5_noon_go', label: 'Сесть с {partner.ins} перед связью', minutes: 2, terminal: true, goto: 'c5_noon', when: all(pair, { after: at(12, 12) }, notDone('c5_noon.done')) }, ...scene.actions,
+  ] };
+  const fleeting = new Set([6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 21, 22, 23, 24, 25]);
+  const blocks = scene.text.map((b, i) => fleeting.has(i) ? { ...b, when: all(b.when ?? { always: true }, notDone(`c5_hub_seen_${i}`)) } : b);
+  return { ...scene, text: blocks, actions: scene.actions.map(a => ({ ...a, effects: [
+    ...blocks.flatMap((b, i): import('../../engine/types').Effect[] => fleeting.has(i) ? [{ if: b.when ?? { always: true }, then: [{ set: `$.c5_hub_seen_${i}`, value: true }] }] : []),
+    ...(a.effects ?? []),
+  ] })) };
+}).map((scene): Scene => scene.id === 'c5_fdoor' ? { ...scene, actions: scene.actions.map(a => a.terminal ? { ...a, goto: 'c5_fafter' } : a) } : ({ ...scene, actions: [
   { id: 'c5_fdoor_go', label: 'К Павлу у двери', minutes: 1, terminal: true, goto: 'c5_fdoor', when: alarm },
   ...scene.actions.map(a => ({ ...a, when: all(a.when ?? { always: true }, not(alarm)) })),
 ] }));

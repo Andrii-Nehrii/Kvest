@@ -268,7 +268,7 @@ const workshop = all(together, same, { at: 'deniz_workshop' });
 const crowded = all(together, same, atAny(['north_gym', 'ahrensburg', 'messe', 'c3_messe_yard']));
 function midday5(): JointDecision {
   const d = decision('c3_midday5', 5,
-    'После утра вы знаете, кто остался рядом. {partner} ждёт ответа: отдадите своё место и время этим людям или сохраните их для себя?', [
+    'Хенрике ждёт решения: идти за шлангом, носить воду или попросить отдыха? Выслушай {partner.acc}, прежде чем обещать за двоих.', [
     { id: 'exchange', label: { default: 'Отнести картошку вдвоём за шланг' },
       when: all({ at: 'hof_luedemann' }, not(flag('proj.c3_pump.done')), not({ has: 'c3_hose' }), not(flag('A.c5_trade')), not(flag('B.c5_trade'))),
       feasible: all(farm, not(flag('proj.c3_pump.done')), not({ has: 'c3_hose' }), not(flag('A.c5_trade')), not(flag('B.c5_trade')), { any: [{ has: 'potatoes', qty: 5 }, { stocked: 'potatoes', qty: 5, at: 'c3_farm_stock' }] }),

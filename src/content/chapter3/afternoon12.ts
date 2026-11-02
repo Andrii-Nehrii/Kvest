@@ -12,6 +12,7 @@ export const afternoon12Scenes: Scene[] = [
     "location": "hof_luedemann",
     "title": "Погреб",
     "safe": true,
+    "ambient": { "outdoor": false, "wet": false, "tempC": 8 },
     "text": [
       {
         "when": {"before": 3240},
