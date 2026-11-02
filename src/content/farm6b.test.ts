@@ -19,13 +19,28 @@ const base = () => {
   }
   return s;
 };
-function finish(start: GameState, pid: PlayerId, branch: number) {
+function finish(start: GameState, pid: PlayerId, branch: number, explore = false) {
   const s = structuredClone(start), records: ActionRecord[] = [];
   const host = (branch & 1) !== 0;
   const plan = pid === 'A'
     ? ['c6_rev_begin', 'c6_r_a_yard', host ? 'c6_r_a_return' : 'c6_r_a_work', (branch & 2) ? 'c6_r_pay_stock' : 'c6_r_pay_bag', (branch & 4) ? 'c6_r_a_witness' : 'c6_r_a_boundary', 'c6_r_rest', 'c6_r_to_checkpoint']
     : ['c6_rev_begin', host ? 'c6_r_b_host' : 'c6_r_b_stay', (branch & 2) ? (host ? 'c6_r_b_terms' : 'c6_r_b_company') : (host ? 'c6_r_b_water_h' : 'c6_r_b_water_p'), (branch & 4) ? 'c6_r_b_offer' : 'c6_r_b_honest', 'c6_r_rest', 'c6_r_to_checkpoint'];
   for (const id of plan) {
+    const scene = s.chars[pid].scene;
+    const actions = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal);
+    if (scene.startsWith('c6_r_')) {
+      expect(actions.length, scene).toBeGreaterThanOrEqual(4);
+      expect(actions.length, scene).toBeLessThanOrEqual(6);
+    }
+    const optional = actions.filter(a => a.def.id.startsWith('c6_more_')).map(a => a.def.id);
+    if (explore && optional.length) {
+      records.push({ scene, plan: optional });
+      play(c, s, pid, optional);
+      expect(s.chars[pid].scene).toBe(scene);
+      const remaining = availableActions({ s, c, pid }).filter(a => a.enabled).map(a => a.def.id);
+      expect(remaining).toContain(id);
+      expect(optional.some(x => remaining.includes(x))).toBe(false);
+    }
     expect(availableActions({ s, c, pid }).some(a => a.enabled && a.def.id === id), `${pid}/${s.chars[pid].scene}/${id}`).toBe(true);
     records.push({ scene: s.chars[pid].scene, plan: [id] });
     play(c, s, pid, [id]);
@@ -45,7 +60,12 @@ const merge = (s: GameState, a: number, b: number) => {
 
 describe('переработанный участок 6', () => {
   it('оба телефона проходят все свои ветки и воспроизводятся точно', () => {
-    for (const pid of ['A', 'B'] as const) for (let branch = 0; branch < 8; branch++) finish(base(), pid, branch);
+    for (const pid of ['A', 'B'] as const) for (let branch = 0; branch < 8; branch++) {
+      const start = base(), direct = finish(start, pid, branch), curious = finish(start, pid, branch, true);
+      expect(curious.vars[`${pid}.c6_r_water`]).toBe(direct.vars[`${pid}.c6_r_water`]);
+      expect(curious.vars[`${pid}.c6_r_reply`]).toBe(direct.vars[`${pid}.c6_r_reply`]);
+      for (const owner of ['A', 'c3_farm_stock']) expect(qty(curious, 'potatoes', owner)).toBe(qty(direct, 'potatoes', owner));
+    }
   });
   it('старые начала не повторяются, участки 7–8 не подключены', () => {
     for (const pid of ['A', 'B'] as const) for (const action of ['c6_begin', 'c6_new_begin']) {

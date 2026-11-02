@@ -2,9 +2,10 @@ import { Component, useEffect, useRef, useState, type ReactNode } from 'react';
 import { clock, shortDateLabel } from '../engine/time';
 import { fmt, phone, type Ctx } from '../engine/world';
 import { evalCond } from '../engine/conditions';
-import { dbDelete, dbGet, dbPut, requestPersistence } from '../app/db';
+import { dbDelete, dbGet, dbPut, dbReplaceWithBackup, requestPersistence } from '../app/db';
 import { act, exportSave, normalizePhase, refreshSave, type LocalSave } from '../app/session';
-import { cloudPaths, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
+import { cloudPairId, cloudPaths, getFile, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
+import { replayBackupKey, requestedReplay } from '../app/requested-replay';
 import { content } from '../content';
 import { healthDot } from './format';
 import { Icon } from './kit';
@@ -42,8 +43,26 @@ export function App() {
   const channel = useRef<BroadcastChannel | null>(null);
 
   useEffect(() => {
-    dbGet<LocalSave>('current').then((s) => {
+    dbGet<LocalSave>('current').then(async (s) => {
       if (!s) { setSave(null); return; }
+      const cfg = await loadCloud().catch(() => undefined);
+      if (cfg?.token) {
+        try {
+          const next = await requestedReplay(content, s, (id, me) => getFile(cfg.token, cloudPaths.save(id, me)));
+          if (next) {
+            const pairId = s.pairId, me = s.me;
+            const installed = await dbReplaceWithBackup<LocalSave>(replayBackupKey(me), (current) => {
+              if (!current || current.pairId !== pairId || current.me !== me || current.replay) return current;
+              return { ...next, updatedAt: Math.max(Date.now(), current.updatedAt + 1, next.updatedAt) };
+            });
+            if (!installed) { setSave(null); return; }
+            channel.current?.postMessage('saved');
+            s = installed;
+          }
+        } catch (e) {
+          setToast({ text: e instanceof Error ? e.message : 'Не удалось начать повторное прохождение.', bad: true });
+        }
+      }
       // После обновления игры сохранение пересчитывается новой версией (см. refreshSave).
       const fresh = normalizePhase(content, refreshSave(content, s));
       if (fresh.notice) { setToast({ text: fresh.notice }); fresh.notice = undefined; }
@@ -79,7 +98,7 @@ export function App() {
     uploadChain.current = uploadChain.current.then(async () => {
       try {
         const name = s.state!.chars[s.me].name.nom;
-        await putFile(cfg.token, cloudPaths.save(s.pairId, s.me), exportSave(s), `${s.me} ${name}: ${why}`);
+        await putFile(cfg.token, cloudPaths.save(cloudPairId(s), s.me), exportSave(s), `${s.me} ${name}: ${why}`);
         updateCloud({ ...cfg, lastUpload: Date.now(), lastError: undefined });
         if (manual) setToast({ text: 'Сохранение отправлено.' });
       } catch (e) {

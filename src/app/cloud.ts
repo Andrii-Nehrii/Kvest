@@ -2,6 +2,7 @@
 // Токен вводится на телефоне и хранится только там (в коде сайта его нет — GitHub отзывает
 // токены, найденные в публичном коде). Каждый телефон пишет только свои файлы — конфликтов нет.
 import { dbGet, dbPut } from './db';
+import type { LocalSave } from './session';
 
 const OWNER = 'Andrii-Nehrii';
 const REPO = 'Kvest';
@@ -22,6 +23,9 @@ export const cloudPaths = {
   segment: (pairId: string, cp: number, pid: string) => `pairs/${pairId}/kt${cp}-hod-${pid}.txt`,
   answers: (pairId: string, cp: number, pid: string) => `pairs/${pairId}/kt${cp}-otvet-${pid}.txt`,
 };
+
+/** Повтор хранится отдельно: открытая старая вкладка не перезапишет новые ходы. */
+export const cloudPairId = (save: Pick<LocalSave, 'pairId' | 'replay'>) => save.replay ? `${save.pairId}-${save.replay}` : save.pairId;
 
 function toBase64(text: string): string {
   const bytes = new TextEncoder().encode(text);

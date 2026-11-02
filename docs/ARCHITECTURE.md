@@ -48,6 +48,7 @@ src/content/           сюжет: items.ts, world.ts (места, погода,
                        игрок), story.test.ts (30 пар через восемь КТ, выходы, достижимость), lines.test.ts (главные линии)
 src/app/               сессия телефона: пара, участок, обмен кодами (session.ts), IndexedDB (db.ts), облако GitHub (cloud.ts), падежи имён
 src/ui/                интерфейс: App.tsx, screens/*, kit.tsx (иконки, шкалы, коды), styles.css
+src/ui/Narrative.tsx   отображение абзацев: пустая строка разделяет текст, реплика начинается с длинного тире
 public/                манифест PWA и значки; sw.js генерируется при сборке (vite.config.ts)
 docs/ARCHITECTURE.md   этот документ
 docs/hidden/           закрытая документация мира для сценариста

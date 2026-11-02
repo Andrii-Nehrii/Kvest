@@ -5,6 +5,7 @@ import { painLevel, symptoms } from '../../engine/body';
 import { clock, dateLabel } from '../../engine/time';
 import { caps, carriedWeight, carryLimit, fmt, heldItems, itemsAt, itemType, type Ctx } from '../../engine/world';
 import { Card, Meter } from '../kit';
+import { Narrative } from '../Narrative';
 import { consciousnessWord, injuryText, knownNpc, trustWord, weightText } from '../format';
 
 const IMPORTANT = ['keys', 'phone', 'medicine', 'card', 'money'];
@@ -147,7 +148,7 @@ export function Journal({ ctx }: { ctx: Ctx }) {
         return (
           <div key={`${e.pid}${e.seq}`}>
             {head && <div className="scene-title">{head}</div>}
-            <div className="li"><span className="faint small" style={{ width: 42, flex: 'none' }}>{clock(e.at)}</span><span className="grow">{e.text}</span></div>
+            <div className="li"><span className="faint small" style={{ width: 42, flex: 'none' }}>{clock(e.at)}</span><div className="grow journal-text"><Narrative text={e.text} /></div></div>
           </div>
         );
       })}

@@ -26,6 +26,28 @@ export const dbGet = <T>(key: string) => tx<T | undefined>('readonly', (s) => s.
 export const dbPut = (key: string, value: unknown) => tx('readwrite', (s) => s.put(value, key));
 export const dbDelete = (key: string) => tx('readwrite', (s) => s.delete(key));
 
+/** Резервная копия и замена текущей игры — одна транзакция. Проверяем свежую запись,
+ * чтобы запоздавшая вкладка не затёрла уже начатое повторное прохождение. */
+export async function dbReplaceWithBackup<T>(backupKey: string, replace: (current: T | undefined) => T | undefined): Promise<T | undefined> {
+  const db = await open();
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction(STORE, 'readwrite'), store = transaction.objectStore(STORE);
+    const request = store.get('current');
+    let result: T | undefined;
+    request.onsuccess = () => {
+      const current = request.result as T | undefined;
+      result = replace(current);
+      if (result !== current && result !== undefined) {
+        if (current !== undefined) store.put(current, backupKey);
+        store.put(result, 'current');
+      }
+    };
+    transaction.oncomplete = () => { db.close(); resolve(result); };
+    transaction.onerror = () => { db.close(); reject(transaction.error); };
+    transaction.onabort = () => { db.close(); reject(transaction.error); };
+  });
+}
+
 /** Попросить браузер не очищать хранилище (iOS/Android могут это сделать при нехватке места). */
 export async function requestPersistence(): Promise<boolean> {
   try { return (await navigator.storage?.persist?.()) ?? false; } catch { return false; }
