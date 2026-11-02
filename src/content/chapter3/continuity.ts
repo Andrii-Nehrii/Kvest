@@ -6,6 +6,11 @@ const first7History = (b: TextBlock): TextBlock => ({ ...b, when: all(b.when ?? 
 const morning7 = { after: at(13, 6) };
 const firstHistory = (b: TextBlock): TextBlock => ({ ...b, when: all(b.when ?? { always: true }, not(flag('$.c6_history_seen'))) });
 
+export const central8Notes: MergeNote[] = [
+ { id: 'f8_window', when: { v: 'w.c3_f8', op: '==', value: 'window' }, text: 'Хенрике вытащили через окно. Кухня проветрена, дым перестал идти, но спать возле разбитого стекла нельзя. Оле спрашивает, кто останется с матерью.' },
+ { id: 'f8_door', when: { v: 'w.c3_f8', op: '==', value: 'door' }, text: 'Хенрике не может поднять руку. Кухню проветрили, окно цело; дым больше не идёт. Оле просит вас повторить, что делать ночью, если ей станет хуже.' },
+ { id: 'f8_missed', when: { v: 'w.c3_f8', op: '==', value: 'missed' }, text: 'Оле вынес мать через разбитое окно. Её плечо повреждено, тёплый угол кухни потерян. Вы придвигаетесь к ней, чтобы слышать тихий голос.' },
+];
 export const central7Notes: MergeNote[] = [
  { id: 'f7_kill', when: { v: 'w.c3_f7', op: '==', value: 'kill' }, text: 'Мартин погиб в сарае. Хенрике забрала его почтовую сумку, Оле вымыл лом. {partner} спрашивает, кто расскажет, если за ним придут.' },
  { id: 'f7_lock', when: { v: 'w.c3_f7', op: '==', value: 'lock' }, text: 'Мартин остался в запертом сарае. Кёлер показывает на свои вещи за дверью. Ночевать там теперь нельзя; вы ищете другое место.' },
@@ -54,16 +59,13 @@ const promise5After: TextBlock[] = [
 export function withCentralEchoes(scene: Scene): Scene {
   if (scene.id === 'c8_farm') return { ...scene, text: [...([
     { when: { v: 'w.c3_f7', op: '==', value: 'kill' }, text: 'Почтовая сумка висит в сенях. Хенрике просит не перекладывать её к вашим вещам. Оле отодвигает свою куртку.' },
-    { when: { v: 'w.c3_f7', op: '==', value: 'lock' }, text: 'Из сарая стучат по закрытому окну. Кёлер остаётся на кухне. — Пальто там. Не пойду за ним. — Хенрике приносит ей своё.' },
+    { when: { v: 'w.c3_f7', op: '==', value: 'lock' }, text: 'Из сарая стучат по закрытому окну. Кёлер остаётся на кухне. — Пальто там. Не пойду за ним. — Хенрике приносит ей одеяло.' },
     { when: { v: 'w.c3_f7', op: '==', value: 'missed' }, text: 'Кёлер не может завязать рукав над повязкой. Хенрике помогает, не спрашивая. Оле держит ткань с другой стороны.' },
     { when: flag('$.c7_fpair.hour'), text: '{partner} показывает на часы. — Наш час. Помнишь? — Ты останавливаешься возле лавки.' },
     { when: flag('$.c7_fpawel.recorded'), text: 'Павел просит включить сохранённую запись. На первом слове тянется остановить. Потом убирает руку.' },
     { when: flag('w.c3_f7_guard'), text: 'Оле возвращается за ключом, когда ваша смена кончается. — Живой? — спрашивает он. Ты показываешь на дверь, за которой снова скребут.' },
     { when: flag('w.c3_f7_rest'), text: '{partner} садится рядом. — Теперь наш час. — Хенрике видит вас и сама закрывает кухонную дверь.' },
-    ] as TextBlock[]).map(b => ({ ...b, when: all(b.when ?? { always: true }, not(flag('$.c8_history_seen'))) })), ...scene.text], actions: scene.actions.map(a => ({ ...a, effects: [{ set: '$.c8_history_seen', value: true }, ...(a.effects ?? [])] })), onEnter: [...(scene.onEnter ?? []),
-      { if: all(flag('w.c3_f7_guard'), not(flag('$.c8_guard_cost'))), then: [{ set: '$.c8_guard_cost', value: true }, { wait: 90, activity: 'light' }, { body: 'fatigue', delta: 6 }] },
-      { if: all({ v: 'w.c3_trip7', op: '==', value: 'search' }, not(flag('$.c8_search_cost'))), then: [{ set: '$.c8_search_cost', value: true }, { wait: 75, activity: 'light' }, { body: 'fatigue', delta: 4 }] },
-    ] };
+    ] as TextBlock[]).map(b => ({ ...b, when: all(b.when ?? { always: true }, not(flag('$.c8_history_seen'))) })), ...scene.text], actions: scene.actions.map(a => ({ ...a, effects: [{ set: '$.c8_history_seen', value: true }, ...(a.effects ?? [])] })), onEnter: scene.onEnter };
   if (scene.id === 'c7_farm') return { ...scene, text: [...([
     { when: all(morning7, flag('w.c3_f6_bed_lost'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: 'Кёлер лежит на вашем вчерашнем месте. {partner} встаёт возле двери, держась за поясницу. — Сегодня я лягу раньше. Договорились?' },
     { when: all(morning7, flag('w.c3_guest_contract'), { npcVar: 'c3_koehler', key: 'separate' }, { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: 'Кёлер возвращает хозяйке ключ от сарая. — Стучала ночью. Вы не слышали? — Хенрике отодвигает ей место у печи.' },

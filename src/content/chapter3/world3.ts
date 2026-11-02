@@ -338,6 +338,7 @@ agenda3.kerem = [
 agenda3.deniz = [
   { id: 'f6_missed_leg', at: at(12, 19, 21), scope: 'world', when: all({ cp: 5 }, { v: 'w.c3_f6', op: '==', value: 'missed' }, { npc: 'deniz', alive: true, at: 'hof_luedemann' }), effects: [{ npc: 'deniz', status: 'injured', set: { c3_cart_leg: true }, remember: 'c3_cart_crushed_leg' }] },
 ];
+agenda3.henrike = [{ id: 'f8_smoke_hurt', at: at(13, 19, 16), scope: 'world', when: all({ cp: 7 }, { v: 'w.c3_f8', op: '==', value: 'missed' }, { npc: 'henrike', alive: true }), effects: [{ npc: 'henrike', status: 'injured', set: { c3_smoke_shoulder: true }, remember: 'c3_ole_smoke_rescue' }] }];
 npcs3.c3_koehler.agenda!.push({ id: 'f7_hurt_hand', at: at(13, 11, 46), scope: 'world', when: all({ cp: 6 }, { v: 'w.c3_f7', op: '==', value: 'missed' }, { npc: 'c3_koehler', alive: true }), effects: [{ npc: 'c3_koehler', status: 'injured', set: { c3_shed_hand: true }, remember: 'c3_door_hurt_hand' }] });
 agenda3.pawel = [
   { id: 'c3_pawel_coop', at: at(12, 11, 41), scope: 'world', when: all({ cp: 4 }, { v: 'w.c3_f5', op: '==', value: 'coop' }, { npc: 'pawel', at: 'hof_luedemann' }), effects: [{ npc: 'pawel', moveTo: 'farm_coop', set: { c3_locked_out: true } }] },

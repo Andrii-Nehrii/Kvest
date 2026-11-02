@@ -1,4 +1,5 @@
 import { withCentralEchoes } from './continuity';
+import { farm8Scenes, farm8Events } from './farm8';
 import { farm7Scenes, farm7Events } from './farm7';
 import { farm6Scenes, farm6Events } from './farm6';
 import type { Scene } from '../../engine/content-types';
@@ -19,12 +20,18 @@ const checkpointScenes: Scene[] = [
   { id: 'c8_cp', for: 'any', chapter: 'ch3', checkpoint: 8, title: 'Ночь', universal: false, calm: true,
     text: [{ text: 'Ты ставишь воду рядом с рукой. Шнурок развязался; наклонившись к нему, ты замечаешь, как дрожат колени. Сначала садишься.' }], actions: [] },
   { id: 'c9_start', for: 'any', chapter: 'ch4', title: 'Продолжение', universal: false,
-    text: [{ text: 'Здесь заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' }], actions: [] },
+    onEnter: [{ if: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_f8_window_broken' }, { not: { flag: '$.c8_cold_night_cost' } }] }, then: [{ set: '$.c8_cold_night_cost', value: true }, { body: 'sleepDebt', delta: 1 }] }],
+    text: [
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_f8_window_broken' }] }, text: 'Оле закрывает дверь остывшей кухни. Твои вещи остаются в соседней комнате. {partner} просит оставить рядом место и для {pm:него|неё}.' },
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { npcVar: 'henrike', key: 'c3_smoke_shoulder' }] }, text: 'Хенрике просит не трогать больное плечо. Оле помогает ей лечь. Когда ты оборачиваешься, он всё ещё держит её пальто.' },
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: '$.c8_fpawel.answered' }] }, text: 'На телефоне Павла остался его ответ домой. Ничего про скорую дорогу он не обещал. Телефон он убирает сам.' },
+      { text: 'Здесь заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+    ], actions: [] },
 ];
 
 export const scenes3: Record<string, Scene> = Object.fromEntries([
-  ...morning12Scenes, ...afternoon12Scenes, ...farm6Scenes, ...morning13Scenes, ...farm7Scenes, ...afternoon13Scenes,
+  ...morning12Scenes, ...afternoon12Scenes, ...farm6Scenes, ...morning13Scenes, ...farm7Scenes, ...afternoon13Scenes, ...farm8Scenes,
   ...excursions(6).filter(s => !s.id.endsWith('_neighbor')), ...excursions(8).filter(s => !s.id.endsWith('_neighbor')),
   entry(5), entry(6), entry(7), entry(8), road, arrival, relocate(7), relocate(8), ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(s)]));
-export const incidentEvents3 = [...morning12Events, ...afternoon12Events, ...farm6Events, ...morning13Events, ...farm7Events, ...afternoon13Events];
+export const incidentEvents3 = [...morning12Events, ...afternoon12Events, ...farm6Events, ...morning13Events, ...farm7Events, ...afternoon13Events, ...farm8Events];
