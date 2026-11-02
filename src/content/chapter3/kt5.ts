@@ -108,6 +108,7 @@ function notes(n: number): MergeNote[] {
     ...(n === 5 ? central5Notes : []),
     ...(n === 6 ? central6Notes : []),
     ...(n === 7 ? central7Notes : []),
+    ...(n === 7 ? [{ id: 'f7_already_here', group: 'meet', when: farm, text: 'Дениз спрашивает про брата. Оле кладёт ключ перед вами. {partner} придерживает твой рукав. — Сначала договоримся.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 6 ? [{ id: 'f6_already_here', group: 'meet', when: all(farm, flag('w.c3_koehler_met'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: '{partner} держит ваше сложенное одеяло. — Я хотел{pm:|а} просто лечь. С тобой. — Кёлер ждёт у стола.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 5 ? [
       { id: 'b5_host_meet', group: 'meet', when: all(same, { at: 'b_flat' }, { me: 'B' }), text: 'Ты придвигаешь {partner.dat} свою кружку. — Тут и скажем. — В прихожей ждут ответа. Дверь ты пока не открываешь.', effects: [{ set: 'w.together', value: true }, ...share] },
@@ -321,21 +322,29 @@ function midday5(): JointDecision {
   return d;
 }
 function midday7(): JointDecision {
-  return decision('c3_midday7', 7,
+  const d = decision('c3_midday7', 7,
     'Утро уже изменило то, где можно спать и кому можно доверить дверь. Кого оставите рядом с собой до ночи?', [
     { id: 'search', label: { default: 'Ждать Керема у дороги до темноты' },
-      when: { at: 'hof_luedemann' }, feasible: all(farm, { npc: 'kerem', alive: true, at: 'b75_road' }),
+      when: all(farm, { npc: 'kerem', alive: true, at: 'b75_road' }), feasible: all(farm, { npc: 'kerem', alive: true, at: 'b75_road' }),
       effects: [...set('w.c3_trip7', 'search'), { set: 'w.c3_wait_kerem', value: true }],
       text: 'Дениз показывает место у поворота. Вы берёте воду и идёте туда; вечерняя работа на хуторе остаётся другим.' },
     { id: 'inside', label: { default: 'Поручиться за Кёлер и кормить её' },
-      when: { at: 'hof_luedemann' }, feasible: checkedGuest,
-      effects: [...set('w.c3_trip7', 'inside'), { set: 'w.c3_guest_contract', value: true }, { set: 'w.c3_owed_food', value: true }, { npc: 'c3_koehler', moveTo: 'hof_luedemann' }],
-      text: 'Кёлер остаётся под крышей. Ваши порции теперь делятся на троих. Хенрике больше не спрашивает Оле, ставить ли лишнюю миску.' },
+      when: all(farm, not(flag('w.c3_guest_contract'))), feasible: all(checkedGuest, food, not(flag('w.c3_guest_contract'))),
+      effects: [...set('w.c3_trip7', 'inside'), ...foodGift, { set: 'w.c3_guest_contract', value: true }, { set: 'w.c3_owed_food', value: true }, { npc: 'c3_koehler', moveTo: 'hof_luedemann', set: { separate: false } }],
+      text: 'Хенрике разрешает остаться. Кёлер получает пачку овсянки из вашего запаса. — На ночь тоже? — спрашивает она. Вы киваете при хозяйке.' },
+    { id: 'guard', label: { default: 'Сменить Оле у сарая на полтора часа' },
+      when: all(farm, flag('w.c3_f7_shed_lost')), feasible: all(farm, flag('w.c3_f7_shed_lost')),
+      effects: [...set('w.c3_trip7', 'guard'), { set: 'w.c3_f7_guard', value: true }, { npc: 'ole', remember: 'c3_promised_shed_watch' }],
+      text: 'Оле передаёт вам ключ, но просит не открывать дверь. — Разбудите, если затихнет. — Он уходит в дом. Остальной день вы начинаете у запертого сарая.' },
+    { id: 'farm_rest7', label: { default: 'Оставить этот день для нас двоих' },
+      when: farm, feasible: farm,
+      effects: [...set('w.c3_trip7', 'stay'), { set: 'w.c3_f7_rest', value: true }, { npc: 'henrike', remember: 'c3_kept_own_afternoon' }],
+      text: '{partner} просит тебя остаться рядом. Ты говоришь хозяйке, что нового дела не возьмёте. Хенрике зовёт Оле обратно к двери. Дениз остаётся ждать брата сам.' },
     { id: 'north', label: { default: 'Уехать из дома к северному залу' },
       when: atAny(CITY), feasible: north, effects: set('w.c3_trip7', 'north'),
       text: 'Машину и бензин тратите на северный путь сейчас. Возвращаться за оставленным сегодня не будете.' },
     { id: 'farm', label: { default: 'Уйти к Хенрике до темноты' },
-      when: atAny(SOUTH), feasible: farmRoad, effects: set('w.c3_trip7', 'farm'),
+      when: all(atAny(SOUTH), not({ at: 'hof_luedemann' })), feasible: farmRoad, effects: set('w.c3_trip7', 'farm'),
       text: 'Вы уходите с вещами к хутору. На дорогу уйдут силы; у калитки вас всё равно осмотрят.' },
     { id: 'isolate', label: { default: 'Отдать тёплое место больному' },
       when: atAny(['a_flat', 'b_flat', 'deniz_workshop', 'ahrensburg', 'north_gym']),
@@ -347,9 +356,18 @@ function midday7(): JointDecision {
       feasible: all(together, same, free),
       effects: set('w.c3_trip7', 'escort'),
       text: 'Вы остаетесь при тех, кто не может нести вещи. Свою очередь на сухой ночлег отдаёте; до вечера будете рядом с ними.' },
-    { id: 'stay', label: { default: 'Сохранить свой ночлег, никого не брать' }, effects: set('w.c3_trip7', 'stay'),
+    { id: 'stay', label: { default: 'Сохранить свой ночлег, никого не брать' }, when: not(farm), effects: set('w.c3_trip7', 'stay'),
       text: 'Вы оставляете место за собой. Помощь придётся искать у других; ваши вещи готовы, если дверь всё же придётся закрыть снаружи.' },
   ]);
+  d.arbiters = [
+    { id: 'f7_leg_hurt', when: all(farm, { npcVar: 'deniz', key: 'c3_cart_leg' }), winner: 'search', text: 'Дениз не может дойти до поворота один. — Я всё равно пойду, — говорит он. Вы берёте его под руки и выходите вместе.' },
+    { id: 'f7_wait_requested', when: all(farm, { any: [flag('A.c7_requested_wait'), flag('B.c7_requested_wait')] }), winner: 'search', text: 'Дениз напоминает, что брату уже предлагали подождать. — Он меня слушал. Теперь я его не брошу. — Вы выходите вместе с ним к повороту.' },
+    { id: 'f7_locked_watch', when: all(farm, flag('w.c3_f7_shed_lost')), winner: 'guard', text: 'За дверью ударяет в доски. Оле уже засыпает сидя. Хенрике просит вас сменить его до того, как ключ выпадет из руки.' },
+    ...d.arbiters,
+    { id: 'f7_couple_hour', when: farm, winner: 'farm_rest7', text: 'Вы садитесь рядом и отказываете в новом обещании. Хенрике забирает ключ обратно. Дениз выходит один.' },
+    { id: 'f7_road_wait', when: farm, winner: 'search', text: 'Дениз показывает на пустой поворот. — До вечера там побуду. — Вы берёте воду и выходите с ним.' },
+  ];
+  return d;
 }
 function night6(): JointDecision {
   const d = decision(

@@ -52,13 +52,18 @@ const promise5After: TextBlock[] = [
  { when: { flag: 'w.c3_mclinic_help5' }, text: 'Врач ждёт вас возле стула, который вы ей принесли. {partner} снимает куртку с вашей бывшей раскладушки. Пациент садится, придерживая повязку.' },
 ];
 export function withCentralEchoes(scene: Scene): Scene {
-  if (scene.id === 'c8_farm') return { ...scene, text: [
+  if (scene.id === 'c8_farm') return { ...scene, text: [...([
     { when: { v: 'w.c3_f7', op: '==', value: 'kill' }, text: 'Почтовая сумка висит в сенях. Хенрике просит не перекладывать её к вашим вещам. Оле отодвигает свою куртку.' },
     { when: { v: 'w.c3_f7', op: '==', value: 'lock' }, text: 'Из сарая стучат по закрытому окну. Кёлер остаётся на кухне. — Пальто там. Не пойду за ним. — Хенрике приносит ей своё.' },
     { when: { v: 'w.c3_f7', op: '==', value: 'missed' }, text: 'Кёлер не может завязать рукав над повязкой. Хенрике помогает, не спрашивая. Оле держит ткань с другой стороны.' },
     { when: flag('$.c7_fpair.hour'), text: '{partner} показывает на часы. — Наш час. Помнишь? — Ты останавливаешься возле лавки.' },
     { when: flag('$.c7_fpawel.recorded'), text: 'Павел просит включить сохранённую запись. На первом слове тянется остановить. Потом убирает руку.' },
-    ...scene.text] };
+    { when: flag('w.c3_f7_guard'), text: 'Оле возвращается за ключом, когда ваша смена кончается. — Живой? — спрашивает он. Ты показываешь на дверь, за которой снова скребут.' },
+    { when: flag('w.c3_f7_rest'), text: '{partner} садится рядом. — Теперь наш час. — Хенрике видит вас и сама закрывает кухонную дверь.' },
+    ] as TextBlock[]).map(b => ({ ...b, when: all(b.when ?? { always: true }, not(flag('$.c8_history_seen'))) })), ...scene.text], actions: scene.actions.map(a => ({ ...a, effects: [{ set: '$.c8_history_seen', value: true }, ...(a.effects ?? [])] })), onEnter: [...(scene.onEnter ?? []),
+      { if: all(flag('w.c3_f7_guard'), not(flag('$.c8_guard_cost'))), then: [{ set: '$.c8_guard_cost', value: true }, { wait: 90, activity: 'light' }, { body: 'fatigue', delta: 6 }] },
+      { if: all({ v: 'w.c3_trip7', op: '==', value: 'search' }, not(flag('$.c8_search_cost'))), then: [{ set: '$.c8_search_cost', value: true }, { wait: 75, activity: 'light' }, { body: 'fatigue', delta: 4 }] },
+    ] };
   if (scene.id === 'c7_farm') return { ...scene, text: [...([
     { when: all(morning7, flag('w.c3_f6_bed_lost'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: 'Кёлер лежит на вашем вчерашнем месте. {partner} встаёт возле двери, держась за поясницу. — Сегодня я лягу раньше. Договорились?' },
     { when: all(morning7, flag('w.c3_guest_contract'), { npcVar: 'c3_koehler', key: 'separate' }, { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: 'Кёлер возвращает хозяйке ключ от сарая. — Стучала ночью. Вы не слышали? — Хенрике отодвигает ей место у печи.' },
