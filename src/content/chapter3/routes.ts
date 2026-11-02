@@ -55,7 +55,7 @@ const safeFlat = (pid: 'A' | 'B'): Cond =>
     ),
   );
 export function stayRoutes(n: number): { when?: Cond; scene: string }[] {
-  if (n === 6) return [{ when: farm6bAvailable, scene: 'c6_new_job' }, { scene: 'c6_start' }];
+  if (n === 6) return [{ when: farm6bAvailable, scene: 'c6_r_kitchen' }, { scene: 'c6_start' }];
   return [
     { when: all({ at: 'farm_coop' }, not(flag('$.c3_coop_clear'))), scene: `c${n}_coop` },
     { when: atAny(['hof_luedemann', 'farm_coop']), scene: `c${n}_farm` },
@@ -82,10 +82,10 @@ export const newEntry6: Scene = {
   id: 'c6_start', for: 'any', chapter: 'ch3', title: 'После полудня', universal: false,
   safe: true, ambient: { tempC: 16, wet: false, outdoor: false },
   text: [
-    { when: farm6bAvailable, text: 'До темноты нужно принести воду для кухни и дать Павлу отдохнуть с порезанной рукой. Хенрике ждёт вас в доме. Павел тоже там — в рабочих сапогах, будто собирается идти с вами.' },
+    { when: farm6bAvailable, text: 'После обеда пора браться за воду, которую вы обещали принести. Но Павел собирает вещи: после утренней угрозы он не хочет больше здесь спать. Прежде чем идти к Оле во двор, ты останавливаешься у кухонной двери.' },
     { when: not(farm6bAvailable), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
-  actions: [{ id: 'c6_new_begin', label: 'Вернуться на кухню к Хенрике и Павлу', when: farm6bAvailable, minutes: 1, terminal: true, goto: 'c6_new_job' }],
+  actions: [{ id: 'c6_rev_begin', label: 'Вернуться на кухню к Хенрике и Павлу', when: farm6bAvailable, minutes: 1, terminal: true, goto: 'c6_r_kitchen' }],
 };
 function routeOutcomes(n: number): Outcome[] {
   return stayRoutes(n).map((r, i) => ({ id: `stay_${i}`, when: r.when, goto: r.scene }));
