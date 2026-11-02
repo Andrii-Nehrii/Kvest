@@ -109,6 +109,7 @@ function notes(n: number): MergeNote[] {
     ...(n === 6 ? central6Notes : []),
     ...(n === 7 ? central7Notes : []),
     ...(n === 8 ? central8Notes : []),
+    ...(n === 8 ? [{ id: 'f8_already_here', group: 'meet', when: all(farm, { npc: 'henrike', alive: true, at: 'hof_luedemann' }), text: 'Оле садится у матери. — На завтра кто остаётся? — {partner} просит тебя сначала выслушать. Хенрике отвечает сыну кивком: спрашивай.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 7 ? [{ id: 'f7_already_here', group: 'meet', when: farm, text: 'Дениз спрашивает про брата. Оле кладёт ключ перед вами. {partner} придерживает твой рукав. — Сначала договоримся.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 6 ? [{ id: 'f6_already_here', group: 'meet', when: all(farm, flag('w.c3_koehler_met'), { npc: 'c3_koehler', alive: true, at: 'hof_luedemann' }), text: '{partner} держит ваше сложенное одеяло. — Я хотел{pm:|а} просто лечь. С тобой. — Кёлер ждёт у стола.', effects: [{ set: 'w.together', value: true }, ...share] }] as MergeNote[] : []),
     ...(n === 5 ? [
@@ -468,18 +469,36 @@ function night6(): JointDecision {
   ];
   return d;
 }
-export const jointChapter3: Record<string, JointDecision> = {
-  c3_midday5: midday5(),
-  c3_midday7: midday7(),
-  c3_night: night6(),
-  c3_lastnight: decision(
+function lastNight8(): JointDecision {
+  const d = decision(
     'c3_lastnight',
     8,
-    'Ночлег найден не у всех. Можно взять человека с собой, проводить остальных утром или уйти своей дорогой. За какое обещание вы готовы отвечать?',
+    'Что вы обещаете на ночь и завтрашний день? Сначала договоритесь вдвоём.',
     [
+      {
+        id: 'care', label: { default: 'Остаться завтра помогать Хенрике, дать пачку на ужин' },
+        when: all(farm, food, { npc: 'henrike', alive: true, at: 'hof_luedemann' }),
+        feasible: all(farm, food, { npc: 'henrike', alive: true, at: 'hof_luedemann' }),
+        effects: [...set('w.c3_after8', 'care'), ...foodGift, { set: 'w.c3_after8_care', value: true }, { npc: 'henrike', remember: 'c3_stayed_to_help_tomorrow' }],
+        text: 'Вы отдаёте Оле пачку на общий ужин и обещаете помочь завтра. Он спрашивает, с чего начнёте. {partner} называет одно дело. Ты добавляешь своё.',
+      },
+      {
+        id: 'boards', label: { default: 'Отложить пять килограммов картошки для досок на окно' },
+        when: all(farm, flag('w.c3_f8_window_broken')),
+        feasible: all(farm, flag('w.c3_f8_window_broken'), { any: [{ has: 'potatoes', qty: 5 }, { stocked: 'potatoes', qty: 5, at: 'c3_farm_stock' }] }),
+        effects: [...set('w.c3_after8', 'repair'), { if: not({ has: 'potatoes', qty: 5 }), then: [{ unstock: 'potatoes', qty: 5, at: 'c3_farm_stock' }] }, { take: 'potatoes', qty: 5 }, { set: 'w.c3_board_budget', value: 5 }, { npc: 'ole', remember: 'c3_reserved_for_boards' }],
+        text: 'Оле забирает отложенный мешок. — Завтра предложу соседу за доски. Сейчас не пойду. — В разбитую кухню на ночь никто не возвращается.',
+      },
+      {
+        id: 'own_path', label: { default: 'Утром уйти вдвоём к дороге без новой смены' },
+        when: farm, feasible: all(farm, free),
+        effects: [...set('w.c3_after8', 'own_path'), { set: 'w.c3_departure8', value: 'b75_road' }, { npc: 'henrike', remember: 'c3_leaving_together' }],
+        text: 'Ты говоришь Оле, что утром вы уйдёте к дороге. Он не просит остаться, только кивает матери. {partner} складывает ваши вещи рядом, чтобы утром не искать по дому.',
+      },
       {
         id: 'food',
         label: { default: 'Оставить человека с вами до утра' },
+        when: not(farm),
         feasible: all(together, same, free, food),
         effects: [...set('w.c3_after8', 'guest'), ...foodGift, { set: 'w.c3_last_guest', value: true }],
         text: 'Вы кормите человека и оставляете рядом. Для его вещей освобождаете сухой угол. Утром уйти вдвоём, не объяснившись с ним, уже не получится.',
@@ -487,6 +506,7 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'water',
         label: { default: 'Проводить людей, отдать воду на путь' },
+        when: not(farm),
         feasible: all(together, same, free, { has: 'water_15' }),
         effects: [...set('w.c3_after8', 'escort'), { take: 'water_15' }, { set: 'w.c3_dawn_escort', value: true }],
         text: 'На рассвете вы идёте с теми, кто не знает дороги к раздаче. Бутылку отдаёте им сейчас. Свои утренние дела придётся отложить.',
@@ -494,6 +514,7 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'farm',
         label: { default: 'С утра перейти на хутор' },
+        when: not(farm),
         feasible: farmRoad,
         effects: set('w.c3_after8', 'farm'),
         text: 'На утро назначена дорога к хутору. Вещи уже не раскладываете по комнате.',
@@ -501,6 +522,7 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'north',
         label: { default: 'С утра ехать к северному спортзалу' },
+        when: not(farm),
         feasible: north,
         effects: set('w.c3_after8', 'north'),
         text: 'На утро назначена поездка на север. Ключи и бензин остаются на этот путь, чужих поездок до рассвета не берёте.',
@@ -508,11 +530,27 @@ export const jointChapter3: Record<string, JointDecision> = {
       {
         id: 'stay',
         label: { default: 'Сохранить запас и ночевать здесь' },
-        effects: set('w.c3_after8', 'stay'),
+        effects: [...set('w.c3_after8', 'stay'), { if: farm, then: [{ set: 'w.c3_after8_keep', value: true }, { npc: 'henrike', remember: 'c3_no_new_promise' }] }],
         text: 'Ночь проводите на месте. Закрытые бутылки и еда остаются рядом с вещами.',
       },
     ],
-  ),
+  );
+  d.compromises = [...(d.compromises ?? []), { pair: ['own_path', 'stay'], result: 'stay', when: farm }];
+  d.arbiters = [
+    { id: 'f8_empty_food', when: all(farm, not(food)), winner: 'stay', text: 'Оле показывает пустую пачку. — Такую еду не обещайте. — Вы оставляете ответ на утро, сохранив то, что есть.' },
+    { id: 'f8_hurt_host', when: all(farm, { npcVar: 'henrike', key: 'c3_smoke_shoulder' }), winner: 'care', text: 'Хенрике не может поправить подушку под плечом. Оле просит помочь завтра. Вы называете ему время, когда подойдёте.' },
+    { id: 'f8_broken_window', when: all(farm, flag('w.c3_f8_window_broken')), winner: 'boards', text: 'Оле показывает на остывшую кухню. — Без досок завтра будет так же. — Вы откладываете мешок сейчас.' },
+    ...d.arbiters,
+    { id: 'f8_recovering', when: all(farm, flag('w.c3_f8_done')), winner: 'care', text: 'Хенрике снова начинает кашлять. Оле просит вас остаться на завтрашний день. Вы отвечаете ему при ней.' },
+    { id: 'f8_son_has_help', when: all(farm, { npc: 'kerem', alive: true, at: 'hof_luedemann' }, { npc: 'deniz', alive: true, at: 'hof_luedemann' }), winner: 'own_path', text: 'Дениз и Керем остаются рядом с Оле. — Утром пойдёте, — говорит он вам. Вы собираете только свои вещи.' },
+  ];
+  return d;
+}
+export const jointChapter3: Record<string, JointDecision> = {
+  c3_midday5: midday5(),
+  c3_midday7: midday7(),
+  c3_night: night6(),
+  c3_lastnight: lastNight8(),
 };
 export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8] as const).map((n) => ({
   index: n,

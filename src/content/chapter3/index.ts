@@ -20,11 +20,15 @@ const checkpointScenes: Scene[] = [
   { id: 'c8_cp', for: 'any', chapter: 'ch3', checkpoint: 8, title: 'Ночь', universal: false, calm: true,
     text: [{ text: 'Ты ставишь воду рядом с рукой. Шнурок развязался; наклонившись к нему, ты замечаешь, как дрожат колени. Сначала садишься.' }], actions: [] },
   { id: 'c9_start', for: 'any', chapter: 'ch4', title: 'Продолжение', universal: false,
-    onEnter: [{ if: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_f8_window_broken' }, { not: { flag: '$.c8_cold_night_cost' } }] }, then: [{ set: '$.c8_cold_night_cost', value: true }, { body: 'sleepDebt', delta: 1 }] }],
     text: [
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_after8_care' }] }, text: 'Оле оставляет рядом с матерью свободный стул. Завтра вы обещали помочь здесь. {partner} просит утром разбудить и {pm:его|её}.' },
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { v: 'w.c3_board_budget', op: '>=', value: 5 }] }, text: 'Оле убирает отложенную картошку к своим вещам. На доски для окна ответа от соседа ещё нет. Мешок он просит до утра не брать.' },
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { v: 'w.c3_departure8', op: '==', value: 'b75_road' }] }, text: '{partner} кладёт рядом вещи для утренней дороги. Ночью вы остаётесь под крышей. Куда идти от поворота, ещё предстоит решить.' },
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_after8_keep' }] }, text: 'На завтра вы ничего нового не обещали. {partner} устраивается рядом с тобой. Оле проверяет дверь, прежде чем погасить лампу.' },
       { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_f8_window_broken' }] }, text: 'Оле закрывает дверь остывшей кухни. Твои вещи остаются в соседней комнате. {partner} просит оставить рядом место и для {pm:него|неё}.' },
       { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { npcVar: 'henrike', key: 'c3_smoke_shoulder' }] }, text: 'Хенрике просит не трогать больное плечо. Оле помогает ей лечь. Когда ты оборачиваешься, он всё ещё держит её пальто.' },
       { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: '$.c8_fpawel.answered' }] }, text: 'На телефоне Павла остался его ответ домой. Ничего про скорую дорогу он не обещал. Телефон он убирает сам.' },
+      { when: { all: [{ cp: 8 }, { at: 'hof_luedemann' }, { flag: 'w.c3_f8_stove_closed' }] }, text: 'Кухонную печь до осмотра не топят. Оле закрывает заслонку и показывает её Денизу. Тот просит до утра ничего не разбирать.' },
       { text: 'Здесь заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
     ], actions: [] },
 ];
