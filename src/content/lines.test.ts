@@ -4,6 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { availableActions, currentScene, isServiceAction } from '../engine/actions';
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, syncClocks } from '../engine/checkpoint';
 import { newGame, play, segmentFinished } from '../engine/game';
+import { farm6bAvailable } from './chapter3/farm6b';
+import { evalCond } from '../engine/conditions';
 import { clock } from '../engine/time';
 import type { GameState, PlayerId } from '../engine/types';
 import { START_TIME } from '../app/session';
@@ -118,6 +120,7 @@ describe('главная линия главы 3', () => {
     const density: Record<string, number> = {};
     const SEGS = [5, 6, 7, 8].filter((n) => c.checkpoints.some((cp) => cp.index === n));
     for (const n of SEGS) {
+      if (n === 6 && !(['A', 'B'] as const).every(pid => evalCond({ s: base, c, pid }, farm6bAvailable))) break;
       const ends = { A: structuredClone(base), B: structuredClone(base) };
       for (const p of ['A', 'B'] as const) {
         const s = ends[p], uses = new Map<string, number>(), visited = new Set<string>();
@@ -164,7 +167,7 @@ describe('главная линия главы 3', () => {
       expect(base.vars['w.together']).toBe(true);
       expect(base.checkpoint).toBe(n);
     }
-    for (const p of ['A', 'B'] as const) expect(base.chars[p].scene).toBe(`c${SEGS[SEGS.length - 1] + 1}_start`);
+    for (const p of ['A', 'B'] as const) expect(base.chars[p].scene).toBe(`c${base.checkpoint + 1}_start`);
     // Переходы не называем решениями. Каждый участок включает как минимум две ситуации с альтернативами.
     expect(Object.values(density).every(count => count >= 2)).toBe(true);
   });

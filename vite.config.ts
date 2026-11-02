@@ -51,5 +51,5 @@ export default defineConfig({
   base: './',
   define: { __ENGINE_HASH__: JSON.stringify(engineHash) },
   plugins: [react(), offlineServiceWorker()],
-  test: { environment: 'node', include: ['src/**/*.test.ts'] },
+  test: { environment: 'node', include: ['src/**/*.test.ts'], setupFiles: ['./src/test/quality-context.setup.ts'] },
 });
