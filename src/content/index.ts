@@ -76,7 +76,7 @@ const kt3Next = { A: dayRoutes(nightRoutes()), B: dayRoutes(nightRoutes()) };
 export const content: Content = {
   version: 'beta-0.1',
   epochLabel: '10.11.2026',
-  items: { ...items, c3_hose: { id: 'c3_hose', name: 'шланг с хомутами', weight: 800, tags: ['parts'] } }, locations: { ...locations, ...locations2, ...locations3 }, routes: [],
+  items: { ...items, c3_hose: { id: 'c3_hose', name: 'шланг с хомутами', weight: 800, tags: ['parts'] }, c3_flour: { id: 'c3_flour', name: 'мука, кг', weight: 1000, tags: ['food', 'staple', 'needs_cooking'], food: { kcal: 3400 } } }, locations: { ...locations, ...locations2, ...locations3 }, routes: [],
   scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes, ...scenes3 })),
   facts: { ...facts, ...facts2, ...facts3 }, npcs: withAgenda({ ...withAgenda(npcs, agenda2), ...npcs2, ...npcs3 }, agenda3), events: [...events, ...events2, ...events3, ...incidentEvents3],
   joint: { ...joint, ...joint3, ...jointChapter3 }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4, ...checkpoints3], messages, characters,

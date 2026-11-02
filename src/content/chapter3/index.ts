@@ -1,4 +1,5 @@
 import { withCentralEchoes } from './continuity';
+import { farm6Scenes, farm6Events } from './farm6';
 import type { Scene } from '../../engine/content-types';
 import { excursions } from './excursions';
 import { arrival, entry, relocate, road } from './routes';
@@ -21,8 +22,8 @@ const checkpointScenes: Scene[] = [
 ];
 
 export const scenes3: Record<string, Scene> = Object.fromEntries([
-  ...morning12Scenes, ...afternoon12Scenes, ...morning13Scenes, ...afternoon13Scenes,
+  ...morning12Scenes, ...afternoon12Scenes, ...farm6Scenes, ...morning13Scenes, ...afternoon13Scenes,
   ...excursions(6).filter(s => !s.id.endsWith('_neighbor')), ...excursions(8).filter(s => !s.id.endsWith('_neighbor')),
   entry(5), entry(6), entry(7), entry(8), road, arrival, relocate(7), relocate(8), ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(s)]));
-export const incidentEvents3 = [...morning12Events, ...afternoon12Events, ...morning13Events, ...afternoon13Events];
+export const incidentEvents3 = [...morning12Events, ...afternoon12Events, ...farm6Events, ...morning13Events, ...afternoon13Events];
