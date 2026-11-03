@@ -36,6 +36,7 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
       region: id === 'b' ? 'hh' : 'buchholz',
       indoor: true,
     })),
+    { id: 'c7_farm_lane', name: 'Дорога к Йестебургу', region: 'lk', indoor: false, media: ['people'] },
     { id: 'c3_farm_shed', name: 'Отдельный сарай', region: 'lk', indoor: true },
     { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
@@ -263,7 +264,7 @@ export const stock3: NonNullable<Content['initialPlaceItems']> = [
 
 export const npcs3: Record<string, NpcDef> = {
   c3_mailman: { id: 'c3_mailman', name: 'Мартин Ребер', intro: 'Бывший почтальон, которого узнала Хенрике у ограды.', initial: { alive: true, location: 'b75_road', status: 'infected', trust: { A: 0, B: 0 }, memory: [], vars: {} }, agenda: [
-    { id: 'f7_shelter', at: at(13, 9, 10), scope: 'world', when: all({ cp: 6 }, { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', moveTo: 'c3_farm_shed' }] },
+    { id: 'f7_shelter', at: at(13, 9, 10), scope: 'world', when: all({ cp: 6 }, not(flag('w.c7_new_story')), { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', moveTo: 'c3_farm_shed' }] },
     { id: 'f7_turn', at: at(13, 11, 10), scope: 'world', when: all({ cp: 6 }, { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', status: 'turned' }] },
     { id: 'f7_locked', at: at(13, 11, 46), scope: 'world', when: all({ cp: 6 }, { v: 'w.c3_f7', op: '==', value: 'missed' }, { npc: 'c3_mailman', alive: true }), effects: [{ npc: 'c3_mailman', set: { locked: true } }] },
   ] },

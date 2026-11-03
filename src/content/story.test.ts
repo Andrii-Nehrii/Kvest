@@ -234,7 +234,9 @@ describe('сюжет главы 1: полное прохождение двум�
     // Дальше — только написанные точки.
     const has = (n: number) => c.checkpoints.some((cp) => cp.index === n);
     if (has(6)) expect(stats.cp6).toBe(stats.eligible6);
-    if (has(7)) expect(stats.cp7).toBeGreaterThanOrEqual(stats.runs * 0.65);
+    // Участок 6 доступен только сохранённой фермерской линии. Продолжение 7
+    // должны пройти все добравшиеся до КТ6, а не случайные маршруты других мест.
+    if (has(7)) expect(stats.cp7).toBe(stats.cp6);
     if (has(8)) expect(stats.cp8).toBeGreaterThanOrEqual(stats.runs * 0.6);
   });
 

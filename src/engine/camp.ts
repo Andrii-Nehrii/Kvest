@@ -20,7 +20,9 @@ const byId = (a: { id: string }, b: { id: string }) => a.id === b.id ? 0 : a.id 
 function ration(ctx: Ctx) {
   const base = baseOf(ctx, me(ctx).location), day = dayAt(ctx);
   if (!base || ctx.s.vars[`${ctx.pid}.ration.${base.id}`] !== day
-    || Number(ctx.s.vars[`base.${base.id}.lastDay`] ?? -1) < day) return;
+    // После КТ6 свой паёк доступен и не-хранителю: суточный расход будет
+    // слит с линии хранителя, а личное право на порцию уже записано в 06:00.
+    || (ctx.s.checkpoint < 6 && Number(ctx.s.vars[`base.${base.id}.lastDay`] ?? -1) < day)) return;
   const food = clamp(Number(ctx.s.vars[`${ctx.pid}.ration.${base.id}.food`] ?? 0), 0, 1);
   return { base, day, food };
 }
@@ -28,7 +30,8 @@ function ration(ctx: Ctx) {
 function nextMeal(ctx: Ctx) {
   const r = ration(ctx);
   if (!r || !r.food) return;
-  const hour = BASE_MEALS.find(h => !ctx.s.vars[mealKey(ctx, r.base.id, r.day, h)]);
+  const hour = BASE_MEALS.find(h => !ctx.s.vars[mealKey(ctx, r.base.id, r.day, h)]
+    && (ctx.s.checkpoint < 6 || me(ctx).time >= r.day * 1440 + h * 60 - 60));
   return hour === undefined ? undefined : { ...r, hour };
 }
 export const campRationRemaining = (ctx: Ctx) => ready(ctx) ? nextMeal(ctx)?.food ?? 0 : 0;
@@ -150,7 +153,7 @@ export function consumeCampFood(ctx: Ctx, type: string, qty = 1, here = false): 
 export function performCamp(ctx: Ctx, op: CampOperation): string[] {
   const notes: string[] = [];
   if (!campConfig(ctx)) return notes;
-  if (op.kind === 'prepare') { prepare(ctx, notes); return notes; }
+  if (op.kind === 'prepare') { prepare(ctx, notes); return op.quiet && ctx.s.checkpoint >= 6 ? [] : notes; }
   if (op.kind === 'consume') {
     const n = consumeCampFood(ctx, op.type, op.qty, op.here);
     notes.push(n ? `Израсходовано: ${itemType(ctx, op.type).name} — ${pretty(n)}.` : 'Подходящей еды или воды здесь больше нет.');
@@ -161,7 +164,8 @@ export function performCamp(ctx: Ctx, op: CampOperation): string[] {
     if (!campConfig(ctx)?.well) return ['Сейчас нет безопасного доступа к колодцу.'];
     prepare(ctx, notes);
     giveItem(ctx, 'water_l', op.liters, { reservedFor: ctx.pid, note: fmt(ctx, 'Отложено для {name.gen}') }, { kind: 'place', id: campConfig(ctx)!.stock });
-    return [...notes, `Из колодца принесено ещё ${pretty(op.liters)} л. Обещанные десять литров этим не заменяются.`];
+    return [...notes, ctx.s.checkpoint >= 6 ? `Из колодца принесено ${pretty(op.liters)} л воды.`
+      : `Из колодца принесено ещё ${pretty(op.liters)} л. Обещанные десять литров этим не заменяются.`];
   }
   if (op.kind === 'drink') {
     const benefit = useWater(ctx, op.liters);
@@ -269,7 +273,8 @@ export function campActions(ctx: Ctx, scene: Scene, original: ActionDef[]): Acti
       const c = itemType(ctx, i.type).container!;
       if (campWater(ctx) >= c.liters) list.push({ id: `u:refill:${i.type}`, label: `Наполнить пустую бутылку (${pretty(c.liters)} л)`, minutes: 2, combinable: true, group: `u:refill:${i.type}`, effects: [{ camp: { kind: 'refill', empty: i.type } }] });
     }
-    if (campAvailable(ctx, 'tableMeal') && (scene.id !== 'c6_camp_supper' || ctx.replaying)) {
+    const mealInStory = ctx.s.checkpoint >= 6 && scene.actions.some(a => a.effects?.some(e => 'camp' in e && e.camp.kind === 'meal' && e.camp.communal));
+    if (campAvailable(ctx, 'tableMeal') && !mealInStory && (scene.id !== 'c6_camp_supper' || ctx.replaying)) {
       list.push({ id: 'u:table_meal', label: 'Поесть за общим столом', presentation: 'story', minutes: 10, combinable: true, group: 'u:meal', effects: [{ camp: { kind: 'meal', mode: 'eat', communal: true } }] });
       list.push({ id: 'u:table_pack', label: 'Попросить оставить свою порцию с собой', presentation: 'story', minutes: 3, combinable: true, group: 'u:meal', effects: [{ camp: { kind: 'meal', mode: 'pack', communal: true } }] });
     }
