@@ -20,6 +20,7 @@ import { agenda2, events2, facts2, locations2, npcs2 } from './chapter2/world2';
 import type { NpcDef } from '../engine/content-types';
 
 import { incidentEvents3, scenes3 } from './chapter3';
+import { contacts3 } from './chapter3/contacts';
 import { checkpoints3, jointChapter3 } from './chapter3/kt5';
 import { agenda3, bases3, events3, facts3, locations3, projects3, stock3, npcs3 } from './chapter3/world3';
 
@@ -75,6 +76,7 @@ const kt3Next = { A: dayRoutes(nightRoutes()), B: dayRoutes(nightRoutes()) };
 
 export const content: Content = {
   version: 'beta-0.1',
+  contacts: contacts3,
   epochLabel: '10.11.2026',
   items: { ...items, c3_hose: { id: 'c3_hose', name: 'шланг с хомутами', weight: 800, tags: ['parts'] }, c3_flour: { id: 'c3_flour', name: 'мука, кг', weight: 1000, tags: ['food', 'staple', 'needs_cooking'], food: { kcal: 3400 } } }, locations: { ...locations, ...locations2, ...locations3 }, routes: [],
   scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes, ...scenes3 })),
