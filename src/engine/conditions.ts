@@ -1,5 +1,6 @@
 import { baseOf, canDrive, projectDone, projectProgress, stockAt } from './base';
 import { canAct, isDead, isIncapacitated } from './body';
+import { campAvailable } from './camp';
 import { daylight } from './time';
 import type { CmpOp, Cond, Scalar } from './types';
 import { other } from './types';
@@ -25,6 +26,7 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   if ('not' in c) return !evalCond(ctx, c.not);
   if ('always' in c) return true;
   if ('cp' in c) return ctx.s.checkpoint >= c.cp;
+  if ('camp' in c) return campAvailable(ctx, c.camp);
   if ('me' in c) return ctx.pid === c.me;
   if ('npcVar' in c) {
     const v = ctx.s.npcs[c.npcVar]?.vars[c.key];

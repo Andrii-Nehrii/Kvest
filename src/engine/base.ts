@@ -271,6 +271,8 @@ function recordRation(ctx: Ctx, b: BaseDef, day: number) {
 /** Трапеза: игрок на базе, не спит, паёк на этот день есть. */
 function baseMeal(ctx: Ctx, b: BaseDef, day: number) {
   const ch = me(ctx);
+  // В новых участках собственная оплаченная порция выдаётся действием игрока; часы не кормят второй раз.
+  if (ctx.s.checkpoint >= 5 && ctx.s.vars[`${ctx.pid}.camp.manualMeals`]) return;
   if (ch.body.consciousness !== 'awake' || !b.places.includes(ch.location)) return;
   const key = `${ctx.pid}.ration.${b.id}`;
   if (ctx.s.vars[key] !== day) return;

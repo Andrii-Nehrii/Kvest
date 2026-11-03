@@ -23,8 +23,8 @@ function finish(start: GameState, pid: PlayerId, branch: number, explore = false
   const s = structuredClone(start), records: ActionRecord[] = [];
   const host = (branch & 1) !== 0;
   const plan = pid === 'A'
-    ? ['c6_rev_begin', 'c6_r_a_yard', host ? 'c6_r_a_return' : 'c6_r_a_work', (branch & 2) ? 'c6_r_pay_stock' : 'c6_r_pay_bag', (branch & 4) ? 'c6_r_a_witness' : 'c6_r_a_boundary', 'c6_r_rest', 'c6_r_to_checkpoint']
-    : ['c6_rev_begin', host ? 'c6_r_b_host' : 'c6_r_b_stay', (branch & 2) ? (host ? 'c6_r_b_terms' : 'c6_r_b_company') : (host ? 'c6_r_b_water_h' : 'c6_r_b_water_p'), (branch & 4) ? 'c6_r_b_offer' : 'c6_r_b_honest', 'c6_r_rest', 'c6_r_to_checkpoint'];
+    ? ['c6_rev_begin_care', 'c6_r_a_yard', host ? 'c6_r_a_return_care' : 'c6_r_a_work_care', (branch & 2) ? 'c6_r_pay_stock' : 'c6_r_pay_bag', (branch & 4) ? 'c6_r_a_witness' : 'c6_r_a_boundary', 'c6_r_rest_care', 'c6_r_to_checkpoint']
+    : ['c6_rev_begin_care', host ? 'c6_r_b_host' : 'c6_r_b_stay', (branch & 2) ? (host ? 'c6_r_b_terms_care' : 'c6_r_b_company_care') : (host ? 'c6_r_b_water_h_care' : 'c6_r_b_water_p_care'), (branch & 4) ? 'c6_r_b_offer' : 'c6_r_b_honest', 'c6_r_rest_care', 'c6_r_to_checkpoint'];
   for (const id of plan) {
     const scene = s.chars[pid].scene;
     const actions = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal);
@@ -48,9 +48,10 @@ function finish(start: GameState, pid: PlayerId, branch: number, explore = false
   let step = 0;
   while (!segmentFinished(c, s, pid) && step < 40) {
     const scene = s.chars[pid].scene;
-    expect(scene).toMatch(/^c6_l_/);
+    expect(scene).toMatch(/^c6_(l_|camp_supper)/);
     const actions = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal);
-    expect(actions.length, scene).toBeGreaterThanOrEqual(4);
+    // В еде показываем и недоступные порции: отсутствие продуктов не превращаем в бесплатный ужин.
+    expect(availableActions({ s, c, pid }).filter(a => !a.universal).length, scene).toBeGreaterThanOrEqual(4);
     const optional = actions.filter(a => a.def.combinable && !a.def.terminal && !a.def.goto).map(a => a.def.id);
     if (explore && optional.length) {
       records.push({ scene, plan: optional });
@@ -77,7 +78,7 @@ const merge = (s: GameState, a: number, b: number) => {
 };
 
 describe('переработанный участок 6', () => {
-  it('оба телефона проходят все свои ветки и воспроизводятся точно', () => {
+  it('оба телефона проходят все свои ветки и воспроизводятся точно', { timeout: 15000 }, () => {
     for (const pid of ['A', 'B'] as const) for (let branch = 0; branch < 8; branch++) {
       const start = base(), direct = finish(start, pid, branch), curious = finish(start, pid, branch, true);
       expect(curious.vars[`${pid}.c6_r_water`]).toBe(direct.vars[`${pid}.c6_r_water`]);

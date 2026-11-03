@@ -1,6 +1,7 @@
 // Действия: одиночные, несколько совместимых, последовательные, условные, рискованные,
 // взаимоисключающие. План выполняется по шагам с проверкой мира после каждого шага.
 import { canAct } from './body';
+import { campActions } from './camp';
 import { evalCond } from './conditions';
 import type { ActionDef, Scene } from './content-types';
 import { checkChance } from './checks';
@@ -39,6 +40,7 @@ export function availableActions(ctx: Ctx): AvailableAction[] {
   const ch = me(ctx);
   const out: AvailableAction[] = [];
   for (const def of scene.actions) {
+    if (def.replayOnly && ctx.s.checkpoint >= 5 && !ctx.replaying) continue;
     if (!def.repeatable && ch.done[doneKey(scene.id, def.id)]) continue;
     if (!evalCond(ctx, def.when)) continue;
     // Условие и очерёдность — раздельно: «сначала спросить» можно выполнить в том же плане,
@@ -160,7 +162,7 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
     const hours = clamp(Math.round(b.sleepDebt / 1.1), 2, 9);
     list.push({ id: 'u:sleep', label: `Лечь спать (≈${hours} ч)`, minutes: 0, group: 'u:sleep', effects: [{ sleep: hours * 60 }], repeatable: true });
   }
-  return list;
+  return campActions(ctx, scene, list);
 }
 
 /**
@@ -294,7 +296,8 @@ export function executePlan(ctx: Ctx, ids: string[]): PlanResult {
     if (def.id === 'u:news') deliverMissedNews(ctx, step);
     for (const t of step.text) log(ctx, 'story', t);
     const activity = def.activity ?? (def.move ? 'moderate' : 'light');
-    const adv = advanceTime(ctx, Math.max(0, minutes - (ch.time - startT)), activity, { finishOnEvent: activity !== 'rest' });
+    const timed = ctx.s.checkpoint >= 5 && def.ambientDuring ? { ...ctx, ambientOverride: def.ambientDuring } : ctx;
+    const adv = advanceTime(timed, Math.max(0, minutes - (ch.time - startT)), activity, { finishOnEvent: activity !== 'rest' });
     step.text.push(...eff.notes, ...adv.notes);
     result.steps.push(step);
 

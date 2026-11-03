@@ -1,5 +1,6 @@
 import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
 import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
+import { performCamp } from './camp';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
 import { clamp, round } from './rng';
@@ -38,6 +39,7 @@ export function applyEffects(ctx: Ctx, effects: Effect[] | undefined, out: Effec
 function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   const ch = me(ctx);
   const t = ch.time;
+  if ('camp' in e) { out.notes.push(...performCamp(ctx, e.camp)); return; }
   if ('if' in e) { applyEffects(ctx, evalCond(ctx, e.if) ? e.then : e.else, out); return; }
   if ('set' in e && 'value' in e) {
     // Сведение часов на точке: отставший «проживает» время, которое у партнёра уже прошло. Если переменную

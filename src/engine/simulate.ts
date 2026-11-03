@@ -1,6 +1,7 @@
 // Ход времени для одной временной линии: тело, батареи, события мира, планы NPC, бытовые правила.
 import { baseTicksDuring } from './base';
 import { canAct, symptoms, tickBody } from './body';
+import { campConfig, campWater, consumeCampFood, performCamp } from './camp';
 import { evalCond } from './conditions';
 import { applyEffects } from './effects';
 import { clamp, round } from './rng';
@@ -184,7 +185,11 @@ export function applyStandingRules(ctx: Ctx) {
     .sort(tag === 'thirst' ? (a, b) => drinkOrder(ctx, a, b)
       : (a, b) => (itemType(ctx, b.type).spoilsAfter ? 1 : 0) - (itemType(ctx, a.type).spoilsAfter ? 1 : 0) || (a.id < b.id ? -1 : 1));
   const loc = ctx.c.locations[ch.location];
-  if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45 && loc?.water && ctx.s.vars[`w.water.${loc.region}`] !== 'off') {
+  if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45 && campConfig(ctx)
+    && ctx.s.vars[`${ctx.pid}.camp.manualMeals`] && campWater(ctx) >= 0.5) {
+    const notes = performCamp(ctx, { kind: 'drink', liters: 0.5 });
+    for (const note of notes) log(ctx, 'item', `По привычке: ${note}`);
+  } else if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45 && loc?.water && ctx.s.vars[`w.water.${loc.region}`] !== 'off') {
     // Есть водопровод — пьют из-под крана, а не из запасов в рюкзаке.
     ch.body.thirst = clamp(ch.body.thirst - 35, 0, 100);
     log(ctx, 'item', 'По привычке: {m:попил|попила} воды из-под крана.');
@@ -192,9 +197,12 @@ export function applyStandingRules(ctx: Ctx) {
     const item = usable('thirst')[0];
     if (item) {
       const t = itemType(ctx, item.type);
-      takeItems(ctx, (i) => i.id === item.id, 1);
-      ch.body.thirst = clamp(ch.body.thirst - (t.food?.thirst ?? 0), 0, 100);
-      ch.body.hunger = clamp(ch.body.hunger - (t.food?.hunger ?? 0), 0, 100);
+      if (campConfig(ctx) && ctx.s.vars[`${ctx.pid}.camp.manualMeals`]) consumeCampFood(ctx, item.type, Math.min(1, item.qty));
+      else {
+        takeItems(ctx, (i) => i.id === item.id, 1);
+        ch.body.thirst = clamp(ch.body.thirst - (t.food?.thirst ?? 0), 0, 100);
+        ch.body.hunger = clamp(ch.body.hunger - (t.food?.hunger ?? 0), 0, 100);
+      }
       log(ctx, 'item', `По привычке: ${t.tags.includes('drink') ? 'выпито' : 'съедено, чтобы утолить жажду'} — ${t.name}.`);
     }
   }
@@ -202,9 +210,12 @@ export function applyStandingRules(ctx: Ctx) {
     const item = usable('hunger')[0];
     if (item) {
       const t = itemType(ctx, item.type);
-      takeItems(ctx, (i) => i.id === item.id, 1);
-      ch.body.hunger = clamp(ch.body.hunger - (t.food?.hunger ?? 0), 0, 100);
-      ch.body.thirst = clamp(ch.body.thirst - (t.food?.thirst ?? 0), 0, 100);
+      if (campConfig(ctx) && ctx.s.vars[`${ctx.pid}.camp.manualMeals`]) consumeCampFood(ctx, item.type, Math.min(1, item.qty));
+      else {
+        takeItems(ctx, (i) => i.id === item.id, 1);
+        ch.body.hunger = clamp(ch.body.hunger - (t.food?.hunger ?? 0), 0, 100);
+        ch.body.thirst = clamp(ch.body.thirst - (t.food?.thirst ?? 0), 0, 100);
+      }
       log(ctx, 'item', `По привычке: ${t.tags.includes('drink') ? 'выпито' : 'съедено'} — ${t.name}.`);
     }
   }

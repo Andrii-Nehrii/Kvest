@@ -10,6 +10,9 @@ export interface Ctx {
   c: Content;
   /** Чья временная линия сейчас считается. «$» в ключах = этот игрок. */
   pid: PlayerId;
+  /** Восстановление журнала, а не новый ход из интерфейса. */
+  replaying?: boolean;
+  ambientOverride?: { tempC?: number; wet?: boolean; outdoor?: boolean };
 }
 
 export const me = (ctx: Ctx): CharacterState => ctx.s.chars[ctx.pid];
@@ -106,10 +109,10 @@ export function carryLimit(ctx: Ctx, pid: PlayerId = ctx.pid): number {
   return 10000 + ctx.s.chars[pid].traits.strength * 2500;
 }
 
-export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: number; condition?: number; note?: string; fuel?: number } = {}, to: ItemInstance['at'] = { kind: 'char', id: ctx.pid }): ItemInstance {
+export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: number; condition?: number; note?: string; fuel?: number; reservedFor?: PlayerId } = {}, to: ItemInstance['at'] = { kind: 'char', id: ctx.pid }): ItemInstance {
   const def = itemType(ctx, type);
   const t = me(ctx).time;
-  const stackable = !def.battery && !def.vehicle && !def.fuelCan && opts.charge === undefined && !opts.note && (opts.condition ?? 100) === 100;
+  const stackable = !def.battery && !def.vehicle && !def.fuelCan && opts.charge === undefined && !opts.note && !opts.reservedFor && (opts.condition ?? 100) === 100;
   if (stackable) {
     const existing = Object.values(ctx.s.items).find((i) => i.type === type && i.charge === undefined && !i.note && i.condition === 100 && i.uses === undefined
       && i.at.kind === to.kind && (i.at as { id?: string }).id === (to as { id?: string }).id && i.qty > 0);
@@ -119,6 +122,7 @@ export function giveItem(ctx: Ctx, type: string, qty: number, opts: { charge?: n
     id: nextId(ctx, 'it'), type, qty, condition: opts.condition ?? 100,
     charge: opts.charge ?? (def.battery ? 100 : undefined), at: to, changedAt: t, note: opts.note,
     fuel: opts.fuel ?? (def.vehicle || def.fuelCan ? 0 : undefined),
+    ...(opts.reservedFor ? { reservedFor: opts.reservedFor } : {}),
   };
   ctx.s.items[inst.id] = inst;
   return inst;
@@ -185,7 +189,8 @@ export function environment(ctx: Ctx): Environment {
   const loc = ctx.c.locations[ch.location];
   const scene = ctx.c.scenes[ch.scene];
   const weather = ctx.c.weather(loc?.region ?? 'hh', ch.time);
-  const outdoor = scene?.ambient?.outdoor ?? !(loc?.indoor ?? false);
+  const ambient = ctx.s.checkpoint >= 5 && ctx.ambientOverride ? ctx.ambientOverride : scene?.ambient;
+  const outdoor = ambient?.outdoor ?? !(loc?.indoor ?? false);
   const powerOff = loc ? ctx.s.vars[`w.power.${loc.region}`] === 'off' : false;
   const indoorTemp = loc?.power === 'grid' && !powerOff ? 20 : Math.max(weather.tempC + 6, 8);
   const slots = new Map<string, number>();
@@ -195,8 +200,8 @@ export function environment(ctx: Ctx): Environment {
   }
   const warmth = [...slots.values()].reduce((a, b) => a + b, 0);
   const env: Environment = {
-    tempC: scene?.ambient?.tempC ?? (outdoor ? weather.tempC - weather.wind * 0.15 : indoorTemp),
-    wet: scene?.ambient?.wet ?? (outdoor && weather.rain),
+    tempC: ambient?.tempC ?? (outdoor ? weather.tempC - weather.wind * 0.15 : indoorTemp),
+    wet: ambient?.wet ?? (outdoor && weather.rain),
     outdoor,
     warmth,
   };

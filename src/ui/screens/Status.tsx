@@ -1,6 +1,7 @@
 // Экраны состояния: вещи, тело, журнал, люди. Показывают только то, что знает персонаж.
 import { useState } from 'react';
 import { availableActions } from '../../engine/actions';
+import { campConfig, campRationRemaining } from '../../engine/camp';
 import { painLevel, symptoms } from '../../engine/body';
 import { clock, dateLabel } from '../../engine/time';
 import { caps, carriedWeight, carryLimit, fmt, heldItems, itemsAt, itemType, type Ctx } from '../../engine/world';
@@ -14,6 +15,8 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
   const ch = ctx.s.chars[ctx.pid];
   const held = heldItems(ctx);
   const here = itemsAt(ctx, ch.location);
+  const camp = campConfig(ctx);
+  const pantry = camp ? itemsAt(ctx, camp.stock).filter(i => !i.reservedFor || i.reservedFor === ctx.pid) : [];
   const w = carriedWeight(ctx);
   const lim = carryLimit(ctx);
   const [open, setOpen] = useState<string | null>(null);
@@ -22,7 +25,8 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
   const describe = (i: (typeof held)[number]) => {
     const t = itemType(ctx, i.type);
     const extra = [
-      i.qty > 1 ? `×${i.qty}` : '',
+      i.qty !== 1 ? `×${Number(i.qty.toFixed(3)).toLocaleString('ru-RU')}` : '',
+      i.qty < 1 && t.weight > 0 ? weightText(i.qty * t.weight) : '',
       i.charge !== undefined ? (t.tags.includes('antiseptic') ? `осталось ${Math.round(i.charge)} %` : `заряд ${Math.round(i.charge)} %`) : '',
       i.fuel !== undefined && (t.vehicle || t.fuelCan) ? (t.fuelCan && i.fuel <= 0 ? 'пустая' : `${i.fuel} л`) : '',
       i.condition < 100 ? `износ ${100 - Math.round(i.condition)} %` : '',
@@ -65,6 +69,16 @@ export function Items({ ctx, onPlan }: { ctx: Ctx; onPlan: (plan: string[]) => v
           })}
         </div>
       </Card>
+      {camp && <Card title="Запасы в доме">
+        <div className="small muted">Для еды и готовки используется выделенная тебе доля. Отложено из суточного пайка: {campRationRemaining(ctx).toLocaleString('ru-RU')} порц.</div>
+        <div className="list">
+          {pantry.length === 0 && <div className="muted">Доступных общих запасов нет.</div>}
+          {pantry.map(i => {
+            const { t, extra } = describe(i);
+            return <div className="li" key={i.id}><span className="grow">{t.name}{i.reservedFor === ctx.pid ? ' — отложено тебе' : ''}</span><span className="muted small">{extra}</span></div>;
+          })}
+        </div>
+      </Card>}
       <Card title={`Здесь: ${ctx.c.locations[ch.location]?.name ?? ch.location}`}>
         <div className="list">
           {here.length === 0 && <div className="muted">Ничего полезного на виду.</div>}
