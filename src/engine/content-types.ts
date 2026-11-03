@@ -184,6 +184,16 @@ export interface NpcDef {
   agenda: AgendaItem[];
 }
 
+/** Знакомый из сюжета без отдельной симуляции NPC. Карточка не меняет подписанный мир сохранения. */
+export interface ContactDef {
+  id: string;
+  name: string;
+  intro: string;
+  fromCheckpoint: number;
+  /** Только то знакомство, которое состоялось на линии читающего игрока. */
+  knownWhen: Cond;
+}
+
 export interface WorldEvent {
   id: string;
   at: Minutes;
@@ -329,6 +339,7 @@ export interface Content {
   scenes: Record<string, Scene>;
   facts: Record<string, FactDef>;
   npcs: Record<string, NpcDef>;
+  contacts?: Record<string, ContactDef>;
   events: WorldEvent[];
   joint: Record<string, JointDecision>;
   checkpoints: CheckpointDef[];

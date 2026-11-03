@@ -8,6 +8,7 @@ import { caps, carriedWeight, carryLimit, fmt, heldItems, itemsAt, itemType, typ
 import { Card, Meter } from '../kit';
 import { Narrative } from '../Narrative';
 import { consciousnessWord, injuryText, knownNpc, trustWord, weightText } from '../format';
+import { knownContacts } from '../people';
 
 const IMPORTANT = ['keys', 'phone', 'medicine', 'card', 'money'];
 
@@ -172,12 +173,13 @@ export function Journal({ ctx }: { ctx: Ctx }) {
 
 export function People({ ctx }: { ctx: Ctx }) {
   const known = Object.values(ctx.s.npcs).filter((n) => knownNpc(n, ctx.pid, ctx.s.vars));
+  const contacts = knownContacts(ctx);
   const facts = Object.entries(ctx.s.knowledge[ctx.pid]).sort((a, b) => a[1].at - b[1].at);
   const topics = [...new Set(facts.map(([id]) => ctx.c.facts[id]?.topic ?? 'разное'))];
   return (
     <div className="page">
       <Card title="Знакомые люди">
-        {known.length === 0 && <div className="muted">Пока никого.</div>}
+        {known.length === 0 && contacts.length === 0 && <div className="muted">Пока никого.</div>}
         {known.map((n) => {
           const def = ctx.c.npcs[n.id];
           const tw = trustWord(n.trust[ctx.pid]);
@@ -190,6 +192,12 @@ export function People({ ctx }: { ctx: Ctx }) {
             </div>
           );
         })}
+        {contacts.map(person => (
+          <div className="li" key={person.id} style={{ display: 'block' }}>
+            <b>{person.name}</b>
+            <div className="small muted">{fmt(ctx, person.intro)}</div>
+          </div>
+        ))}
       </Card>
       {topics.map((t) => (
         <Card key={t} title={`Что известно: ${t}`}>
