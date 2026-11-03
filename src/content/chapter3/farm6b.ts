@@ -200,7 +200,9 @@ export const farm6bScenes: Scene[] = [
 
 export const farm6bNotes: MergeNote[] = [
   { id: 'c6_r_house_water', when: all(farm, not(flag('w.c6_r_recorded'))), effects: [
-    { place: 'water_l', qty: 20, at: 'c3_farm_stock' }, { set: 'w.c6_r_recorded', value: true },
+    { if: not(flag('A.camp5.workWater')), then: [{ place: 'water_l', qty: 10, at: 'c3_farm_stock' }] },
+    { if: not(flag('B.camp5.workWater')), then: [{ place: 'water_l', qty: 10, at: 'c3_farm_stock' }] },
+    { set: 'w.c6_r_recorded', value: true },
     { if: bothWorked, then: [{ set: 'w.c6_r_morning_extra', value: false }], else: [{ set: 'w.c6_r_morning_extra', value: true }, { npc: 'henrike', remember: 'c6_r_finished_their_water' }] },
   ] },
   { id: 'c6_r_both_water', when: all(farm, bothWorked), text: 'Вы принесли обещанные двадцать литров сами. Завтрашнюю воду Хенрике распределяет без долга за сегодня.' },

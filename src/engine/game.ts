@@ -110,7 +110,7 @@ export function replayPrefix(c: Content, base: GameState, pid: PlayerId, records
     const before = structuredClone(s);
     try {
       if (s.chars[pid].scene !== r.scene) throw new Error('сцена не совпала');
-      play(c, s, pid, r.plan);
+      play(c, s, pid, r.plan, { replaying: true });
     } catch {
       s = before;
       break;
@@ -138,9 +138,9 @@ export function segmentFinished(c: Content, s: GameState, pid: PlayerId): 'check
   return false;
 }
 
-export function play(c: Content, s: GameState, pid: PlayerId, plan: string[]): PlanResult {
+export function play(c: Content, s: GameState, pid: PlayerId, plan: string[], options: { replaying?: boolean } = {}): PlanResult {
   if (segmentFinished(c, s, pid)) throw new Error('Участок уже завершён — нужна контрольная точка.');
-  return executePlan({ s, c, pid }, plan);
+  return executePlan({ s, c, pid, ...options }, plan);
 }
 
 /** Воспроизвести журнал участка от состояния контрольной точки. */
@@ -148,7 +148,7 @@ export function replaySegment(c: Content, base: GameState, pid: PlayerId, record
   const s = structuredClone(base);
   for (const r of records) {
     if (s.chars[pid].scene !== r.scene) throw new Error(`Расхождение при воспроизведении: ожидалась сцена ${r.scene}, а персонаж в ${s.chars[pid].scene}`);
-    play(c, s, pid, r.plan);
+    play(c, s, pid, r.plan, { replaying: true });
   }
   return s;
 }

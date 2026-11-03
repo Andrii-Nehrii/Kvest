@@ -14,6 +14,8 @@ export interface ItemType {
   tags: string[];
   /** Пищевая ценность: насколько снижает голод/жажду одна единица. */
   food?: { hunger?: number; thirst?: number; minutes?: number; kcal?: number };
+  /** Повторно используемая тара. Полная бутылка оставляет empty; пустая наполняется в filled. */
+  container?: { liters: number; empty?: string; filled?: string };
   /** Транспорт: вид топлива, бак (л), расход (л/100 км), мест. Топливо — в ItemInstance.fuel. */
   vehicle?: { fuel: 'petrol' | 'diesel'; tankL: number; per100km: number; seats: number; cargoL?: number };
   /** Канистра/бочка: вид топлива и объём. */
@@ -86,6 +88,10 @@ export interface Outcome {
 
 export interface ActionDef {
   id: string;
+  /** Сохранённый прежний вариант действия: только для воспроизведения уже сделанных ходов. */
+  replayOnly?: boolean;
+  /** Среда во время короткого выхода с возвращением в ту же сцену, только в новых участках. */
+  ambientDuring?: { tempC?: number; wet?: boolean; outdoor?: boolean };
   label: string;
   hint?: string;
   /** Показывать ли действие. */
@@ -129,6 +135,8 @@ export interface Scene {
   actions: ActionDef[];
   /** Универсальные действия (поесть, попить, перевязать, отдохнуть…). По умолчанию — да. */
   universal?: boolean;
+  /** Возможности повседневного ухода в новых участках, с КТ5. */
+  camp?: { at: string; stock: string; kitchen?: boolean; rest?: 'brief' | 'sleep' | false; car?: string; well?: boolean };
   /** Сцена безопасна: можно спать, срабатывают бытовые правила. */
   safe?: boolean;
   /** Спокойная обстановка: бытовые правила (попить, поесть) срабатывают, но спать нельзя. */

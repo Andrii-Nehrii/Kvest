@@ -3,8 +3,12 @@ import type { ItemType } from '../engine/content-types';
 
 const list: ItemType[] = [
   // Вода и еда
-  { id: 'water_05', name: 'вода, бутылка 0,5 л', weight: 520, tags: ['drink'], food: { thirst: 22 } },
-  { id: 'water_15', name: 'вода, бутылка 1,5 л', weight: 1550, tags: ['drink'], food: { thirst: 60 } },
+  { id: 'water_05', name: 'вода, бутылка 0,5 л', weight: 520, tags: ['drink'], food: { thirst: 22 }, container: { liters: 0.5, empty: 'empty_bottle_05' } },
+  { id: 'water_15', name: 'вода, бутылка 1,5 л', weight: 1550, tags: ['drink'], food: { thirst: 60 }, container: { liters: 1.5, empty: 'empty_bottle_15' } },
+  { id: 'empty_bottle_05', name: 'пустая бутылка 0,5 л', weight: 20, tags: ['container'], container: { liters: 0.5, filled: 'water_05' } },
+  { id: 'empty_bottle_15', name: 'пустая бутылка 1,5 л', weight: 50, tags: ['container'], container: { liters: 1.5, filled: 'water_15' } },
+  { id: 'c3_meal', name: 'отложенная порция ужина', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 733, minutes: 10 }, spoilsAfter: 1440 },
+  { id: 'c3_porridge', name: 'приготовленная порция овсяной каши', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 925, minutes: 10 }, spoilsAfter: 1440 },
   { id: 'water_l', name: 'вода, литр (канистра/ёмкость)', weight: 1000, tags: ['water_bulk'] },
   { id: 'bread', name: 'хлеб, полбуханки', weight: 400, tags: ['food', 'staple'], food: { hunger: 30, kcal: 1000, minutes: 10 }, spoilsAfter: 4 * 1440 },
   { id: 'sandwich', name: 'бутерброд', weight: 180, tags: ['food'], food: { hunger: 18, kcal: 450, minutes: 5 }, spoilsAfter: 1440 },

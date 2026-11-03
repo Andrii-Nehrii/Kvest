@@ -154,6 +154,8 @@ export interface ItemInstance {
   /** Игровое время последнего изменения — для слияния. */
   changedAt: Minutes;
   note?: string;
+  /** Отдельно отложенная доля общего запаса, доступная только этому игроку. */
+  reservedFor?: PlayerId;
 }
 
 // ───────────────────────────── NPC ─────────────────────────────
@@ -286,6 +288,7 @@ export type Cond =
   | { itemAt: string; place: string }
   /** У игрока есть вещь (тип или тег) с зарядом не меньше atLeast (пауэрбанк, антисептик). */
   | { charged: string; atLeast: number }
+  | { camp: 'meal' | 'portion' | 'water' | 'cook' | 'hostMeal' }
   | { project: string; done?: boolean; progress?: [CmpOp, number] }
   | { stocked: string; qty: number; at?: string }
   /** Пройдено не меньше N контрольных точек: так включают новое поведение только для ещё не сыгранных участков. */
@@ -299,6 +302,7 @@ export type Cond =
 export type Activity = 'sleep' | 'rest' | 'light' | 'moderate' | 'heavy';
 
 export type Effect =
+  | { camp: CampOperation }
   | { set: string; value: Scalar }
   | { add: string; value: number }
   | { give: string; qty?: number; charge?: number; condition?: number; note?: string; fuel?: number }
@@ -335,3 +339,16 @@ export type Effect =
   | { stock: string; qty: number; at?: string }
   | { unstock: string; qty: number; at?: string }
   | { if: Cond; then: Effect[]; else?: Effect[] };
+
+export type CampOperation =
+  | { kind: 'prepare' }
+  | { kind: 'deliverWater'; liters: number }
+  | { kind: 'fetchWater'; liters: number }
+  | { kind: 'consume'; type: string; qty?: number; here?: boolean }
+  | { kind: 'drink'; liters: number }
+  | { kind: 'refill'; empty: string }
+  | { kind: 'meal'; mode: 'eat' | 'pack' | 'give' | 'host' | 'return' }
+  | { kind: 'cook'; mode: 'pack' | 'give' }
+  | { kind: 'bank' }
+  | { kind: 'carCharge'; gain: number; fuel: number }
+  | { kind: 'signal' };
