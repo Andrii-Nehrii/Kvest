@@ -8,6 +8,7 @@ const list: ItemType[] = [
   { id: 'empty_bottle_05', name: 'пустая бутылка 0,5 л', weight: 20, tags: ['container'], container: { liters: 0.5, filled: 'water_05' } },
   { id: 'empty_bottle_15', name: 'пустая бутылка 1,5 л', weight: 50, tags: ['container'], container: { liters: 1.5, filled: 'water_15' } },
   { id: 'c3_meal', name: 'отложенная порция ужина', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 733, minutes: 10 }, spoilsAfter: 1440 },
+  { id: 'c7_jens_note', name: 'записка Йенса для Нины', weight: 5, tags: ['note'], description: 'Согласованные слова Йенса, адрес хутора и номер получателя.' },
   { id: 'c3_porridge', name: 'приготовленная порция овсяной каши', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 925, minutes: 10 }, spoilsAfter: 1440 },
   { id: 'water_l', name: 'вода, литр (канистра/ёмкость)', weight: 1000, tags: ['water_bulk'] },
   { id: 'bread', name: 'хлеб, полбуханки', weight: 400, tags: ['food', 'staple'], food: { hunger: 30, kcal: 1000, minutes: 10 }, spoilsAfter: 4 * 1440 },

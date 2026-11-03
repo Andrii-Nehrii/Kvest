@@ -6,7 +6,7 @@ import { newGame, play, replaySegment, segmentFinished, type ActionRecord } from
 import { stateHash, unit } from '../engine/rng';
 import { at } from '../engine/time';
 import type { GameState, PlayerId } from '../engine/types';
-import { fmt } from '../engine/world';
+import { fmt, giveItem } from '../engine/world';
 import { START_TIME, shouldSendAnswers, myAnswersCode, acceptPartnerAnswers, readyToFinish, finishCheckpoint, type LocalSave } from '../app/session';
 import { stayRoutes } from './chapter3/routes';
 import { farm6bAvailable } from './chapter3/farm6b';
@@ -96,7 +96,9 @@ describe('глава 3', () => {
   it('каждая домашняя локация и редкий старт имеют определённый маршрут', () => {
     for (const loc of ['a_flat', 'a_stairs', 'a_yard', 'a_street', 'a_brockmann', 'b_flat', 'b_stairs', 'b_yard', 'b_street', 'b_okafor', 'b_nowak', 'b_kiosk', 'hof_luedemann', 'farm_coop', 'deniz_workshop', 'ahrensburg', 'b_van', 'north_gym', 'messe', 'messe_q', 'c3_messe_yard', 'hh_city', 'elbbruecken']) {
       const s = baseFor(); s.chars.A.location = loc;
-      for (const n of SEGS) expect(c.scenes[stayRoutes(n).find((r) => evalCond({ s, c, pid: 'A' }, r.when))!.scene]).toBeDefined();
+      // Сетка домашних маршрутов используется в старых универсальных участках.
+      // Новая точка 7 имеет собственные входы/выходы (point7.test.ts).
+      for (const n of SEGS.filter(n => n <= 6)) expect(c.scenes[stayRoutes(n).find((r) => evalCond({ s, c, pid: 'A' }, r.when))!.scene]).toBeDefined();
     }
   });
   for (const choice of ['farm', 'workshop', 'a_flat', 'b_flat', 'messe', 'north']) it(`план КТ 4: ${choice}, обе линии воспроизводятся`, () => {
@@ -283,6 +285,15 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       s.checkpoint = n - 1;
       if (id === 'c3_l_road6' && option.id !== 'none') {
         s.vars['A.c6_l_finished'] = s.vars['B.c6_l_finished'] = true;
+      }
+      if (n === 7 && id.startsWith('c3_new_')) {
+        // Общие действия 7 доступны после личной подготовки, со своим инструментом
+        // и живыми помощниками. Отрицательные случаи проверяет point7.test.ts.
+        s.npcs.pawel.location = 'hof_luedemann';
+        giveItem({ s, c, pid: 'A' }, 'crowbar', 1);
+        Object.assign(s.vars, { 'w.c7_new_story': true, 'A.c7_tools_ready': true,
+          'A.c7_has_tool': true, 'A.c7_tools_deniz': true, 'A.c7_deniz_willing': true,
+          'A.c7_has_crowbar': true, 'A.c7_has_car_key': true });
       }
       if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;

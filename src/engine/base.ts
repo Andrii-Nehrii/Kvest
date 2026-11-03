@@ -41,7 +41,14 @@ export function drive(ctx: Ctx, type: string, km: number, to: string | undefined
     return `Двигатель кашляет и глохнет: топливо кончилось примерно через ${Math.floor(km * have / need)} км.`;
   }
   car.fuel = round(have - need, 2);
-  // Питание от уже идущей поездки: не заводим мотор отдельно и не берём лишнее топливо.
+  chargeForTrip(ctx, km, jam);
+  if (to) { car.at = { kind: 'place', id: to }; me(ctx).location = to; }
+  car.changedAt = me(ctx).time;
+  return undefined;
+}
+
+/** Зарядка пассажира использует ту же уже оплаченную поездку, не второй запуск двигателя. */
+export function chargeForTrip(ctx: Ctx, km: number, jam = 1) {
   const newTravel = ctx.s.checkpoint >= 6 || (ctx.s.checkpoint >= 5 && !!ctx.c.scenes[me(ctx).scene]?.camp);
   if (newTravel && km > 0 && me(ctx).rules.chargePhoneWhenFreePower && countTag(ctx, 'charger') > 0) {
     const device = phone(ctx);
@@ -50,9 +57,6 @@ export function drive(ctx: Ctx, type: string, km: number, to: string | undefined
       device.changedAt = me(ctx).time;
     }
   }
-  if (to) { car.at = { kind: 'place', id: to }; me(ctx).location = to; }
-  car.changedAt = me(ctx).time;
-  return undefined;
 }
 
 /** Заправка из канистры (или с колонки, если канистра не указана). Не тот вид топлива губит двигатель. */

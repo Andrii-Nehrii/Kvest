@@ -86,13 +86,14 @@ describe('переработанный участок 6', () => {
       for (const owner of ['A', 'c3_farm_stock']) expect(qty(curious, 'potatoes', owner)).toBe(qty(direct, 'potatoes', owner));
     }
   });
-  it('старые начала не повторяются, участки 7–8 не подключены', () => {
+  it('старые начала и снятые участки 7–8 не подключены', () => {
     for (const pid of ['A', 'B'] as const) for (const action of ['c6_begin', 'c6_new_begin']) {
       const s = base(), r = replayPrefix(c, s, pid, [{ scene: 'c6_start', plan: [action] }]);
       expect(r.applied).toBe(0); expect(stateHash(r.state)).toBe(stateHash(s));
     }
     for (const id of ['c6_farm', 'c7_farm', 'c8_farm', 'c6_new_well']) expect(c.scenes[id]).toBeUndefined();
-    expect(c.checkpoints.some(x => x.index > 6)).toBe(false);
+    expect(c.checkpoints.find(x => x.index === 7)!.joint).toEqual(['c3_new_van7', 'c3_new_depart7']);
+    expect(c.checkpoints.some(x => x.index > 7)).toBe(false);
   });
   it('расчёт из другого источника действительно сохраняет мешок, а не списывает его дважды', () => {
     const s = base(), bag = qty(s, 'potatoes', 'A'), stock = qty(s, 'potatoes', 'c3_farm_stock');

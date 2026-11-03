@@ -314,7 +314,7 @@ export type Effect =
   | { pickup: string; place?: string; qty?: number }
   | { place: string; at: string; qty?: number; charge?: number }
   | { charge: string; delta: number }
-  | { body: keyof Pick<Body, 'hunger' | 'thirst' | 'fatigue' | 'sleepDebt' | 'bloodLoss' | 'stress'>; delta: number }
+  | { body: keyof Pick<Body, 'hunger' | 'thirst' | 'fatigue' | 'sleepDebt' | 'bloodLoss' | 'stress'>; delta: number; target?: PlayerId | '$' | '@partner' }
   | { injure: InjuryKind; site: BodySite; severity: 1 | 2 | 3 | 4 | 5; bleeding?: number; exposure?: number }
   | { treat: 'basic' | 'proper'; target?: PlayerId | '$' | '@partner' }
   | { illness: string; target?: PlayerId | '$' }
@@ -326,6 +326,12 @@ export type Effect =
   | { log: string; kind?: LogEntry['kind'] }
   | { message: string; to?: PlayerId | '@partner' }
   | { wait: number; activity?: Activity }
+  /** Новые участки: дожить до часа, не отматывая поздно пришедшего игрока назад. */
+  | { restUntil: Minutes; sleeping?: boolean }
+  | { waitTogether: number }
+  | { handOver: string; toNpc: string; qty?: number }
+  /** Совместная дорога: горючее тратится один раз, время идёт у обоих. */
+  | { journey: { to: string; km: number; minutes: number; vehicle?: string } }
   | { sleep: number }
   | { die: string }
   | { faint: number }
@@ -341,7 +347,7 @@ export type Effect =
   | { if: Cond; then: Effect[]; else?: Effect[] };
 
 export type CampOperation =
-  | { kind: 'prepare' }
+  | { kind: 'prepare'; quiet?: boolean }
   | { kind: 'deliverWater'; liters: number }
   | { kind: 'fetchWater'; liters: number }
   | { kind: 'consume'; type: string; qty?: number; here?: boolean }

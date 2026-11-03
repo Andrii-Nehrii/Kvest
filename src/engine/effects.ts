@@ -1,12 +1,13 @@
 import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
 import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
 import { performCamp } from './camp';
+import { journey } from './journey';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
 import { clamp, round } from './rng';
 import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
-import { other } from './types';
+import { other, PLAYERS } from './types';
 import {
   fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, resolveKey, setVar, takeItems, type Ctx,
 } from './world';
@@ -39,6 +40,34 @@ export function applyEffects(ctx: Ctx, effects: Effect[] | undefined, out: Effec
 function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   const ch = me(ctx);
   const t = ch.time;
+  if ('restUntil' in e) {
+    if (ctx.s.checkpoint < 6 || e.restUntil <= t) return;
+    if (e.sleeping) fallAsleep(ch.body, t);
+    mergeAdvance(out, advanceTime(ctx, e.restUntil - t, e.sleeping ? 'sleep' : 'rest'));
+    if (e.sleeping) wakeUp(ch.body, ch.time);
+    return;
+  }
+  if ('waitTogether' in e) {
+    if (ctx.s.checkpoint < 6 || !(e.waitTogether > 0)) return;
+    for (const pid of PLAYERS) mergeAdvance(out, advanceTime({ ...ctx, pid }, e.waitTogether, 'rest'));
+    return;
+  }
+  if ('handOver' in e) {
+    if (ctx.s.checkpoint < 6) return;
+    const recipient = ctx.s.npcs[e.toNpc], qty = e.qty ?? 1;
+    const held = Object.values(ctx.s.items).filter(i => i.qty > 0 && i.type === e.handOver && i.at.kind === 'char' && i.at.id === ctx.pid);
+    if (!recipient?.alive || recipient.location !== ch.location || !(qty > 0) || held.reduce((n, i) => n + i.qty, 0) < qty) {
+      out.interrupted = true; out.notes.push('Передать вещь сейчас не получилось: её нет при тебе или получателя нет рядом.'); return;
+    }
+    moveItems(ctx, i => i.type === e.handOver, qty, { kind: 'char', id: ctx.pid }, { kind: 'npc', id: e.toNpc });
+    out.notes.push(`Передано: ${itemType(ctx, e.handOver).name} — ${qty}. Получатель: ${ctx.c.npcs[e.toNpc].name}.`);
+    return;
+  }
+  if ('journey' in e) {
+    const problem = journey(ctx, e.journey);
+    if (problem) { out.interrupted = true; out.notes.push(problem); }
+    return;
+  }
   if ('camp' in e) { out.notes.push(...performCamp(ctx, e.camp)); return; }
   if ('if' in e) { applyEffects(ctx, evalCond(ctx, e.if) ? e.then : e.else, out); return; }
   if ('set' in e && 'value' in e) {
@@ -81,8 +110,10 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     return;
   }
   if ('body' in e) {
-    ch.body[e.body] = clamp(ch.body[e.body] + e.delta, 0, e.body === 'sleepDebt' ? 72 : 100);
-    if (checkThresholds(ch.body, t)) out.interrupted = true;
+    if (e.target && ctx.s.checkpoint < 6) return;
+    const recipient = e.target ? ctx.s.chars[targetPid(ctx, e.target)] : ch;
+    recipient.body[e.body] = clamp(recipient.body[e.body] + e.delta, 0, e.body === 'sleepDebt' ? 72 : 100);
+    if (checkThresholds(recipient.body, recipient.time)) out.interrupted = true;
     return;
   }
   if ('injure' in e) {
