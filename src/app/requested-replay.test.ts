@@ -36,8 +36,21 @@ describe('повтор участка 6 по запросу пары', () => {
     const read = vi.fn();
     const other = make('A'); other.pairId = 'other-pair';
     const earlier = make('A'); earlier.base!.checkpoint = 4;
-    for (const save of [replay('A'), other, earlier]) expect(await requestedReplay(content, save, read)).toBeUndefined();
+    const unknownReplay = { ...make('A'), replay: 'another-replay' };
+    for (const save of [replay('A'), other, earlier, unknownReplay]) expect(await requestedReplay(content, save, read)).toBeUndefined();
     expect(read).not.toHaveBeenCalled();
+  });
+  it('возвращает к КТ5 и после первого повтора, не меняя его исходные данные', async () => {
+    for (const me of ['A', 'B'] as const) {
+      const previous = { ...make(me), replay: 'replay6-20261102' };
+      previous.segment = [{ scene: 'c6_start', plan: ['c6_rev_begin'] }];
+      const snapshot = structuredClone(previous);
+      const next = await requestedReplay(content, previous, async () => exportSave(replay(me)));
+      expect(next!.replay).toBe(REPLAY_ID);
+      expect(next!.segment).toEqual([]);
+      expect(next!.hashes).toEqual(previous.hashes);
+      expect(previous).toEqual(snapshot);
+    }
   });
   it('при открытии старой копии подхватывает уже сделанные ходы повтора, не теряя их', async () => {
     const ready = replay('A'); ready.segment = [{ scene: 'c6_start', plan: ['c6_rev_begin'] }];

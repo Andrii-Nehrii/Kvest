@@ -5,7 +5,7 @@ import { evalCond } from '../engine/conditions';
 import { dbDelete, dbGet, dbPut, dbReplaceWithBackup, requestPersistence } from '../app/db';
 import { act, exportSave, normalizePhase, refreshSave, type LocalSave } from '../app/session';
 import { cloudPairId, cloudPaths, getFile, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
-import { replayBackupKey, requestedReplay } from '../app/requested-replay';
+import { replayBackupKey, requestedReplay, requestedReplaySource } from '../app/requested-replay';
 import { content } from '../content';
 import { healthDot } from './format';
 import { Icon } from './kit';
@@ -50,9 +50,11 @@ export function App() {
         try {
           const next = await requestedReplay(content, s, (id, me) => getFile(cfg.token, cloudPaths.save(id, me)));
           if (next) {
-            const pairId = s.pairId, me = s.me;
+            const pairId = s.pairId, me = s.me, secret = s.secret, seed = s.seed;
             const installed = await dbReplaceWithBackup<LocalSave>(replayBackupKey(me), (current) => {
-              if (!current || current.pairId !== pairId || current.me !== me || current.replay) return current;
+              if (!current || current.pairId !== pairId || current.me !== me || !requestedReplaySource(current)
+                || current.secret !== secret || current.seed !== seed
+                || current.hashes.slice(0, 6).some((hash, i) => next.hashes[i] !== hash)) return current;
               return { ...next, updatedAt: Math.max(Date.now(), current.updatedAt + 1, next.updatedAt) };
             });
             if (!installed) { setSave(null); return; }

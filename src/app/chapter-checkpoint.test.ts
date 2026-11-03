@@ -36,8 +36,8 @@ for (const index of [1, 2, 3, 4]) it(`КТ ${index}: старый формат �
 const LAST = Math.max(...c.checkpoints.map((cp) => cp.index));
 for (const index of [5, 6, 7, 8].filter((n) => n <= LAST)) it(`КТ ${index}: один отвечающий, одинаковый мир и сохранённый код`, async () => {
   let a = phone(index, 'A'); const b = phone(index, 'B');
-  const id = c.checkpoints.find(cp => cp.index === index)!.joint[0];
-  b.cp!.myAnswers = { [id]: optionsFor(c, b.cp!.merged!, c.joint[id], 'B')[0].id };
+  const ids = c.checkpoints.find(cp => cp.index === index)!.joint;
+  b.cp!.myAnswers = Object.fromEntries(ids.map(id => [id, optionsFor(c, b.cp!.merged!, c.joint[id], 'B')[0].id]));
   expect(shouldSendAnswers(c, a)).toBe(false);
   expect(shouldSendAnswers(c, b)).toBe(true);
   expect(readyToFinish(c, a)).toBe(false);
