@@ -19,7 +19,7 @@ const base = () => {
   }
   return s;
 };
-function finish(start: GameState, pid: PlayerId, branch: number, explore = false) {
+function finish(start: GameState, pid: PlayerId, branch: number, explore = false, forced: Record<string, string> = {}) {
   const s = structuredClone(start), records: ActionRecord[] = [];
   const host = (branch & 1) !== 0;
   const plan = pid === 'A'
@@ -44,6 +44,24 @@ function finish(start: GameState, pid: PlayerId, branch: number, explore = false
     expect(availableActions({ s, c, pid }).some(a => a.enabled && a.def.id === id), `${pid}/${s.chars[pid].scene}/${id}`).toBe(true);
     records.push({ scene: s.chars[pid].scene, plan: [id] });
     play(c, s, pid, [id]);
+  }
+  let step = 0;
+  while (!segmentFinished(c, s, pid) && step < 40) {
+    const scene = s.chars[pid].scene;
+    expect(scene).toMatch(/^c6_l_/);
+    const actions = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal);
+    expect(actions.length, scene).toBeGreaterThanOrEqual(4);
+    const optional = actions.filter(a => a.def.combinable && !a.def.terminal && !a.def.goto).map(a => a.def.id);
+    if (explore && optional.length) {
+      records.push({ scene, plan: optional });
+      play(c, s, pid, optional);
+      expect(s.chars[pid].scene).toBe(scene);
+    }
+    const choices = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal && a.def.terminal);
+    const id = forced[scene] ?? choices[(branch + step) % choices.length].def.id;
+    records.push({ scene, plan: [id] });
+    play(c, s, pid, [id]);
+    step++;
   }
   expect(segmentFinished(c, s, pid)).toBe('checkpoint');
   expect(s.chars[pid].body.consciousness).toBe('awake');
@@ -91,18 +109,56 @@ describe('переработанный участок 6', () => {
       expect(qty(m, 'water_l', 'c3_farm_stock')).toBe(water);
     }
   });
-  it('три согласованных ответа дают разные судьбы; отказ от личного обещания остаётся виден', () => {
+  it('четыре согласованных ответа дают разные судьбы; отказ от личного обещания остаётся виден', () => {
     const m = merge(base(), 0, 4), d = c.joint.c3_new_night6;
     for (const a of optionsFor(c, m, d, 'A')) for (const b of optionsFor(c, m, d, 'B')) {
-      const answers = { A: { [d.id]: a.id }, B: { [d.id]: b.id } };
+      const answers = { A: { c3_l_road6: 'quiet', [d.id]: a.id }, B: { c3_l_road6: 'quiet', [d.id]: b.id } };
       const out = completeCheckpoint(c, structuredClone(m), answers);
       expect(stateHash(out.state)).toBe(stateHash(completeCheckpoint(c, structuredClone(m), answers).state));
       const chosen = a.id === b.id ? a.id : 'beside';
-      expect(out.joint[0].applied).toEqual([chosen]);
-      expect(out.state.npcs.pawel.vars.c6_r_depart_at_dawn).toBe(chosen !== 'beside');
+      expect(out.joint.find(x => x.id === d.id)!.applied).toEqual([chosen]);
+      expect(out.state.npcs.pawel.vars.c6_r_depart_at_dawn).toBe(['go_with', 'own_sleep'].includes(chosen));
       expect(!!out.state.vars['w.c6_r_leave_farm']).toBe(chosen === 'go_with');
       expect(!!out.state.npcs.pawel.vars.c6_r_b_promise_broken).toBe(chosen === 'own_sleep');
       for (const pid of ['A', 'B'] as const) expect(out.state.chars[pid].scene).toBe('c7_start');
+    }
+  });
+  it('общее действие у дороги имеет три разных результата; несовпавшие ответы не открывают ворота', () => {
+    const m = merge(base(), 0, 1), d = c.joint.c3_l_road6;
+    for (const a of optionsFor(c, m, d, 'A')) for (const b of optionsFor(c, m, d, 'B')) {
+      const out = completeCheckpoint(c, structuredClone(m), {
+        A: { [d.id]: a.id, c3_new_night6: 'beside' }, B: { [d.id]: b.id, c3_new_night6: 'beside' },
+      });
+      const chosen = a.id === b.id ? a.id : 'call';
+      expect(out.state.vars['w.c6_l_road_result']).toBe(chosen);
+      expect(out.state.vars['w.c6_l_van_surrounded']).toBe(chosen === 'quiet');
+      expect(out.state.vars['w.c6_l_extra_watch']).toBe(chosen !== 'quiet');
+      expect(out.state.vars['w.c6_l_keys_medical_only']).toBe(true);
+      expect(out.state.checkpoint).toBe(6);
+      expect(out.state.chars.A.location).toBe('hof_luedemann');
+      expect(out.state.chars.B.location).toBe('hof_luedemann');
+    }
+  });
+  it('учитывает собственную машину: предложение поездки требует двух ответов, топливо не тратится до дороги', () => {
+    const start = base(), car = Object.values(start.items).find(i => i.type === 'opel_corsa')!;
+    car.at = { kind: 'place', id: 'hof_luedemann' }; car.fuel = 12;
+    for (const available of [true, false]) {
+      const probe = structuredClone(start); probe.chars.A.scene = 'c6_l_a_test';
+      Object.values(probe.items).find(i => i.type === 'opel_corsa')!.fuel = available ? 12 : 0;
+      expect(availableActions({ s: probe, c, pid: 'A' }).some(a => a.enabled && a.def.id === 'c6_l_a_own_car_offer')).toBe(available);
+    }
+    const m = mergeSegments(c, start, {
+      A: finish(start, 'A', 0, false, { c6_l_a_test: 'c6_l_a_own_car_offer' }), B: finish(start, 'B', 0),
+    });
+    syncClocks(c, m, c.checkpoints.find(cp => cp.index === 6)!.syncNotBefore);
+    mergeNotes(c, m, 6);
+    expect(m.vars['w.c6_l_owncar_offer']).toBe(true);
+    for (const [a, b, accepted] of [['go_with', 'go_with', true], ['go_with', 'beside', false]] as const) {
+      const out = completeCheckpoint(c, structuredClone(m), {
+        A: { c3_l_road6: 'quiet', c3_new_night6: a }, B: { c3_l_road6: 'quiet', c3_new_night6: b },
+      });
+      expect(!!out.state.vars['w.c6_l_use_owncar']).toBe(accepted);
+      expect(Object.values(out.state.items).find(i => i.type === 'opel_corsa')!.fuel).toBe(12);
     }
   });
   it('вход закрыт до КТ5, после КТ6 и вне написанной линии', () => {

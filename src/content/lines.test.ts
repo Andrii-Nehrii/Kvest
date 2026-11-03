@@ -159,10 +159,17 @@ describe('главная линия главы 3', () => {
         density[`${p}:${n}`] = realChoices;
         expect(realChoices, `${p}/${n}: ${decisions} действий, ${realChoices} выборов в ситуациях`).toBeGreaterThanOrEqual(2);
       }
-      const id = c.checkpoints.find((x) => x.index === n)!.joint[0];
-      // На хуторе «остаться» — не всегда отдельный вариант: берём его, если есть, иначе первый доступный.
-      const ans = (p: 'A' | 'B') => { const o = optionsFor(c, ends[p], c.joint[id], p).map((x) => x.id); return { [id]: o.includes('stay') ? 'stay' : o[0] }; };
-      base = checkpoint(base, ends.A, ends.B, { A: ans('A'), B: ans('B') }).state;
+      const cp = c.checkpoints.find((x) => x.index === n)!;
+      const merged = mergeSegments(c, base, ends);
+      syncClocks(c, merged, cp.syncNotBefore);
+      deliverMessages(c, merged);
+      mergeNotes(c, merged, n);
+      // Выбираем для каждого вопроса после слияния, когда видны действия обоих телефонов.
+      const ans = (p: 'A' | 'B') => Object.fromEntries(cp.joint.map(id => {
+        const options = optionsFor(c, merged, c.joint[id], p).map(x => x.id);
+        return [id, options.includes('stay') ? 'stay' : options[0]];
+      }));
+      base = completeCheckpoint(c, merged, { A: ans('A'), B: ans('B') }).state;
       expect(base.ended).toBeUndefined();
       expect(base.vars['w.together']).toBe(true);
       expect(base.checkpoint).toBe(n);

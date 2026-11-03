@@ -281,6 +281,9 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
     const setup = (place: string) => {
       const s = baseFor([place, place, true], `forced:${id}:${option.id}`);
       s.checkpoint = n - 1;
+      if (id === 'c3_l_road6' && option.id !== 'none') {
+        s.vars['A.c6_l_finished'] = s.vars['B.c6_l_finished'] = true;
+      }
       if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;
       if (option.id === 'boards') s.vars['w.c3_f8_window_broken'] = true;
@@ -298,9 +301,10 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
     const s = [guess, 'hof_luedemann', 'b_flat', 'a_flat', 'north_gym', 'messe', 'deniz_workshop', 'farm_coop'].map(setup).find(ok) ?? setup(guess);
     expect(optionsFor(c, s, c.joint[id], 'A').some((o) => o.id === option.id)).toBe(true);
     expect(evalCond({ s, c, pid: 'A' }, option.feasible), `${id}/${option.id}`).toBe(true);
-    const answers = { [id]: option.id };
+    const answers = Object.fromEntries(c.checkpoints.find(cp => cp.index === n)!.joint.map(other => [other,
+      other === id ? option.id : optionsFor(c, s, c.joint[other], 'A')[0].id]));
     const out = completeCheckpoint(c, s, { A: answers, B: answers });
-    expect(out.joint[0].applied).toEqual([option.id]);
+    expect(out.joint.find(result => result.id === id)!.applied).toEqual([option.id]);
     for (const pid of P) expect(out.state.chars[pid].scene).toBe(`c${n + 1}_start`);
     if (written(n + 1) && (n + 1 !== 6 || P.every(pid => evalCond({ s: out.state, c, pid }, farm6bAvailable)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);

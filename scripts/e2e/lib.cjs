@@ -156,8 +156,11 @@ async function exchangeByCodes(A, B, n, rnd, errors, log) {
   for (const [p, k] of [[A, 'A'], [B, 'B']]) {
     const sec = inSection(p, 'Решение');
     if (!(await sec.count())) continue;
-    const opts = sec.locator('button.option');
-    await opts.nth(Math.floor(rnd() * (await opts.count()))).click();
+    const questions = sec.locator(':scope > div').filter({ has: p.locator('button.option') });
+    for (const question of await questions.all()) {
+      const opts = question.locator('button.option');
+      await opts.nth(Math.floor(rnd() * (await opts.count()))).click();
+    }
     await sec.getByRole('button', { name: 'Подтвердить ответ' }).click();
     await sec.locator('.code-box').waitFor();
     ans[k] = (await sec.locator('.code-box').textContent()).trim();

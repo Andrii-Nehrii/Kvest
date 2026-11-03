@@ -3,6 +3,7 @@ import type { Scene } from '../../engine/content-types';
 import { entry, newEntry6, road, arrival } from './routes';
 import { morning12Scenes, morning12Events } from './morning12';
 import { farm6bScenes } from './farm6b';
+import { farm6longScenes } from './farm6long';
 
 // Участок 6 написан заново только для актуальной линии пары. Снятые участки 6–8 не подключать.
 const checkpointScenes: Scene[] = [
@@ -13,6 +14,6 @@ const checkpointScenes: Scene[] = [
 ];
 
 export const scenes3: Record<string, Scene> = Object.fromEntries([
-  ...morning12Scenes, entry(5), newEntry6, road, arrival, ...farm6bScenes, ...checkpointScenes,
+  ...morning12Scenes, entry(5), newEntry6, road, arrival, ...farm6bScenes, ...farm6longScenes, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(s)]));
 export const incidentEvents3 = [...morning12Events];
