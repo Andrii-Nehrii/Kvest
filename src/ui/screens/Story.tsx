@@ -54,6 +54,13 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
   const run = () => { if (check?.ok) { onPlan(sel); setSel([]); window.scrollTo({ top: 0, behavior: 'smooth' }); } };
 
   const last = save.last;
+  const recordedScene = ctx.c.scenes[save.segment.at(-1)?.scene ?? ''];
+  const resultText = (step: NonNullable<typeof last>['steps'][number]) => {
+    const action = recordedScene?.actions.find(a => a.id === step.id);
+    if (ctx.s.checkpoint >= 5 && action?.refreshResultText && action.text && !action.outcomes?.length && step.text.length)
+      return [fmt(ctx, action.text), ...step.text.slice(1)];
+    return step.text;
+  };
   return (
     <div className="page">
       {last && last.steps.length > 0 && (
@@ -61,7 +68,7 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
           {last.steps.map((st, i) => (
             <div key={i}>
               <div className="step"><b>{fmt(ctx, st.label)}</b> · {durationLabel(st.minutes)}</div>
-              {st.text.map((t, j) => <Narrative key={j} text={t} />)}
+              {resultText(st).map((t, j) => <Narrative key={j} text={t} />)}
             </div>
           ))}
           {last.stopped && <div className="stopped">{last.stopped}</div>}
