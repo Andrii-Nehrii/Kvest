@@ -7,6 +7,7 @@ import { availableActions } from './actions';
 import { applyEffects } from './effects';
 import { play, replaySegment } from './game';
 import { mergeNotes, mergeSegments } from './checkpoint';
+import { drive, fuelNeeded } from './base';
 import { advanceTime } from './simulate';
 import { campAvailable, campKey, campWater } from './camp';
 import { at } from './time';
@@ -72,9 +73,9 @@ describe('повседневный уход в участке 6', () => {
     s.vars['A.ration.c3_farm.food'] = 0;
     applyEffects(context(s), [{ give: 'empty_bottle_05' }]);
     play(c, s, 'A', ['u:camp_prepare']);
-    for (const id of ['u:eat', 'u:drink', 'u:camp_meal', 'u:camp_water', 'u:cook_oats', 'u:refill:empty_bottle_05']) expect(actions(s)).not.toContain(id);
+    for (const id of ['u:eat', 'u:drink', 'u:table_meal', 'u:camp_water', 'u:cook_oats', 'u:refill:empty_bottle_05']) expect(actions(s)).not.toContain(id);
     const snapshot = stateHash(s);
-    expect(() => play(c, s, 'A', ['u:camp_meal'])).toThrow();
+    expect(() => play(c, s, 'A', ['u:table_meal'])).toThrow();
     expect(stateHash(s)).toBe(snapshot);
     s.chars.A.scene = 'c6_r_evening';
     const thirst = s.chars.A.body.thirst;
@@ -111,10 +112,10 @@ describe('повседневный уход в участке 6', () => {
 
   it('уже оплаченный ужин не списывает продукты повторно и не кормит снова в 19:00', () => {
     const s = funded(), before = qty(s, 'oats', 'c3_farm_stock'), hunger = s.chars.A.body.hunger;
-    play(c, s, 'A', ['u:camp_meal']);
+    play(c, s, 'A', ['u:table_meal']);
     expect(qty(s, 'oats', 'c3_farm_stock')).toBe(before);
     expect(hunger - s.chars.A.body.hunger).toBeGreaterThan(18);
-    expect(actions(s)).not.toContain('u:camp_meal');
+    expect(actions(s)).not.toContain('u:table_meal');
     s.chars.A.time = at(12, 18, 59);
     const h = s.chars.A.body.hunger;
     advanceTime(context(s), 2, 'rest');
@@ -175,7 +176,7 @@ describe('повседневный уход в участке 6', () => {
     expect(s.chars.A.body.sleepDebt).toBeLessThan(debt);
     expect(ph.charge).toBeLessThan(battery);
     s.chars.A.scene = 'c6_l_a_door';
-    for (const id of ['u:sleep', 'u:rest', 'u:car_charge', 'u:cook_oats', 'u:camp_meal']) expect(actions(s)).not.toContain(id);
+    for (const id of ['u:sleep', 'u:rest', 'u:car_charge', 'u:cook_oats', 'u:table_meal']) expect(actions(s)).not.toContain(id);
   });
 
   it('поиск сети разряжает телефон, а сообщения доступны только при связи', () => {
@@ -255,4 +256,69 @@ describe('повседневный уход в участке 6', () => {
       expect(actions(s)).not.toContain('u:camp_prepare');
     }
   });
+});
+
+
+describe('автоматическое питание и общий стол', () => {
+  it('общая еда показана в основных выборах, личное питьё — в повседневных', () => {
+    const s = funded();
+    const list = availableActions(context(s));
+    expect(list.find(a => a.def.id === 'u:table_meal')?.universal).toBe(false);
+    expect(list.find(a => a.def.id === 'u:drink')?.universal).toBe(true);
+    s.chars.A.scene = 'c6_camp_supper';
+    const supper = availableActions(context(s));
+    expect(supper.find(a => a.def.id === 'c6_camp_supper_eat_care')?.universal).toBe(false);
+    expect(supper.some(a => a.def.id === 'u:table_meal')).toBe(false);
+  });
+  it('автозарядка учитывает правило, кабель, работающую сеть и местный источник', () => {
+    for (const source of ['grid', 'generator'] as const) for (const enabled of [true, false]) for (const supplied of [true, false]) {
+      const s = start();
+      const content: Content = { ...c, locations: { ...c.locations, hof_luedemann: { ...c.locations.hof_luedemann } } };
+      const loc = content.locations.hof_luedemann;
+      loc.power = source === 'grid' ? 'grid' : 'none';
+      loc.localPower = source === 'generator' ? { all: [{ flag: 'test.generatorRunning' }, { v: 'test.generatorFuel', op: '>', value: 0 }] } : undefined;
+      s.vars['w.power.' + loc.region] = supplied ? 'on' : 'off';
+      s.vars['test.generatorRunning'] = supplied; s.vars['test.generatorFuel'] = supplied ? 1 : 0;
+      s.chars.A.rules.chargePhoneWhenFreePower = enabled;
+      const ph = Object.values(s.items).find(i => i.type === 'phone' && i.at.kind === 'char' && i.at.id === 'A')!;
+      ph.charge = 40;
+      advanceTime(context(s, 'A', content as Content), 10, 'rest');
+      expect(ph.charge! > 40).toBe(enabled && supplied);
+    }
+    const s = start(); s.chars.A.rules.chargePhoneWhenFreePower = true;
+    erase(s, i => c.items[i.type].tags.includes('charger'));
+    const content = { ...c, locations: { ...c.locations, hof_luedemann: { ...c.locations.hof_luedemann, power: 'grid' as const } } };
+    s.vars['w.power.' + content.locations.hof_luedemann.region] = 'on';
+    const ph = Object.values(s.items).find(i => i.type === 'phone' && i.at.kind === 'char' && i.at.id === 'A')!; ph.charge = 40;
+    advanceTime(context(s, 'A', content), 10, 'rest'); expect(ph.charge).toBeLessThan(40);
+  });
+  it('поездка заряжает по правилу без дополнительного бензина, стоящая машина — нет', () => {
+    for (const enabled of [true, false]) for (const km of [0, 10]) {
+      const s = start(); s.chars.A.rules.chargePhoneWhenFreePower = enabled;
+      const car = giveItem(context(s), 'opel_corsa', 1, { fuel: 10 }, { kind: 'place', id: 'hof_luedemann' });
+      erase(s, i => i.type === 'opel_corsa' && i.id !== car.id);
+      const ph = Object.values(s.items).find(i => i.type === 'phone' && i.at.kind === 'char' && i.at.id === 'A')!; ph.charge = 40;
+      expect(drive(context(s), 'opel_corsa', km, undefined)).toBeUndefined();
+      expect(car.fuel).toBeCloseTo(10 - fuelNeeded(context(s), 'opel_corsa', km));
+      expect(ph.charge! > 40).toBe(enabled && km > 0);
+    }
+    const s = start(); s.chars.A.rules.chargePhoneWhenFreePower = true;
+    const car = giveItem(context(s), 'opel_corsa', 1, { fuel: 0 }, { kind: 'place', id: 'hof_luedemann' });
+    erase(s, i => i.type === 'opel_corsa' && i.id !== car.id);
+    const ph = Object.values(s.items).find(i => i.type === 'phone' && i.at.kind === 'char' && i.at.id === 'A')!; ph.charge = 40;
+    expect(drive(context(s), 'opel_corsa', 10, undefined)).toBeTruthy(); expect(ph.charge).toBe(40);
+  });
+});
+
+it('общий ужин не требует личных ингредиентов и не списывает оплаченную воду повторно', () => {
+ const s = funded(); erase(s, i => c.items[i.type].tags.includes('water_bulk') || c.items[i.type].tags.includes('drink') || (i.at.kind === 'char' && i.at.id === 'A' && i.type === 'firewood'));
+ const hunger=s.chars.A.body.hunger;
+ expect(actions(s)).toContain('u:table_meal'); play(c,s,'A',['u:table_meal']);
+ expect(s.chars.A.body.hunger).toBeLessThan(hunger-18); expect(actions(s)).not.toContain('u:table_meal');
+});
+
+it('новый основной выбор еды воспроизводится после сохранения', () => {
+ const base=funded(),s=structuredClone(base),scene=s.chars.A.scene;
+ play(c,s,'A',['u:table_meal']);
+ expect(stateHash(replaySegment(c,base,'A',[{scene,plan:['u:table_meal']}]))).toBe(stateHash(s));
 });

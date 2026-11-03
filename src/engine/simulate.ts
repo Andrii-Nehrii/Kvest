@@ -79,7 +79,8 @@ function tickControlledPartner(ctx: Ctx, minutes: number) {
 function drainBatteries(ctx: Ctx, minutes: number) {
   const ch = me(ctx);
   const loc = ctx.c.locations[ch.location];
-  const freePower = loc?.power === 'grid' && ctx.s.vars[`w.power.${loc.region}`] !== 'off';
+  const freePower = (loc?.power === 'grid' && ctx.s.vars[`w.power.${loc.region}`] !== 'off')
+    || (ctx.s.checkpoint >= 5 && !!loc?.localPower && evalCond(ctx, loc.localPower));
   const charging = ch.rules.chargePhoneWhenFreePower && freePower && countTag(ctx, 'charger') > 0;
   for (const i of heldItems(ctx)) {
     const bat = itemType(ctx, i.type).battery;

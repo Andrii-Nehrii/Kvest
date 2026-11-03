@@ -26,6 +26,9 @@ export function withFarmCare(scene: Scene): Scene {
     ...(['c6_start', 'c6_r_kitchen', 'c6_r_ole', 'c6_r_evening'].includes(scene.id) ? { well: true } : {}),
   };
   const actions = scene.actions.flatMap((a): ActionDef[] => {
+    if (scene.id === 'c6_camp_supper' && a.id !== 'c6_camp_supper_skip') return careVersion(a, {
+      enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена', effects: a.effects?.map(e => 'camp' in e && e.camp.kind === 'meal' ? { camp: { ...e.camp, communal: true } } : e),
+    });
     if (a.id === 'c6_rev_begin') return careVersion(a, {
       effects: [{ camp: { kind: 'prepare' } }],
       text: 'Хенрике разрешает отложить доступную долю крупы и топлива на свою еду. Ты проверяешь, что осталось, прежде чем что-то брать.',
@@ -82,11 +85,11 @@ export const farm6CareScenes: Scene[] = [{
   id: 'c6_camp_supper', for: 'any', chapter: 'ch3', title: 'Своя порция', location: 'hof_luedemann',
   safe: true, ambient: { tempC: 16, wet: false, outdoor: false },
   text: [
-    { when: { camp: 'meal' }, text: 'Хенрике показывает на оставленную для тебя порцию. Это еда из сегодняшнего пайка, а не новая добавка из кладовой.\n\n— Здесь поешь или с собой возьмёшь? — спрашивает она.\n\n{partner} садится рядом. Можно поесть сейчас, сохранить готовую еду или оставить её общему столу.' },
-    { when: not({ camp: 'meal' }), text: 'Хенрике проверяет порции и говорит, что ещё одной на тебя не отложено: прежняя уже использована или продуктов на неё не хватило.\n\n{partner} садится рядом. Если у тебя осталась еда, можно поесть своё; если есть крупа и вода — приготовить её. Пустая тарелка голод не уменьшит.' },
+    { when: { camp: 'tableMeal' }, text: 'Хенрике ставит на стол горячую еду и зовёт вас ужинать.\n\n— Здесь поешь или с собой возьмёшь? — спрашивает она.\n\n{partner} садится рядом. Можно поесть сейчас, сохранить готовую еду или оставить её общему столу.' },
+    { when: not({ camp: 'tableMeal' }), text: 'Хенрике зовёт всех к столу. Свободной порции для тебя нет: свою ты уже {m:использовал|использовала} или {m:распорядился|распорядилась} ею раньше.\n\n{partner} садится рядом. Можно остаться за столом и поесть своё, если еда ещё осталась.' },
   ],
   actions: [
-    { id: 'c6_camp_supper_eat', label: 'Съесть свою отложенную порцию сейчас', when: C6, enabled: { camp: 'meal' }, disabledReason: 'Нет доступной порции или воды', minutes: 10, terminal: true, goto: 'c6_l_return',
+    { id: 'c6_camp_supper_eat', label: 'Поужинать со всеми', when: C6, enabled: { camp: 'meal' }, disabledReason: 'Нет доступной порции или воды', minutes: 10, terminal: true, goto: 'c6_l_return',
       text: 'Ты ешь за общим столом. Закончив, отставляешь пустую тарелку.', effects: [{ camp: { kind: 'meal', mode: 'eat' } }] },
     { id: 'c6_camp_supper_pack', label: 'Взять готовую порцию с собой и поесть позже', when: C6, enabled: { camp: 'meal' }, disabledReason: 'Эта порция уже использована или не выделена', minutes: 3, terminal: true, goto: 'c6_l_return',
       text: 'Ты упаковываешь готовую еду. Она остаётся при тебе; сытнее от этого пока не стало.', effects: [{ camp: { kind: 'meal', mode: 'pack' } }] },

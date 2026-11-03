@@ -30,7 +30,7 @@ function finish(start: GameState, pid: PlayerId, branch: number, explore = false
     const actions = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal);
     if (scene.startsWith('c6_r_')) {
       expect(actions.length, scene).toBeGreaterThanOrEqual(4);
-      expect(actions.length, scene).toBeLessThanOrEqual(6);
+      expect(actions.filter(a => !a.def.presentation).length, scene).toBeLessThanOrEqual(6);
     }
     const optional = actions.filter(a => a.def.id.startsWith('c6_more_')).map(a => a.def.id);
     if (explore && optional.length) {
@@ -52,7 +52,7 @@ function finish(start: GameState, pid: PlayerId, branch: number, explore = false
     const actions = availableActions({ s, c, pid }).filter(a => a.enabled && !a.universal);
     // В еде показываем и недоступные порции: отсутствие продуктов не превращаем в бесплатный ужин.
     expect(availableActions({ s, c, pid }).filter(a => !a.universal).length, scene).toBeGreaterThanOrEqual(4);
-    const optional = actions.filter(a => a.def.combinable && !a.def.terminal && !a.def.goto).map(a => a.def.id);
+    const optional = actions.filter(a => a.def.combinable && !a.def.terminal && !a.def.goto && !a.def.presentation).map(a => a.def.id);
     if (explore && optional.length) {
       records.push({ scene, plan: optional });
       play(c, s, pid, optional);

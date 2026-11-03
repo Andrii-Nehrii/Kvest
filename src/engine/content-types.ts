@@ -38,6 +38,8 @@ export interface LocationDef {
   indoor: boolean;
   /** Есть ли розетка, которой можно пользоваться бесплатно (пока есть ток). */
   power?: 'grid' | 'none';
+  /** Доступное местное питание (например, включённый генератор). Условие включает его работу и запас топлива. */
+  localPower?: Cond;
   safe?: boolean;
   /** Есть водопровод (работает, пока w.water.<region> ≠ 'off'). */
   water?: boolean;
@@ -87,6 +89,8 @@ export interface Outcome {
 }
 
 export interface ActionDef {
+  /** Бытовое по механике действие может быть частью основного выбора сцены. */
+  presentation?: 'story';
   id: string;
   /** Сохранённый прежний вариант действия: только для воспроизведения уже сделанных ходов. */
   replayOnly?: boolean;
