@@ -89,6 +89,8 @@ export interface Outcome {
 }
 
 export interface ActionDef {
+  /** Статический результат вычитан заново: интерфейс может обновить его текст в уже сохранённом ходе. */
+  refreshResultText?: boolean;
   /** Бытовое по механике действие может быть частью основного выбора сцены. */
   presentation?: 'story';
   id: string;
