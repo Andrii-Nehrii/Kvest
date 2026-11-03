@@ -288,7 +288,7 @@ export type Cond =
   | { itemAt: string; place: string }
   /** У игрока есть вещь (тип или тег) с зарядом не меньше atLeast (пауэрбанк, антисептик). */
   | { charged: string; atLeast: number }
-  | { camp: 'meal' | 'portion' | 'water' | 'cook' | 'hostMeal' }
+  | { camp: 'meal' | 'portion' | 'water' | 'cook' | 'hostMeal' | 'tableMeal' }
   | { project: string; done?: boolean; progress?: [CmpOp, number] }
   | { stocked: string; qty: number; at?: string }
   /** Пройдено не меньше N контрольных точек: так включают новое поведение только для ещё не сыгранных участков. */
@@ -347,7 +347,7 @@ export type CampOperation =
   | { kind: 'consume'; type: string; qty?: number; here?: boolean }
   | { kind: 'drink'; liters: number }
   | { kind: 'refill'; empty: string }
-  | { kind: 'meal'; mode: 'eat' | 'pack' | 'give' | 'host' | 'return' }
+  | { kind: 'meal'; communal?: boolean; mode: 'eat' | 'pack' | 'give' | 'host' | 'return' }
   | { kind: 'cook'; mode: 'pack' | 'give' }
   | { kind: 'bank' }
   | { kind: 'carCharge'; gain: number; fuel: number }

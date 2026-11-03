@@ -2,12 +2,12 @@
 // убежище с общим складом и ежедневным расходом еды, воды и дров.
 import { evalCond } from './conditions';
 import type { BaseDef } from './content-types';
-import { round, unit } from './rng';
+import { clamp, round, unit } from './rng';
 import { hourOfDay } from './time';
 import type { ItemInstance, Minutes, PlayerId } from './types';
 import { PLAYERS } from './types';
 import { checkChance } from './checks';
-import { itemType, log, me, moveItems, roll, type Ctx } from './world';
+import { countTag, itemType, log, me, moveItems, phone, roll, type Ctx } from './world';
 
 // ───────────── Транспорт ─────────────
 
@@ -41,6 +41,15 @@ export function drive(ctx: Ctx, type: string, km: number, to: string | undefined
     return `Двигатель кашляет и глохнет: топливо кончилось примерно через ${Math.floor(km * have / need)} км.`;
   }
   car.fuel = round(have - need, 2);
+  // Питание от уже идущей поездки: не заводим мотор отдельно и не берём лишнее топливо.
+  const newTravel = ctx.s.checkpoint >= 6 || (ctx.s.checkpoint >= 5 && !!ctx.c.scenes[me(ctx).scene]?.camp);
+  if (newTravel && km > 0 && me(ctx).rules.chargePhoneWhenFreePower && countTag(ctx, 'charger') > 0) {
+    const device = phone(ctx);
+    if (device) {
+      device.charge = round(clamp((device.charge ?? 0) + Math.min(40, km * jam * 0.8), 0, 100), 2);
+      device.changedAt = me(ctx).time;
+    }
+  }
   if (to) { car.at = { kind: 'place', id: to }; me(ctx).location = to; }
   car.changedAt = me(ctx).time;
   return undefined;

@@ -56,7 +56,7 @@ export function availableActions(ctx: Ctx): AvailableAction[] {
     });
   }
   if (scene.universal !== false && canAct(ch.body)) {
-    for (const def of universalActions(ctx, scene)) out.push({ def, enabled: true, universal: true });
+    for (const def of universalActions(ctx, scene)) out.push({ def, enabled: true, universal: def.presentation !== 'story' });
   }
   return out;
 }

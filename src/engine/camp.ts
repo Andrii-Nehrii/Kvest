@@ -80,10 +80,11 @@ function burnIfCold(ctx: Ctx) {
   if (b && ctx.s.vars[`base.${b.id}.cold`]) takeItems(ctx, i => i.type === 'firewood', 0.2);
 }
 
-export function campAvailable(ctx: Ctx, what: 'meal' | 'portion' | 'water' | 'cook' | 'hostMeal'): boolean {
+export function campAvailable(ctx: Ctx, what: 'meal' | 'portion' | 'water' | 'cook' | 'hostMeal' | 'tableMeal'): boolean {
   if (!campConfig(ctx)) return false;
   if (what === 'water') return campWater(ctx) >= 0.5 || (ctx.s.checkpoint === 5 && !ready(ctx) && !!ctx.s.vars[`${ctx.pid}.c6_r_water`]);
   if (what === 'portion') return !!campConfig(ctx)?.kitchen && ready(ctx) && (qtyHeld(ctx, 'c3_meal') > 0 || campAvailable(ctx, 'meal'));
+  if (what === 'tableMeal') return !!campConfig(ctx)?.kitchen && ready(ctx) && !!nextMeal(ctx);
   if (!campConfig(ctx)?.kitchen || !ready(ctx) || !heatAvailable(ctx)) return false;
   if (what === 'cook') return qtyHeld(ctx, 'oats') >= 0.5 && campWater(ctx) >= 0.5;
   if (what === 'hostMeal') {
@@ -181,9 +182,9 @@ export function performCamp(ctx: Ctx, op: CampOperation): string[] {
       return [...notes, `Передана готовая порция из рюкзака: ${pretty(n)}. Вторая порция не появилась, сытость владельца не выросла.`];
     }
     const host = op.mode === 'host', meal = host ? ration(ctx) : nextMeal(ctx);
-    if (!meal || !campAvailable(ctx, host ? 'hostMeal' : 'meal')) return [...notes, 'Доступной порции нет. Еда и сытость не появились.'];
+    if (!meal || !campAvailable(ctx, host ? 'hostMeal' : op.communal ? 'tableMeal' : 'meal')) return [...notes, 'Доступной порции нет. Еда и сытость не появились.'];
     const n = host ? Math.min(0.5, meal.food) : meal.food;
-    useWater(ctx, 0.5 * n); burnIfCold(ctx);
+    if (!op.communal) { useWater(ctx, 0.5 * n); burnIfCold(ctx); }
     if (host) setVar(ctx, 'w.c6_camp_host_meal', n);
     else if ('hour' in meal && typeof meal.hour === 'number') setVar(ctx, mealKey(ctx, meal.base.id, meal.day, meal.hour), true);
     if (op.mode === 'pack') giveItem(ctx, 'c3_meal', n);
@@ -192,7 +193,7 @@ export function performCamp(ctx: Ctx, op: CampOperation): string[] {
       me(ctx).body.hunger = round(clamp(me(ctx).body.hunger - 20 * n, 0, 100), 2);
       me(ctx).body.thirst = round(clamp(me(ctx).body.thirst - 18 * n, 0, 100), 2);
     }
-    return [...notes, `Использована ${host ? 'порция хозяйки' : 'твоя отложенная порция'}: ${pretty(n)}. Воды ушло ${pretty(0.5 * n)} л. Продукты для неё уже списаны при выдаче суточного пайка.`];
+    return [...notes, host ? 'Хозяйка делится своей едой.' : op.mode === 'eat' ? fmt(ctx, 'Ты {m:поел|поела} за общим столом.') : op.mode === 'pack' ? 'Готовая еда теперь у тебя с собой.' : op.mode === 'return' ? 'Твоя порция осталась общему столу.' : 'Ты передаёшь свою еду. Твоя порция использована.'];
   }
   if (op.kind === 'cook') {
     if (!campAvailable(ctx, 'cook')) return ['Для готовки нужны крупа, пол-литра воды и работающая печь или топливо.'];
@@ -268,7 +269,11 @@ export function campActions(ctx: Ctx, scene: Scene, original: ActionDef[]): Acti
       const c = itemType(ctx, i.type).container!;
       if (campWater(ctx) >= c.liters) list.push({ id: `u:refill:${i.type}`, label: `Наполнить пустую бутылку (${pretty(c.liters)} л)`, minutes: 2, combinable: true, group: `u:refill:${i.type}`, effects: [{ camp: { kind: 'refill', empty: i.type } }] });
     }
-    if (campAvailable(ctx, 'meal')) {
+    if (campAvailable(ctx, 'tableMeal') && (scene.id !== 'c6_camp_supper' || ctx.replaying)) {
+      list.push({ id: 'u:table_meal', label: 'Поесть за общим столом', presentation: 'story', minutes: 10, combinable: true, group: 'u:meal', effects: [{ camp: { kind: 'meal', mode: 'eat', communal: true } }] });
+      list.push({ id: 'u:table_pack', label: 'Попросить оставить свою порцию с собой', presentation: 'story', minutes: 3, combinable: true, group: 'u:meal', effects: [{ camp: { kind: 'meal', mode: 'pack', communal: true } }] });
+    }
+    if (ctx.replaying && campAvailable(ctx, 'meal')) {
       list.push({ id: 'u:camp_meal', label: 'Съесть свою отложенную порцию', minutes: 10, combinable: true, group: 'u:meal', effects: [{ camp: { kind: 'meal', mode: 'eat' } }] });
       list.push({ id: 'u:pack_meal', label: 'Взять свою готовую порцию с собой', minutes: 3, combinable: true, group: 'u:meal', effects: [{ camp: { kind: 'meal', mode: 'pack' } }] });
     }
