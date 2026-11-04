@@ -1,6 +1,7 @@
 import { baseOf, canDrive, projectDone, projectProgress, stockAt } from './base';
 import { canAct, isDead, isIncapacitated } from './body';
 import { campAvailable } from './camp';
+import { npcQuantity } from './introduced';
 import { daylight } from './time';
 import type { CmpOp, Cond, Scalar } from './types';
 import { other } from './types';
@@ -47,6 +48,7 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   if ('v' in c) return cmp(getVar(ctx, c.v), c.op, c.value);
   if ('has' in c) return countItem(ctx, c.has) >= (c.qty ?? 1);
   if ('hasTag' in c) return countTag(ctx, c.hasTag) >= (c.qty ?? 1);
+  if ('npcHas' in c) return npcQuantity(ctx, c.npcHas, c.type) >= (c.qty ?? 1);
   if ('body' in c) return cmp(ch.body[c.body], c.op, c.value);
   if ('cap' in c) {
     const k = caps(ctx);

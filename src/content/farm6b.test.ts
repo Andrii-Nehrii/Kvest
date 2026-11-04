@@ -93,7 +93,8 @@ describe('переработанный участок 6', () => {
     }
     for (const id of ['c6_farm', 'c7_farm', 'c8_farm', 'c6_new_well']) expect(c.scenes[id]).toBeUndefined();
     expect(c.checkpoints.find(x => x.index === 7)!.joint).toEqual(['c3_new_van7', 'c3_new_depart7']);
-    expect(c.checkpoints.some(x => x.index > 7)).toBe(false);
+    expect(c.checkpoints.find(x => x.index === 8)!.joint).toEqual(['c3_new_route8']);
+    expect(c.checkpoints.some(x => x.index > 8)).toBe(false);
   });
   it('расчёт из другого источника действительно сохраняет мешок, а не списывает его дважды', () => {
     const s = base(), bag = qty(s, 'potatoes', 'A'), stock = qty(s, 'potatoes', 'c3_farm_stock');

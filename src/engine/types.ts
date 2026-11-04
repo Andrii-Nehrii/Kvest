@@ -156,6 +156,8 @@ export interface ItemInstance {
   note?: string;
   /** Отдельно отложенная доля общего запаса, доступная только этому игроку. */
   reservedFor?: PlayerId;
+  /** Исходная стопка нового сюжетного NPC: общий источник для обеих линий. */
+  introducedStock?: { checkpoint: number; npc: string; slot: number };
 }
 
 // ───────────────────────────── NPC ─────────────────────────────
@@ -259,6 +261,7 @@ export type Cond =
   | { v: string; op: CmpOp; value: Scalar }
   | { has: string; qty?: number }
   | { hasTag: string; qty?: number }
+  | { npcHas: string; type: string; qty?: number }
   | { body: keyof Pick<Body, 'hunger' | 'thirst' | 'fatigue' | 'sleepDebt' | 'bloodLoss' | 'coreTemp' | 'stress'>; op: CmpOp; value: number }
   | { cap: 'mobility' | 'focus' | 'strength' | 'canAct'; op: CmpOp; value: number }
   | { injured: InjuryKind | 'any'; site?: BodySite; minSeverity?: number }
@@ -330,6 +333,9 @@ export type Effect =
   | { restUntil: Minutes; sleeping?: boolean }
   | { waitTogether: number }
   | { handOver: string; toNpc: string; qty?: number }
+  | { introduceNpc: string }
+  | { takeFromNpc: string; type: string; qty?: number }
+  | { npcTransfer: { from: string; to: string; type: string; qty?: number; allowDeadRecipient?: boolean } }
   /** Совместная дорога: горючее тратится один раз, время идёт у обоих. */
   | { journey: { to: string; km: number; minutes: number; vehicle?: string } }
   | { sleep: number }

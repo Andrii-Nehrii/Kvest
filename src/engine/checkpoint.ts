@@ -6,6 +6,7 @@ import { canAct, isDead, isIncapacitated, tickBody } from './body';
 import { evalCond } from './conditions';
 import type { Content, JointDecision, MergePolicy } from './content-types';
 import { applyEffects } from './effects';
+import { introducedItem, introducedPerson } from './introduced';
 import { canonical, stateHash, unit } from './rng';
 import { advanceTime, applyStandingRules } from './simulate';
 import type { GameState, HistoryRecord, ItemInstance, NpcState, PlayerId, Scalar } from './types';
@@ -172,12 +173,17 @@ export function mergeSegments(c: Content, base: GameState, results: Partial<Reco
 
   out.npcs = {};
   for (const id of [...new Set([...Object.keys(src.A.npcs), ...Object.keys(src.B.npcs)])].sort()) {
-    out.npcs[id] = mergeNpc(base.seed, id, base.npcs[id], src.A.npcs[id] ?? src.B.npcs[id], src.B.npcs[id] ?? src.A.npcs[id]);
+    const initial = base.npcs[id] ?? (base.checkpoint >= 7 && c.npcs[id]?.introducedByStory ? introducedPerson(c.npcs[id], 0) : undefined);
+    out.npcs[id] = mergeNpc(base.seed, id, initial, src.A.npcs[id] ?? src.B.npcs[id], src.B.npcs[id] ?? src.A.npcs[id]);
   }
 
   out.items = {};
   for (const id of [...new Set([...Object.keys(src.A.items), ...Object.keys(src.B.items)])].sort()) {
-    out.items[id] = mergeItem(base.seed, id, base.items[id], src.A.items[id], src.B.items[id], base.checkpoint >= 4 && !!results.A && !!results.B && controllerOf(base, 'A') !== controllerOf(base, 'B'));
+    const origin = (src.A.items[id] ?? src.B.items[id]).introducedStock;
+    const seed = !base.items[id] && base.checkpoint >= 7 && origin?.checkpoint === base.checkpoint
+      ? introducedItem(c, origin.npc, origin.slot, origin.checkpoint) : undefined;
+    const initial = base.items[id] ?? (seed?.id === id ? seed : undefined);
+    out.items[id] = mergeItem(base.seed, id, initial, src.A.items[id], src.B.items[id], base.checkpoint >= 4 && !!results.A && !!results.B && controllerOf(base, 'A') !== controllerOf(base, 'B'));
   }
 
   out.firedEvents = { ...src.A.firedEvents };

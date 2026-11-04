@@ -49,6 +49,7 @@ export function newGame(c: Content, setup: GameSetup): GameState {
     };
   }
   for (const def of Object.values(c.npcs)) {
+    if (def.introducedByStory) continue;
     const n: NpcState = { id: def.id, ...structuredClone(def.initial), agendaDone: [], changedAt: setup.startTime };
     s.npcs[def.id] = n;
   }
@@ -76,6 +77,7 @@ export function newGame(c: Content, setup: GameSetup): GameState {
 export function upgradeState(c: Content, s: GameState): boolean {
   let changed = false;
   for (const def of Object.values(c.npcs)) {
+    if (def.introducedByStory) continue;
     if (s.npcs[def.id]) continue;
     s.npcs[def.id] = { id: def.id, ...structuredClone(def.initial), agendaDone: [], changedAt: 0 };
     changed = true;

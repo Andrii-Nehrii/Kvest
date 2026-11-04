@@ -10,6 +10,7 @@ import { segmentEnd } from './clock';
 import { farm6bNight, farm6bNotes } from './farm6b';
 import { farm6longNotes, farm6longRoad } from './farm6long';
 import { point7Van, point7Departure, point7Notes } from './dawn7';
+import { point8Route, point8Notes } from './finish8';
 
 const groups = [
   ['a_flat', 'a_stairs', 'a_yard'],
@@ -551,6 +552,7 @@ function lastNight8(): JointDecision {
   return d;
 }
 export const jointChapter3: Record<string, JointDecision> = {
+  c3_new_route8: point8Route,
   c3_new_van7: point7Van,
   c3_new_depart7: point7Departure,
   c3_l_road6: farm6longRoad,
@@ -561,12 +563,12 @@ export const jointChapter3: Record<string, JointDecision> = {
   c3_lastnight: lastNight8(),
 };
 /** До какой точки глава написана: после неё игроки видят экран «продолжение» (`c{N+1}_start` в chapter3/index.ts). */
-export const WRITTEN_TO = 7;
+export const WRITTEN_TO = 8;
 export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
   index: n,
-  title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Рассвет', 8: 'Четвёртая ночь' }[n],
-  syncNotBefore: n === 7 ? at(13, 7, 45) : segmentEnd(n),
-  joint: n === 7 ? ['c3_new_van7', 'c3_new_depart7'] : n === 6 ? ['c3_l_road6', 'c3_new_night6'] : [n === 5 ? 'c3_midday5' : 'c3_lastnight'],
-  onMerge: n === 7 ? point7Notes : n === 6 ? [...farm6bNotes, ...farm6longNotes] : notes(n),
+  title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Рассвет', 8: 'После поездки' }[n],
+  syncNotBefore: n === 8 ? at(13, 11) : n === 7 ? at(13, 7, 45) : segmentEnd(n),
+  joint: n === 8 ? ['c3_new_route8'] : n === 7 ? ['c3_new_van7', 'c3_new_depart7'] : n === 6 ? ['c3_l_road6', 'c3_new_night6'] : ['c3_midday5'],
+  onMerge: n === 8 ? point8Notes : n === 7 ? point7Notes : n === 6 ? [...farm6bNotes, ...farm6longNotes] : notes(n),
   next: { A: [{ scene: `c${n + 1}_start` }], B: [{ scene: `c${n + 1}_start` }] },
 }));

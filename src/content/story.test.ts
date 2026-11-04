@@ -16,6 +16,7 @@ import { bTownScenes } from './chapter1/b_town';
 import { openingScenes } from './chapter1/opening';
 import { content as c } from './index';
 import { farm6bAvailable } from './chapter3/farm6b';
+import { point8Available } from './chapter3/point8';
 
 // Данные сюжета заморожены: если игра где-то их меняет, одинаковые журналы на двух телефонах
 // посчитаются по-разному (у одного данные уже «поиграны»). Изменение тут же упадёт с TypeError.
@@ -54,6 +55,7 @@ function playSegment(s: GameState, pid: PlayerId, tag: string, limit: number, ch
   let sceneNow = s.chars[pid].scene;
   for (let step = 0; step < limit && !segmentFinished(c, s, pid); step++) {
     if (s.checkpoint === 5 && s.chars[pid].scene === 'c6_start' && !evalCond({ s, c, pid }, farm6bAvailable)) break;
+    if (s.checkpoint === 7 && s.chars[pid].scene === 'c8_start' && !evalCond({ s, c, pid }, point8Available)) break;
     if (step % 3 === 0) checkScreen({ s, c, pid });
     const avail = availableActions({ s, c, pid }).filter((a) => a.enabled);
     const all = avail.filter((a) => !isServiceAction(a.def.id) && a.def.id !== 'u:sleep');
@@ -190,7 +192,7 @@ describe('сюжет главы 1: полное прохождение двум�
   });
 
   it('30 пар проходят все написанные контрольные точки без ошибок и воспроизводятся бит в бит', { timeout: 300000 }, () => {
-    const stats = { cp1: 0, cp2: 0, cp3: 0, cp4: 0, cp5: 0, cp6: 0, cp7: 0, cp8: 0, eligible6: 0, runs: 30, steps1: [] as number[], steps2: [] as number[], steps3: [] as number[], steps4: [] as number[], steps5: [] as number[], steps6: [] as number[], steps7: [] as number[], steps8: [] as number[], t1: [] as number[], t2: [] as number[], t3: [] as number[], t4: [] as number[], t5: [] as number[], t6: [] as number[], t7: [] as number[], t8: [] as number[] };
+    const stats = { cp1: 0, cp2: 0, cp3: 0, cp4: 0, cp5: 0, cp6: 0, cp7: 0, cp8: 0, eligible6: 0, eligible8: 0, runs: 30, steps1: [] as number[], steps2: [] as number[], steps3: [] as number[], steps4: [] as number[], steps5: [] as number[], steps6: [] as number[], steps7: [] as number[], steps8: [] as number[], t1: [] as number[], t2: [] as number[], t3: [] as number[], t4: [] as number[], t5: [] as number[], t6: [] as number[], t7: [] as number[], t8: [] as number[] };
     const visited = new Set<string>();
     for (let run = 0; run < stats.runs; run++) {
       const tag = `story-${run}`;
@@ -199,6 +201,10 @@ describe('сюжет главы 1: полное прохождение двум�
         if (seg === 6) {
           if (!(['A', 'B'] as const).every(pid => evalCond({ s: base, c, pid }, farm6bAvailable))) break;
           stats.eligible6++;
+        }
+        if (seg === 8) {
+          if (!(['A', 'B'] as const).every(pid => evalCond({ s: base, c, pid }, point8Available))) break;
+          stats.eligible8++;
         }
         const results = {} as Record<PlayerId, GameState>;
         for (const pid of ['A', 'B'] as const) {
@@ -237,7 +243,7 @@ describe('сюжет главы 1: полное прохождение двум�
     // Участок 6 доступен только сохранённой фермерской линии. Продолжение 7
     // должны пройти все добравшиеся до КТ6, а не случайные маршруты других мест.
     if (has(7)) expect(stats.cp7).toBe(stats.cp6);
-    if (has(8)) expect(stats.cp8).toBeGreaterThanOrEqual(stats.runs * 0.6);
+    if (has(8)) expect(stats.cp8).toBe(stats.eligible8);
   });
 
   it('20 пар «неаккуратных» игроков (сон, вещи, правила, планы) — без ошибок, тупиков и расхождений', { timeout: 300000 }, () => {

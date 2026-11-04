@@ -296,6 +296,6 @@ export function campActions(ctx: Ctx, scene: Scene, original: ActionDef[]): Acti
   }
   if (phoneUsable(ctx)) list.push({ id: 'u:signal', label: 'Проверить связь и возможность отправить сообщение', minutes: 2, combinable: true, group: 'u:signal', effects: [{ camp: { kind: 'signal' } }] });
   if (config.rest) list.push({ id: 'u:rest', label: config.rest === 'brief' ? 'Перевести дух (10 мин)' : 'Перевести дух (30 мин)', minutes: config.rest === 'brief' ? 10 : 30, activity: 'rest', combinable: true, group: 'u:rest', repeatable: true });
-  if (config.rest === 'sleep' && (me(ctx).body.fatigue >= 30 || me(ctx).body.sleepDebt >= 2)) list.push({ id: 'u:sleep', label: 'Поспать полчаса в тепле', minutes: 0, group: 'u:rest', repeatable: true, effects: [{ sleep: 30 }] });
+  if (config.rest === 'sleep' && (me(ctx).body.fatigue >= 30 || me(ctx).body.sleepDebt >= 2)) list.push({ id: 'u:sleep', label: ctx.s.checkpoint >= 7 ? config.sleepLabel ?? 'Поспать полчаса в тепле' : 'Поспать полчаса в тепле', minutes: 0, group: 'u:rest', repeatable: true, effects: [{ sleep: 30 }] });
   return list;
 }

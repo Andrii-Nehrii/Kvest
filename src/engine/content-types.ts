@@ -142,7 +142,7 @@ export interface Scene {
   /** Универсальные действия (поесть, попить, перевязать, отдохнуть…). По умолчанию — да. */
   universal?: boolean;
   /** Возможности повседневного ухода в новых участках, с КТ5. */
-  camp?: { at: string; stock: string; kitchen?: boolean; rest?: 'brief' | 'sleep' | false; car?: string; well?: boolean };
+  camp?: { at: string; stock: string; kitchen?: boolean; rest?: 'brief' | 'sleep' | false; car?: string; well?: boolean; sleepLabel?: string };
   /** Сцена безопасна: можно спать, срабатывают бытовые правила. */
   safe?: boolean;
   /** Спокойная обстановка: бытовые правила (попить, поесть) срабатывают, но спать нельзя. */
@@ -181,6 +181,9 @@ export interface NpcDef {
   /** Скрытые цели/страхи — для сценариста, не для UI. */
   hidden?: { goals: string[]; fears: string[]; secrets?: string[] };
   initial: Omit<NpcState, 'id' | 'agendaDone' | 'changedAt'>;
+  /** Вводится сценой после КТ7; не доставляется в уже подписанные базы. */
+  introducedByStory?: boolean;
+  initialItems?: { type: string; qty: number; charge?: number; fuel?: number }[];
   agenda: AgendaItem[];
 }
 
