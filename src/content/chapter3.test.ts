@@ -10,6 +10,7 @@ import { fmt, giveItem } from '../engine/world';
 import { START_TIME, shouldSendAnswers, myAnswersCode, acceptPartnerAnswers, readyToFinish, finishCheckpoint, type LocalSave } from '../app/session';
 import { stayRoutes } from './chapter3/routes';
 import { farm6bAvailable } from './chapter3/farm6b';
+import { point8Available } from './chapter3/point8';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
 const written = (n: number) => c.checkpoints.some((cp) => cp.index === n);
@@ -32,7 +33,7 @@ function baseFor(x = SETUPS[0], seed = 'chapter3'): GameState {
   Object.assign(s.vars, { 'w.together': x[2], 'w.day3': 'stay', 'w.workshop_keys': true, 'w.farm_welcome': true, 'w.power.buchholz': 'off', 'w.water.buchholz': 'off' });
   // Уже сработавшие события прошлых дней не должны в искусственном старте срабатывать впервые.
   for (const e of c.events) if (e.at <= at(11, 22)) { for (const p of P) s.firedEvents[e.scope === 'world' ? `${e.id}@${p}` : e.id] = e.at; };
-  for (const [id, def] of Object.entries(c.npcs)) s.npcs[id].agendaDone = def.agenda.filter((a) => (a.at ?? 0) < at(11, 22)).map((a) => a.id);
+  for (const [id, def] of Object.entries(c.npcs)) if (s.npcs[id]) s.npcs[id].agendaDone = def.agenda.filter((a) => (a.at ?? 0) < at(11, 22)).map((a) => a.id);
   Object.assign(s.npcs.deniz, { location: 'hof_luedemann' });
   Object.assign(s.npcs.kerem, { location: 'hof_luedemann' });
   Object.assign(s.npcs.merle, { location: 'ahrensburg' });
@@ -85,6 +86,7 @@ describe('глава 3', () => {
       for (const n of SEGS) {
         // Новый участок 6 написан только для сохранившейся линии пары; остальные ждут продолжения.
         if (n === 6 && !P.every(pid => evalCond({ s: base, c, pid }, farm6bAvailable))) break;
+        if (n === 8 && !P.every(pid => evalCond({ s: base, c, pid }, point8Available))) break;
         const ends = { A: leg(base, 'A', `${i}:${run}:${n}:A`), B: leg(base, 'B', `${i}:${run}:${n}:B`) };
         base = cp(base, ends, 'stay');
         if (base.ended) break;
@@ -295,6 +297,12 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
           'A.c7_has_tool': true, 'A.c7_tools_deniz': true, 'A.c7_deniz_willing': true,
           'A.c7_has_crowbar': true, 'A.c7_has_car_key': true });
       }
+      if (n === 8 && id === 'c3_new_route8') {
+        for (const pid of P) s.chars[pid].location = 'c7_farm_lane';
+        const car = Object.values(s.items).find(i => i.type === 'opel_corsa')!;
+        car.at = { kind: 'place', id: 'c7_farm_lane' };
+        Object.assign(s.vars, { 'A.c8_finished': true, 'B.c8_finished': true, 'A.c8_has_key': true });
+      }
       if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;
       if (option.id === 'boards') s.vars['w.c3_f8_window_broken'] = true;
@@ -317,7 +325,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
     const out = completeCheckpoint(c, s, { A: answers, B: answers });
     expect(out.joint.find(result => result.id === id)!.applied).toEqual([option.id]);
     for (const pid of P) expect(out.state.chars[pid].scene).toBe(`c${n + 1}_start`);
-    if (written(n + 1) && (n + 1 !== 6 || P.every(pid => evalCond({ s: out.state, c, pid }, farm6bAvailable)))) {
+    if (written(n + 1) && (n + 1 !== 6 || P.every(pid => evalCond({ s: out.state, c, pid }, farm6bAvailable)))
+      && (n + 1 !== 8 || P.every(pid => evalCond({ s: out.state, c, pid }, point8Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

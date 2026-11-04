@@ -5,6 +5,7 @@ import { availableActions, currentScene, isServiceAction } from '../engine/actio
 import { completeCheckpoint, deliverMessages, mergeNotes, mergeSegments, optionsFor, syncClocks } from '../engine/checkpoint';
 import { newGame, play, segmentFinished } from '../engine/game';
 import { farm6bAvailable } from './chapter3/farm6b';
+import { point8Available } from './chapter3/point8';
 import { evalCond } from '../engine/conditions';
 import { clock } from '../engine/time';
 import type { GameState, PlayerId } from '../engine/types';
@@ -107,7 +108,7 @@ describe('главная линия главы 3', () => {
     for (const e of c.events) if (e.at < 2 * 1440) {
       for (const p of ['A', 'B']) base.firedEvents[e.scope === 'world' ? `${e.id}@${p}` : e.id] = e.at;
     }
-    for (const [id, def] of Object.entries(c.npcs)) base.npcs[id].agendaDone = def.agenda.filter((a) => (a.at ?? 0) < 2 * 1440).map((a) => a.id);
+    for (const [id, def] of Object.entries(c.npcs)) if (base.npcs[id]) base.npcs[id].agendaDone = def.agenda.filter((a) => (a.at ?? 0) < 2 * 1440).map((a) => a.id);
     for (const id of ['deniz', 'kerem', 'pawel', 'henrike', 'ole']) base.npcs[id].location = 'hof_luedemann';
     base.npcs.merle.location = 'b_flat';
     for (const p of ['A', 'B'] as const) {
@@ -121,6 +122,7 @@ describe('главная линия главы 3', () => {
     const SEGS = [5, 6, 7, 8].filter((n) => c.checkpoints.some((cp) => cp.index === n));
     for (const n of SEGS) {
       if (n === 6 && !(['A', 'B'] as const).every(pid => evalCond({ s: base, c, pid }, farm6bAvailable))) break;
+      if (n === 8 && !(['A', 'B'] as const).every(pid => evalCond({ s: base, c, pid }, point8Available))) break;
       const ends = { A: structuredClone(base), B: structuredClone(base) };
       for (const p of ['A', 'B'] as const) {
         const s = ends[p], uses = new Map<string, number>(), visited = new Set<string>();

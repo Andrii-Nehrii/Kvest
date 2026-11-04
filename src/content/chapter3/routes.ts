@@ -1,6 +1,7 @@
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import { farm6bAvailable } from './farm6b';
+import { point8Available, road8 } from './point8';
 import type { Outcome, Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
@@ -86,6 +87,25 @@ export const newEntry6: Scene = {
     { when: not(farm6bAvailable), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: [{ id: 'c6_rev_begin', label: 'Вернуться на кухню к Хенрике и Павлу', when: farm6bAvailable, minutes: 1, terminal: true, goto: 'c6_r_kitchen' }],
+};
+
+// Этот вход уже входит в базу КТ7. Новые эффекты — только в первом личном ходе.
+export const newEntry8: Scene = {
+  id: 'c8_start', for: 'any', chapter: 'ch3', title: 'Продолжение', universal: false,
+  camp: road8, safe: true, ambient: { tempC: 9, outdoor: true, wet: false },
+  text: [
+    { when: all(point8Available, { v: 'w.c7_departure', op: '==', value: 'car' }), text: 'Вы остановились у дороги к Йестебургу. Павел выходит из Corsa со своей сумкой. Подвоз закончился; дальше он хочет найти попутку.\n\nУ остановки стоит белый микроавтобус. Дверца открыта. Павел спрашивает, по пути ли им на восток.\n\nВы ещё можете вернуться к Хенрике. Решение о ночлеге не заставляет уезжать с хутора навсегда.' },
+    { when: all(point8Available, { v: 'w.c7_departure', op: '==', value: 'walk' }), text: 'Вы дошли с Павлом до дороги к Йестебургу. Он ставит сумку на скамейку. Corsa осталась у Хенрике; дальше Павел хочет найти попутку.\n\nУ остановки стоит белый микроавтобус. Дверца открыта. Павел спрашивает, по пути ли им на восток.\n\nВы ещё можете вернуться на хутор. Утренний выход не отменяет вашего места там.' },
+    { when: not(point8Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: [
+    { id: 'c8_begin', label: 'Подойти вместе с Павлом к микроавтобусу', when: point8Available, minutes: 2, terminal: true, goto: 'c8_stop',
+      text: 'Павел сам здоровается и объясняет, куда ему нужно. Ты остаёшься рядом. Женщина за рулём представляется Рут.',
+      effects: [{ introduceNpc: 'c8_ruth' }, { introduceNpc: 'c8_eva' }, { set: '$.met.c8_ruth', value: true }, { set: '$.met.c8_eva', value: true }, { camp: { kind: 'prepare', quiet: true } }] },
+    { id: 'c8_begin_short', label: 'Сначала сказать Павлу, что вы решите возвращение отдельно', when: point8Available, minutes: 3, terminal: true, goto: 'c8_stop',
+      text: '«Я понимаю», — отвечает Павел. Вы идёте к микроавтобусу. Рут открывает водительскую дверь, чтобы говорить с вами без стекла.',
+      effects: [{ introduceNpc: 'c8_ruth' }, { introduceNpc: 'c8_eva' }, { set: '$.met.c8_ruth', value: true }, { set: '$.met.c8_eva', value: true }, { set: '$.c8_short_trip', value: true }, { camp: { kind: 'prepare', quiet: true } }] },
+  ],
 };
 function routeOutcomes(n: number): Outcome[] {
   return stayRoutes(n).map((r, i) => ({ id: `stay_${i}`, when: r.when, goto: r.scene }));

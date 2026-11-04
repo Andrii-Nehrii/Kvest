@@ -2,6 +2,7 @@ import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
 import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
 import { performCamp } from './camp';
 import { journey } from './journey';
+import { introduceNpc, npcTransfer, takeFromNpc } from './introduced';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
 import { clamp, round } from './rng';
@@ -50,6 +51,13 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   if ('waitTogether' in e) {
     if (ctx.s.checkpoint < 6 || !(e.waitTogether > 0)) return;
     for (const pid of PLAYERS) mergeAdvance(out, advanceTime({ ...ctx, pid }, e.waitTogether, 'rest'));
+    return;
+  }
+  if ('introduceNpc' in e || 'takeFromNpc' in e || 'npcTransfer' in e) {
+    const problem = 'introduceNpc' in e ? introduceNpc(ctx, e.introduceNpc)
+      : 'takeFromNpc' in e ? takeFromNpc(ctx, e.takeFromNpc, e.type, e.qty)
+      : npcTransfer(ctx, e.npcTransfer.from, e.npcTransfer.to, e.npcTransfer.type, e.npcTransfer.qty, e.npcTransfer.allowDeadRecipient);
+    if (problem) { out.interrupted = true; out.notes.push(problem); }
     return;
   }
   if ('handOver' in e) {
