@@ -4,6 +4,7 @@ import { farm6bAvailable } from './farm6b';
 import { point8Available, road8 } from './point8';
 import { A9, P9, eastStart9, farmStart9, keremHere9, laneStart9, morning9, outdoor9, point9Available, yard9 } from './point9';
 import { carAt9, ride9, walk9, yardActions9, yardText9 } from './entry9';
+import { P10, kept10, meSearch10, partnerSearch10, point10Available } from './point10';
 import type { ActionDef, Outcome, Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
@@ -141,6 +142,27 @@ export const newEntry9: Scene = {
   ] as ActionDef[]).map(a => ({ ...a, when: all(P9, a.when ?? { always: true }) })),
 };
 
+
+
+// Вход уже входит в подписанную базу КТ9: без onEnter и места. Уход Дениза и всё новое — первым ходом.
+const denizLeaves10 = { npc: 'deniz', moveTo: 'b75_road', set: { c10_with_kerem: true } } as const;
+export const newEntry10: Scene = {
+  id: 'c10_start', for: 'any', chapter: 'ch3', title: 'Фонарь за сараем', universal: false,
+  safe: true, ambient: { tempC: 5, outdoor: true, wet: false },
+  text: [
+    { when: all(point10Available, meSearch10, partnerSearch10), text: 'Дениз ждёт у калитки с фонарём. Вы выходите вдвоём следом за ним. Хенрике стоит на крыльце, пока ваш свет не скрывается за сараем.' },
+    { when: all(point10Available, meSearch10, not(partnerSearch10)), text: 'Дениз ждёт у калитки с фонарём. {partner} остаётся на крыльце и смотрит, как ты застёгиваешь куртку.' },
+    { when: all(point10Available, not(meSearch10), partnerSearch10), text: '{partner} застёгивает куртку и уходит с Денизом. Ты стоишь на крыльце, пока их фонарь не скрывается за сараем.' },
+    { when: all(point10Available, not(meSearch10), not(partnerSearch10)), text: 'Дениз уходит один. Его фонарь ещё долго мигает между деревьями. Хенрике закрывает калитку на засов.' },
+    { when: all(point10Available, kept10), text: 'Под навесом, закутавшись в одеяло, сидит Нина. Лицом к фургону.' },
+    { when: all(point10Available, not(kept10)), text: 'Дверца фургона закрыта. Нина на кухне, у печи. Она не плачет.' },
+    { when: not(point10Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c10_begin_go', label: 'Идти за Денизом в темноту', when: all(point10Available, meSearch10), minutes: 2, terminal: true, goto: 'c10_s_path', effects: [denizLeaves10] },
+    { id: 'c10_begin_stay', label: 'Вернуться в дом', when: all(point10Available, not(meSearch10)), minutes: 2, terminal: true, goto: 'c10_f_kitchen', effects: [denizLeaves10] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P10, a.when ?? { always: true }) })),
+};
 
 function routeOutcomes(n: number): Outcome[] {
   return stayRoutes(n).map((r, i) => ({ id: `stay_${i}`, when: r.when, goto: r.scene }));

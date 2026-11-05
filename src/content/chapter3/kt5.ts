@@ -12,6 +12,7 @@ import { farm6longNotes, farm6longRoad } from './farm6long';
 import { point7Van, point7Departure, point7Notes } from './dawn7';
 import { point8Route, point8Notes } from './finish8';
 import { point9Jens, point9Notes, point9SearchA, point9SearchB } from './finish9';
+import { point10Nina, point10Notes, point10Ole } from './finish10';
 
 const groups = [
   ['a_flat', 'a_stairs', 'a_yard'],
@@ -553,6 +554,8 @@ function lastNight8(): JointDecision {
   return d;
 }
 export const jointChapter3: Record<string, JointDecision> = {
+  c3_new_ole10: point10Ole,
+  c3_new_nina10: point10Nina,
   c3_new_jens9: point9Jens,
   c3_new_search9a: point9SearchA,
   c3_new_search9b: point9SearchB,
@@ -567,12 +570,12 @@ export const jointChapter3: Record<string, JointDecision> = {
   c3_lastnight: lastNight8(),
 };
 /** До какой точки глава написана: после неё игроки видят экран «продолжение» (`c{N+1}_start` в chapter3/index.ts). */
-export const WRITTEN_TO = 9;
-export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8, 9] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
+export const WRITTEN_TO = 10;
+export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8, 9, 10] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
   index: n,
-  title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Рассвет', 8: 'После поездки', 9: 'Перед ночью' }[n],
-  syncNotBefore: n === 9 ? at(13, 19, 30) : n === 8 ? at(13, 11) : n === 7 ? at(13, 7, 45) : segmentEnd(n),
-  joint: n === 9 ? ['c3_new_jens9', 'c3_new_search9a', 'c3_new_search9b'] : n === 8 ? ['c3_new_route8'] : n === 7 ? ['c3_new_van7', 'c3_new_depart7'] : n === 6 ? ['c3_l_road6', 'c3_new_night6'] : ['c3_midday5'],
-  onMerge: n === 9 ? point9Notes : n === 8 ? point8Notes : n === 7 ? point7Notes : n === 6 ? [...farm6bNotes, ...farm6longNotes] : notes(n),
+  title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Рассвет', 8: 'После поездки', 9: 'Перед ночью', 10: 'До рассвета' }[n],
+  syncNotBefore: n === 10 ? at(14, 1, 30) : n === 9 ? at(13, 19, 30) : n === 8 ? at(13, 11) : n === 7 ? at(13, 7, 45) : segmentEnd(n),
+  joint: n === 10 ? ['c3_new_ole10', 'c3_new_nina10'] : n === 9 ? ['c3_new_jens9', 'c3_new_search9a', 'c3_new_search9b'] : n === 8 ? ['c3_new_route8'] : n === 7 ? ['c3_new_van7', 'c3_new_depart7'] : n === 6 ? ['c3_l_road6', 'c3_new_night6'] : ['c3_midday5'],
+  onMerge: n === 10 ? point10Notes : n === 9 ? point9Notes : n === 8 ? point8Notes : n === 7 ? point7Notes : n === 6 ? [...farm6bNotes, ...farm6longNotes] : notes(n),
   next: { A: [{ scene: `c${n + 1}_start` }], B: [{ scene: `c${n + 1}_start` }] },
 }));

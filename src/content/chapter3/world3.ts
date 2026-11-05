@@ -42,6 +42,7 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
     { id: 'c8_east_road', name: 'Восточная дорога', region: 'lk', indoor: false, media: ['people'] },
     { id: 'c8_bus_east', name: 'Микроавтобус Рут в пути', region: 'lk', indoor: true, media: ['people'] },
     { id: 'c3_farm_shed', name: 'Отдельный сарай', region: 'lk', indoor: true },
+    { id: 'c10_field', name: 'Полевая дорога вдоль старой ветки', region: 'lk', indoor: false },
     { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
     {
@@ -366,3 +367,10 @@ agenda3.kerem.push({
   when: all({ cp: 7 }, { npc: 'kerem', alive: true, at: 'b75_road' }, flag('w.c3_wait_kerem')),
   effects: [{ npc: 'kerem', moveTo: 'hof_luedemann', remember: 'c3_waited_at_road', set: { c3_returned: true } }],
 });
+
+// Участок 10: у Оле после утреннего укуса начинается жар (продром), это видно только по поведению и словам.
+agenda3.ole = [...(agenda3.ole ?? []), {
+  id: 'c10_fever', at: at(13, 21, 40), scope: 'world',
+  when: all({ cp: 9 }, { npcVar: 'ole', key: 'c9_bitten' }, { npc: 'ole', alive: true }),
+  effects: [{ npc: 'ole', set: { c10_fever: true } }],
+}];
