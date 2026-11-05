@@ -5,6 +5,7 @@ import { point8Available, road8 } from './point8';
 import { A9, P9, eastStart9, farmStart9, keremHere9, laneStart9, morning9, outdoor9, point9Available, yard9 } from './point9';
 import { carAt9, ride9, walk9, yardActions9, yardText9 } from './entry9';
 import { P10, kept10, meSearch10, partnerSearch10, point10Available } from './point10';
+import { P11, ole11, point11Available } from './point11';
 import type { ActionDef, Outcome, Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
@@ -162,6 +163,29 @@ export const newEntry10: Scene = {
     { id: 'c10_begin_go', label: 'Идти за Денизом в темноту', when: all(point10Available, meSearch10), minutes: 2, terminal: true, goto: 'c10_s_path', effects: [denizLeaves10] },
     { id: 'c10_begin_stay', label: 'Вернуться в дом', when: all(point10Available, not(meSearch10)), minutes: 2, terminal: true, goto: 'c10_f_kitchen', effects: [denizLeaves10] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(P10, a.when ?? { always: true }) })),
+};
+
+
+// Вход в базе КТ10: без onEnter и места. Ночь — первым личным ходом (сон или смена у двери).
+export const newEntry11: Scene = {
+  id: 'c11_start', for: 'any', chapter: 'ch3', title: 'Остаток ночи', universal: false, safe: true,
+  ambient: { tempC: 15, outdoor: false, wet: false },
+  text: [
+    { when: all(point11Available, ole11('coop')), text: 'Щеколда курятника задвинута. Хенрике сидит у его двери, завернувшись в одеяло, и не уходит. В доме тихо.' },
+    { when: all(point11Available, ole11('door')), text: 'Засов на двери Оле задвинут. Первым у двери дежурит {A}. Под утро его сменит {B}.' },
+    { when: all(point11Available, ole11('sleep')), text: 'Вы ложитесь. Хенрике дремлет на табурете у двери сына. Засов никто не задвигает.' },
+    { when: not(point11Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c11_night_sleep', label: 'Лечь и попробовать уснуть', when: all(point11Available, { any: [ole11('coop'), ole11('sleep')] }), minutes: 1, terminal: true, goto: 'c11_dawn',
+      text: 'Ты засыпаешь не сразу. Потом проваливаешься, как в яму.', effects: [{ restUntil: at(14, 5, 10), sleeping: true }] },
+    { id: 'c11_night_watch_a', label: 'Отсидеть первую смену у двери и лечь', when: all(point11Available, ole11('door'), { me: 'A' }), minutes: 1, terminal: true, goto: 'c11_dawn',
+      text: 'Ты сидишь у двери до половины четвёртого. За дверью то тихо, то Оле бормочет что-то без слов. Потом тебя сменяет {B}, и ты засыпаешь в одежде.',
+      effects: [{ restUntil: at(14, 3, 30) }, { restUntil: at(14, 5, 10), sleeping: true }] },
+    { id: 'c11_night_watch_b', label: 'Поспать до своей смены и сменить {A.acc}', when: all(point11Available, ole11('door'), { me: 'B' }), minutes: 1, terminal: true, goto: 'c11_dawn',
+      text: 'В половине четвёртого {A} трогает тебя за плечо. Ты садишься на его место у двери. За ней тяжело, часто дышат.',
+      effects: [{ restUntil: at(14, 3, 30), sleeping: true }, { restUntil: at(14, 5, 10) }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P11, a.when ?? { always: true }) })),
 };
 
 function routeOutcomes(n: number): Outcome[] {

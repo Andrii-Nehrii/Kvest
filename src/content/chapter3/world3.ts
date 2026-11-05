@@ -374,3 +374,15 @@ agenda3.ole = [...(agenda3.ole ?? []), {
   when: all({ cp: 9 }, { npcVar: 'ole', key: 'c9_bitten' }, { npc: 'ole', alive: true }),
   effects: [{ npc: 'ole', set: { c10_fever: true } }],
 }];
+
+// Участок 11: острая стадия у Оле на рассвете, возвращение братьев, около 11:10 жар обрывается (иммунитет, WORLD_BIBLE §2.5).
+agenda3.ole.push(
+  { id: 'c11_acute', at: at(14, 5, 10), scope: 'world', when: all({ cp: 10 }, { npcVar: 'ole', key: 'c9_bitten' }, { npc: 'ole', alive: true }),
+    effects: [{ npc: 'ole', set: { c11_acute: true } }] },
+  { id: 'c11_immune', at: at(14, 11, 10), scope: 'world', when: all({ cp: 10 }, { npcVar: 'ole', key: 'c11_acute' }, { npc: 'ole', alive: true }),
+    effects: [{ npc: 'ole', set: { c11_immune: true, c11_acute: false, c10_fever: false } }] },
+);
+agenda3.deniz = [...(agenda3.deniz ?? []), { id: 'c11_back', at: at(14, 6, 30), scope: 'world', when: all({ cp: 10 }, { npc: 'deniz', alive: true, at: 'b75_road' }),
+  effects: [{ npc: 'deniz', moveTo: 'hof_luedemann', set: { c10_with_kerem: false } }] }];
+agenda3.kerem.push({ id: 'c11_back', at: at(14, 6, 30), scope: 'world', when: all({ cp: 10 }, { npc: 'kerem', alive: true, at: 'b75_road' }, flag('w.c9_deniz_search')),
+  effects: [{ npc: 'kerem', moveTo: 'hof_luedemann', remember: 'c11_came_back_with_brother' }] });

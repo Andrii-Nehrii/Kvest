@@ -13,6 +13,7 @@ import { farm6bAvailable } from './chapter3/farm6b';
 import { point8Available } from './chapter3/point8';
 import { point9Available } from './chapter3/point9';
 import { point10Available } from './chapter3/point10';
+import { point11Available } from './chapter3/point11';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
 const written = (n: number) => c.checkpoints.some((cp) => cp.index === n);
@@ -91,6 +92,7 @@ describe('глава 3', () => {
         if (n === 8 && !P.every(pid => evalCond({ s: base, c, pid }, point8Available))) break;
         if (n === 9 && !P.every(pid => evalCond({ s: base, c, pid }, point9Available))) break;
         if (n === 10 && !P.every(pid => evalCond({ s: base, c, pid }, point10Available))) break;
+        if (n === 11 && !P.every(pid => evalCond({ s: base, c, pid }, point11Available))) break;
         const ends = { A: leg(base, 'A', `${i}:${run}:${n}:A`), B: leg(base, 'B', `${i}:${run}:${n}:B`) };
         base = cp(base, ends, 'stay');
         if (base.ended) break;
@@ -333,7 +335,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
     if (written(n + 1) && (n + 1 !== 6 || P.every(pid => evalCond({ s: out.state, c, pid }, farm6bAvailable)))
       && (n + 1 !== 8 || P.every(pid => evalCond({ s: out.state, c, pid }, point8Available)))
       && (n + 1 !== 9 || P.every(pid => evalCond({ s: out.state, c, pid }, point9Available)))
-      && (n + 1 !== 10 || P.every(pid => evalCond({ s: out.state, c, pid }, point10Available)))) {
+      && (n + 1 !== 10 || P.every(pid => evalCond({ s: out.state, c, pid }, point10Available)))
+      && (n + 1 !== 11 || P.every(pid => evalCond({ s: out.state, c, pid }, point11Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

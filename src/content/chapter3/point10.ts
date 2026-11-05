@@ -12,7 +12,7 @@ export const meSearch10: Cond = { any: [all({ me: 'A' }, went('A')), all({ me: '
 export const partnerSearch10: Cond = { any: [all({ me: 'A' }, went('B')), all({ me: 'B' }, went('A'))] };
 export const home10 = (id: string): Cond => ({ npc: id, alive: true, at: 'hof_luedemann' });
 export const point10Available: Cond = all(P10, flag('w.together'), flag('w.c9_deniz_search'), { at: 'hof_luedemann' }, { partnerAt: 'hof_luedemann' },
-  { partner: 'active' }, { cap: 'canAct', op: '>=', value: 1 }, home10('henrike'), home10('ole'));
+  { partner: 'active' }, { cap: 'canAct', op: '>=', value: 1 }, home10('henrike'), home10('ole'), { npc: 'c7_nina', alive: true });
 export const kept10: Cond = { v: 'w.c9_jens', op: '==', value: 'kept' };
 export const knows10: Cond = flag('$.c10_knows');
 export const fever10: Cond = { npcVar: 'ole', key: 'c10_fever' };
