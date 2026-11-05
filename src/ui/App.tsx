@@ -6,6 +6,7 @@ import { dbDelete, dbGet, dbPut, dbReplaceWithBackup, requestPersistence } from 
 import { act, exportSave, normalizePhase, refreshSave, type LocalSave } from '../app/session';
 import { cloudPairId, cloudPaths, getFile, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
 import { replayBackupKey, requestedReplay, requestedReplaySource } from '../app/requested-replay';
+import { answerReset } from '../app/answer-reset';
 import { content } from '../content';
 import { healthDot } from './format';
 import { Icon } from './kit';
@@ -65,6 +66,8 @@ export function App() {
           setToast({ text: e instanceof Error ? e.message : 'Не удалось начать повторное прохождение.', bad: true });
         }
       }
+      const reset = await answerReset(s, async (pid) => cfg?.token ? getFile(cfg.token, cloudPaths.save(cloudPairId(s!), pid)) : undefined).catch(() => undefined);
+      if (reset) s = reset;
       // После обновления игры сохранение пересчитывается новой версией (см. refreshSave).
       const fresh = normalizePhase(content, refreshSave(content, s));
       if (fresh.notice) { setToast({ text: fresh.notice }); fresh.notice = undefined; }

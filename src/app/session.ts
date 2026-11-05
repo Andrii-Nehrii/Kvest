@@ -35,6 +35,8 @@ export interface CheckpointWork {
   result?: { joint: JointResult[]; hash: string };
   /** Свои коды этой точки — переслать ещё раз, если партнёр не получил их до того, как точка была завершена. */
   sent?: { segment?: string; answers?: string };
+  /** Разовая отмена ответа (answer-reset.ts): 'mine' — свой ответ даётся заново, 'partner' — ждём новый ответ партнёра. */
+  reset?: 'mine' | 'partner';
 }
 
 export interface LocalSave {
@@ -294,13 +296,14 @@ export const shouldSendAnswers = (c: Content, save: LocalSave): boolean => !!sav
 export const optionsForMe = (c: Content, save: LocalSave, d: JointDecision) => optionsFor(c, save.cp!.merged!, d, save.me);
 
 export async function myAnswersCode(save: LocalSave): Promise<string> {
-  const p: AnswersPacket & { replay?: string } = { v: 1, type: 'answers', pairId: save.pairId, from: save.me, checkpoint: save.cp!.index, mergedHash: save.cp!.mergedHash!, answers: save.cp!.myAnswers ?? {}, ...(save.replay ? { replay: save.replay } : {}) };
+  const p: AnswersPacket & { replay?: string; retry?: number } = { v: 1, type: 'answers', pairId: save.pairId, from: save.me, checkpoint: save.cp!.index, mergedHash: save.cp!.mergedHash!, answers: save.cp!.myAnswers ?? {}, ...(save.replay ? { replay: save.replay } : {}), ...(save.cp!.reset === 'mine' ? { retry: 1 } : {}) };
   return encode(await sign(p, save.secret));
 }
 
 export async function acceptPartnerAnswers(c: Content, save: LocalSave, code: string): Promise<LocalSave> {
   const p = await readPacket<AnswersPacket>(c, save, code, 'answers');
   if (p.mergedHash !== save.cp!.mergedHash) throw new Error('После обмена ходами у вас получились разные миры. Сравните коды мира.');
+  if (save.cp?.reset === 'partner' && !(p as AnswersPacket & { retry?: number }).retry) throw new Error('Это прежний ответ партнёра — жду новый.');
   const prev = save.cp?.partnerAnswers;
   if (prev && JSON.stringify(prev) !== JSON.stringify(p.answers)) throw new Error('Партнёр уже присылал другие ответы. Изменить их нельзя.');
   return { ...save, cp: { ...save.cp!, partnerAnswers: p.answers } };
