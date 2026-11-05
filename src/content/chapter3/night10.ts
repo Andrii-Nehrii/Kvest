@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { A10, B10, S10, evidence10, fever10, house10, kept10, knows10, night10, ninaKey10, once10 } from './point10';
+import { A10, B10, S10, evidence10, fever10, house10, kept10, knows10, night10, ninaKey10, once10, own10 } from './point10';
 
 const toYard: Effect = { restUntil: at(13, 23) };
 const toMidnight: Effect = { restUntil: at(13, 23, 40) };
@@ -60,7 +60,14 @@ export const night10Scenes: Scene[] = [
 
   S10({ id: 'c10_n_confess', for: 'any', chapter: 'ch3', title: 'Признание', camp: house10,
     onEnter: [{ set: '$.c10_knows', value: true }, { set: '$.c10_confession', value: true }, { set: 'w.c10_truth', value: true }],
-    text: [{ text: 'Хенрике долго молчит. Потом ставит таз на пол.\n\n— Утром, — говорит она. — Без двадцати десять. Я была в двух шагах. Отбила его. Поздно.\n\nОна говорит ровно, будто читает список.\n\n— Я всем сказала разное. Каждому — так, чтобы не полез проверять. Тебе одно, {partner.dat} — другое. Кёлер выгнала. Керема упустила.\n\nТеперь она смотрит прямо на тебя.\n\n— Он у меня один. По радио сказали: в Йестебурге помогают. Я хотела утром отвезти. Дайте ему эту ночь в его комнате. Я посижу у двери.' }],
+    text: [
+      { when: own10('source', 'hide'), text: 'Ты не говоришь, от кого знаешь. Она и не спрашивает.' },
+      { when: own10('source', 'open'), text: 'Ты говоришь сразу: Керем рассказал. Всё, с самого утра. Хенрике кивает, будто так и думала.' },
+      { text: 'Хенрике долго молчит. Потом ставит таз на пол.\n\n— Утром, — говорит она. — Без двадцати десять. Я была в двух шагах. Отбила его. Поздно.\n\nОна говорит ровно, будто читает список.\n\n— Я всем сказала разное. Каждому — так, чтобы не полез проверять. Тебе одно, {partner.dat} — другое. Кёлер выгнала. Керема упустила.\n\nТеперь она смотрит прямо на тебя.\n\n— Он у меня один. По радио сказали: в Йестебурге помогают. Я хотела утром отвезти. Дайте ему эту ночь в его комнате. Я посижу у двери.' },
+      { when: own10('gate', 'promise'), text: 'Ты вспоминаешь, как у калитки она держала тебя за рукав. «Он с утра не в себе. Напугался».' },
+      { when: own10('lights', 'watch'), text: 'Ты вспоминаешь, как она стояла у старого курятника, прислонившись к двери лбом.' },
+      { when: flag('$.c10_vet'), text: 'Ты вспоминаешь коробку с красным крестом в кладовке. «Nur für Rinder».' },
+    ],
     actions: [
       { id: 'c10_n_c_coop', label: 'Сказать, что по её же правилу его надо в курятник', minutes: 3, terminal: true, goto: 'c10_n_ole_look',
         text: 'Хенрике закрывает глаза.\n\n— Моё правило. Я сама его придумала.\n\nОна не спорит. И не соглашается.', effects: [{ set: '$.c10_stance', value: 'coop' }, { npc: 'henrike', trust: -1 }] },
@@ -68,6 +75,8 @@ export const night10Scenes: Scene[] = [
         text: 'Хенрике кивает быстро. Слишком быстро.\n\n— Запирайте. Ключ я сама дам.', effects: [{ set: '$.c10_stance', value: 'door' }, { npc: 'henrike', trust: 2 }] },
       { id: 'c10_n_c_jest', label: 'Спросить, правда ли она верит, что в Йестебурге помогут', minutes: 3, terminal: true, goto: 'c10_n_ole_look',
         text: '— Там врачи, — говорит Хенрике и смотрит на свои руки. — Больше мне верить не во что.', effects: [{ set: '$.c10_stance', value: 'ask' }] },
+      { id: 'c10_n_c_radio', label: 'Сказать, что по радио сказали другое', minutes: 2, combinable: true, when: all(flag('$.c10_heard_bulletin'), once10('radio')),
+        text: 'Ты повторяешь, что слышал{m:|а} в машине у дороги: лечения нет, про первые сутки — неправда.\n\nХенрике не удивляется.\n\n— Я ни разу не дослушала, — говорит она. — Ни днём, ни вечером. Выключала. — Она смотрит на дверь сына. — Это ничего не меняет. Ночь ему всё равно нужна.', effects: [{ set: '$.c10_radio_told', value: true }] },
       { id: 'c10_n_c_angry', label: 'Сказать, что она подставила всех, и Нину тоже', minutes: 2, combinable: true, when: once10('angry'),
         text: '— Знаю. — Хенрике не отводит глаз. — Завтра можете уйти с моего двора. Сегодня дайте ему ночь.', effects: [{ set: '$.c10_angry', value: true }, { npc: 'henrike', trust: -3 }] },
     ] }),

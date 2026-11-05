@@ -1,11 +1,18 @@
 import type { Scene } from '../../engine/content-types';
-import { not } from './world3';
-import { S11, day11, kept11, wound11, yard11 } from './point11';
+import type { Cond } from '../../engine/types';
+import { all, not } from './world3';
+import { B11, S11, day11, kept11, wound11, yard11 } from './point11';
+
+const ninaKey11: Cond = { npcHas: 'c7_nina', type: 'c9_van_key' };
+const told11: Cond = { v: '$.c11_nw', op: '==', value: 'truth' };
 
 export const noon11Scenes: Scene[] = [
   S11({ id: 'c11_wake', for: 'any', chapter: 'ch3', title: 'Мама', camp: yard11, ambient: day11,
     onEnter: [{ set: 'w.c11_immune_seen', value: true }],
-    text: [{ text: 'Хенрике вдруг вскакивает.\n\n— Он сказал «мама». Вы слышали? Он сказал «мама»!\n\nИз-за двери — слабый, хриплый голос:\n\n— Пить… Мам. Пить дай.\n\nДениз поднимает руку: не открывать. Подходит к щели сам и долго смотрит.\n\n— Оле, — говорит он. — Как меня зовут?\n\nПауза.\n\n— Дениз, — отвечают из-за двери. — Дурак ты, Дениз. Дай пить.' }],
+    text: [{ text: 'Хенрике вдруг вскакивает.\n\n— Он сказал «мама». Вы слышали? Он сказал «мама»!\n\nИз-за двери — слабый, хриплый голос:\n\n— Пить… Мам. Пить дай.\n\nДениз поднимает руку: не открывать. Подходит к щели сам и долго смотрит.\n\n— Оле, — говорит он. — Как меня зовут?\n\nПауза.\n\n— Дениз, — отвечают из-за двери. — Дурак ты, Дениз. Дай пить.' },
+      { when: { v: '$.c11_hinge', op: '==', value: 'board' }, text: 'Доску, которую вы прибили утром, Дениз уже поддевает гвоздодёром.' },
+      { when: { v: '$.c11_hinge', op: '==', value: 'prop' }, text: 'Керем молча откатывает от двери тележку.' },
+    ],
     actions: [
       { id: 'c11_w_open', label: 'Сказать: открывайте, но осторожно', minutes: 4, terminal: true, goto: 'c11_wake2',
         text: 'Дениз встаёт сбоку от двери, ты — с другой стороны. Хенрике отодвигает щеколду. Оле не бросается. Он лежит на соломе и щурится на свет.', effects: [{ set: '$.c11_wake', value: 'open' }, { npc: 'henrike', trust: 2 }] },
@@ -21,14 +28,14 @@ export const noon11Scenes: Scene[] = [
       { when: wound11('bite'), text: 'Хенрике прижимает к себе сына укушенной рукой. Про свою руку сейчас не думает никто. Кроме тебя.' },
     ],
     actions: [
-      { id: 'c11_w2_ole', label: 'Подойти к Оле', minutes: 4, terminal: true, goto: 'c11_nina_why', effects: [{ set: '$.c11_w2', value: 'ole' }, { npc: 'ole', trust: 2 }],
+      { id: 'c11_w2_ole', label: 'Подойти к Оле', minutes: 4, terminal: true, goto: 'c11_kerem_ole', effects: [{ set: '$.c11_w2', value: 'ole' }, { npc: 'ole', trust: 2 }],
         outcomes: [
           { id: 'promise', when: { v: '$.c10_door', op: '==', value: 'promise' }, text: 'Оле смотрит на тебя снизу вверх.\n\n— Ты обещал{m:|а}, — говорит он. — Про Дениза. Помнишь? — Он слабо усмехается. — Не пригодилось.' },
           { id: 'plain', text: 'Оле смотрит на тебя снизу вверх.\n\n— Ночью я слышал тебя за дверью, — говорит он. — Спасибо, что не открыл{m:|а}.' },
         ] },
-      { id: 'c11_w2_air', label: 'Выйти на воздух', minutes: 5, activity: 'rest', terminal: true, goto: 'c11_nina_why',
+      { id: 'c11_w2_air', label: 'Выйти на воздух', minutes: 5, activity: 'rest', terminal: true, goto: 'c11_kerem_ole',
         text: 'Во дворе ты садишься прямо на землю. Руки трясутся сильнее, чем ночью. {partner} садится рядом и ничего не говорит.', effects: [{ set: '$.c11_w2', value: 'air' }, { body: 'stress', delta: -4 }] },
-      { id: 'c11_w2_deniz', label: 'Спросить Дениза, слышал ли он о таком', minutes: 3, terminal: true, goto: 'c11_nina_why',
+      { id: 'c11_w2_deniz', label: 'Спросить Дениза, слышал ли он о таком', minutes: 3, terminal: true, goto: 'c11_kerem_ole',
         text: '— Нет. — Дениз трёт лицо ладонями. — Никто не слышал. Или слышали и не верили.', effects: [{ set: '$.c11_w2', value: 'deniz' }] },
     ] }),
 
@@ -39,12 +46,62 @@ export const noon11Scenes: Scene[] = [
       { when: not(kept11), text: 'Она смотрит на закрытую дверцу фургона и больше ничего не спрашивает.' },
     ],
     actions: [
-      { id: 'c11_nw_truth', label: 'Сказать правду: у её отца это уже случилось, обратно не бывает', minutes: 4, terminal: true, goto: 'c11_after',
+      { id: 'c11_nw_truth', label: 'Сказать правду: у её отца это уже случилось, обратно не бывает', minutes: 4, terminal: true, goto: 'c11_van_nina',
         text: 'Нина слушает, не перебивая. Потом говорит:\n\n— Значит, он просто не успел. А Оле успел.\n\nИ уходит к фургону одна.', effects: [{ set: '$.c11_nw', value: 'truth' }, { body: 'stress', delta: 3 }] },
-      { id: 'c11_nw_hold', label: 'Обнять её', minutes: 5, terminal: true, goto: 'c11_after',
+      { id: 'c11_nw_hold', label: 'Обнять её', minutes: 5, terminal: true, goto: 'c11_van_nina',
         text: 'Нина стоит прямо, как палка. Потом утыкается тебе в плечо и плачет — в первый раз за всё время.', effects: [{ set: '$.c11_nw', value: 'hold' }, { npc: 'c7_nina', trust: 3 }] },
-      { id: 'c11_nw_dontknow', label: 'Сказать, что не знаешь', minutes: 3, terminal: true, goto: 'c11_after',
+      { id: 'c11_nw_dontknow', label: 'Сказать, что не знаешь', minutes: 3, terminal: true, goto: 'c11_van_nina',
         text: '— Никто не знает, — говорит Нина. — Я уже поняла.', effects: [{ set: '$.c11_nw', value: 'dontknow' }] },
+    ] }),
+
+  S11({ id: 'c11_kerem_ole', for: 'any', chapter: 'ch3', title: 'Ворота', camp: yard11, ambient: day11,
+    text: [
+      { text: 'Керем делает шаг внутрь курятника и останавливается. Оле поднимает на него глаза.\n\n— Керем, — говорит он хрипло. — Я тебе вчера… про ворота.\n\nКерем молчит. Руки у него в карманах. Видно, как он сжимает там кулаки.' },
+      { when: { v: '$.c11_phone', op: '==', value: 'kerem' }, text: 'Он уже прочитал то, что Оле не успел отправить.' },
+    ],
+    actions: [
+      { id: 'c11_ko_leave', label: 'Отойти и дать им договорить', minutes: 8, terminal: true, goto: 'c11_nina_why',
+        text: 'Ты отходишь к колодцу. Оттуда видно только спину Керема. Через минуту он садится на корточки рядом с Оле, и они говорят тихо и долго.\n\nПотом Керем выходит и вытирает лицо рукавом.\n\n— Живи уже, — говорит он в сторону курятника.', effects: [{ set: '$.c11_ko', value: 'leave' }, { npc: 'kerem', trust: 1 }] },
+      { id: 'c11_ko_night', label: 'Сказать Оле, где Керем провёл ночь', minutes: 4, terminal: true, goto: 'c11_nina_why',
+        text: 'Оле закрывает глаза.\n\n— Мать сказала, ты к девушке ушёл. В Харбург.\n\n— У меня нет девушки, — говорит Керем.\n\nОле смеётся и кашляет одновременно. Керем садится рядом с ним на солому.', effects: [{ set: '$.c11_ko', value: 'night' }, { npc: 'ole', trust: 1 }] },
+      { id: 'c11_ko_out', label: 'Вывести Керема на воздух', minutes: 6, terminal: true, goto: 'c11_nina_why',
+        text: 'Керема трясёт. Ты выводишь его во двор. Он долго стоит, вцепившись в сетку.\n\n— Я думал, он умрёт, а я ему так ничего и не скажу, — говорит он. — А теперь надо говорить. А я не знаю что.', effects: [{ set: '$.c11_ko', value: 'out' }, { npc: 'kerem', trust: 2 }] },
+    ] }),
+
+  S11({ id: 'c11_van_nina', for: 'any', chapter: 'ch3', title: 'Фургон', camp: yard11, ambient: day11,
+    text: [
+      { when: all(kept11, ninaKey11), text: 'Нина стоит у кабины фургона. Ключ у неё в руке, брелок раскачивается.' },
+      { when: all(kept11, ninaKey11, not(told11)), text: '— Оле проснулся, — говорит она, не оборачиваясь. — Он же тоже был такой. Папа просто дольше.' },
+      { when: all(kept11, ninaKey11, told11), text: '— Ты сказал{m:|а}: обратно не бывает, — говорит она, не оборачиваясь. — А вдруг бывает. Вы и про Оле не знали.' },
+      { when: all(kept11, not(ninaKey11)), text: 'Нина стоит у кабины фургона и стучит костяшками по доске. Тихо, как стучат к спящему.\n\n— Папа. Пап. Скажи «Нина». Оле же сказал «мама».' },
+      { when: not(kept11), text: 'Нина сидит у колеса фургона, обхватив колени. Дверца закрыта.' },
+      { when: all(not(kept11), not(told11)), text: '— Он бы тоже проснулся, — говорит она. — Если бы подождали. Вы же не знали. Никто не знал.' },
+      { when: all(not(kept11), told11), text: '— Не успел, — повторяет она, глядя в землю. — Если бы хоть кто-нибудь знал раньше. Хоть кто-нибудь.' },
+      { when: all(not(kept11), { v: '$.c11_van', op: '==', value: 'cold' }), text: 'Кабина пустая: утром вы перенесли его в сарай. Нина всё равно сидит здесь.' },
+    ],
+    actions: [
+      { id: 'c11_vn_truth', label: 'Объяснить, чем папа отличается от Оле', when: not(told11), minutes: 6, terminal: true, goto: 'c11_after',
+        effects: [{ set: '$.c11_vn', value: 'truth' }, { body: 'stress', delta: 2 }],
+        outcomes: [
+          { id: 'kept', when: kept11, text: 'Ты говоришь медленно. У Оле был жар, сутки. А папа такой уже несколько дней. Это другое. Оттуда не возвращаются.\n\nНина долго смотрит на доски. Потом опускает руку.' },
+          { id: 'dead', text: 'Ты говоришь медленно. У Оле был жар, сутки. А папа уже не горел. Он был таким несколько дней, и ждать было нечего.\n\n— Вы так говорите, чтобы вам не было плохо, — отвечает Нина. Но плакать перестаёт.' },
+        ] },
+      { id: 'c11_vn_key', label: 'Протянуть руку за ключом', when: all(kept11, ninaKey11, B11), minutes: 4, terminal: true, goto: 'c11_after',
+        text: 'Нина смотрит на твою ладонь. Потом на фургон. Потом кладёт ключ — не в ладонь, а на капот — и отходит.\n\nТы забираешь его.', effects: [{ takeFromNpc: 'c7_nina', type: 'c9_van_key' }, { set: '$.c11_vn', value: 'key' }] },
+      { id: 'c11_vn_stay', label: 'Встать рядом и ничего не говорить', minutes: 10, activity: 'rest', terminal: true, goto: 'c11_after',
+        effects: [{ set: '$.c11_vn', value: 'stay' }, { npc: 'c7_nina', trust: 2 }],
+        outcomes: [
+          { id: 'kept', when: kept11, text: 'Вы стоите вдвоём у фургона. Изнутри ни звука. Нина ждёт долго. Потом говорит: «Ладно». И уходит в дом.' },
+          { id: 'dead', text: 'Ты садишься рядом. Нина водит пальцем по пыли на крыле. Пишет «П». Стирает ладонью.' },
+        ] },
+      { id: 'c11_vn_away', label: 'Увести её от фургона', minutes: 4, terminal: true, goto: 'c11_after',
+        effects: [{ set: '$.c11_vn', value: 'away' }],
+        outcomes: [
+          { id: 'kept', when: kept11, text: 'Ты берёшь её за плечи и уводишь от кабины. Нина не сопротивляется. У крыльца она оборачивается один раз.' },
+          { id: 'dead', text: 'Ты помогаешь ей встать. Нина отряхивает колени и идёт к дому. У крыльца она оборачивается один раз.' },
+        ] },
+      { id: 'c11_vn_tree', label: 'Пообещать похоронить его, где она скажет', when: not(kept11), minutes: 5, terminal: true, goto: 'c11_after',
+        text: 'Нина кивает.\n\n— Под яблоней, — говорит она. — Пока здесь. Домой потом, когда можно будет.', effects: [{ set: '$.c11_vn', value: 'tree' }, { set: 'w.c11_jens_tree', value: true }, { npc: 'c7_nina', trust: 2 }] },
     ] }),
 
   S11({ id: 'c11_after', for: 'any', chapter: 'ch3', title: 'Что теперь', camp: yard11, ambient: day11,

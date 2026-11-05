@@ -44,11 +44,14 @@ describe('участок 10: ночь до КТ10', () => {
 
   it('без поиска правда приходит только с личными уликами; без них Хенрике не признаётся', () => {
     const base = after9('keep', 'stay', 'stay');
-    const plain = leg(base, 'A', { c10_n_house: 'c10_n_press' });
+    const plain = leg(base, 'A', { c10_f_hens: 'c10_f_h_close', c10_n_house: 'c10_n_press' });
     expect(plain.vars['A.c10_press_failed']).toBe(true); expect(plain.vars['A.c10_knows']).toBeUndefined();
     const proof = structuredClone(base); proof.vars['A.c9_saw_forearm'] = true;
     const told = leg(proof, 'A', { c10_n_house: 'c10_n_press' });
     expect(told.vars['A.c10_confession']).toBe(true);
+    // Свежая солома в старом курятнике — тоже своя улика.
+    const coop = leg(base, 'B', { c10_f_hens: 'c10_f_h_look', c10_n_house: 'c10_n_press' });
+    expect(coop.vars['B.c10_confession']).toBe(true);
   });
 
   it('ибупрофен действительно переходит к Хенрике; ключ Нины забирает только линия B', () => {

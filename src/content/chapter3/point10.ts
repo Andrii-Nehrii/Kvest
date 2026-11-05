@@ -19,7 +19,7 @@ export const fever10: Cond = { npcVar: 'ole', key: 'c10_fever' };
 export const ninaKey10: Cond = { npcHas: 'c7_nina', type: 'c9_van_key' };
 export const nina10: Cond = { npc: 'c7_nina', alive: true, at: 'hof_luedemann' };
 /** Свои улики точки 9: увидено или услышано лично, а не догадка. */
-export const evidence10: Cond = { any: [flag('$.c10_compared'), flag('$.c9_saw_forearm'), flag('$.c9_saw_swelling'), flag('$.c9_q_wound'),
+export const evidence10: Cond = { any: [flag('$.c10_compared'), flag('$.c10_saw_coop'), flag('$.c9_saw_forearm'), flag('$.c9_saw_swelling'), flag('$.c9_q_wound'),
   { v: '$.c9_d2', op: '==', value: 'truth' }, { v: '$.c9_koehler', op: '==', value: 'told' }, { v: '$.c9_sweater', op: '==', value: 'looked' }] };
 export const once10 = (key: string): Cond => not(flag(`$.c10_${key}`));
 export const own10 = (key: string, value: string): Cond => ({ v: `$.c10_${key}`, op: '==', value });

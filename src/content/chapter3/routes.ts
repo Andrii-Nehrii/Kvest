@@ -151,7 +151,7 @@ export const newEntry10: Scene = {
   id: 'c10_start', for: 'any', chapter: 'ch3', title: 'Фонарь за сараем', universal: false,
   safe: true, ambient: { tempC: 5, outdoor: true, wet: false },
   text: [
-    { when: all(point10Available, meSearch10, partnerSearch10), text: 'Дениз ждёт у калитки с фонарём. Вы выходите вдвоём следом за ним. Хенрике стоит на крыльце, пока ваш свет не скрывается за сараем.' },
+    { when: all(point10Available, meSearch10, partnerSearch10), text: 'Дениз ждёт у калитки с фонарём. Вы выходите вдвоём следом за ним.' },
     { when: all(point10Available, meSearch10, not(partnerSearch10)), text: 'Дениз ждёт у калитки с фонарём. {partner} остаётся на крыльце и смотрит, как ты застёгиваешь куртку.' },
     { when: all(point10Available, not(meSearch10), partnerSearch10), text: '{partner} застёгивает куртку и уходит с Денизом. Ты стоишь на крыльце, пока их фонарь не скрывается за сараем.' },
     { when: all(point10Available, not(meSearch10), not(partnerSearch10)), text: 'Дениз уходит один. Его фонарь ещё долго мигает между деревьями. Хенрике закрывает калитку на засов.' },
@@ -160,7 +160,7 @@ export const newEntry10: Scene = {
     { when: not(point10Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
-    { id: 'c10_begin_go', label: 'Идти за Денизом в темноту', when: all(point10Available, meSearch10), minutes: 2, terminal: true, goto: 'c10_s_path', effects: [denizLeaves10] },
+    { id: 'c10_begin_go', label: 'Идти за Денизом в темноту', when: all(point10Available, meSearch10), minutes: 2, terminal: true, goto: 'c10_s_gate', effects: [denizLeaves10] },
     { id: 'c10_begin_stay', label: 'Вернуться в дом', when: all(point10Available, not(meSearch10)), minutes: 2, terminal: true, goto: 'c10_f_kitchen', effects: [denizLeaves10] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(P10, a.when ?? { always: true }) })),
 };

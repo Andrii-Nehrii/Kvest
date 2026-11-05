@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { completeCheckpoint } from '../engine/checkpoint';
 import type { GameState } from '../engine/types';
-import { P, after8, leg, mergeCp } from '../test/arc9kit';
+import { P, after8, leg, mergeCp, qty } from '../test/arc9kit';
 import { content as c } from './index';
 
 function after10(ole: string, nina = 'house', jens = 'keep') {
@@ -28,6 +28,18 @@ describe('участок 11: рассвет, иммунитет, КТ11', () => 
       const out = completeCheckpoint(c, structuredClone(s) as GameState, { A: { c3_new_report11: ra, c3_new_home11: ha }, B: { c3_new_report11: rb, c3_new_home11: hb } }).state;
       expect(out.vars['w.c11_report']).toBe(wantR); expect(out.vars['w.c11_home']).toBe(wantH);
       for (const p of P) expect(out.chars[p].scene).toBe('c12_start');
+    }
+  });
+
+  it('дополненные сцены есть на обеих линиях; ключ Нины у фургона забирает только линия B', () => {
+    const base = after10('coop');
+    const a = leg(base, 'A'), b = leg(base, 'B');
+    for (const k of ['c11_check', 'c11_hinge', 'c11_van', 'c11_window', 'c11_brothers', 'c11_ko', 'c11_vn']) expect(a.vars[`A.${k}`], k).toBeDefined();
+    for (const k of ['c11_check', 'c11_wash', 'c11_phone', 'c11_bwin', 'c11_bk', 'c11_ko', 'c11_vn']) expect(b.vars[`B.${k}`], k).toBeDefined();
+    if (qty(base, 'c9_van_key', 'npc', 'c7_nina')) {
+      const took = leg(base, 'B', { c11_nina_why: 'c11_nw_hold', c11_van_nina: 'c11_vn_key' });
+      expect(qty(took, 'c9_van_key', 'char', 'B')).toBe(1);
+      expect(c.scenes.c11_van_nina.actions.find(x => x.id === 'c11_vn_key')!.when).toBeDefined();
     }
   });
 
