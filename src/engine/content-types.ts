@@ -255,6 +255,8 @@ export interface JointDecision {
   fallbackWeights?: { option: string; base: number; mods?: { when: Cond; add: number }[] }[];
   /** Что NPC запомнят о позиции каждого игрока. */
   rememberedBy?: string[];
+  /** Текст причины, когда отвечал один участник: например, выбор за партнёра. Влияет только на текст. */
+  soloReason?: string;
 }
 
 /** Что каждый игрок узнаёт сразу после слияния участков (связь, встреча). Условие — с его точки зрения. */

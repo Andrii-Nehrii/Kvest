@@ -343,7 +343,7 @@ export function resolveJoint(c: Content, s: GameState, decisionId: string, answe
     res.kind = 'world';
   } else if (who.length === 1) {
     res.kind = 'solo';
-    if (feasible(given[0])) { res.applied = [given[0]]; res.reason = 'Решение принято одним игроком: второй не мог участвовать.'; }
+    if (feasible(given[0])) { res.applied = [given[0]]; res.reason = d.soloReason ?? 'Решение принято одним игроком: второй не мог участвовать.'; }
     else arbitrate([given[0]]);
   } else {
     const [a, b] = given;

@@ -11,6 +11,9 @@ import { START_TIME, shouldSendAnswers, myAnswersCode, acceptPartnerAnswers, rea
 import { stayRoutes } from './chapter3/routes';
 import { farm6bAvailable } from './chapter3/farm6b';
 import { point8Available } from './chapter3/point8';
+import { point9Available } from './chapter3/point9';
+import { point10Available } from './chapter3/point10';
+import { point11Available } from './chapter3/point11';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
 const written = (n: number) => c.checkpoints.some((cp) => cp.index === n);
@@ -87,6 +90,9 @@ describe('глава 3', () => {
         // Новый участок 6 написан только для сохранившейся линии пары; остальные ждут продолжения.
         if (n === 6 && !P.every(pid => evalCond({ s: base, c, pid }, farm6bAvailable))) break;
         if (n === 8 && !P.every(pid => evalCond({ s: base, c, pid }, point8Available))) break;
+        if (n === 9 && !P.every(pid => evalCond({ s: base, c, pid }, point9Available))) break;
+        if (n === 10 && !P.every(pid => evalCond({ s: base, c, pid }, point10Available))) break;
+        if (n === 11 && !P.every(pid => evalCond({ s: base, c, pid }, point11Available))) break;
         const ends = { A: leg(base, 'A', `${i}:${run}:${n}:A`), B: leg(base, 'B', `${i}:${run}:${n}:B`) };
         base = cp(base, ends, 'stay');
         if (base.ended) break;
@@ -303,6 +309,7 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
         car.at = { kind: 'place', id: 'c7_farm_lane' };
         Object.assign(s.vars, { 'A.c8_finished': true, 'B.c8_finished': true, 'A.c8_has_key': true });
       }
+      if (n === 10) s.vars['w.c9_jens'] = 'kept';
       if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;
       if (option.id === 'boards') s.vars['w.c3_f8_window_broken'] = true;
@@ -326,7 +333,10 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
     expect(out.joint.find(result => result.id === id)!.applied).toEqual([option.id]);
     for (const pid of P) expect(out.state.chars[pid].scene).toBe(`c${n + 1}_start`);
     if (written(n + 1) && (n + 1 !== 6 || P.every(pid => evalCond({ s: out.state, c, pid }, farm6bAvailable)))
-      && (n + 1 !== 8 || P.every(pid => evalCond({ s: out.state, c, pid }, point8Available)))) {
+      && (n + 1 !== 8 || P.every(pid => evalCond({ s: out.state, c, pid }, point8Available)))
+      && (n + 1 !== 9 || P.every(pid => evalCond({ s: out.state, c, pid }, point9Available)))
+      && (n + 1 !== 10 || P.every(pid => evalCond({ s: out.state, c, pid }, point10Available)))
+      && (n + 1 !== 11 || P.every(pid => evalCond({ s: out.state, c, pid }, point11Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

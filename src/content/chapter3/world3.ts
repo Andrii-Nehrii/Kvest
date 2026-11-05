@@ -42,6 +42,7 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
     { id: 'c8_east_road', name: 'Восточная дорога', region: 'lk', indoor: false, media: ['people'] },
     { id: 'c8_bus_east', name: 'Микроавтобус Рут в пути', region: 'lk', indoor: true, media: ['people'] },
     { id: 'c3_farm_shed', name: 'Отдельный сарай', region: 'lk', indoor: true },
+    { id: 'c10_field', name: 'Полевая дорога вдоль старой ветки', region: 'lk', indoor: false },
     { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
     {
@@ -366,3 +367,22 @@ agenda3.kerem.push({
   when: all({ cp: 7 }, { npc: 'kerem', alive: true, at: 'b75_road' }, flag('w.c3_wait_kerem')),
   effects: [{ npc: 'kerem', moveTo: 'hof_luedemann', remember: 'c3_waited_at_road', set: { c3_returned: true } }],
 });
+
+// Участок 10: у Оле после утреннего укуса начинается жар (продром), это видно только по поведению и словам.
+agenda3.ole = [...(agenda3.ole ?? []), {
+  id: 'c10_fever', at: at(13, 21, 40), scope: 'world',
+  when: all({ cp: 9 }, { npcVar: 'ole', key: 'c9_bitten' }, { npc: 'ole', alive: true }),
+  effects: [{ npc: 'ole', set: { c10_fever: true } }],
+}];
+
+// Участок 11: острая стадия у Оле на рассвете, возвращение братьев, около 11:10 жар обрывается (иммунитет, WORLD_BIBLE §2.5).
+agenda3.ole.push(
+  { id: 'c11_acute', at: at(14, 5, 10), scope: 'world', when: all({ cp: 10 }, { npcVar: 'ole', key: 'c9_bitten' }, { npc: 'ole', alive: true }),
+    effects: [{ npc: 'ole', set: { c11_acute: true } }] },
+  { id: 'c11_immune', at: at(14, 11, 10), scope: 'world', when: all({ cp: 10 }, { npcVar: 'ole', key: 'c11_acute' }, { npc: 'ole', alive: true }),
+    effects: [{ npc: 'ole', set: { c11_immune: true, c11_acute: false, c10_fever: false } }] },
+);
+agenda3.deniz = [...(agenda3.deniz ?? []), { id: 'c11_back', at: at(14, 6, 30), scope: 'world', when: all({ cp: 10 }, { npc: 'deniz', alive: true, at: 'b75_road' }),
+  effects: [{ npc: 'deniz', moveTo: 'hof_luedemann', set: { c10_with_kerem: false } }] }];
+agenda3.kerem.push({ id: 'c11_back', at: at(14, 6, 30), scope: 'world', when: all({ cp: 10 }, { npc: 'kerem', alive: true, at: 'b75_road' }, flag('w.c9_deniz_search')),
+  effects: [{ npc: 'kerem', moveTo: 'hof_luedemann', remember: 'c11_came_back_with_brother' }] });
