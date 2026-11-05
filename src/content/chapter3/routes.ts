@@ -2,7 +2,9 @@ import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import { farm6bAvailable } from './farm6b';
 import { point8Available, road8 } from './point8';
-import type { Outcome, Scene } from '../../engine/content-types';
+import { A9, P9, eastStart9, farmStart9, keremHere9, laneStart9, morning9, outdoor9, point9Available, yard9 } from './point9';
+import { carAt9, ride9, walk9, yardActions9, yardText9 } from './entry9';
+import type { ActionDef, Outcome, Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { at } from '../../engine/time';
 import {
@@ -107,6 +109,39 @@ export const newEntry8: Scene = {
       effects: [{ introduceNpc: 'c8_ruth' }, { introduceNpc: 'c8_eva' }, { set: '$.met.c8_ruth', value: true }, { set: '$.met.c8_eva', value: true }, { set: '$.c8_short_trip', value: true }, { camp: { kind: 'prepare', quiet: true } }] },
   ],
 };
+// Вход уже входит в подписанную базу КТ8: никаких onEnter и места. Эффекты — в первом ходе.
+export const newEntry9: Scene = {
+  id: 'c9_start', for: 'any', chapter: 'ch3', title: 'После дороги', universal: false,
+  camp: yard9, safe: true, ambient: { tempC: 8, outdoor: true, wet: false },
+  text: [
+    ...yardText9(false).slice(0, 3).map(b => ({ ...b, when: all(point9Available, farmStart9, b.when ?? { always: true }) })),
+    { when: all(point9Available, farmStart9, not(keremHere9), { npc: 'kerem', at: 'b75_road' }, { v: 'w.c8_direction', op: '==', value: 'home_foot' }),
+      text: 'По дороге сюда вам навстречу попался Керем с рюкзаком. Он кивнул и не остановился.' },
+    { when: all(point9Available, farmStart9, { v: 'w.c8_direction', op: '==', value: 'home_foot' }), text: 'Corsa осталась у остановки, в четырёх километрах отсюда.' },
+    { when: all(point9Available, laneStart9), text: 'Микроавтобус Рут скрылся за поворотом. Вы сидите на скамейке у остановки. Corsa стоит на обочине.\n\nДо хутора четыре километра. Вещи по-прежнему у Хенрике. Вы остались здесь передохнуть, а не уехать насовсем.' },
+    { when: all(point9Available, eastStart9), text: 'Перед перекрёстком стоят пять машин. Дальше дорогу перегородили два грузовика бундесвера. Солдат в каске идёт вдоль очереди и наклоняется к каждому окну.\n\nМикроавтобуса Рут здесь нет: он свернул раньше. Слух о завале оказался правдой. Только завал устроили люди.' },
+    { when: not(point9Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    ...yardActions9('c9_begin').map(a => ({ ...a, when: all(point9Available, farmStart9, a.when ?? { always: true }) })),
+    { id: 'c9_begin_lane_car', label: 'Ехать обратно на хутор: 20 минут, 0,26 л', when: all(point9Available, laneStart9, carAt9('c7_farm_lane', 0.26)),
+      minutes: 20, activity: 'light', terminal: true, goto: 'c9_yard', effects: [...morning9, ride9(4)],
+      outcomes: [{ id: 'a', when: A9, text: 'Ты садишься за руль. Поле за окном серое, на обочине стоят лужи. До поворота к хутору вы молчите: оба думаете о Павле.' },
+        { id: 'b', text: 'Ты садишься рядом с {A.ins}. Поле за окном серое, на обочине стоят лужи. До поворота к хутору вы молчите: оба думаете о Павле.' }] },
+    { id: 'c9_begin_lane_foot', label: 'Идти обратно на хутор пешком: около 55 минут', when: all(point9Available, laneStart9, not(carAt9('c7_farm_lane', 0.26))),
+      minutes: 55, activity: 'moderate', move: true, terminal: true, goto: 'c9_yard', effects: [...morning9, walk9],
+      ambientDuring: outdoor9, text: 'Вы идёте по краю дороги. Машина остаётся у остановки. Через час впереди показывается крыша хутора.' },
+    { id: 'c9_begin_lane_talk', label: 'Сказать {partner.dat}, что хочешь домой', when: all(point9Available, laneStart9), minutes: 2, combinable: true, group: 'c9_begin_talk',
+      text: '{partner} кивает. — Я тоже. Странно говорить «домой» про чужой хутор. — Но вы оба так и говорите.', effects: [{ body: 'stress', delta: -2 }] },
+    { id: 'c9_begin_east_ask', label: 'Подъехать ближе и спросить солдата, что впереди', when: all(point9Available, eastStart9), minutes: 6, terminal: true, goto: 'c9_east_post', effects: morning9,
+      text: 'Вы встаёте в хвост очереди. Солдат доходит до вас через пять минут.' },
+    { id: 'c9_begin_east_turn', label: 'Не ждать и сразу развернуться к хутору', when: all(point9Available, eastStart9, carAt9('c8_east_road', 0.9)), minutes: 40, activity: 'light', terminal: true, goto: 'c9_yard',
+      effects: [...morning9, ride9(14)], outcomes: [{ id: 'a', when: A9, text: 'Ты разворачиваешь Corsa через сплошную. Обратная дорога кажется короче. Через сорок минут — поворот к хутору.' },
+        { id: 'b', text: '{A} разворачивает Corsa через сплошную. Обратная дорога кажется короче. Через сорок минут — поворот к хутору.' }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P9, a.when ?? { always: true }) })),
+};
+
+
 function routeOutcomes(n: number): Outcome[] {
   return stayRoutes(n).map((r, i) => ({ id: `stay_${i}`, when: r.when, goto: r.scene }));
 }

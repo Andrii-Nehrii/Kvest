@@ -11,6 +11,8 @@ const list: ItemType[] = [
   { id: 'c7_jens_note', name: 'записка Йенса для Нины', weight: 5, tags: ['note'], description: 'Согласованные слова Йенса, адрес хутора и номер получателя.' },
   { id: 'c8_roll', name: 'булочка из запаса Рут', weight: 80, tags: ['food'], food: { hunger: 9, kcal: 210, minutes: 5 }, spoilsAfter: 1440 },
   { id: 'c8_helmut_wallet', name: 'бумажник Хельмута', weight: 100, tags: ['note'], description: 'Документы и сложенная фотография. Принадлежит Хельмуту.' },
+  { id: 'c9_van_key', name: 'запасной ключ от фургона Йенса', weight: 20, tags: ['van_key'], description: 'Брелок с логотипом службы доставки. Нина взяла его дома с крючка.' },
+  { id: 'c9_koehler_bread', name: 'полбуханки ржаного хлеба Кёлер', weight: 400, tags: ['food'], food: { hunger: 24, kcal: 900, minutes: 8 }, spoilsAfter: 4320 },
   { id: 'c8_helmut_coat', name: 'пальто Хельмута', weight: 1500, tags: ['clothing'], clothing: { warmth: 4, biteProtection: 2, slot: 'outer' } },
   { id: 'c3_porridge', name: 'приготовленная порция овсяной каши', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 925, minutes: 10 }, spoilsAfter: 1440 },
   { id: 'water_l', name: 'вода, литр (канистра/ёмкость)', weight: 1000, tags: ['water_bulk'] },
