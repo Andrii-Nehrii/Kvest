@@ -1,6 +1,6 @@
 import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
-import type { Cond, Effect } from '../../engine/types';
+import type { Effect } from '../../engine/types';
 import { flag } from './world3';
 import { S14, day14, dusk14, house14, indoor14, kitchen14, tense14, yard14 } from './point14';
 
@@ -10,20 +10,19 @@ const toDusk: Effect = { restUntil: at(15, 16, 40) };
 const nina = (trust: number): Effect => ({ npc: 'c7_nina', trust });
 const jannes = (trust: number): Effect => ({ npc: 'c14_jannes', trust });
 const koehler = (trust: number): Effect => ({ npc: 'c3_koehler', trust });
-const own = (key: string, value: string): Cond => ({ v: `$.c14_${key}`, op: '==', value });
 const neighbor = 'c3_neighbor';
 
 export const day14xScenes: Scene[] = [
   // ───────────── A ─────────────
-  S14({ id: 'c14_a_well', for: 'any', chapter: 'ch3', title: 'Колодец', camp: yard14, ambient: day14,
-    text: [{ text: 'До обеда час. Ведро у колодца пустое, бочка у кухонной двери тоже: вчера воду носили Дениз с Керемом. Теперь некому, кроме вас.' }],
+  S14({ id: 'c14_a_well', for: 'any', chapter: 'ch3', title: 'Следы у калитки', camp: yard14, ambient: day14,
+    text: [{ text: 'У задней калитки, в грязи, свежие следы. Узкая колея тачки подходит к самой калитке, топчется на месте и уходит обратно в поле. Две пары сапог: одни большие, другие маленькие, женские. Ночью кто-то стоял здесь. Смотрел на двор.' }],
     actions: [
-      { id: 'c14_aw_barrel', label: 'Натаскать полную бочку', minutes: 40, activity: 'heavy', terminal: true, goto: 'c14_lunch',
-        text: 'Двенадцать вёдер. Цепь скрипит, ручка ворота обжигает ладони холодом. К последнему ведру спина мокрая, хотя на улице шесть градусов. Бочка полная. До завтра хватит.', effects: [{ set: '$.c14_well', value: 'barrel' }, toLunch] },
-      { id: 'c14_aw_half', label: 'Наполнить бочку наполовину и передохнуть', minutes: 20, activity: 'moderate', terminal: true, goto: 'c14_lunch',
-        text: 'Шесть вёдер. Ты садишься на край колодца. Отсюда видно весь двор: фургон, сарай, Нину у навеса. И пустую дорогу.', effects: [{ set: '$.c14_well', value: 'half' }, toLunch] },
-      { id: 'c14_aw_chain', label: 'Сначала посмотреть, почему скрипит цепь', minutes: 25, activity: 'light', terminal: true, goto: 'c14_lunch',
-        text: 'Ось ворота сухая и рыжая. Ты находишь в сарае банку с машинным маслом и мажешь. Цепь замолкает. Пара вёдер — и вода идёт легче.', effects: [{ set: '$.c14_well', value: 'chain' }, toLunch] },
+      { id: 'c14_aw_nina', label: 'Позвать Нину и показать следы', minutes: 10, terminal: true, goto: 'c14_lunch',
+        text: 'Нина смотрит на колею долго. Слишком долго.\n\n— Может, соседка, — говорит она. — Кёлер. Она всё время с тачкой.\n\nИ уходит в дом раньше, чем ты успеваешь спросить, откуда она это знает.', effects: [{ set: '$.c14_prints', value: 'nina' }, toLunch] },
+      { id: 'c14_aw_wipe', label: 'Затереть следы сапогом', minutes: 8, terminal: true, goto: 'c14_lunch',
+        text: 'Ты затираешь колею, пока от неё не остаётся бурое пятно. Не для Нины. Для себя: чтобы не смотреть на неё каждый раз.', effects: [{ set: '$.c14_prints', value: 'wipe' }, toLunch] },
+      { id: 'c14_aw_measure', label: 'Присесть и рассмотреть внимательно', minutes: 12, terminal: true, goto: 'c14_lunch',
+        text: 'Колесо у тачки резиновое, с заплатой: на каждом обороте одна и та же вмятина. Большие сапоги стояли спокойно. Маленькие подходили к самой калитке и трогали крючок. На перекладине след мокрой перчатки.', effects: [{ set: '$.c14_prints', value: 'measure' }, toLunch] },
     ] }),
 
   S14({ id: 'c14_a_shed', for: 'any', chapter: 'ch3', title: 'Ключ с синей ниткой', camp: yard14, ambient: day14,
@@ -71,15 +70,15 @@ export const day14xScenes: Scene[] = [
         text: '— Честно, — говорит Яннес. — Ладно. Мигните, как решите.', effects: [{ set: '$.c14_jannes3', value: 'no' }, { restUntil: at(15, 15, 50) }] },
     ] }),
 
-  S14({ id: 'c14_a_hens', for: 'any', chapter: 'ch3', title: 'Куры на ночь', camp: yard14, ambient: dusk14,
-    text: [{ text: 'Темнеет. Оле говорил: куры утром и вечером. Ты загоняешь их в курятник. Считаешь. Девять. Утром Нина говорила: десять.' }],
+  S14({ id: 'c14_a_hens', for: 'any', chapter: 'ch3', title: 'Ты бы смог?', camp: yard14, ambient: dusk14,
+    text: [{ text: 'Ты загоняешь кур в курятник. Нина стоит у сетки и смотрит, как ты считаешь их вслух.\n\n— Можно спросить? — говорит она. — Ты бы смог{m:|ла}? Ну, ружьём. Если бы вы решили так.' }],
     actions: [
-      { id: 'c14_ah_search', label: 'Поискать десятую', minutes: 12, activity: 'light', terminal: true, goto: 'c14_a_fence',
-        text: 'Ты находишь её под крыльцом, на гнезде. Под ней два яйца, тёплые. Курица ругается, но даёт себя вынести.', effects: [{ set: '$.c14_hens', value: 'search' }, { give: 'eggs', qty: 2 }, { stock: 'eggs', qty: 2, at: 'c3_farm_stock' }] },
-      { id: 'c14_ah_close', label: 'Закрыть девять: десятая сама придёт', minutes: 5, terminal: true, goto: 'c14_a_fence',
-        text: 'Ты задвигаешь заслонку. Из-под крыльца недовольно квохчут. Значит, живая.', effects: [{ set: '$.c14_hens', value: 'close' }] },
-      { id: 'c14_ah_water', label: 'Налить свежей воды и закрыть', minutes: 8, activity: 'light', terminal: true, goto: 'c14_a_fence',
-        text: 'Поилка пустая. Ты наливаешь из ведра, задвигаешь заслонку. Куры возятся на насесте и затихают.', effects: [{ set: '$.c14_hens', value: 'water' }] },
+      { id: 'c14_ah_yes', label: 'Сказать: да, смог{m:|ла} бы', minutes: 5, terminal: true, goto: 'c14_a_fence',
+        text: 'Нина кивает. Медленно.\n\n— Хорошо, — говорит она. — Лучше ты, чем чужой. — Она отворачивается к курятнику. — Только я не хочу, чтобы вы так решили.', effects: [{ set: '$.c14_ninagun', value: 'yes' }] },
+      { id: 'c14_ah_no', label: 'Сказать: не знаю. Честно', minutes: 5, terminal: true, goto: 'c14_a_fence',
+        text: '— Честно, — повторяет Нина. — Это хорошо, что не знаешь. Она молчит. — Значит, ты про него думаешь как про человека.', effects: [{ set: '$.c14_ninagun', value: 'dunno' }, nina(1)] },
+      { id: 'c14_ah_never', label: 'Сказать: нет, не смог{m:|ла} бы', minutes: 5, terminal: true, goto: 'c14_a_fence',
+        text: 'Нина смотрит на тебя удивлённо.\n\n— А Хенрике думала, что сможешь, — говорит она. — Она мне сказала. Перед отъездом.', effects: [{ set: '$.c14_ninagun', value: 'never' }] },
     ] }),
 
   S14({ id: 'c14_a_fence', for: 'any', chapter: 'ch3', title: 'Задняя калитка', camp: yard14, ambient: dusk14,
@@ -104,16 +103,15 @@ export const day14xScenes: Scene[] = [
         text: 'Пять часов. Внедорожник, как утром у патруля. Номера ты не {m:разглядел|разглядела}. Только то, что внутри был один человек.', effects: [{ set: '$.c14_road', value: 'time' }] },
     ] }),
 
-  S14({ id: 'c14_a_cellar2', for: 'any', chapter: 'ch3', title: 'Подвал', camp: house14,
-    text: [{ text: 'Нина кричит из кухни: на ужин нужна картошка и что-нибудь сладкое. Длинный ключ поворачивается туго. В подвале холодно и пахнет землёй.' },
-      { when: own('keys', 'cellar'), text: 'Коробка «Für Nina» стоит на нижней полке, где стояла.' }],
+  S14({ id: 'c14_a_cellar2', for: 'any', chapter: 'ch3', title: 'Сообщение от Уте', camp: house14,
+    text: [{ text: 'Телефон вибрирует. Незнакомый номер:\n\n«Hier ist Ute. Nina hat mir Ihre Nummer gegeben. Ich will nichts hinter Ihrem Rücken tun. Fragen Sie mich, was Sie wollen.»\n\nЭто Уте. Нина дала ваш номер. Не хочу ничего делать у вас за спиной. Спрашивайте, что хотите.' }],
     actions: [
-      { id: 'c14_acl_plums', label: 'Взять картошку и банку слив', minutes: 8, terminal: true, goto: 'c14_a_gun',
-        text: 'Ты набираешь полное ведро картошки и берёшь банку слив, самую большую. На крышке почерком Хенрике: «2025. Für den Winter». На зиму.', effects: [{ set: '$.c14_cellar2', value: 'plums' }] },
-      { id: 'c14_acl_box', label: 'Взять и коробку «Für Nina»', minutes: 8, terminal: true, goto: 'c14_a_gun',
-        text: 'Ты несёшь наверх ведро и коробку. Нина видит надпись, берёт коробку и уходит с ней наверх, ничего не сказав. Через минуту сверху слышно, как она плачет. Тихо.', effects: [{ set: '$.c14_cellar2', value: 'box' }, nina(1)] },
-      { id: 'c14_acl_count', label: 'Пересчитать картошку на неделю вперёд', minutes: 12, terminal: true, goto: 'c14_a_gun',
-        text: 'Шесть ящиков. Если по полкило на человека в день, на троих — недели на три. Если придут ещё люди — меньше. Ты закрываешь подвал на два оборота.', effects: [{ set: '$.c14_cellar2', value: 'count' }] },
+      { id: 'c14_acl_back', label: 'Спросить: а если они не вернутся никогда?', minutes: 8, terminal: true, goto: 'c14_a_gun',
+        text: 'Ответ приходит через пять минут:\n\n«Dann warte ich länger. Und wenn ich sterbe, gibt es Jannes.»\n\nТогда я буду ждать дольше. А если я умру, есть Яннес.\n\nТы перечитываешь это три раза.', effects: [{ set: '$.c14_utesms', value: 'back' }, { charge: 'phone', delta: -1 }] },
+      { id: 'c14_acl_safe', label: 'Спросить: что будет, если кто-нибудь сорвётся с цепи?', minutes: 8, terminal: true, goto: 'c14_a_gun',
+        text: 'Ответ приходит не сразу:\n\n«Das ist noch nie passiert.»\n\nТакого ещё не было.\n\nЧерез минуту ещё одно сообщение: «Noch nicht». Пока не было.', effects: [{ set: '$.c14_utesms', value: 'safe' }, { charge: 'phone', delta: -1 }] },
+      { id: 'c14_acl_none', label: 'Не отвечать: решать будем вдвоём', minutes: 2, terminal: true, goto: 'c14_a_gun',
+        text: 'Ты убираешь телефон. Через полчаса приходит ещё одно: «Ich verstehe». Я понимаю.', effects: [{ set: '$.c14_utesms', value: 'none' }] },
     ] }),
 
   S14({ id: 'c14_a_bottle', for: 'any', chapter: 'ch3', title: 'Бутылка', camp: yard14, ambient: dusk14,
@@ -139,15 +137,15 @@ export const day14xScenes: Scene[] = [
         text: 'Вы раскладываете её рюкзак. Две футболки, джинсы, зарядка, щётка, тетрадь по биологии. Тетрадь Нина зачем-то взяла с собой. «Там домашка на четверг», — говорит она.', effects: [{ set: '$.c14_room', value: 'help' }, toLunch] },
     ] }),
 
-  S14({ id: 'c14_b_well', for: 'any', chapter: 'ch3', title: 'Вода', camp: yard14, ambient: day14,
-    text: [{ text: 'Нина несёт от колодца два ведра, проливая на джинсы. Руки у неё красные от холода и ссаженные на костяшках.\n\n— Хенрике сказала: сырую не пить, — говорит она. — А куда её ещё девать?' }],
+  S14({ id: 'c14_b_well', for: 'any', chapter: 'ch3', title: 'Фотография', camp: kitchen14,
+    text: [{ text: 'Нина листает телефон и протягивает тебе. На фото мужчина в кабине фургона, в вязаной шапке набекрень. Смеётся во весь рот. На приборной панели коробка яиц.\n\n— Это в сентябре, — говорит Нина. — Покажи его {partner.dat}. Пожалуйста. До того, как вы будете решать. Чтобы {pm:он|она} знал{pm:|а}, какой он.' }],
     actions: [
-      { id: 'c14_bwl_take', label: 'Забрать у неё одно ведро', minutes: 10, activity: 'moderate', terminal: true, goto: 'c14_b_phone',
-        text: 'Вы несёте вёдра вдвоём. Нина идёт быстрее, чтобы успеть первой. Воду вы выливаете в большую кастрюлю на плите: кипятить.', effects: [{ set: '$.c14_bwl', value: 'take' }, nina(1)] },
-      { id: 'c14_bwl_hands', label: 'Посмотреть на её костяшки', minutes: 5, terminal: true, goto: 'c14_b_phone',
-        text: 'Ссадины свежие, от досок. На правой руке заноза. Ты вытаскиваешь её ногтями. Нина не морщится.\n\n— Это от фургона, — говорит она, хотя ты не {m:спрашивал|спрашивала}.', effects: [{ set: '$.c14_bwl', value: 'hands' }] },
-      { id: 'c14_bwl_boil', label: 'Поставить воду кипятить', minutes: 8, activity: 'light', terminal: true, goto: 'c14_b_phone',
-        text: 'Ты ставишь кастрюлю на плиту, подкладываешь дров. Нина смотрит на огонь и греет руки над кастрюлей.', effects: [{ set: '$.c14_bwl', value: 'boil' }] },
+      { id: 'c14_bwl_show', label: 'Пообещать показать за ужином', minutes: 4, terminal: true, goto: 'c14_b_phone',
+        text: 'Нина отправляет фото тебе на телефон. Ты сохраняешь его. Нина смотрит, как оно появляется у тебя на экране, и кивает, будто что-то сдала на хранение.', effects: [{ set: '$.c14_photo', value: 'show' }, nina(1)] },
+      { id: 'c14_bwl_fair', label: 'Сказать: решать будем по тому, какой он сейчас', minutes: 4, risky: true, terminal: true, goto: 'c14_b_phone',
+        text: 'Нина забирает телефон.\n\n— Сейчас он — это он, — говорит она тихо. — Просто больной. — Она уходит к печке и больше об этом не говорит.', effects: [{ set: '$.c14_photo', value: 'fair' }, nina(-1)] },
+      { id: 'c14_bwl_long', label: 'Долго смотреть на фото и спросить про яйца', minutes: 6, terminal: true, goto: 'c14_b_phone',
+        text: '— Он их возил с хуторов в город. — Нина улыбается. — По понедельникам и четвергам. Всегда одну коробку себе оставлял. Для меня. Три минуты, помнишь?', effects: [{ set: '$.c14_photo', value: 'long' }, nina(1)] },
     ] }),
 
   S14({ id: 'c14_b_laundry', for: 'any', chapter: 'ch3', title: 'Бельё', camp: yard14, ambient: day14,
@@ -194,15 +192,15 @@ export const day14xScenes: Scene[] = [
         text: 'Ты уходишь. У крыльца оборачиваешься. Под навесом темно и тихо, и от этого не легче.', effects: [{ set: '$.c14_van2', value: 'go' }, toDusk] },
     ] }),
 
-  S14({ id: 'c14_b_candles', for: 'any', chapter: 'ch3', title: 'Без света', camp: house14, ambient: dusk14,
-    text: [{ text: 'В доме темнеет быстрее, чем на улице. Электричества нет с понедельника. На кухне керосиновая лампа Хенрике, на полке коробка свечей.' }],
+  S14({ id: 'c14_b_candles', for: 'any', chapter: 'ch3', title: 'Машина у калитки', camp: house14, ambient: dusk14,
+    text: [{ text: 'В окно видно дорогу. Со стороны Йестебурга едет внедорожник с жёлтыми фарами. У вашей калитки он сбавляет ход, почти останавливается. За стеклом белеет лицо. Человек смотрит на фургон под навесом и что-то пишет у себя на коленях. Потом уезжает.' }],
     actions: [
-      { id: 'c14_bc2_lamp', label: 'Зажечь лампу на кухне', minutes: 6, terminal: true, goto: 'c14_b_rest',
-        text: 'Фитиль коптит, потом выравнивается. Жёлтый круг на столе. Вокруг него кухня снова становится жилой. Керосина в лампе на донышке.', effects: [{ set: '$.c14_candles', value: 'lamp' }] },
-      { id: 'c14_bc2_candle', label: 'Зажечь одну свечу, экономить', minutes: 4, terminal: true, goto: 'c14_b_rest',
-        text: 'Одна свеча в банке на подоконнике. Света хватает, чтобы не натыкаться на стулья. Нина приходит на огонёк и садится рядом, как мотылёк.', effects: [{ set: '$.c14_candles', value: 'candle' }, nina(1)] },
-      { id: 'c14_bc2_dark', label: 'Посидеть в темноте у печки', minutes: 8, activity: 'rest', terminal: true, goto: 'c14_b_rest',
-        text: 'Печка светит щелями дверцы. Красные полоски на полу. Тихо так, что слышно, как в курятнике возятся куры.', effects: [{ set: '$.c14_candles', value: 'dark' }, { body: 'stress', delta: -1 }] },
+      { id: 'c14_bc2_watch', label: 'Разглядеть, кто за рулём', minutes: 4, terminal: true, goto: 'c14_b_rest',
+        text: 'Молодой. Без каски. Тот, с планшетом, что утром был с врачом. Он едет один, без второго солдата.', effects: [{ set: '$.c14_jeep', value: 'watch' }] },
+      { id: 'c14_bc2_nina', label: 'Позвать Нину к окну', minutes: 4, terminal: true, goto: 'c14_b_rest',
+        text: 'Нина подбегает, но машина уже уезжает. Она смотрит вслед долго.\n\n— Это тот, — говорит она. — Который «Tut mir leid». Зачем он вернулся?', effects: [{ set: '$.c14_jeep', value: 'nina' }] },
+      { id: 'c14_bc2_away', label: 'Отойти от окна', minutes: 2, terminal: true, goto: 'c14_b_rest',
+        text: 'Ты отходишь. Фары проползают по потолку и гаснут.', effects: [{ set: '$.c14_jeep', value: 'away' }] },
     ] }),
 
   S14({ id: 'c14_b_bath', for: 'any', chapter: 'ch3', title: 'Голову помыть', camp: house14,
@@ -216,15 +214,15 @@ export const day14xScenes: Scene[] = [
         text: '— Ладно. — Нина вешает полотенце обратно. — Завтра. — Она не спорит. Просто уходит наверх.', effects: [{ set: '$.c14_bath', value: 'water' }, nina(-1)] },
     ] }),
 
-  S14({ id: 'c14_b_album', for: 'any', chapter: 'ch3', title: 'Альбом', camp: house14,
-    text: [{ text: 'В комнате Хенрике на комоде лежит фотоальбом в бархатной обложке. Нина открывает его без спроса. Хенрике молодая, в свадебном платье, рядом высокий мужчина с усами. Тот же мужчина на тракторе. У него на плечах мальчик лет пяти, в вязаной шапке с помпоном.\n\n— Это Оле? — Нина фыркает. — Маленький! А это кто, с усами?' }],
+  S14({ id: 'c14_b_album', for: 'any', chapter: 'ch3', title: 'Конверт', camp: house14,
+    text: [{ text: 'В комнате Хенрике, на комоде, под фотоальбомом, лежит конверт. На нём крупно, тем же почерком, что на записке с ключами:\n\n«Für Nina. Wenn es schwer wird.»\n\nДля Нины. Когда будет тяжело.' }],
     actions: [
-      { id: 'c14_bal_close', label: 'Закрыть альбом: это не наше', minutes: 3, terminal: true, goto: 'c14_b_letter',
-        text: 'Нина кивает и закрывает. Кладёт обратно ровно, как лежал. Даже поправляет угол.', effects: [{ set: '$.c14_album', value: 'close' }] },
-      { id: 'c14_bal_look', label: 'Полистать дальше', minutes: 8, terminal: true, goto: 'c14_b_letter',
-        text: 'Мальчик растёт: в школьной форме, с велосипедом, с удочкой. Мужчина с усами есть на всех фотографиях, пока мальчику не исполняется лет пятнадцать. Дальше только двое: Хенрике и Оле. Потом пустые страницы.\n\nНина закрывает альбом первой.', effects: [{ set: '$.c14_album', value: 'look' }, { set: '$.c14_saw_father', value: true }] },
-      { id: 'c14_bal_hat', label: 'Заметить шапку на мальчике', minutes: 5, terminal: true, goto: 'c14_b_letter',
-        text: 'Шапка вязаная, с помпоном. Почти такая же, только большая, висит в прихожей на гвозде. Ты {m:думал|думала}, это шапка Оле. Может, и его. А может, того, с усами.', effects: [{ set: '$.c14_album', value: 'hat' }, { set: '$.c14_saw_father', value: true }] },
+      { id: 'c14_bal_keep', label: 'Взять конверт: отдать Нине, когда станет тяжело', minutes: 3, terminal: true, goto: 'c14_b_letter',
+        text: 'Ты кладёшь конверт во внутренний карман. Он тонкий: один листок. Хенрике знала, что тяжело будет. Не знала когда.', effects: [{ set: '$.c14_hletter', value: 'keep' }] },
+      { id: 'c14_bal_now', label: 'Отдать Нине сейчас', minutes: 8, terminal: true, goto: 'c14_b_letter',
+        text: 'Нина открывает конверт у окна. Читает, отвернувшись. Потом складывает листок вчетверо и прячет в задний карман джинсов.\n\n— Она пишет: «Ты не одна», — говорит Нина. — И ещё кое-что. Это не тебе.', effects: [{ set: '$.c14_hletter', value: 'now' }, nina(1)] },
+      { id: 'c14_bal_leave', label: 'Оставить где лежит: Хенрике сама решила, когда', minutes: 2, terminal: true, goto: 'c14_b_letter',
+        text: 'Ты оставляешь конверт под альбомом. Нина найдёт его, когда придёт её время. Или не найдёт.', effects: [{ set: '$.c14_hletter', value: 'leave' }] },
     ] }),
 
   S14({ id: 'c14_b_phone2', for: 'any', chapter: 'ch3', title: 'Сообщение', camp: kitchen14,
