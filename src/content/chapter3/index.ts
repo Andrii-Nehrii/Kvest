@@ -31,7 +31,9 @@ import { day12Scenes } from './day12';
 import { day13Scenes } from './day13';
 import { day13xScenes } from './day13x';
 import { day14Scenes } from './day14';
+import { day14xScenes } from './day14x';
 import { day15Scenes } from './day15';
+import { day15xScenes } from './day15x';
 
 // Участок 6 написан заново только для актуальной линии пары. Снятые участки 6–8 не подключать.
 const checkpointScenes: Scene[] = [
@@ -47,6 +49,6 @@ export const scenes3: Record<string, Scene> = Object.fromEntries([
   newEntry9, ...entry9Scenes, ...farm9AScenes, ...farm9BScenes, ...common9Scenes,
   newEntry10, ...night10SScenes, ...night10FScenes, ...night10Scenes,
   newEntry11, ...dawn11Scenes, ...day11Scenes, ...noon11Scenes,
-  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, newEntry15, ...day15Scenes, ...checkpointScenes,
+  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(withFarmCare(s))]));
 export const incidentEvents3 = [...morning12Events];
