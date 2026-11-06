@@ -62,9 +62,39 @@ export const day16Scenes: Scene[] = [
         text: '— В среду, — повторяет Нина. — Я доеду. На велике. Двадцать километров — это ничего. — Пауза. — Не говорите Лениной маме.', effects: [{ set: '$.c16_house', value: 'colony' }] },
     ] }),
 
-  // Дальше по плану: c16_a_yard2, c16_b_house2 и следующие.
-  S16({ id: 'c16_a_yard2', for: 'any', chapter: 'ch3', title: 'Черновик', camp: yard16, ambient: day16,
+  S16({ id: 'c16_a_yard2', for: 'any', chapter: 'ch3', title: 'Пустая канистра', camp: yard16, ambient: day16,
+    text: [
+      { text: 'В три у задней калитки стоит Яннес. В руке пустая канистра, на плече вторая.' },
+      { when: garden16('help'), text: '— Я знаю, договорились на среду, — говорит он. — Но у нас насос сдох. На колодце. Утром ещё качал, теперь нет.' },
+      { when: garden16('away'), text: '— Я знаю, вы не хотели лезть, — говорит он. — Я бы не пришёл. Но у нас насос сдох. На колодце. А их семеро.' },
+      { when: garden16('tell'), text: '— Солдаты были, — говорит он. — Переписали всех, по домикам. Уехали. А потом насос сдох. Как назло. — Он смотрит на тебя. — Это вы им сказали?' },
+    ],
+    actions: [
+      { id: 'c16_ay2_fill', label: 'Налить ему обе канистры из колодца', minutes: 25, activity: 'moderate', terminal: true, goto: 'c16_a_pump',
+        text: 'Сорок литров. Яннес держит канистры, ты качаешь. Он считает вёдра вслух, как Нина считала кур.\n\n— На сегодня хватит, — говорит он. — Завтра опять.', effects: [{ set: '$.c16_yard2', value: 'fill' }] },
+      { id: 'c16_ay2_fix', label: 'Предложить сходить и посмотреть насос', minutes: 5, terminal: true, goto: 'c16_a_pump',
+        text: 'Яннес смотрит на тебя, будто не поверил.\n\n— Сейчас? — Потом кивает. — Пошли. Там прокладка, наверное. Или поршень. Папа бы за минуту сделал.', effects: [{ set: '$.c16_yard2', value: 'fix' }, { set: '$.c16_to_colony', value: true }] },
+      { id: 'c16_ay2_no', label: 'Сказать: не можем, у самих впритык', minutes: 4, terminal: true, goto: 'c16_a_pump',
+        text: 'Яннес кивает. Без обиды.\n\n— Понятно. — Он поворачивается уходить. У калитки останавливается. — Тогда до вечера дотянем. Потом не знаю.', effects: [{ set: '$.c16_yard2', value: 'no' }] },
+    ] }),
+
+  S16({ id: 'c16_b_house2', for: 'any', chapter: 'ch3', title: 'Кёлер просит', camp: kitchen16,
+    text: [
+      { text: 'В дверь стучат. Фрау Кёлер, в пальто поверх халата, с маленьким мешком муки в руках.\n\n— Mehl, — говорит она. — Für euch. — И, не отдавая мешок: — Ich muss Sie etwas fragen.\n\nМука. Для вас. Мне надо вас кое о чём спросить.' },
+      { text: '— Mein Bruder ist in der Kolonie. Seit Sonntag. Ich war noch nicht da. Allein kann ich nicht. Kommen Sie mit? Heute. Bevor es dunkel wird.\n\nМой брат в колонии. С воскресенья. Я ещё не ходила. Одна не могу. Пойдёте со мной? Сегодня. Пока светло.' },
+    ],
+    actions: [
+      { id: 'c16_bh2_go', label: 'Сказать: пойду с вами', minutes: 4, terminal: true, goto: 'c16_b_koehler',
+        text: 'Кёлер кладёт муку на стол и долго вытирает руки о пальто, хотя они сухие.\n\n— Danke, — говорит она. — In einer Stunde. Ich muss mich umziehen.\n\nЧерез час. Мне надо переодеться.', effects: [{ set: '$.c16_house2', value: 'go' }, { set: '$.c16_to_colony', value: true }, { npc: 'c3_koehler', trust: 2 }] },
+      { id: 'c16_bh2_later', label: 'Сказать: в среду, вместе со всеми', minutes: 4, terminal: true, goto: 'c16_b_koehler',
+        text: '— Mittwoch, — повторяет Кёлер. — Gut. Bis Mittwoch halte ich durch.\n\nДо среды я продержусь.\n\nМуку она всё-таки оставляет.', effects: [{ set: '$.c16_house2', value: 'later' }] },
+      { id: 'c16_bh2_why', label: 'Спросить, почему она сказала про Гамбург', minutes: 5, terminal: true, goto: 'c16_b_koehler',
+        text: 'Кёлер вздрагивает.\n\n— Weil es leichter war, — говорит она. — Hamburg ist weit. Die Kolonie ist zwanzig Minuten.\n\nПотому что так было легче. Гамбург далеко. А колония — двадцать минут пешком.', effects: [{ set: '$.c16_house2', value: 'why' }, { npc: 'c3_koehler', trust: 1 }] },
+    ] }),
+
+  // Дальше по плану: c16_a_pump, c16_b_koehler и вечер в колонии.
+  S16({ id: 'c16_a_pump', for: 'any', chapter: 'ch3', title: 'Черновик', camp: yard16, ambient: day16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
-  S16({ id: 'c16_b_house2', for: 'any', chapter: 'ch3', title: 'Черновик', camp: kitchen16,
+  S16({ id: 'c16_b_koehler', for: 'any', chapter: 'ch3', title: 'Черновик', camp: kitchen16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
 ];
