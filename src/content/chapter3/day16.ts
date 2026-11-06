@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import type { Effect } from '../../engine/types';
 import { not } from './world3';
-import { A16, S16, day16, garden16, jens16, kitchen16, nina16, yard16 } from './point16';
+import { A16, S16, day16, garden16, jens16, kitchen16, nina16, own16, yard16 } from './point16';
 
 // Черновик участка 16 (06.11, начато до 12:00). Не подключён: index.ts, routes.ts, kt5.ts — при дописывании.
 const nina = (trust: number): Effect => ({ npc: 'c7_nina', trust });
@@ -92,8 +92,24 @@ export const day16Scenes: Scene[] = [
         text: 'Кёлер вздрагивает.\n\n— Weil es leichter war, — говорит она. — Hamburg ist weit. Die Kolonie ist zwanzig Minuten.\n\nПотому что так было легче. Гамбург далеко. А колония — двадцать минут пешком.', effects: [{ set: '$.c16_house2', value: 'why' }, { npc: 'c3_koehler', trust: 1 }] },
     ] }),
 
-  // Дальше по плану: c16_a_pump, c16_b_koehler и вечер в колонии.
-  S16({ id: 'c16_a_pump', for: 'any', chapter: 'ch3', title: 'Черновик', camp: yard16, ambient: day16,
+  S16({ id: 'c16_a_pump', for: 'any', chapter: 'ch3', title: 'Насос', camp: yard16, ambient: day16,
+    text: [
+      { when: own16('yard2', 'fix'), text: 'Колодец в колонии — старая ручная колонка на бетонной плите, крашеная зелёным. Ручка ходит вхолостую. Яннес откручивает крышку: внутри кожаная манжета, растрескавшаяся в труху.\n\nИз ближних домиков слышно, как звенят цепи. Кто-то стучит в дверь, ровно, раз в несколько секунд.' },
+      { when: not(own16('yard2', 'fix')), text: 'Яннес уходит по шпалам с канистрами. Ты смотришь ему вслед, пока он не становится точкой. Потом идёшь к дому. До темноты часа полтора.' },
+    ],
+    actions: [
+      { id: 'c16_ap_tube', label: 'Вырезать новую манжету из старой велосипедной камеры', when: own16('yard2', 'fix'), minutes: 40, activity: 'moderate', terminal: true, goto: 'c16_a_dusk',
+        text: 'Камеру Яннес приносит из домика одиннадцать: «Папина. Он всё хранил». Ты вырезаешь кольцо ножом, Яннес держит. Вторая попытка садится. Ручка идёт туго, потом из носика плюёт ржавой водой. Потом чистой.\n\nЯннес смеётся, впервые при тебе.', effects: [{ set: '$.c16_pump', value: 'tube' }, { set: 'w.c16_pump_fixed', value: true }, { npc: 'c14_jannes', trust: 2 }] },
+      { id: 'c16_ap_leather', label: 'Предложить кожу со старого ремня', when: own16('yard2', 'fix'), minutes: 50, activity: 'moderate', terminal: true, goto: 'c16_a_dusk',
+        text: 'Ремень Яннес снимает с себя. Кожа толстая, режется плохо. Манжета выходит кривой, но держит. Вода идёт тонкой струйкой.\n\n— На неделю хватит, — говорит Яннес, подтягивая штаны верёвкой. — Потом что-нибудь придумаем.', effects: [{ set: '$.c16_pump', value: 'leather' }, { set: 'w.c16_pump_fixed', value: true }, { npc: 'c14_jannes', trust: 1 }] },
+      { id: 'c16_ap_home', label: 'Вернуться в дом', when: not(own16('yard2', 'fix')), minutes: 5, terminal: true, goto: 'c16_a_dusk',
+        text: 'Дома тихо. Ты ставишь чайник и садишься у окна, которое выходит на поле и насыпь.', effects: [{ set: '$.c16_pump', value: 'home' }] },
+      { id: 'c16_ap_follow', label: 'Догнать Яннеса и помочь донести', when: not(own16('yard2', 'fix')), minutes: 50, activity: 'moderate', terminal: true, goto: 'c16_a_dusk',
+        text: 'Ты догоняешь его у будки обходчика и забираешь одну канистру. Яннес не спорит. До колонии вы идёте молча. У калитки он говорит: «Останься на чай. Мама будет рада». Уже темнеет.', effects: [{ set: '$.c16_pump', value: 'follow' }, { set: '$.c16_to_colony', value: true }, { npc: 'c14_jannes', trust: 1 }] },
+    ] }),
+
+  // Дальше по плану: c16_a_dusk, c16_b_koehler и вечер в колонии.
+  S16({ id: 'c16_a_dusk', for: 'any', chapter: 'ch3', title: 'Черновик', camp: yard16, ambient: day16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
   S16({ id: 'c16_b_koehler', for: 'any', chapter: 'ch3', title: 'Черновик', camp: kitchen16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
