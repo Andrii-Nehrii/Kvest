@@ -94,11 +94,11 @@ export const day13Scenes: Scene[] = [
   S13({ id: 'c13_a_rails', for: 'any', chapter: 'ch3', title: 'Следы на насыпи', location: 'c10_field', ambient: dawn13,
     text: [{ text: 'Обратно Маркус идёт по шпалам, напрямик. Ты — за ним. Между шпалами, по инею, свежие следы: узкая колея тачки и две пары сапог. Они тянутся вдоль насыпи, в сторону соседнего двора. У столбика окурок. Сухой, ночной.' }],
     actions: [
-      { id: 'c13_ar_follow', label: 'Пройти по следам сотню метров', minutes: 15, activity: 'moderate', move: true, terminal: true, goto: 'c13_a_ditch',
+      { id: 'c13_ar_follow', label: 'Пройти по следам сотню метров', minutes: 15, activity: 'moderate', move: true, terminal: true, goto: 'c13_a_bike',
         text: 'Следы сворачивают с насыпи к соседнему двору. В сетке у его угла дыра. Проволока перекушена, концы блестят.\n\nДальше ты не идёшь: Маркус уже машет тебе с полевой дороги.', effects: [{ set: '$.c13_rails', value: 'follow' }] },
-      { id: 'c13_ar_go', label: 'Не останавливаться: мальчик важнее', minutes: 12, activity: 'moderate', move: true, terminal: true, goto: 'c13_a_ditch',
+      { id: 'c13_ar_go', label: 'Не останавливаться: мальчик важнее', minutes: 12, activity: 'moderate', move: true, terminal: true, goto: 'c13_a_bike',
         text: 'Ты прибавляешь шаг. Следы остаются за спиной.', effects: [{ set: '$.c13_rails', value: 'go' }] },
-      { id: 'c13_ar_show', label: 'Показать следы Маркусу', minutes: 14, activity: 'moderate', move: true, terminal: true, goto: 'c13_a_ditch',
+      { id: 'c13_ar_show', label: 'Показать следы Маркусу', minutes: 14, activity: 'moderate', move: true, terminal: true, goto: 'c13_a_bike',
         text: 'Маркус смотрит на колею и кивает.\n\n— Они. Вчерашние. С тачкой. — Он смотрит в сторону соседнего двора. — Ночью шли туда. Туда, а не мимо.', effects: [{ set: '$.c13_rails', value: 'show' }] },
     ] }),
 
@@ -122,12 +122,12 @@ export const day13Scenes: Scene[] = [
       { when: own12('arms', 'unwrap'), text: 'Вчера у калитки ты требовал{m:|а} размотать эту руку. Маркус об этом не вспоминает.' },
     ],
     actions: [
-      { id: 'c13_abd_help', label: 'Промыть ему руку и перевязать своей аптечкой', when: { has: 'first_aid' }, minutes: 10, terminal: true, goto: 'c13_a_brothers',
+      { id: 'c13_abd_help', label: 'Промыть ему руку и перевязать своей аптечкой', when: { has: 'first_aid' }, minutes: 10, terminal: true, goto: 'c13_a_bottle',
         text: 'Ты льёшь антисептик на ладонь. Маркус шипит сквозь зубы, но руку не отдёргивает. Края укуса чистые, без красноты. Ты бинтуешь туго, как учили. Маркус сжимает и разжимает пальцы.\n\n— Как новая, — говорит он. Первый раз за утро почти улыбается.',
         effects: [{ set: '$.c13_abd', value: 'help' }, { use: 'dressing' }, { charge: 'disinfectant', delta: -10 }, marcus(2)] },
-      { id: 'c13_abd_hold', label: 'Подержать конец бинта, пока он мотает', minutes: 6, terminal: true, goto: 'c13_a_brothers',
+      { id: 'c13_abd_hold', label: 'Подержать конец бинта, пока он мотает', minutes: 6, terminal: true, goto: 'c13_a_bottle',
         text: 'Ты держишь конец. Маркус мотает, крутясь вокруг собственной руки. Выходит криво, но держится.\n\n— Он тоже так держал, — говорит Маркус. — В будке. Позавчера.', effects: [{ set: '$.c13_abd', value: 'hold' }, marcus(1)] },
-      { id: 'c13_abd_leo', label: 'Позвать Лео: пусть поможет сам', minutes: 8, terminal: true, goto: 'c13_a_brothers',
+      { id: 'c13_abd_leo', label: 'Позвать Лео: пусть поможет сам', minutes: 8, terminal: true, goto: 'c13_a_bottle',
         text: 'Лео подходит не сразу. Останавливается в шаге, смотрит на ладонь, на следы своих зубов. Потом берёт конец бинта двумя пальцами и держит, не дыша, пока Маркус мотает.', effects: [{ set: '$.c13_abd', value: 'leo' }, leo(1), marcus(1)] },
     ] }),
 
@@ -149,15 +149,15 @@ export const day13Scenes: Scene[] = [
   S13({ id: 'c13_a_ole', for: 'any', chapter: 'ch3', title: 'Две повязки', camp: kitchen12,
     text: [{ text: 'На кухне у окна сидит Оле. Сам дошёл, держась за стену. Рука на столе распухшая, в бинтах. Он кивает тебе на крыльцо, где сидит Маркус.\n\n— Ну? Что у него с рукой?' }],
     actions: [
-      { id: 'c13_ao_tell', label: 'Рассказать Оле про будку', minutes: 6, terminal: true, goto: 'c13_a_nap',
+      { id: 'c13_ao_tell', label: 'Рассказать Оле про будку', minutes: 6, terminal: true, goto: 'c13_a_nina',
         effects: [{ set: '$.c13_ao', value: 'tell' }],
         outcomes: [
           { id: 'full', when: toldMarcus, text: 'Ты рассказываешь: детские зубы, мать Лео, «порез, бокал разбила».\n\nОле долго молчит.\n\n— Порез, — говорит он. — И у неё порез. — Он смотрит на свою руку. — Мать про меня тоже всем так говорила.' },
           { id: 'palm', text: 'Ты рассказываешь про ладонь: две маленькие дуги, детские зубы.\n\n— Пацан, значит, — говорит Оле. — Ну и зубы у пацана. — Он хмыкает, но от окна не отворачивается.' },
         ] },
-      { id: 'c13_ao_meet', label: 'Позвать Маркуса за стол к Оле', minutes: 10, terminal: true, goto: 'c13_a_nap',
+      { id: 'c13_ao_meet', label: 'Позвать Маркуса за стол к Оле', minutes: 10, terminal: true, goto: 'c13_a_nina',
         text: 'Маркус садится напротив. Оле кладёт на стол свою руку, Маркус — свою. Две повязки рядом.\n\nОни молчат. Потом Оле говорит:\n\n— Мою мать прятала. Твою пацан кусал. Квиты.\n\nМаркус смеётся. Впервые с тех пор, как пришёл.', effects: [{ set: '$.c13_ao', value: 'meet' }, marcus(1), { npc: 'ole', trust: 1 }] },
-      { id: 'c13_ao_no', label: 'Сказать, что это не его дело', minutes: 2, terminal: true, goto: 'c13_a_nap',
+      { id: 'c13_ao_no', label: 'Сказать, что это не его дело', minutes: 2, terminal: true, goto: 'c13_a_nina',
         text: '— Не моё, — соглашается Оле. Но в окно смотрит ещё долго.', effects: [{ set: '$.c13_ao', value: 'no' }] },
     ] }),
 
@@ -270,11 +270,11 @@ export const day13Scenes: Scene[] = [
   S13({ id: 'c13_b_kerem', for: 'any', chapter: 'ch3', title: 'Картонка', camp: yard12, ambient: day13,
     text: [{ text: 'Керем сидит на крыльце с рюкзаком между колен и пишет огрызком карандаша на куске картона.\n\n— Адрес мастерской, — говорит он и протягивает тебе картонку. — Если что. Вам. Или этим двоим.' }],
     actions: [
-      { id: 'c13_bk_take', label: 'Взять картонку и спрятать в карман', minutes: 3, terminal: true, goto: 'c13_b_eggs',
+      { id: 'c13_bk_take', label: 'Взять картонку и спрятать в карман', minutes: 3, terminal: true, goto: 'c13_b_key',
         text: 'Буквы кривые, но разборчивые. Ниже номер телефона и приписка: «Звонить вечером, днём сети нет».', effects: [{ set: '$.c13_bk', value: 'take' }, { npc: 'kerem', trust: 1 }, { restUntil: at(15, 7, 20) }] },
-      { id: 'c13_bk_why', label: 'Спросить, почему «этим двоим»', minutes: 5, terminal: true, goto: 'c13_b_eggs',
+      { id: 'c13_bk_why', label: 'Спросить, почему «этим двоим»', minutes: 5, terminal: true, goto: 'c13_b_key',
         text: '— Человек с ребёнком, без бумаг. — Керем пожимает плечами. — На постах таких разводят по разным палаткам. У нас ворота железные. Пусть знают, куда идти.', effects: [{ set: '$.c13_bk', value: 'why' }, { restUntil: at(15, 7, 20) }] },
-      { id: 'c13_bk_ole', label: 'Спросить, помирились ли они с Оле', minutes: 5, terminal: true, goto: 'c13_b_eggs',
+      { id: 'c13_bk_ole', label: 'Спросить, помирились ли они с Оле', minutes: 5, terminal: true, goto: 'c13_b_key',
         text: '— Помирились. Он сказал: «Возвращайся, когда надоест». — Керем усмехается. — Не надоест.', effects: [{ set: '$.c13_bk', value: 'ole' }, { restUntil: at(15, 7, 20) }] },
     ] }),
 
@@ -304,7 +304,6 @@ export const day13Scenes: Scene[] = [
     text: [
       { text: 'Завтрак — овсянка на воде и последние яйца. Все за одним столом. Лео сидит между Ниной и {B.ins}. Маркус напротив. Он не ест. Смотрит, как ест Лео.' },
       { when: wound12('bite'), text: 'Курятник молчит с рассвета. Дениз носил туда воду и вернулся бледный.' },
-      { when: all(A13, own13('nap', 'sleep')), text: 'После сна на лавке ломит шею. Зато голова ясная.' },
       { when: all(report12('report'), notBite), text: 'У двери стоят две сумки: Оле и Хенрике.' },
       { when: all(report12('family'), notBite), text: 'Оле смотрит в окно на дорогу. «Пусть приезжают, — говорит он. — Сам выйду».' },
       { when: all(report12('secret'), notBite), text: 'Хенрике смотрит на часы каждые пять минут.' },

@@ -17,7 +17,7 @@ export const point14Jens: JointDecision = {
   options: [
     { id: 'give', label: { default: 'Отдать Йенса Уте и Яннесу' },
       effects: [{ set: 'w.c14_jens', value: 'give' }, { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', remember: 'c14_they_said_yes' }] }],
-      text: 'Нина подходит к окну и мигает фонариком. Раз. Два. Три. С насыпи отвечают: раз, два, три.\n\nОна снимает с шеи шнурок с ключом и кладёт его на стол между вами.' },
+      text: 'Нина подходит к окну и мигает фонариком. Раз. Два. Три. С насыпи отвечают: раз, два, три.\n\nКлюч от фургона ложится на стол между вами.' },
     { id: 'end', label: { default: 'Сделать всё самим до их прихода' },
       effects: [{ set: 'w.c14_jens', value: 'end' }, { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', remember: 'c14_they_ended_it' }] }],
       text: 'Нина долго смотрит на вас. Потом подходит к окну и мигает два раза.\n\n— Только я сначала с ним поговорю, — говорит она. — Сама. Это можно?' },
