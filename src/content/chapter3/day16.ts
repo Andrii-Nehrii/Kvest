@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import type { Effect } from '../../engine/types';
-import { not } from './world3';
-import { A16, S16, day16, garden16, jens16, kitchen16, nina16, own16, yard16 } from './point16';
+import { flag, not } from './world3';
+import { A16, S16, day16, garden16, jens16, kitchen16, night16, nina16, own16, tense16, yard16 } from './point16';
 
 // Черновик участка 16 (06.11, начато до 12:00). Не подключён: index.ts, routes.ts, kt5.ts — при дописывании.
 const nina = (trust: number): Effect => ({ npc: 'c7_nina', trust });
@@ -108,8 +108,26 @@ export const day16Scenes: Scene[] = [
         text: 'Ты догоняешь его у будки обходчика и забираешь одну канистру. Яннес не спорит. До колонии вы идёте молча. У калитки он говорит: «Останься на чай. Мама будет рада». Уже темнеет.', effects: [{ set: '$.c16_pump', value: 'follow' }, { set: '$.c16_to_colony', value: true }, { npc: 'c14_jannes', trust: 1 }] },
     ] }),
 
-  S16({ id: 'c16_a_dusk', for: 'any', chapter: 'ch3', title: 'Черновик', camp: yard16, ambient: day16,
+  S16({ id: 'c16_a_dusk', for: 'any', chapter: 'ch3', title: 'Сумерки', camp: yard16, ambient: day16,
+    text: [
+      { when: flag('$.c16_to_colony'), text: 'Уте ставит на перевёрнутый ящик у теплицы три кружки чая. Она обходит домики с фонарём под красным стеклом и у каждой двери говорит имя. «Opa Gerd. Frau Lüders. Herr Stamer». У домика девять задерживается.\n\nУ домика одиннадцать дверь приоткрыта на ладонь. Уте этого не замечает.' },
+      { when: not(flag('$.c16_to_colony')), text: 'Темнеет. Ты закрываешь кур и задвигаешь засов на задней калитке. На насыпи, далеко, у рощи, мигает красный огонёк. Не три раза. Часто, сбивчиво, будто кто-то бежит с фонарём в руке.' },
+    ],
+    actions: [
+      { id: 'c16_ad_door', label: 'Сказать Уте про приоткрытую дверь', when: flag('$.c16_to_colony'), minutes: 3, terminal: true, goto: 'c16_a_night',
+        text: 'Уте оборачивается. Свет фонаря прыгает. Она идёт к домику быстро, почти бежит.', effects: [{ set: '$.c16_dusk', value: 'door' }] },
+      { id: 'c16_ad_self', label: 'Подойти к домику самому', when: flag('$.c16_to_colony'), minutes: 3, risky: true, terminal: true, goto: 'c16_a_night',
+        text: 'Ты идёшь к одиннадцатому. Дверь приоткрыта. Внутри темно и тихо. Слишком тихо: ни шороха, ни звона цепи.', effects: [{ set: '$.c16_dusk', value: 'self' }] },
+      { id: 'c16_ad_run', label: 'Взять фонарь и идти к насыпи', when: not(flag('$.c16_to_colony')), minutes: 5, terminal: true, goto: 'c16_a_night',
+        text: 'Ты хватаешь фонарь. На крыльце оборачиваешься: в окне кухни {partner}.', effects: [{ set: '$.c16_dusk', value: 'run' }] },
+      { id: 'c16_ad_wait', label: 'Ждать у калитки, что будет дальше', when: not(flag('$.c16_to_colony')), minutes: 10, terminal: true, goto: 'c16_a_night',
+        text: 'Огонёк мечется у рощи, потом гаснет. Через десять минут на поле слышен топот. Кто-то бежит к вашей калитке.', effects: [{ set: '$.c16_dusk', value: 'wait' }] },
+    ] }),
+
+  // Дальше по плану: c16_a_night — центральное событие (дверь домика 11 открыта; цепь отстегнули).
+  S16({ id: 'c16_a_night', for: 'any', chapter: 'ch3', title: 'Черновик', camp: tense16, ambient: night16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
+
   S16({ id: 'c16_b_koehler', for: 'any', chapter: 'ch3', title: 'Брат', camp: kitchen16,
     text: [
       { when: own16('house2', 'go'), text: 'Кёлер приходит через час в чёрном пальто и с аккуратно уложенными волосами, как в церковь. В руках банка мёда.\n\n— Für ihn, — говорит она. — Er hat Honig geliebt.\n\nДля него. Он любил мёд.\n\nВы идёте по шпалам. Кёлер держит тебя под руку и через каждые сто шагов останавливается.' },
