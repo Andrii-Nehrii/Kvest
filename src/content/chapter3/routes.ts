@@ -23,6 +23,7 @@ import {
 } from '../chapter2/world2';
 import { hub, localMove } from './common';
 import { all, C4, flag, isA, isB, not, together } from './world3';
+import { A12, B12, P12, P13, guests13, house12, kitchen12, point12Available, point13Available, report12, wound12 } from './point12';
 
 const plan = (id: string): Cond => ({ v: 'w.day3', op: '==', value: id });
 const southPlan: Cond = { any: ['farm', 'workshop', 'a_flat'].map(plan) };
@@ -588,3 +589,51 @@ export function relocate(n: 7 | 8): Scene {
 };
 
 }
+
+// Свой паёк новой точки записывается первым ходом, как в участках 7–9.
+const prepareCamp: Effect = { camp: { kind: 'prepare', quiet: true } };
+
+// Вход в базе КТ11: без onEnter и места. Оле переносят в дом первым ходом на обеих линиях.
+export const newEntry12: Scene = {
+  id: 'c12_start', for: 'any', chapter: 'ch3', title: 'После полудня', universal: false, safe: true, camp: kitchen12,
+  ambient: { tempC: 16, outdoor: false, wet: false },
+  text: [
+    { when: point12Available, text: 'Оле спит на кровати Хенрике, которую подвинули к окну. Рука лежит поверх одеяла, распухшая, в чистом бинте. Хенрике сидит рядом и каждые несколько минут трогает его лоб.' },
+    { when: all(point12Available, report12('report')), text: 'На стуле у двери стоит сумка. Хенрике уже положила туда его свитер и бритву.' },
+    { when: all(point12Available, report12('secret')), text: 'Шторы в комнате задёрнуты. Окно выходит на дорогу.' },
+    { when: all(point12Available, report12('family')), text: 'Когда он проснётся, его спросят. Хенрике ждёт этого и боится.' },
+    { when: all(point12Available, wound12('bite')), text: 'Свою руку, замотанную полотенцем, Хенрике держит на коленях.' },
+    { when: not(point12Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c12_begin', label: 'Пойти на кухню: Хенрике зовёт обедать', when: point12Available, minutes: 3, terminal: true, goto: 'c12_lunch',
+      effects: [prepareCamp, { npc: 'ole', moveTo: 'hof_luedemann' }] },
+    { id: 'c12_begin_ole', label: 'Сначала постоять минуту у кровати Оле', when: point12Available, minutes: 4, terminal: true, goto: 'c12_lunch',
+      text: 'Оле дышит ровно и глубоко. На подушке мокрое пятно от пота. Хенрике, не оборачиваясь, говорит: «Иди ешь. Я тут».',
+      effects: [prepareCamp, { npc: 'ole', moveTo: 'hof_luedemann' }, { body: 'stress', delta: -1 }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P12, a.when ?? { always: true }) })),
+};
+
+
+// Вход в базе КТ12: без onEnter и места. Ночь — первым личным ходом (сон или дежурство).
+export const newEntry13: Scene = {
+  id: 'c13_start', for: 'any', chapter: 'ch3', title: 'Ночь', universal: false, safe: true, camp: house12,
+  ambient: { tempC: 14, outdoor: false, wet: false },
+  text: [
+    { when: all(point13Available, guests13('together')), text: 'Сеновал затихает к девяти. Двор тёмный, только на насыпи далеко-далеко ничего не горит.' },
+    { when: all(point13Available, guests13('split')), text: 'Засов на кладовке задвинут. Лео спит в доме, на матрасе рядом с Ниной, в её толстовке.' },
+    { when: all(point13Available, guests13('watch')), text: 'Первым у лестницы на сеновал сидит {A}. В час его сменит {B}, под утро — Дениз.' },
+    { when: not(point13Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c13_night_sleep', label: 'Лечь спать', when: all(point13Available, not(guests13('watch'))), minutes: 1, terminal: true, goto: 'c13_dawn',
+      text: 'Ты засыпаешь сразу, как будто падаешь в колодец.', effects: [prepareCamp, { restUntil: at(15, 5, 20), sleeping: true }] },
+    { id: 'c13_night_watch_a', label: 'Отсидеть смену до часу и лечь', when: all(point13Available, guests13('watch'), A12), minutes: 1, terminal: true, goto: 'c13_dawn',
+      text: 'Ты сидишь у лестницы с фонарём на коленях. Наверху Маркус не спит: слышно, как он шепчет мальчику что-то на одной ноте, как колыбельную. В час тебя сменяет {B}.',
+      effects: [prepareCamp, { restUntil: at(15, 1) }, { restUntil: at(15, 5, 20), sleeping: true }] },
+    { id: 'c13_night_watch_b', label: 'Поспать до своей смены и сменить {A.acc}', when: all(point13Available, guests13('watch'), B12), minutes: 1, terminal: true, goto: 'c13_dawn',
+      text: 'В час {A} трогает тебя за плечо. Ты садишься на ящик у лестницы. Наверху тихо. Один раз Лео вскрикивает во сне, и сразу же — шёпот Маркуса. В половине четвёртого тебя сменяет Дениз.',
+      effects: [prepareCamp, { restUntil: at(15, 1), sleeping: true }, { restUntil: at(15, 3, 30) }, { restUntil: at(15, 5, 20), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P13, a.when ?? { always: true }) })),
+};
+
