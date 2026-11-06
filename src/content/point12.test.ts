@@ -62,8 +62,8 @@ describe('участки 12–13: чужие с насыпи', () => {
   it('половины правды обязательны на своих линиях, сверка за ужином доступна обоим', () => {
     const b11 = after11('secret', 'stay');
     const a = leg(b11, 'A', { c12_supper: 'c12_s_eat' }), b = leg(b11, 'B');
-    for (const k of ['c12_arms', 'c12_well', 'c12_ao', 'c12_van', 'c12_rest', 'c12_thermo', 'c12_dusk', 'c12_req']) expect(a.vars[`A.${k}`], k).toBeDefined();
-    for (const k of ['c12_boy', 'c12_bni', 'c12_bw', 'c12_bag', 'c12_bo', 'c12_rest', 'c12_bh', 'c12_said', 'c12_n2', 'c12_bm']) expect(b.vars[`B.${k}`], k).toBeDefined();
+    for (const k of ['c12_arms', 'c12_well', 'c12_ao', 'c12_van', 'c12_awin', 'c12_sms', 'c12_rest', 'c12_thermo', 'c12_dusk', 'c12_req', 'c12_gun']) expect(a.vars[`A.${k}`], k).toBeDefined();
+    for (const k of ['c12_boy', 'c12_bni', 'c12_bw', 'c12_bag', 'c12_bo', 'c12_hens', 'c12_rest', 'c12_bh', 'c12_said', 'c12_n2', 'c12_chat', 'c12_bm']) expect(b.vars[`B.${k}`], k).toBeDefined();
     expect(c.scenes.c12_supper.actions.find(x => x.id === 'c12_s_tell')!.combinable).toBe(true);
     // Пауэрбанк B действительно отдаёт заряд телефону Нины.
     const bank = leg(b11, 'B', { c12_b_nina: 'c12_bni_bank' });

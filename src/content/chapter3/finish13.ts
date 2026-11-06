@@ -11,6 +11,8 @@ const brothersHere: Cond = all({ npc: 'deniz', alive: true, at: 'hof_luedemann' 
 export const point13Notes: MergeNote[] = [
   { id: 'c13_morning', when: finished13, effects: [{ set: 'w.c13_leo_found', value: true }],
     text: 'Утром Лео нашёлся сам, а врач отпустила Маркуса. Теперь вы оба знаете, чьи это были зубы.' },
+  { id: 'c13_paper', when: all(finished13, { any: [{ v: 'B.c13_form', op: '==', value: 'truth' }, { v: 'B.c13_form', op: '==', value: 'leo' }] }),
+    text: 'У Маркуса во внутреннем кармане бумага от врача: для постов, чтобы их с Лео не разлучили.' },
 ];
 
 export const point13Leo: JointDecision = {
