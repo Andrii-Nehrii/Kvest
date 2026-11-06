@@ -9,6 +9,8 @@ export const finished14: Cond = all(P14, flag('A.c14_finished'), flag('B.c14_fin
 export const point14Notes: MergeNote[] = [
   { id: 'c14_both_told', when: all(finished14, flag('A.c14_compared'), flag('B.c14_compared')),
     text: 'Нина всё слышала с лестницы. Она не спорит и ни о чём не просит. Просто сидит на ступеньке и ждёт.' },
+  { id: 'c14_photo', when: all(finished14, { v: 'B.c14_photo', op: '==', value: 'show' }),
+    text: 'Перед тем как решать, {B} показывает {A.dat} фотографию с Нининого телефона. Мужчина в кабине фургона, в шапке набекрень, смеётся во весь рот.' },
 ];
 
 export const point14Jens: JointDecision = {
