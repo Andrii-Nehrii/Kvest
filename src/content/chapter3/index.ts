@@ -1,6 +1,6 @@
 import { withCentralEchoes } from './continuity';
 import type { Scene } from '../../engine/content-types';
-import { entry, newEntry6, newEntry8, newEntry9, newEntry10, newEntry11, newEntry12, newEntry13, road, arrival } from './routes';
+import { entry, newEntry6, newEntry8, newEntry9, newEntry10, newEntry11, newEntry12, newEntry13, newEntry14, newEntry15, road, arrival } from './routes';
 import { morning12Scenes, morning12Events } from './morning12';
 import { farm6bScenes } from './farm6b';
 import { farm6longScenes } from './farm6long';
@@ -29,12 +29,14 @@ import { day11Scenes } from './day11';
 import { noon11Scenes } from './noon11';
 import { day12Scenes } from './day12';
 import { day13Scenes } from './day13';
+import { day14Scenes } from './day14';
+import { day15Scenes } from './day15';
 
 // Участок 6 написан заново только для актуальной линии пары. Снятые участки 6–8 не подключать.
 const checkpointScenes: Scene[] = [
   { id: 'c5_cp', for: 'any', chapter: 'ch3', checkpoint: 5, title: 'Полдень', universal: false, calm: true,
     text: [{ text: 'Ты садишься и достаёшь телефон. Палец оставляет на стекле след. Прежде чем говорить, приходится вытереть экран рукавом.' }], actions: [] },
-  { id: 'c14_start', for: 'any', chapter: 'ch3', title: 'Продолжение', universal: false,
+  { id: 'c16_start', for: 'any', chapter: 'ch3', title: 'Продолжение', universal: false,
     text: [{ text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' }], actions: [] },
 ];
 
@@ -44,6 +46,6 @@ export const scenes3: Record<string, Scene> = Object.fromEntries([
   newEntry9, ...entry9Scenes, ...farm9AScenes, ...farm9BScenes, ...common9Scenes,
   newEntry10, ...night10SScenes, ...night10FScenes, ...night10Scenes,
   newEntry11, ...dawn11Scenes, ...day11Scenes, ...noon11Scenes,
-  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...checkpointScenes,
+  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, newEntry14, ...day14Scenes, newEntry15, ...day15Scenes, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(withFarmCare(s))]));
 export const incidentEvents3 = [...morning12Events];

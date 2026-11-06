@@ -43,12 +43,12 @@ export const point13Leo: JointDecision = {
 
 export const point13Road: JointDecision = {
   id: 'c3_new_road13', checkpoint: 13, canParticipate: P13,
-  prompt: { default: 'Дениз и Керем уходят в мастерскую в Бухгольце, двадцать километров. Можно отпустить их пешком и остаться на хуторе, отвезти и к вечеру вернуться или уехать с ними насовсем. Разные ответы — никто не уезжает насовсем.' },
+  prompt: { default: 'Дениз и Керем уходят в мастерскую в Бухгольце, двадцать километров. Можно отпустить их пешком или отвезти на Corsa и вернуться. Разные ответы — пешком.' },
   options: [
     { id: 'walk', label: { default: 'Братья идут пешком, вы остаётесь на хуторе' },
       effects: [{ set: 'w.c13_road', value: 'walk' }, { if: brothersHere, then: [{ npc: 'deniz', moveTo: 'deniz_workshop' }, { npc: 'kerem', moveTo: 'deniz_workshop' }] }],
       text: 'Дениз и Керем уходят по дороге на Бухгольц. У поворота Керем оборачивается и поднимает руку. Дениз не оборачивается.' },
-    { id: 'drive', label: { default: 'Отвезти братьев в Бухгольц и вернуться к вечеру' },
+    { id: 'drive', label: { default: 'Отвезти братьев в Бухгольц и вернуться' },
       when: all(brothersHere, carHere, { fuelIn: 'opel_corsa', liters: 2.6 }),
       feasible: all({ has: 'car_keys' }, { fuelFor: 'opel_corsa', km: 40 }),
       effects: [{ journey: { to: 'deniz_workshop', km: 20, minutes: 35, vehicle: 'opel_corsa' } },
@@ -56,17 +56,10 @@ export const point13Road: JointDecision = {
         { journey: { to: 'hof_luedemann', km: 20, minutes: 35, vehicle: 'opel_corsa' } },
         { set: 'w.c13_road', value: 'drive' }, { npc: 'deniz', remember: 'c13_they_drove_us' }],
       text: 'У мастерской железные ворота и целая крыша, как и говорил Дениз. Керем выгружает рюкзаки, Дениз жмёт вам руки. «Если что — вы знаете, где мы». Обратно вы едете вдвоём.' },
-    { id: 'go', label: { default: 'Уехать с ними в мастерскую насовсем' },
-      when: all(brothersHere, carHere, { fuelIn: 'opel_corsa', liters: 1.3 }),
-      feasible: all({ has: 'car_keys' }, { fuelFor: 'opel_corsa', km: 20 }),
-      effects: [{ journey: { to: 'deniz_workshop', km: 20, minutes: 35, vehicle: 'opel_corsa' } },
-        { npc: 'deniz', moveTo: 'deniz_workshop' }, { npc: 'kerem', moveTo: 'deniz_workshop' },
-        { set: 'w.c13_road', value: 'go' }, { npc: 'deniz', remember: 'c13_they_came_with_us' }, { npc: 'henrike', remember: 'c13_they_left' }],
-      text: 'Вы грузите вещи в Corsa. Нина стоит у калитки и не машет. Хутор остаётся в зеркале, потом его закрывают деревья.' },
   ],
   compromises: [
-    { pair: ['walk', 'drive'], result: 'walk' }, { pair: ['walk', 'go'], result: 'walk' }, { pair: ['drive', 'go'], result: 'drive' },
+    { pair: ['walk', 'drive'], result: 'walk' },
   ],
-  arbiters: [{ id: 'c13_nobody_leaves', when: P13, winner: 'walk', text: 'Вы не сходитесь. Братья уходят пешком, вы остаётесь.' }],
+  arbiters: [{ id: 'c13_nobody_leaves', when: P13, winner: 'walk', text: 'Вы не сходитесь. Братья уходят пешком.' }],
   default: 'walk',
 };

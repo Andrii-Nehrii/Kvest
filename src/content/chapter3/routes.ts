@@ -24,6 +24,7 @@ import {
 import { hub, localMove } from './common';
 import { all, C4, flag, isA, isB, not, together } from './world3';
 import { A12, B12, P12, P13, guests13, house12, kitchen12, point12Available, point13Available, report12, wound12 } from './point12';
+import { A14, P14, P15, house14, jens15, nina15, point14Available, point15Available, yard14 } from './point14';
 
 const plan = (id: string): Cond => ({ v: 'w.day3', op: '==', value: id });
 const southPlan: Cond = { any: ['farm', 'workshop', 'a_flat'].map(plan) };
@@ -635,5 +636,46 @@ export const newEntry13: Scene = {
       text: 'В час {A} трогает тебя за плечо. Ты садишься на ящик у лестницы. Наверху тихо. Один раз Лео вскрикивает во сне, и сразу же — шёпот Маркуса. В половине четвёртого тебя сменяет Дениз.',
       effects: [prepareCamp, { restUntil: at(15, 1), sleeping: true }, { restUntil: at(15, 3, 30) }, { restUntil: at(15, 5, 20), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(P13, a.when ?? { always: true }) })),
+};
+
+
+// Вход в базе КТ13: без onEnter и места. Паёк точки записывается первым ходом.
+export const newEntry14: Scene = {
+  id: 'c14_start', for: 'any', chapter: 'ch3', title: 'Полдень', universal: false, safe: true, camp: yard14,
+  ambient: { tempC: 6, outdoor: true, wet: false },
+  text: [
+    { when: point14Available, text: 'Полдень. Машины уехали, и во дворе стало очень тихо.' },
+    { when: not(point14Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c14_begin', label: 'Выйти во двор', when: point14Available, minutes: 2, terminal: true, goto: 'c14_noon', effects: [prepareCamp] },
+    { id: 'c14_begin_house', label: 'Сначала пройтись по пустому дому', when: point14Available, minutes: 6, terminal: true, goto: 'c14_noon',
+      text: 'Кровать Хенрике застелена. На тумбочке очки Оле. В прихожей на гвозде его шапка. Ты не трогаешь ничего.',
+      effects: [prepareCamp, { body: 'stress', delta: 1 }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P14, a.when ?? { always: true }) })),
+};
+
+// Вход в базе КТ14: без onEnter и места. Ночь начинается первым личным ходом.
+export const newEntry15: Scene = {
+  id: 'c15_start', for: 'any', chapter: 'ch3', title: 'Ночь', universal: false, safe: true, camp: house14,
+  ambient: { tempC: 15, outdoor: false, wet: false },
+  text: [
+    { when: all(point15Available, jens15('give')), text: 'До одиннадцати два с половиной часа. Нина сидит на кухне в куртке. Ключ от фургона лежит на столе.' },
+    { when: all(point15Available, jens15('end')), text: 'Нина сидит на кухне и смотрит на часы. Ружьё Оле стоит за шкафом в прихожей.' },
+    { when: all(point15Available, jens15('gate')), text: 'Засов на задней калитке задвинут. Нина ушла к себе. Под дверью её комнаты горит свет.' },
+    { when: all(point15Available, nina15('house')), text: 'Нина будет в доме. Окно её комнаты выходит на навес.' },
+    { when: not(point15Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c15_n_wait', label: 'Сидеть на кухне и ждать одиннадцати', when: all(point15Available, jens15('give')), minutes: 1, terminal: true, goto: 'c15_g_gate',
+      text: 'Часы Хенрике тикают. Нина каждые десять минут смотрит в окно. В половине одиннадцатого она надевает перчатки.', effects: [prepareCamp, { restUntil: at(15, 22, 55) }] },
+    { id: 'c15_n_nap', label: 'Поспать до одиннадцати', when: all(point15Available, jens15('give')), minutes: 1, terminal: true, goto: 'c15_g_gate',
+      text: 'Ты засыпаешь сидя. Без двадцати одиннадцать Нина трогает тебя за плечо.', effects: [prepareCamp, { restUntil: at(15, 22, 40), sleeping: true }, { restUntil: at(15, 22, 55) }] },
+    { id: 'c15_n_end', label: 'Подождать до половины десятого', when: all(point15Available, jens15('end')), minutes: 1, terminal: true,
+      outcomes: [{ id: 'a', when: A14, goto: 'c15_e_a_gun' }, { id: 'b', goto: 'c15_e_b_nina' }],
+      text: 'Вы ждёте, пока совсем стемнеет. Нина сидит на ступеньке лестницы, обхватив колени.', effects: [prepareCamp, { restUntil: at(15, 21, 30) }] },
+    { id: 'c15_n_gate', label: 'Лечь, не раздеваясь', when: all(point15Available, jens15('gate')), minutes: 1, terminal: true, goto: 'c15_k_gate',
+      text: 'Ты лежишь в темноте и не спишь. Около одиннадцати во дворе что-то звякает.', effects: [prepareCamp, { restUntil: at(15, 22, 55) }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P15, a.when ?? { always: true }) })),
 };
 

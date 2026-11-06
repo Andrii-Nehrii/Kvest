@@ -268,7 +268,10 @@ const MEAL_THIRST = 30;
  */
 function recordRation(ctx: Ctx, b: BaseDef, day: number) {
   const ch = me(ctx);
-  if (ch.body.consciousness === 'dead' || !b.places.includes(ch.location)) return;
+  // С участка 13 паёк записывается и тому, кто живёт на базе, но в 06:00 вышел со двора (участок начат здесь).
+  // Раньше такой игрок оставался без общего стола до следующего утра. Сыгранные участки не затронуты.
+  const lives = ctx.s.checkpoint >= 12 && b.places.includes(String(ctx.s.vars[`seg.loc.${ctx.pid}`] ?? ''));
+  if (ch.body.consciousness === 'dead' || (!b.places.includes(ch.location) && !lives)) return;
   const { people } = residents(ctx, b);
   const needW = b.freeWater && evalCond(ctx, b.freeWater) ? 0 : b.waterPerPerson * people;
   const needK = b.kcalPerPerson * people;
