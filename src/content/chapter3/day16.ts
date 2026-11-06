@@ -1,6 +1,6 @@
 import type { Scene } from '../../engine/content-types';
 import type { Effect } from '../../engine/types';
-import { flag, not } from './world3';
+import { all, flag, not } from './world3';
 import { A16, S16, day16, garden16, jens16, kitchen16, night16, nina16, own16, tense16, yard16 } from './point16';
 
 // Черновик участка 16 (06.11, начато до 12:00). Не подключён: index.ts, routes.ts, kt5.ts — при дописывании.
@@ -144,7 +144,28 @@ export const day16Scenes: Scene[] = [
         text: 'Солнце садится за насыпью. На рельсах никого. Потом по шпалам проходит человек с канистрами. Яннес, кажется. Или нет.', effects: [{ set: '$.c16_bk', value: 'window' }] },
     ] }),
 
-  // Дальше по плану: c16_a_dusk / c16_b_dusk — вечер (колония или хутор), ночь, утро, КТ16.
-  S16({ id: 'c16_b_dusk', for: 'any', chapter: 'ch3', title: 'Черновик', camp: kitchen16,
+  S16({ id: 'c16_b_dusk', for: 'any', chapter: 'ch3', title: 'Вернер', camp: kitchen16,
+    text: [
+      { when: flag('$.c16_to_colony'), text: 'Уте узнаёт Кёлер сразу и обнимает её. Потом ведёт к домику номер пять. У двери Кёлер останавливается, держа банку мёда обеими руками.\n\nИз-за двери — тишина. Потом два коротких удара в дверь. Пауза. Ещё два.\n\nКёлер бледнеет.\n\n— Zwei kurze, — шепчет она. — So hat er immer gehupt.\n\nДва коротких. Так он всегда гудел.' },
+      { when: all(not(flag('$.c16_to_colony')), nina16('stay')), text: 'Нина сидит на подоконнике и вдруг вскакивает.\n\n— Там на насыпи кто-то бежит. С фонарём. Красным. — Она уже натягивает куртку. — Это Яннес. Что-то случилось.' },
+      { when: all(not(flag('$.c16_to_colony')), nina16('winsen')), text: 'Темнеет. Твой телефон вибрирует: номер Яннеса, который Нина тебе переслала. Одно слово: «Hilfe». Помогите.' },
+    ],
+    actions: [
+      { id: 'c16_bd_hold', label: 'Взять Кёлер за руку', when: flag('$.c16_to_colony'), minutes: 5, terminal: true, goto: 'c16_b_night',
+        text: 'Рука у неё ледяная. Она сжимает твою изо всех сил и не двигается с места. За дверью снова два коротких.', effects: [{ set: '$.c16_bd', value: 'hold' }, { npc: 'c3_koehler', trust: 1 }] },
+      { id: 'c16_bd_ute', label: 'Спросить Уте, давно он так стучит', when: flag('$.c16_to_colony'), minutes: 4, terminal: true, goto: 'c16_b_night',
+        text: '— Seit heute, — говорит Уте. С сегодняшнего дня. Она смотрит на дверь, и в первый раз ты видишь у неё на лице не уверенность, а страх. Или надежду. Отсюда не отличить.', effects: [{ set: '$.c16_bd', value: 'ute' }] },
+      { id: 'c16_bd_go', label: 'Пойти с Ниной к насыпи', when: all(not(flag('$.c16_to_colony')), nina16('stay')), minutes: 5, terminal: true, goto: 'c16_b_night',
+        text: 'Нина бежит впереди. Ты едва успеваешь. Красный огонёк на насыпи мечется и приближается.', effects: [{ set: '$.c16_bd', value: 'go' }, nina(1)] },
+      { id: 'c16_bd_stop', label: 'Удержать Нину: сначала понять, что там', when: all(not(flag('$.c16_to_colony')), nina16('stay')), minutes: 4, terminal: true, goto: 'c16_b_night',
+        text: 'Нина вырывается, потом замирает у двери. Вы стоите и смотрите, как огонёк приближается к вашей калитке.', effects: [{ set: '$.c16_bd', value: 'stop' }] },
+      { id: 'c16_bd_call', label: 'Перезвонить Яннесу', when: all(not(flag('$.c16_to_colony')), nina16('winsen')), minutes: 4, terminal: true, goto: 'c16_b_night',
+        text: 'Гудки. Потом сброс. Потом сообщение: «Kommt. Bitte. Mama». Приходите. Пожалуйста. Мама.', effects: [{ set: '$.c16_bd', value: 'call' }] },
+      { id: 'c16_bd_partner', label: 'Найти {partner.acc}', when: all(not(flag('$.c16_to_colony')), nina16('winsen')), minutes: 3, terminal: true, goto: 'c16_b_night',
+        text: '{partner} уже стоит во дворе с фонарём и смотрит на насыпь.', effects: [{ set: '$.c16_bd', value: 'partner' }] },
+    ] }),
+
+  // Дальше по плану: c16_a_night / c16_b_night — ночь в колонии (дверь одиннадцатого открыта, цепь отстегнули), утро, КТ16.
+  S16({ id: 'c16_b_night', for: 'any', chapter: 'ch3', title: 'Черновик', camp: tense16, ambient: night16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
 ];
