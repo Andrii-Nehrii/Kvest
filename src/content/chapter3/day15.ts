@@ -10,8 +10,6 @@ import { meal } from './point12';
 const any = (...xs: Cond[]): Cond => ({ any: xs });
 const toSleep: Effect = { restUntil: at(16, 6, 30), sleeping: true };
 const toBreakfast: Effect = { restUntil: at(16, 7) };
-const toSoldier: Effect = { restUntil: at(16, 7, 40) };
-const toNoon: Effect = { restUntil: at(16, 12, 30) };
 const toCp: Effect = { restUntil: at(16, 13) };
 const nina = (trust: number): Effect => ({ npc: 'c7_nina', trust });
 const ute = (trust: number): Effect => ({ npc: 'c14_ute', trust });
@@ -29,6 +27,8 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_g_gate', for: 'any', chapter: 'ch3', title: 'Одиннадцать', camp: tense14, ambient: cold,
     text: [
       { text: 'Без пяти одиннадцать у задней калитки загорается красный огонёк. Налобный фонарь Яннеса, под красным стеклом. За ним тачка. Уте в рабочих перчатках, с шестом на плече. Шлем висит у неё на локте, как сумка.\n\n— Guten Abend, — говорит она тихо. — Jetzt erkläre ich, wer was macht.\n\nДобрый вечер. Сейчас объясню, кто что делает.' },
+      { when: { v: 'A.c14_fence', op: '==', value: 'can' }, text: 'Банка с камнями на калитке звякает, когда Яннес поднимает крючок.' },
+      { when: { v: 'A.c14_fence', op: '==', value: 'wire' }, text: 'Яннес долго возится с проволокой на крючке. Плоскогубцы лежат на столбе, там, где их оставили.' },
       { when: withNina, text: 'Нина стоит рядом с тобой в куртке, застёгнутой до подбородка. Сумка с папиными вещами у неё в руке.' },
       { when: inHouse, text: 'Окно Нины на втором этаже открыто настежь. Её силуэт неподвижен.' },
       { text: 'Уте показывает пальцем. Яннес и {A} — у двери кабины. Яннес открывает, {A} держит дверь. Уте — шест и шлем. {B} — свет, низко, только красный. Белый нельзя.' },
@@ -43,7 +43,7 @@ export const day15Scenes: Scene[] = [
     ] }),
 
   S15({ id: 'c15_g_a_door', for: 'any', chapter: 'ch3', title: 'Дверь кабины', camp: tense14, ambient: cold,
-    text: [{ text: 'Яннес отдаёт тебе кожаные перчатки, толстые, сварочные. Вставляет Нинин ключ в замок кабины.\n\n— Auf drei, — шепчет он. — Du ziehst. Ich gehe weg. Mama macht die Schlinge.\n\nНа три. Ты тянешь дверь. Я отхожу. Петлю делает мама.\n\nОн считает. На «три» ты тянешь дверь на себя.\n\nЗапах бьёт в лицо. Йенс сидит, привалившись к рулю. Худой, как будто его стало вдвое меньше. Губы потрескались до крови. Он поворачивает голову на скрип двери.' }],
+    text: [{ when: { v: '$.c14_jannes3', op: '==', value: 'yes' }, text: 'Как и обещал, Яннес принёс перчатки.' }, { text: 'Яннес отдаёт тебе кожаные перчатки, толстые, сварочные. Вставляет Нинин ключ в замок кабины.\n\n— Auf drei, — шепчет он. — Du ziehst. Ich gehe weg. Mama macht die Schlinge.\n\nНа три. Ты тянешь дверь. Я отхожу. Петлю делает мама.\n\nОн считает. На «три» ты тянешь дверь на себя.\n\nЗапах бьёт в лицо. Йенс сидит, привалившись к рулю. Худой, как будто его стало вдвое меньше. Губы потрескались до крови. Он поворачивает голову на скрип двери.' }],
     actions: [
       { id: 'c15_gad_hold', label: 'Держать дверь, как сказал Яннес', minutes: 5, terminal: true, goto: 'c15_g_a_cart',
         text: 'Ты держишь дверь. Йенс медленно сползает с сиденья к тебе. Петля на шесте опускается ему на шею, мягко, как шарф. Уте тянет. Йенс подаётся за ней, не к тебе.\n\nШлем Уте надевает одним движением. Будто всю жизнь только этим и занималась.', effects: [{ set: '$.c15_gad', value: 'hold' }] },
@@ -72,11 +72,11 @@ export const day15Scenes: Scene[] = [
       { text: 'Яннес задерживается на секунду.\n\n— Danke, — говорит он. — Für heute.\n\nСпасибо. За сегодня.' },
     ],
     actions: [
-      { id: 'c15_gar_jannes', label: 'Попросить Яннеса написать, когда дойдут', minutes: 3, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_gar_jannes', label: 'Попросить Яннеса написать, когда дойдут', minutes: 3, terminal: true, goto: 'c15_g_a_return',
         text: 'Яннес кивает и диктует номер. Ты записываешь. Через час сорок, уже в постели, ты получаешь: «Da. Alles ruhig. Er trinkt.»\n\nДошли. Всё тихо. Он пьёт.', effects: [{ set: '$.c15_gar', value: 'jannes' }, jannes(1)] },
-      { id: 'c15_gar_watch', label: 'Смотреть, пока огонёк не скроется', minutes: 15, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_gar_watch', label: 'Смотреть, пока огонёк не скроется', minutes: 15, terminal: true, goto: 'c15_g_a_return',
         text: 'Красный огонёк уходит по шпалам, всё меньше. Скрип колеса стихает раньше, чем гаснет свет. Потом гаснет и свет.', effects: [{ set: '$.c15_gar', value: 'watch' }] },
-      { id: 'c15_gar_nina', label: 'Обнять Нину за плечи и вести домой', when: withNina, minutes: 10, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_gar_nina', label: 'Обнять Нину за плечи и вести домой', when: withNina, minutes: 10, terminal: true, goto: 'c15_g_a_return',
         text: 'Нина идёт рядом и не плачет. Только у калитки останавливается и говорит:\n\n— Он на меня повернулся. Ты видел{m:|а}? — Она не ждёт ответа. — Я знаю, что на дыхание. Всё равно.', effects: [{ set: '$.c15_gar', value: 'nina' }, nina(2)] },
     ] }),
 
@@ -114,9 +114,9 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_g_b_after', for: 'any', chapter: 'ch3', title: 'Чайник', camp: kitchen14,
     text: [{ text: 'На кухне Нина ставит чайник и забывает его выключить. Он свистит. Она сидит, глядя на ключ от фургона на столе. Ключ уже не нужен.' }],
     actions: [
-      { id: 'c15_gba_tea', label: 'Налить ей чаю и посидеть рядом', minutes: 15, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_gba_tea', label: 'Налить ей чаю и посидеть рядом', minutes: 15, terminal: true, goto: 'c15_g_b_cab',
         text: 'Нина пьёт чай маленькими глотками. Потом кладёт голову на руки прямо на столе. Через пять минут она спит. Ты накрываешь её курткой.', effects: [{ set: '$.c15_gba', value: 'tea' }, nina(1)] },
-      { id: 'c15_gba_key', label: 'Спросить, что сделать с ключом', minutes: 4, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_gba_key', label: 'Спросить, что сделать с ключом', minutes: 4, terminal: true, goto: 'c15_g_b_cab',
         text: 'Нина берёт ключ и снова вешает его на шею.\n\n— Фургон-то папин, — говорит она. — Значит, теперь мой.', effects: [{ set: '$.c15_gba', value: 'key' }] },
     ] }),
 
@@ -168,11 +168,11 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_e_a_ute', for: 'any', chapter: 'ch3', title: 'Они всё равно пришли', camp: tense14, ambient: cold,
     text: [{ text: 'Через полчаса у задней калитки звякает звонок. Уте и Яннес. Без тачки.\n\n— Wir haben den Schuss gehört, — говорит Яннес. — Mama wollte trotzdem kommen.\n\nМы слышали выстрел. Мама всё равно хотела прийти.\n\nУте подходит к фургону. Снимает шапку. Стоит молча. Потом говорит, ни к кому не обращаясь:\n\n— Jetzt ist er nirgends mehr angekettet.\n\nТеперь он больше нигде не на цепи.' }],
     actions: [
-      { id: 'c15_eau_jannes', label: 'Принять помощь Яннеса: утром копать', minutes: 4, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_eau_jannes', label: 'Принять помощь Яннеса: утром копать', minutes: 4, terminal: true, goto: 'c15_e_a_wrap',
         text: '— Я останусь, — говорит Яннес. — Утром выкопаем. Вдвоём быстрее. — Он смотрит на мать. — Мама дойдёт сама. Она эту дорогу наизусть знает.', effects: [{ set: '$.c15_eau', value: 'jannes' }, { set: 'w.c15_jannes_stayed', value: true }, jannes(2)] },
-      { id: 'c15_eau_go', label: 'Сказать: спасибо, дальше мы сами', minutes: 3, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_eau_go', label: 'Сказать: спасибо, дальше мы сами', minutes: 3, terminal: true, goto: 'c15_e_a_wrap',
         text: 'Уте кивает. Надевает шапку. У калитки она оборачивается.\n\n— Ihr habt es gut gemacht, — говорит она. — Ich hätte es nicht gekonnt. Nie.\n\nВы всё сделали правильно. Я бы не смогла. Никогда.', effects: [{ set: '$.c15_eau', value: 'go' }, ute(1)] },
-      { id: 'c15_eau_why', label: 'Спросить Уте, почему она не злится', minutes: 5, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_eau_why', label: 'Спросить Уте, почему она не злится', minutes: 5, terminal: true, goto: 'c15_e_a_wrap',
         text: '— Weil Nina ruhig ist. — Уте смотрит на окно второго этажа. — Bei mir sind alle ruhig. Nur ich nicht.\n\nПотому что Нина спокойна. У меня все спокойны. Кроме меня.', effects: [{ set: '$.c15_eau', value: 'why' }] },
     ] }),
 
@@ -208,9 +208,9 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_e_b_ute', for: 'any', chapter: 'ch3', title: 'Уте', camp: kitchen14,
     text: [{ text: 'Через полчаса приходит Уте. Яннес остаётся во дворе. Уте садится рядом с Ниной на кухне и кладёт ей ладонь на щёку.\n\n— Jetzt ist er nirgends mehr angekettet, — говорит она.\n\nТеперь он больше нигде не на цепи.\n\nНина смотрит на неё и наконец плачет. Громко, некрасиво, по-детски.' }],
     actions: [
-      { id: 'c15_ebu_leave', label: 'Оставить их вдвоём', minutes: 15, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_ebu_leave', label: 'Оставить их вдвоём', minutes: 15, terminal: true, goto: 'c15_e_b_room',
         text: 'Ты выходишь на крыльцо. Через закрытую дверь слышно, как Уте что-то тихо говорит. Нина отвечает. Потом смеётся сквозь слёзы. Потом снова плачет.', effects: [{ set: '$.c15_ebu', value: 'leave' }, ute(1)] },
-      { id: 'c15_ebu_stay', label: 'Остаться и сидеть рядом', minutes: 15, terminal: true, goto: 'c15_sleep',
+      { id: 'c15_ebu_stay', label: 'Остаться и сидеть рядом', minutes: 15, terminal: true, goto: 'c15_e_b_room',
         text: 'Ты сидишь рядом. Уте гладит Нину по голове и смотрит на тебя поверх её макушки. Без упрёка. Просто смотрит.', effects: [{ set: '$.c15_ebu', value: 'stay' }, nina(1)] },
     ] }),
 
@@ -218,6 +218,7 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_k_gate', for: 'any', chapter: 'ch3', title: 'Красный огонёк', camp: tense14, ambient: cold,
     text: [
       { text: 'В одиннадцать у задней калитки всё равно загорается красный огонёк. Без тачки. Уте и Яннес.\n\n— Ich wollte es nur von euch hören, — говорит Уте через калитку. — Nicht vom Licht.\n\nЯ хотела услышать это от вас. Не от фонарика.' },
+      { when: { v: 'A.c14_fence', op: '==', value: 'can' }, text: 'Банка с камнями на калитке звякает. Уте убирает руку с крючка.' },
       { when: withNina, text: 'Нина стоит на крыльце, обхватив себя руками.' },
       { when: inHouse, text: 'Окно Нины открыто. Она слушает.' },
     ],
@@ -229,11 +230,11 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_k_a_gate', for: 'any', chapter: 'ch3', title: 'Через калитку', camp: tense14, ambient: cold,
     text: [{ text: 'Ты подходишь к калитке. Засов между вами. Уте смотрит на тебя спокойно, как на ученика, который пришёл с плохой новостью.\n\n— Also? — спрашивает она.\n\nИтак?' }],
     actions: [
-      { id: 'c15_kag_no', label: 'Сказать просто: нет', minutes: 3, terminal: true, goto: 'c15_k_a_jannes',
+      { id: 'c15_kag_no', label: 'Сказать просто: нет', minutes: 3, terminal: true, goto: 'c15_k_a_note',
         text: '— Gut, — говорит Уте. Без обиды. Она достаёт из кармана сложенный листок и протягивает через калитку. — Für Nina. Falls ihr es euch anders überlegt.\n\nДля Нины. Если передумаете.\n\nНа листке: «Parzelle 12».', effects: [{ set: '$.c15_kag', value: 'no' }, { set: 'w.c15_note', value: true }] },
-      { id: 'c15_kag_why', label: 'Объяснить: на видео он повернулся и на птицу', minutes: 6, terminal: true, goto: 'c15_k_a_jannes',
+      { id: 'c15_kag_why', label: 'Объяснить: на видео он повернулся и на птицу', minutes: 6, terminal: true, goto: 'c15_k_a_note',
         text: 'Уте слушает, не перебивая.\n\n— Ja, — говорит она. — Und auf die Tür. Ich weiß. — Она протягивает через калитку сложенный листок. — Für Nina. Falls doch.\n\nДа. И на дверь. Я знаю. Для Нины. Если всё-таки.\n\nНа листке: «Parzelle 12».', effects: [{ set: '$.c15_kag', value: 'why' }, { set: 'w.c15_note', value: true }, ute(1)] },
-      { id: 'c15_kag_seven', label: 'Спросить, что будет с её семерыми, когда кончится вода', minutes: 6, risky: true, terminal: true, goto: 'c15_k_a_jannes',
+      { id: 'c15_kag_seven', label: 'Спросить, что будет с её семерыми, когда кончится вода', minutes: 6, risky: true, terminal: true, goto: 'c15_k_a_note',
         text: 'Уте долго молчит.\n\n— Dann trage ich mehr, — говорит она.\n\nТогда буду носить больше.\n\nЯннес за её спиной отворачивается.', effects: [{ set: '$.c15_kag', value: 'seven' }, ute(-1), jannes(1)] },
     ] }),
 
@@ -262,12 +263,12 @@ export const day15Scenes: Scene[] = [
       { text: '— Вы ей даже не дали сказать, — говорит Нина. — Она так далеко шла.' },
     ],
     actions: [
-      { id: 'c15_kbn_sorry', label: 'Сказать: прости', minutes: 3, terminal: true, goto: 'c15_k_b_night',
-        text: '— За что? — Нина пожимает плечами. — Вы решили. Я слышала, как вы решали. Честно было. — Она уходит к себе и закрывает дверь. Тихо.', effects: [{ set: '$.c15_kbn', value: 'sorry' }, { restUntil: at(16, 3), sleeping: true }] },
-      { id: 'c15_kbn_why', label: 'Объяснить, почему так', minutes: 6, terminal: true, goto: 'c15_k_b_night',
-        text: 'Ты объясняешь. Про птицу. Про семерых на цепях. Про воду, которую надо носить каждый день, пока не кончится. Нина слушает до конца.\n\n— Я понимаю, — говорит она. — Я просто не хочу понимать.', effects: [{ set: '$.c15_kbn', value: 'why' }, nina(1), { restUntil: at(16, 3), sleeping: true }] },
-      { id: 'c15_kbn_quiet', label: 'Ничего не говорить, просто быть рядом', minutes: 8, terminal: true, goto: 'c15_k_b_night',
-        text: 'Вы молчите. Нина первая кладёт голову тебе на плечо. Потом встаёт и уходит спать, не сказав ни слова.', effects: [{ set: '$.c15_kbn', value: 'quiet' }, nina(1), { restUntil: at(16, 3), sleeping: true }] },
+      { id: 'c15_kbn_sorry', label: 'Сказать: прости', minutes: 3, terminal: true, goto: 'c15_k_b_room',
+        text: '— За что? — Нина пожимает плечами. — Вы решили. Я слышала, как вы решали. Честно было. — Она уходит к себе и закрывает дверь. Тихо.', effects: [{ set: '$.c15_kbn', value: 'sorry' }] },
+      { id: 'c15_kbn_why', label: 'Объяснить, почему так', minutes: 6, terminal: true, goto: 'c15_k_b_room',
+        text: 'Ты объясняешь. Про птицу. Про семерых на цепях. Про воду, которую надо носить каждый день, пока не кончится. Нина слушает до конца.\n\n— Я понимаю, — говорит она. — Я просто не хочу понимать.', effects: [{ set: '$.c15_kbn', value: 'why' }, nina(1)] },
+      { id: 'c15_kbn_quiet', label: 'Ничего не говорить, просто быть рядом', minutes: 8, terminal: true, goto: 'c15_k_b_room',
+        text: 'Вы молчите. Нина первая кладёт голову тебе на плечо. Потом встаёт и уходит спать, не сказав ни слова.', effects: [{ set: '$.c15_kbn', value: 'quiet' }, nina(1)] },
     ] }),
 
   S15({ id: 'c15_k_b_night', for: 'any', chapter: 'ch3', title: 'Пустая кровать', camp: house14,
@@ -319,12 +320,12 @@ export const day15Scenes: Scene[] = [
       { when: all(A15, { v: 'A.c14_hilde', op: '==', value: 'later' }), text: 'Хильде писала ещё три раза. Ты так и не ответил{m:|а}. Маркус скажет сам, когда дойдёт.' },
     ],
     actions: [
-      { id: 'c15_b_eat', label: 'Поесть со всеми', minutes: 20, terminal: true, goto: 'c15_soldier', enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
-        text: 'Ты ешь. Нина в конце концов тоже откусывает хлеб. Потом ещё. Съедает весь кусок, будто вспомнила, как это делается.', effects: [meal('eat'), toSoldier] },
-      { id: 'c15_b_pack', label: 'Отложить свою порцию на потом', minutes: 3, terminal: true, goto: 'c15_soldier', enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
-        text: 'Ты заворачиваешь свою порцию в салфетку. День будет длинным.', effects: [meal('pack'), toSoldier] },
-      { id: 'c15_b_skip', label: 'Только чай', minutes: 10, terminal: true, goto: 'c15_soldier',
-        text: 'Чай горячий и горький. Ты пьёшь его маленькими глотками и смотришь, как Нина смотрит на хлеб.', effects: [toSoldier] },
+      { id: 'c15_b_eat', label: 'Поесть со всеми', minutes: 20, terminal: true, outcomes: split('c15_a_m1', 'c15_b_m1'), enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
+        text: 'Ты ешь. Нина в конце концов тоже откусывает хлеб. Потом ещё. Съедает весь кусок, будто вспомнила, как это делается.', effects: [meal('eat')] },
+      { id: 'c15_b_pack', label: 'Отложить свою порцию на потом', minutes: 3, terminal: true, outcomes: split('c15_a_m1', 'c15_b_m1'), enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
+        text: 'Ты заворачиваешь свою порцию в салфетку. День будет длинным.', effects: [meal('pack')] },
+      { id: 'c15_b_skip', label: 'Только чай', minutes: 10, terminal: true, outcomes: split('c15_a_m1', 'c15_b_m1'),
+        text: 'Чай горячий и горький. Ты пьёшь его маленькими глотками и смотришь, как Нина смотрит на хлеб.', effects: [] },
     ] }),
 
   S15({ id: 'c15_soldier', for: 'any', chapter: 'ch3', title: 'Один, на велосипеде', camp: yard14, ambient: day14,
@@ -352,11 +353,11 @@ export const day15Scenes: Scene[] = [
       { when: gate, text: 'Тобиас подходит к тебе.\n\n— Es gibt eine Frau, — говорит он тихо. — In der Kolonie am Damm. Reimers. Sie nimmt sie.\n\nЕсть одна женщина. В колонии у насыпи. Раймерс. Она их берёт.\n\nТы говоришь: знаем. Она приходила. Мы отказали.\n\nОн долго смотрит на тебя.\n\n— Meine Mutter ist bei ihr. Parzelle neun. — Пауза. — Darum sage ich allen: bis morgen.\n\nМоя мать у неё. Парцелла девять. Поэтому я всем и говорю: до завтра.' },
     ],
     actions: [
-      { id: 'c15_at_why', label: 'Спросить, почему он всё это делает', minutes: 5, terminal: true, outcomes: [{ id: 'g', when: give, goto: 'c15_a_go' }, { id: 'x', goto: 'c15_a_grave' }],
+      { id: 'c15_at_why', label: 'Спросить, почему он всё это делает', minutes: 5, terminal: true, goto: 'c15_a_t2',
         text: '— Ich habe schon elf erschossen, — говорит Тобиас. — Elf. Ich zähle. — Он смотрит на свои перчатки. — Jeder Tag, den ich gebe, ist einer weniger.\n\nЯ уже застрелил одиннадцать. Я считаю. Каждый день, который я даю, — это на одного меньше.', effects: [{ set: '$.c15_at', value: 'why' }, tobias(1)] },
-      { id: 'c15_at_believe', label: 'Спросить, верит ли он, что они вернутся', minutes: 5, terminal: true, outcomes: [{ id: 'g', when: give, goto: 'c15_a_go' }, { id: 'x', goto: 'c15_a_grave' }],
+      { id: 'c15_at_believe', label: 'Спросить, верит ли он, что они вернутся', minutes: 5, terminal: true, goto: 'c15_a_t2',
         text: '— Nein. — Тобиас отвечает сразу. — Aber Mama hat mir das Fahrradfahren beigebracht. Hier, auf diesem Weg.\n\nНет. Но мама учила меня кататься на велосипеде. Здесь, по этой дороге.', effects: [{ set: '$.c15_at', value: 'believe' }, tobias(1)] },
-      { id: 'c15_at_secret', label: 'Пообещать, что в части никто не узнает', minutes: 3, terminal: true, outcomes: [{ id: 'g', when: give, goto: 'c15_a_go' }, { id: 'x', goto: 'c15_a_grave' }],
+      { id: 'c15_at_secret', label: 'Пообещать, что в части никто не узнает', minutes: 3, terminal: true, goto: 'c15_a_t2',
         text: 'Тобиас коротко кивает.\n\n— Ich weiß, — говорит он. — Sonst hätte ich nichts gesagt.\n\nЗнаю. Иначе бы ничего не сказал.', effects: [{ set: '$.c15_at', value: 'secret' }, tobias(2)] },
     ] }),
 
@@ -401,12 +402,12 @@ export const day15Scenes: Scene[] = [
       { text: 'Внутри пахнет кисло и тяжело. Ты надеваешь перчатки. На полу бутылки. На солнцезащитном козырьке, под резинкой, детский рисунок: человечек в шапке и маленький человечек у него на плечах. Подпись печатными буквами: «PAPA + NINA».' },
     ],
     actions: [
-      { id: 'c15_bc_wash', label: 'Вымыть кабину и снять рисунок для Нины', minutes: 40, activity: 'moderate', terminal: true, goto: 'c15_b_koehler',
-        text: 'Ведро, тряпка, колодезная вода. Руки немеют. Ты моешь, пока запах не уходит. Рисунок кладёшь в файл и оставляешь на кухонном столе, у Нининой кружки.', effects: [{ set: '$.c15_bc', value: 'wash' }, { set: '$.c15_drawing', value: true }, { restUntil: at(16, 9, 50) }] },
-      { id: 'c15_bc_drawing', label: 'Только снять рисунок, остальное потом', minutes: 5, terminal: true, goto: 'c15_b_koehler',
-        text: 'Рисунок выцвел, края загнулись. На обороте ручкой: «Nina, 6 Jahre». Ты убираешь его во внутренний карман.', effects: [{ set: '$.c15_bc', value: 'drawing' }, { set: '$.c15_drawing', value: true }, { restUntil: at(16, 9, 50) }] },
-      { id: 'c15_bc_close', label: 'Закрыть кабину и не трогать', minutes: 3, terminal: true, goto: 'c15_b_koehler',
-        text: 'Ты закрываешь дверь. Замок щёлкает. Рисунок остаётся там, на козырьке, где Йенс его повесил.', effects: [{ set: '$.c15_bc', value: 'close' }, { restUntil: at(16, 9, 50) }] },
+      { id: 'c15_bc_wash', label: 'Вымыть кабину и снять рисунок для Нины', minutes: 40, activity: 'moderate', terminal: true, outcomes: [{ id: 'g', when: give, goto: 'c15_b_hut' }, { id: 'x', goto: 'c15_b_burial' }],
+        text: 'Ведро, тряпка, колодезная вода. Руки немеют. Ты моешь, пока запах не уходит. Рисунок кладёшь в файл и оставляешь на кухонном столе, у Нининой кружки.', effects: [{ set: '$.c15_bc', value: 'wash' }, { set: '$.c15_drawing', value: true }, { restUntil: at(16, 9) }] },
+      { id: 'c15_bc_drawing', label: 'Только снять рисунок, остальное потом', minutes: 5, terminal: true, outcomes: [{ id: 'g', when: give, goto: 'c15_b_hut' }, { id: 'x', goto: 'c15_b_burial' }],
+        text: 'Рисунок выцвел, края загнулись. На обороте ручкой: «Nina, 6 Jahre». Ты убираешь его во внутренний карман.', effects: [{ set: '$.c15_bc', value: 'drawing' }, { set: '$.c15_drawing', value: true }, { restUntil: at(16, 9) }] },
+      { id: 'c15_bc_close', label: 'Закрыть кабину и не трогать', minutes: 3, terminal: true, outcomes: [{ id: 'g', when: give, goto: 'c15_b_hut' }, { id: 'x', goto: 'c15_b_burial' }],
+        text: 'Ты закрываешь дверь. Замок щёлкает. Рисунок остаётся там, на козырьке, где Йенс его повесил.', effects: [{ set: '$.c15_bc', value: 'close' }, { restUntil: at(16, 9) }] },
     ] }),
 
   S15({ id: 'c15_b_koehler', for: 'any', chapter: 'ch3', title: 'Кёлер с хлебом', camp: yard14, ambient: day14,
@@ -458,12 +459,12 @@ export const day15Scenes: Scene[] = [
       { when: leo14, text: 'Лео ходит за тобой следом, как утёнок, и носит по одному полену.' },
     ],
     actions: [
-      { id: 'c15_bh_wood', label: 'Натаскать дров в дом', minutes: 30, activity: 'moderate', terminal: true, goto: 'c15_noon',
-        text: 'Ты носишь охапки, пока у плиты не вырастает стенка. Спина ноет. Хенрике бы сказала, что сложено криво.', effects: [{ set: '$.c15_bh', value: 'wood' }, toNoon] },
-      { id: 'c15_bh_well', label: 'Отбить ведро и набрать воды на день', minutes: 25, activity: 'moderate', terminal: true, goto: 'c15_noon',
-        text: 'Ты обливаешь цепь горячей водой из чайника, и ведро наконец отходит. Три ведра на кухню. Руки красные, но вода есть.', effects: [{ set: '$.c15_bh', value: 'well' }, toNoon] },
-      { id: 'c15_bh_rest', label: 'Посидеть на крыльце на солнце', minutes: 20, activity: 'rest', terminal: true, goto: 'c15_noon',
-        text: 'Солнце слабое, но греет. Ты сидишь, закрыв глаза. Впервые за много дней никто ничего от тебя не ждёт. Минут двадцать.', effects: [{ set: '$.c15_bh', value: 'rest' }, { body: 'stress', delta: -2 }, toNoon] },
+      { id: 'c15_bh_wood', label: 'Натаскать дров в дом', minutes: 30, activity: 'moderate', terminal: true, goto: 'c15_b_fuel',
+        text: 'Ты носишь охапки, пока у плиты не вырастает стенка. Спина ноет. Хенрике бы сказала, что сложено криво.', effects: [{ set: '$.c15_bh', value: 'wood' }] },
+      { id: 'c15_bh_well', label: 'Отбить ведро и набрать воды на день', minutes: 25, activity: 'moderate', terminal: true, goto: 'c15_b_fuel',
+        text: 'Ты обливаешь цепь горячей водой из чайника, и ведро наконец отходит. Три ведра на кухню. Руки красные, но вода есть.', effects: [{ set: '$.c15_bh', value: 'well' }] },
+      { id: 'c15_bh_rest', label: 'Посидеть на крыльце на солнце', minutes: 20, activity: 'rest', terminal: true, goto: 'c15_b_fuel',
+        text: 'Солнце слабое, но греет. Ты сидишь, закрыв глаза. Впервые за много дней никто ничего от тебя не ждёт. Минут двадцать.', effects: [{ set: '$.c15_bh', value: 'rest' }, { body: 'stress', delta: -2 }] },
     ] }),
 
   // ───────────── Линия A днём: колония ─────────────
@@ -491,33 +492,33 @@ export const day15Scenes: Scene[] = [
     text: [{ text: 'Домик двенадцать. Уте открывает ставню, не дверь. Внутри на матрасе сидит Йенс. Цепь от щиколотки к трубе батареи. Рядом миска с водой, полная наполовину. На голове шапка из Нининой сумки, надета криво.\n\nНина прижимается к стеклу. Йенс поворачивает голову на стук её ладони.\n\n— Er hat getrunken, — говорит Уте. — Viel.\n\nОн пил. Много.' }],
     actions: [
       { id: 'c15_aj_stay', label: 'Стоять с Ниной, сколько она захочет', minutes: 20, terminal: true, goto: 'c15_a_greenhouse',
-        text: 'Нина стоит у стекла долго. Рассказывает ему что-то по-немецки. Йенс поворачивается то к ней, то к вороне на крыше, то к скрипу ставни. Нина видит. Продолжает говорить.\n\nПотом она поворачивается к тебе.\n\n— Пошли, — говорит она. — Ему тут лучше, чем в яме. Правда же?', effects: [{ set: '$.c15_aj', value: 'stay' }, nina(2), { restUntil: at(16, 10, 50) }] },
+        text: 'Нина стоит у стекла долго. Рассказывает ему что-то по-немецки. Йенс поворачивается то к ней, то к вороне на крыше, то к скрипу ставни. Нина видит. Продолжает говорить.\n\nПотом она поворачивается к тебе.\n\n— Пошли, — говорит она. — Ему тут лучше, чем в яме. Правда же?', effects: [{ set: '$.c15_aj', value: 'stay' }, nina(2), { restUntil: at(16, 10, 20) }] },
       { id: 'c15_aj_hat', label: 'Попросить Уте поправить ему шапку', minutes: 8, terminal: true, goto: 'c15_a_greenhouse',
-        text: 'Уте берёт шест, открывает дверь и одним точным движением, концом шеста, поправляет шапку. Йенс дёргается к шесту. Цепь звенит и останавливает его.\n\nНина смеётся сквозь слёзы.\n\n— Он её всегда так носил, — говорит она. — Набекрень. Не надо было поправлять.', effects: [{ set: '$.c15_aj', value: 'hat' }, ute(1), { restUntil: at(16, 10, 50) }] },
+        text: 'Уте берёт шест, открывает дверь и одним точным движением, концом шеста, поправляет шапку. Йенс дёргается к шесту. Цепь звенит и останавливает его.\n\nНина смеётся сквозь слёзы.\n\n— Он её всегда так носил, — говорит она. — Набекрень. Не надо было поправлять.', effects: [{ set: '$.c15_aj', value: 'hat' }, ute(1), { restUntil: at(16, 10, 20) }] },
       { id: 'c15_aj_ute', label: 'Спросить Уте, что будет, когда кончится вода', minutes: 6, risky: true, terminal: true, goto: 'c15_a_greenhouse',
-        text: 'Уте смотрит на тебя поверх Нининой головы.\n\n— Dann trage ich mehr, — говорит она.\n\nТогда буду носить больше.\n\nЯннес у теплицы ставит пустое ведро на землю. Очень аккуратно.', effects: [{ set: '$.c15_aj', value: 'ute' }, ute(-1), jannes(1), { restUntil: at(16, 10, 50) }] },
+        text: 'Уте смотрит на тебя поверх Нининой головы.\n\n— Dann trage ich mehr, — говорит она.\n\nТогда буду носить больше.\n\nЯннес у теплицы ставит пустое ведро на землю. Очень аккуратно.', effects: [{ set: '$.c15_aj', value: 'ute' }, ute(-1), jannes(1), { restUntil: at(16, 10, 20) }] },
     ] }),
 
   S15({ id: 'c15_a_greenhouse', for: 'any', chapter: 'ch3', title: 'Теплица', location: garden, ambient: day14,
     text: [{ text: 'Пока Нина прощается с Уте, Яннес подзывает тебя к теплице. Внутри канистры с водой, мешок собачьего корма, рулон ремней. На верстаке точильный камень.\n\n— Ночью мама плакала, — говорит он. — Первый раз за неделю. Хорошо плакала. Говорит: Нина правильная девочка.' }],
     actions: [
-      { id: 'c15_agh_knife', label: 'Спросить про нож, который он носит', minutes: 5, terminal: true, goto: 'c15_a_back',
+      { id: 'c15_agh_knife', label: 'Спросить про нож, который он носит', minutes: 5, terminal: true, goto: 'c15_a_kai',
         text: 'Яннес кладёт ладонь на рукоятку.\n\n— Если кто-то сорвётся с цепи, когда мамы нет рядом, — говорит он. — Я знаю, куда бить. Посмотрел в интернете, пока он был. — Он смотрит на домик номер одиннадцать. — Папа. Одиннадцать. Я каждый день прохожу мимо.', effects: [{ set: '$.c15_agh', value: 'knife' }, jannes(1)] },
-      { id: 'c15_agh_help', label: 'Спросить, чем им можно помочь', minutes: 5, terminal: true, goto: 'c15_a_back',
+      { id: 'c15_agh_help', label: 'Спросить, чем им можно помочь', minutes: 5, terminal: true, goto: 'c15_a_kai',
         text: '— Водой. — Яннес отвечает сразу. — Колодец здесь один, на краю колонии. Двадцать вёдер в день. Плюс еда. Кормим собачьим кормом, пока есть. — Он пожимает плечами. — Если будете приходить по средам с Ниной, принесите воды. Больше ничего не надо.', effects: [{ set: '$.c15_agh', value: 'help' }, jannes(1)] },
-      { id: 'c15_agh_go', label: 'Сказать, что вам пора', minutes: 2, terminal: true, goto: 'c15_a_back',
+      { id: 'c15_agh_go', label: 'Сказать, что вам пора', minutes: 2, terminal: true, goto: 'c15_a_kai',
         text: 'Яннес кивает и снова берётся за вёдра. У калитки колонии Уте машет вам обеими руками, как с вокзальной платформы.', effects: [{ set: '$.c15_agh', value: 'go' }] },
     ] }),
 
   S15({ id: 'c15_a_back', for: 'any', chapter: 'ch3', title: 'Обратно по шпалам', location: 'c10_field', ambient: day14,
     text: [{ text: 'Обратно вы идёте молча. Шпалы, гравий, шпалы. У будки обходчика Нина останавливается.\n\n— Я ведь буду туда ходить, — говорит она. — По средам. Это далеко.' }],
     actions: [
-      { id: 'c15_ab_with', label: 'Сказать: будем ходить вместе', minutes: 50, activity: 'moderate', move: true, terminal: true, goto: 'c15_noon',
-        text: 'Нина кивает. Дальше она идёт рядом, плечом к плечу. У задней калитки она говорит: «По средам», — как будто вы о чём-то договорились.', effects: [{ set: '$.c15_ab', value: 'with' }, nina(2), toNoon] },
-      { id: 'c15_ab_car', label: 'Сказать: если будет бензин, можно на машине до переезда', minutes: 50, activity: 'moderate', move: true, terminal: true, goto: 'c15_noon',
-        text: '— Если будет, — повторяет Нина. Она знает, сколько стоит каждый литр. Все теперь знают.', effects: [{ set: '$.c15_ab', value: 'car' }, toNoon] },
-      { id: 'c15_ab_quiet', label: 'Промолчать', minutes: 50, activity: 'moderate', move: true, terminal: true, goto: 'c15_noon',
-        text: 'Нина ждёт ответа. Потом перестаёт ждать. Вы доходите до хутора, и только у калитки она говорит: «Ничего. Сама дойду». Без обиды.', effects: [{ set: '$.c15_ab', value: 'quiet' }, toNoon] },
+      { id: 'c15_ab_with', label: 'Сказать: будем ходить вместе', minutes: 50, activity: 'moderate', move: true, terminal: true, goto: 'c15_a_n0',
+        text: 'Нина кивает. Дальше она идёт рядом, плечом к плечу. У задней калитки она говорит: «По средам», — как будто вы о чём-то договорились.', effects: [{ set: '$.c15_ab', value: 'with' }, nina(2)] },
+      { id: 'c15_ab_car', label: 'Сказать: если будет бензин, можно на машине до переезда', minutes: 50, activity: 'moderate', move: true, terminal: true, goto: 'c15_a_n0',
+        text: '— Если будет, — повторяет Нина. Она знает, сколько стоит каждый литр. Все теперь знают.', effects: [{ set: '$.c15_ab', value: 'car' }] },
+      { id: 'c15_ab_quiet', label: 'Промолчать', minutes: 50, activity: 'moderate', move: true, terminal: true, goto: 'c15_a_n0',
+        text: 'Нина ждёт ответа. Потом перестаёт ждать. Вы доходите до хутора, и только у калитки она говорит: «Ничего. Сама дойду». Без обиды.', effects: [{ set: '$.c15_ab', value: 'quiet' }] },
     ] }),
 
   // ───────────── Линия A днём: яблоня ─────────────
@@ -540,11 +541,11 @@ export const day15Scenes: Scene[] = [
   S15({ id: 'c15_a_marker', for: 'any', chapter: 'ch3', title: 'Имя', camp: yard14, ambient: day14,
     text: [{ text: 'Свёрток опускают втроём. Земля стучит по одеялу, потом звук становится глуше.\n\nНина стоит над холмиком с доской от окна кабины. Той самой, с мокрым пятном от воронки.\n\n— Надо написать, — говорит она. — Только я не знаю что.' }],
     actions: [
-      { id: 'c15_am_name', label: 'Предложить: имя и годы', minutes: 15, terminal: true, goto: 'c15_a_after',
+      { id: 'c15_am_name', label: 'Предложить: имя и годы', minutes: 15, terminal: true, goto: 'c15_a_ninad',
         text: 'Нина выцарапывает гвоздём: JENS. Годы она не знает точно и пишет только последний: 2026. Вбивает доску сама, камнем.', effects: [{ set: '$.c15_am', value: 'name' }] },
-      { id: 'c15_am_papa', label: 'Сказать: напиши, как сама хочешь', minutes: 15, terminal: true, goto: 'c15_a_after',
+      { id: 'c15_am_papa', label: 'Сказать: напиши, как сама хочешь', minutes: 15, terminal: true, goto: 'c15_a_ninad',
         text: 'Нина думает. Потом выцарапывает гвоздём крупно, печатными буквами: PAPA. И ниже, мельче: «drei Minuten». Три минуты.\n\nТы не спрашиваешь. Ты помнишь про яйца всмятку.', effects: [{ set: '$.c15_am', value: 'papa' }, nina(1)] },
-      { id: 'c15_am_later', label: 'Сказать: напишем потом, когда будут слова', minutes: 5, terminal: true, goto: 'c15_a_after',
+      { id: 'c15_am_later', label: 'Сказать: напишем потом, когда будут слова', minutes: 5, terminal: true, goto: 'c15_a_ninad',
         text: 'Нина кивает и кладёт доску на холмик. Сверху — камень, чтобы не унесло ветром.\n\n— Потом, — соглашается она.', effects: [{ set: '$.c15_am', value: 'later' }] },
     ] }),
 
@@ -570,12 +571,12 @@ export const day15Scenes: Scene[] = [
       { text: 'Хенрике оставила его «для Йенса». Йенса больше нет. А ружьё есть.' },
     ],
     actions: [
-      { id: 'c15_ag2_back', label: 'Разрядить и поставить за шкаф, как было', minutes: 5, terminal: true, goto: 'c15_noon',
-        text: 'Патрон ты кладёшь обратно в чашку без ручки. Ружьё — за шкаф, в чехол из простыни. Как будто ничего не было.', effects: [{ set: '$.c15_ag2', value: 'back' }, toNoon] },
-      { id: 'c15_ag2_hide', label: 'Спрятать на чердаке, чтобы Нина не видела', minutes: 10, terminal: true, goto: 'c15_noon',
-        text: 'На чердаке пахнет пылью и яблоками. Ты кладёшь ружьё на балку под самой крышей, патроны в жестяную коробку рядом. Нина сюда не полезет. Наверное.', effects: [{ set: '$.c15_ag2', value: 'hide' }, toNoon] },
-      { id: 'c15_ag2_keep', label: 'Оставить заряженным у двери: хутор теперь на вас', minutes: 3, risky: true, terminal: true, goto: 'c15_noon',
-        text: 'Ты ставишь ружьё у двери, за вешалкой. Если кто-то придёт ночью, оно будет под рукой. Нина проходит мимо, видит его и ничего не говорит.', effects: [{ set: '$.c15_ag2', value: 'keep' }, toNoon] },
+      { id: 'c15_ag2_back', label: 'Разрядить и поставить за шкаф, как было', minutes: 5, terminal: true, goto: 'c15_a_n0',
+        text: 'Патрон ты кладёшь обратно в чашку без ручки. Ружьё — за шкаф, в чехол из простыни. Как будто ничего не было.', effects: [{ set: '$.c15_ag2', value: 'back' }] },
+      { id: 'c15_ag2_hide', label: 'Спрятать на чердаке, чтобы Нина не видела', minutes: 10, terminal: true, goto: 'c15_a_n0',
+        text: 'На чердаке пахнет пылью и яблоками. Ты кладёшь ружьё на балку под самой крышей, патроны в жестяную коробку рядом. Нина сюда не полезет. Наверное.', effects: [{ set: '$.c15_ag2', value: 'hide' }] },
+      { id: 'c15_ag2_keep', label: 'Оставить заряженным у двери: хутор теперь на вас', minutes: 3, risky: true, terminal: true, goto: 'c15_a_n0',
+        text: 'Ты ставишь ружьё у двери, за вешалкой. Если кто-то придёт ночью, оно будет под рукой. Нина проходит мимо, видит его и ничего не говорит.', effects: [{ set: '$.c15_ag2', value: 'keep' }] },
     ] }),
 
   // ───────────── Полдень ─────────────
