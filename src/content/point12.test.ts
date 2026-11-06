@@ -41,22 +41,24 @@ describe('участки 12–13: чужие с насыпи', () => {
       if (ole === 'sleep') for (const x of [a13, b13]) expect(x.npcs.henrike.location).toBe('c13_sammel');
       const s13 = mergeCp(b12s, 13, a13, b13);
       expect(s13.chars.A.time).toBe(s13.chars.B.time);
-      const out = completeCheckpoint(c, structuredClone(s13) as GameState, { A: { c3_new_leo13: 'drive', c3_new_road13: 'drive' }, B: { c3_new_leo13: 'farm', c3_new_road13: 'go' } }).state;
-      expect(out.vars['w.c13_leo']).toBe('marcus'); expect(out.vars['w.c13_road']).toBe('drive');
+      const out = completeCheckpoint(c, structuredClone(s13) as GameState, { A: { c3_new_leo13: 'drive', c3_new_road13: 'drive' }, B: { c3_new_leo13: 'farm', c3_new_road13: 'walk' } }).state;
+      expect(out.vars['w.c13_leo']).toBe('marcus'); expect(out.vars['w.c13_road']).toBe('walk');
       for (const p of P) { expect(out.chars[p].scene).toBe('c14_start'); expect(out.chars[p].location).toBe('hof_luedemann'); }
       expect(out.npcs.deniz.location).toBe('deniz_workshop'); expect(out.npcs.c12_leo.location).toBe('c8_east_road');
     });
 
-  it('КТ13: поездка в Йестебург и обратно тратит бензин один раз; отъезд насовсем переносит пару', () => {
+  it('КТ13: поездки туда и обратно тратят бензин один раз и возвращают пару на хутор', () => {
     const b12 = after12(after11('family', 'stay'), 'together');
     const s13 = mergeCp(b12, 13, leg(b12, 'A'), leg(b12, 'B'));
     const fuel = (s: GameState) => Object.values(s.items).find(i => i.type === 'opel_corsa')!.fuel!;
     const drove = completeCheckpoint(c, structuredClone(s13) as GameState, { A: { c3_new_leo13: 'drive', c3_new_road13: 'walk' }, B: { c3_new_leo13: 'drive', c3_new_road13: 'walk' } }).state;
     expect(drove.npcs.c12_leo.location).toBe('c13_sammel'); expect(drove.chars.A.location).toBe('hof_luedemann');
     expect(fuel(drove)).toBeLessThan(fuel(s13)); expect(fuel(s13) - fuel(drove)).toBeLessThan(2);
-    const gone = completeCheckpoint(c, structuredClone(s13) as GameState, { A: { c3_new_leo13: 'farm', c3_new_road13: 'go' }, B: { c3_new_leo13: 'farm', c3_new_road13: 'go' } }).state;
-    for (const p of P) expect(gone.chars[p].location).toBe('deniz_workshop');
-    expect(gone.npcs.c12_leo.location).toBe('hof_luedemann'); expect(gone.npcs.c12_marcus.location).toBe('c8_east_road');
+    const both = completeCheckpoint(c, structuredClone(s13) as GameState, { A: { c3_new_leo13: 'farm', c3_new_road13: 'drive' }, B: { c3_new_leo13: 'farm', c3_new_road13: 'drive' } }).state;
+    for (const p of P) expect(both.chars[p].location).toBe('hof_luedemann');
+    expect(both.npcs.deniz.location).toBe('deniz_workshop');
+    expect(both.npcs.c12_leo.location).toBe('hof_luedemann'); expect(both.npcs.c12_marcus.location).toBe('c8_east_road');
+    expect(c.joint.c3_new_road13.options.map(o => o.id)).toEqual(['walk', 'drive']);
   });
 
   it('половины правды обязательны на своих линиях, сверка за ужином доступна обоим', () => {
