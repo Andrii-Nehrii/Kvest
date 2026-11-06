@@ -108,9 +108,25 @@ export const day16Scenes: Scene[] = [
         text: 'Ты догоняешь его у будки обходчика и забираешь одну канистру. Яннес не спорит. До колонии вы идёте молча. У калитки он говорит: «Останься на чай. Мама будет рада». Уже темнеет.', effects: [{ set: '$.c16_pump', value: 'follow' }, { set: '$.c16_to_colony', value: true }, { npc: 'c14_jannes', trust: 1 }] },
     ] }),
 
-  // Дальше по плану: c16_a_dusk, c16_b_koehler и вечер в колонии.
   S16({ id: 'c16_a_dusk', for: 'any', chapter: 'ch3', title: 'Черновик', camp: yard16, ambient: day16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
-  S16({ id: 'c16_b_koehler', for: 'any', chapter: 'ch3', title: 'Черновик', camp: kitchen16,
+  S16({ id: 'c16_b_koehler', for: 'any', chapter: 'ch3', title: 'Брат', camp: kitchen16,
+    text: [
+      { when: own16('house2', 'go'), text: 'Кёлер приходит через час в чёрном пальто и с аккуратно уложенными волосами, как в церковь. В руках банка мёда.\n\n— Für ihn, — говорит она. — Er hat Honig geliebt.\n\nДля него. Он любил мёд.\n\nВы идёте по шпалам. Кёлер держит тебя под руку и через каждые сто шагов останавливается.' },
+      { when: not(own16('house2', 'go')), text: 'Кёлер уходит. На столе мешок муки, на мешке её почерком: «Danke». За окном садится солнце.' },
+    ],
+    actions: [
+      { id: 'c16_bk_hold', label: 'Держать её под руку и не торопить', when: own16('house2', 'go'), minutes: 45, activity: 'moderate', terminal: true, goto: 'c16_b_dusk',
+        text: 'Вы идёте долго. У будки обходчика Кёлер садится на лавку и сидит пять минут, глядя в пол. Потом встаёт сама.\n\n— Weiter, — говорит она. Дальше.\n\nК колонии вы подходите, когда уже темнеет.', effects: [{ set: '$.c16_bk', value: 'hold' }, { set: '$.c16_to_colony', value: true }, { npc: 'c3_koehler', trust: 1 }] },
+      { id: 'c16_bk_talk', label: 'Расспросить её о брате по дороге', when: own16('house2', 'go'), minutes: 45, activity: 'moderate', terminal: true, goto: 'c16_b_dusk',
+        text: '— Werner. Lokführer. Сорок лет водил поезда по этой самой ветке. — Кёлер показывает на рельсы. — Он гудел мне, когда проезжал мимо дома. Два коротких.\n\nК колонии вы подходите, когда уже темнеет.', effects: [{ set: '$.c16_bk', value: 'talk' }, { set: '$.c16_to_colony', value: true }, { set: '$.c16_werner', value: true }] },
+      { id: 'c16_bk_bread', label: 'Испечь из её муки лепёшки на вечер', when: not(own16('house2', 'go')), minutes: 50, activity: 'light', terminal: true, goto: 'c16_b_dusk',
+        text: 'Мука, вода, щепоть соли, сковорода. Первые две лепёшки подгорают, остальные получаются. Кухня пахнет хлебом, как давно не пахла.', effects: [{ set: '$.c16_bk', value: 'bread' }] },
+      { id: 'c16_bk_window', label: 'Посидеть у окна, глядя на насыпь', when: not(own16('house2', 'go')), minutes: 30, activity: 'rest', terminal: true, goto: 'c16_b_dusk',
+        text: 'Солнце садится за насыпью. На рельсах никого. Потом по шпалам проходит человек с канистрами. Яннес, кажется. Или нет.', effects: [{ set: '$.c16_bk', value: 'window' }] },
+    ] }),
+
+  // Дальше по плану: c16_a_dusk / c16_b_dusk — вечер (колония или хутор), ночь, утро, КТ16.
+  S16({ id: 'c16_b_dusk', for: 'any', chapter: 'ch3', title: 'Черновик', camp: kitchen16,
     text: [{ text: 'Черновик сцены.' }], actions: [] }),
 ];
