@@ -29,6 +29,7 @@ import { day11Scenes } from './day11';
 import { noon11Scenes } from './noon11';
 import { day12Scenes } from './day12';
 import { day13Scenes } from './day13';
+import { day13xScenes } from './day13x';
 import { day14Scenes } from './day14';
 import { day15Scenes } from './day15';
 
@@ -46,6 +47,6 @@ export const scenes3: Record<string, Scene> = Object.fromEntries([
   newEntry9, ...entry9Scenes, ...farm9AScenes, ...farm9BScenes, ...common9Scenes,
   newEntry10, ...night10SScenes, ...night10FScenes, ...night10Scenes,
   newEntry11, ...dawn11Scenes, ...day11Scenes, ...noon11Scenes,
-  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, newEntry14, ...day14Scenes, newEntry15, ...day15Scenes, ...checkpointScenes,
+  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, newEntry15, ...day15Scenes, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(withFarmCare(s))]));
 export const incidentEvents3 = [...morning12Events];
