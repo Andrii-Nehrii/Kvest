@@ -198,7 +198,7 @@ export function App() {
         </div>
         <div className="sub place">{content.locations[ch.location]?.name ?? ''}</div>
         <div className="right">
-          {ph && <span title="Заряд телефона">📱 {Math.round(ph.charge ?? 0)}%</span>}
+          {ph && <span title="Заряд телефона">📱 {Math.round(ph.charge ?? 0)}%{ph.off ? " выкл" : ""}</span>}
           <span className={`dot ${healthDot(ch.body)}`} title="Самочувствие" />
         </div>
       </header>

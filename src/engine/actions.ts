@@ -112,6 +112,12 @@ export function universalActions(ctx: Ctx, scene: Scene): ActionDef[] {
     list.push({ id: 'u:powerbank', label: 'Подзарядить телефон от пауэрбанка', minutes: 2, combinable: true, group: 'u:powerbank',
       effects: [{ charge: bank.type, delta: -10 }, { charge: 'phone', delta: 20 }] });
   }
+  // С КТ13 телефон можно выключать, чтобы он не садился, пока им не пользуются.
+  if (ctx.s.checkpoint >= 13 && ph) {
+    if (ph.off) list.push({ id: 'u:phone_on', label: 'Включить телефон', minutes: 1, combinable: true, group: 'u:phone', text: 'Телефон включается.', effects: [{ phonePower: true }] });
+    else if ((ph.charge ?? 0) > 0) list.push({ id: 'u:phone_off', label: 'Выключить телефон, чтобы не садился', minutes: 1, combinable: true, group: 'u:phone',
+      text: 'Ты выключаешь телефон. Так он не садится, но сообщения и новости не придут, пока не включишь. На контрольной точке включишь его сам.', effects: [{ phonePower: false }] });
+  }
   if (phoneUsable(ctx) && network(ctx).data && Object.keys(ctx.s.vars).some((k) => k.startsWith(`${ctx.pid}.missed.`) && ctx.s.vars[k])) {
     list.push({ id: 'u:news', label: 'Пролистать новости в телефоне', minutes: 10, combinable: true, group: 'u:news',
       effects: [{ charge: 'phone', delta: -2 }] });
@@ -245,6 +251,9 @@ export function enterScene(ctx: Ctx, sceneId: string): EffectResult {
   ch.scene = sceneId;
   ch.visited[sceneId] = (ch.visited[sceneId] ?? 0) + 1;
   if (scene.location) ch.location = scene.location;
+  // На контрольной точке нужна связь: выключенный телефон включается сам.
+  const ph = scene.checkpoint !== undefined ? phone(ctx) : undefined;
+  if (ph?.off) { delete ph.off; ph.changedAt = ch.time; log(ctx, 'item', 'Ты включаешь телефон — на точке нужна связь.'); }
   if (scene.title) log(ctx, 'story', `— ${scene.title} —`);
   return applyEffects(ctx, scene.onEnter);
 }

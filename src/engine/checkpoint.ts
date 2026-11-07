@@ -112,7 +112,7 @@ function mergeItem(seed: string, id: string, base: ItemInstance | undefined, a: 
   if (!base) return clone(later);
   // Каждое поле — отдельно: заряд из одного участка не отменяет перенос из другого.
   const out = clone(later);
-  for (const k of ['type', 'condition', 'charge', 'uses', 'note'] as const) {
+  for (const k of ['type', 'condition', 'charge', 'uses', 'note', 'off'] as const) {
     const v = pick3(base[k], a[k], b[k], later[k]);
     if (v === undefined) delete out[k]; else (out as unknown as Record<string, unknown>)[k] = v;
   }

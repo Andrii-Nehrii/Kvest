@@ -88,7 +88,7 @@ function drainBatteries(ctx: Ctx, minutes: number) {
     const before = i.charge;
     const tagged = itemType(ctx, i.type).tags;
     if (charging && tagged.includes('phone')) i.charge = clamp(i.charge + 45 * minutes / 60, 0, 100);
-    else i.charge = clamp(i.charge - bat.idleDrainPerHour * minutes / 60, 0, 100);
+    else if (!i.off) i.charge = clamp(i.charge - bat.idleDrainPerHour * minutes / 60, 0, 100);
     i.charge = round(i.charge, 2);
     if (i.charge !== before) i.changedAt = ch.time;
     if (before > 0 && i.charge === 0 && tagged.includes('phone')) log(ctx, 'item', 'Телефон сел.');

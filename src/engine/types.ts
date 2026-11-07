@@ -156,6 +156,8 @@ export interface ItemInstance {
   note?: string;
   /** Отдельно отложенная доля общего запаса, доступная только этому игроку. */
   reservedFor?: PlayerId;
+  /** Телефон выключен (с КТ13): не садится, но не принимает связь. На контрольной точке включается сам. */
+  off?: boolean;
   /** Исходная стопка нового сюжетного NPC: общий источник для обеих линий. */
   introducedStock?: { checkpoint: number; npc: string; slot: number };
 }
@@ -317,6 +319,8 @@ export type Effect =
   | { pickup: string; place?: string; qty?: number }
   | { place: string; at: string; qty?: number; charge?: number }
   | { charge: string; delta: number }
+  /** Выключить (false) или включить (true) свой телефон — с КТ13. */
+  | { phonePower: boolean }
   | { body: keyof Pick<Body, 'hunger' | 'thirst' | 'fatigue' | 'sleepDebt' | 'bloodLoss' | 'stress'>; delta: number; target?: PlayerId | '$' | '@partner' }
   | { injure: InjuryKind; site: BodySite; severity: 1 | 2 | 3 | 4 | 5; bleeding?: number; exposure?: number }
   | { treat: 'basic' | 'proper'; target?: PlayerId | '$' | '@partner' }

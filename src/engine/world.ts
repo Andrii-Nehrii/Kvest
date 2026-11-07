@@ -173,7 +173,7 @@ export function phone(ctx: Ctx, pid: PlayerId = ctx.pid): ItemInstance | undefin
 
 export function phoneUsable(ctx: Ctx, pid: PlayerId = ctx.pid): boolean {
   const p = phone(ctx, pid);
-  return !!p && (p.charge ?? 0) > 0;
+  return !!p && (p.charge ?? 0) > 0 && !p.off;
 }
 
 export function network(ctx: Ctx, pid: PlayerId = ctx.pid) {

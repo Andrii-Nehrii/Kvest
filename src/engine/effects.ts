@@ -10,7 +10,7 @@ import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
 import { other, PLAYERS } from './types';
 import {
-  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, resolveKey, setVar, takeItems, type Ctx,
+  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, phone, resolveKey, setVar, takeItems, type Ctx,
 } from './world';
 
 export interface EffectResult {
@@ -112,9 +112,20 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     giveItem(ctx, e.place, e.qty ?? 1, { charge: e.charge }, { kind: 'place', id: e.at });
     return;
   }
+  if ('phonePower' in e) {
+    const p = phone(ctx);
+    if (ctx.s.checkpoint < 13 || !p) return;
+    if (e.phonePower) delete p.off; else p.off = true;
+    p.changedAt = t;
+    return;
+  }
   if ('charge' in e) {
     const item = chargeTarget(ctx, e.charge, e.delta);
-    if (item) { item.charge = clamp((item.charge ?? 0) + e.delta, 0, 100); item.changedAt = t; }
+    if (item) {
+      // Пользоваться выключенным телефоном (написать, позвонить) — значит сначала включить его.
+      if (item.off && e.delta < 0) delete item.off;
+      item.charge = clamp((item.charge ?? 0) + e.delta, 0, 100); item.changedAt = t;
+    }
     return;
   }
   if ('body' in e) {

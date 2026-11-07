@@ -102,6 +102,9 @@ function flagNpc(key: string): Cond {
 }
 
 export const events3: WorldEvent[] = [
+  // Разовая поправка заряда после КТ13: до этого телефон нельзя было выключить и он садился без дела.
+  { id: 'fix_phone35_A', at: 0, scope: 'A', when: { cp: 13 }, effects: [{ charge: 'phone', delta: 35 }] },
+  { id: 'fix_phone35_B', at: 0, scope: 'B', when: { cp: 13 }, effects: [{ charge: 'phone', delta: 35 }] },
   {
     id: 'ev3_corridor_open',
     at: at(12, 9),
