@@ -65,8 +65,13 @@ export function ProgressStrip({ save, token }: { save: LocalSave; token?: string
 
   let theirPct: number | null = null, theirText = '…';
   if (partner) {
-    if (partner.cp > myCp) { theirPct = 1; theirText = '✓'; }
-    else if (partner.cp < myCp) { theirPct = 1; theirText = 'на точке'; }
+    // Партнёр ещё на прошлой точке (её итог у него не посчитан) — новый участок у него не начат.
+    if (partner.cp < myCp) { theirPct = 0; theirText = 'на прошлой точке'; }
+    // Партнёр уже дальше: точку, на которой я стою, он прошёл.
+    else if (partner.cp > myCp) {
+      theirPct = partner.phase === 'checkpoint' ? 1 : partner.pct;
+      theirText = partner.phase === 'checkpoint' ? 'на следующей точке' : `дальше, ${partner.pct === null ? '?' : Math.round(partner.pct * 100)}%`;
+    }
     else if (partner.phase === 'checkpoint') { theirPct = 1; theirText = 'на точке'; }
     else { theirPct = partner.pct; theirText = partner.pct === null ? '?' : `${Math.round(partner.pct * 100)}%`; }
     { const a = ago(now - partner.at); theirText += a === 'сейчас' ? ' · сейчас' : ` · ${a} назад`; }
@@ -79,10 +84,8 @@ export function ProgressStrip({ save, token }: { save: LocalSave; token?: string
   );
   return (
     <div className="progress-strip" aria-label="Прогресс до контрольной точки">
-      <span className="who">{name(save.me)}</span>{bar(mine.pct)}<span className="val">{myText}</span>
-      {token && <>
-        <span className="who">{name(other(save.me))}</span>{bar(theirPct)}<span className="val">{theirText}</span>
-      </>}
+      <span className="pp"><span className="who">{name(save.me)}</span>{bar(mine.pct)}<span className="val">{myText}</span></span>
+      {token && <span className="pp"><span className="who">{name(other(save.me))}</span>{bar(theirPct)}<span className="val">{theirText}</span></span>}
     </div>
   );
 }

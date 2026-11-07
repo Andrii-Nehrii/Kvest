@@ -165,10 +165,10 @@ input[type=checkbox] { flex: none; width: 22px; height: 22px; margin: 0; accent-
 .center { text-align: center; }
 .big-state { font: 600 30px/1.15 var(--story); margin: 40px 0 10px; }
 
-/* Прогресс участка у обоих — одна тонкая строка над историей */
-.progress-strip { display: flex; align-items: center; gap: 5px; padding: 6px 16px 0; color: var(--faint); font-size: 11px; line-height: 1.2; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
-.progress-strip .who { overflow: hidden; text-overflow: ellipsis; max-width: 22%; }
+/* Прогресс участка у обоих — тонкая строка над историей; не влезает — вторая часть переносится */
+.progress-strip { display: flex; flex-wrap: wrap; gap: 3px 14px; padding: 6px 16px 0; color: var(--faint); font-size: 11px; line-height: 1.2; font-variant-numeric: tabular-nums; }
+.progress-strip .pp { flex: 1 1 130px; display: flex; align-items: center; gap: 5px; white-space: nowrap; max-width: 100%; }
+.progress-strip .who { flex: none; max-width: 40%; overflow: hidden; text-overflow: ellipsis; }
 .progress-strip .pbar { flex: 1 1 0; min-width: 24px; height: 3px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
 .progress-strip .pbar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); opacity: .75; transition: width .4s ease; }
-.progress-strip .val { flex: none; margin-right: 8px; }
-.progress-strip .val:last-child { margin-right: 0; }
+.progress-strip .val { flex: none; }
