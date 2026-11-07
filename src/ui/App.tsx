@@ -7,6 +7,8 @@ import { act, exportSave, normalizePhase, refreshSave, type LocalSave } from '..
 import { cloudPairId, cloudPaths, getFile, loadCloud, putFile, storeCloud, type CloudConfig } from '../app/cloud';
 import { replayBackupKey, requestedReplay, requestedReplaySource } from '../app/requested-replay';
 import { answerReset } from '../app/answer-reset';
+import { progressNote } from '../app/progress';
+import { ProgressStrip } from './Progress';
 import { content } from '../content';
 import { healthDot } from './format';
 import { Icon } from './kit';
@@ -105,6 +107,9 @@ export function App() {
         const name = s.state!.chars[s.me].name.nom;
         await putFile(cfg.token, cloudPaths.save(cloudPairId(s), s.me), exportSave(s), `${s.me} ${name}: ${why}`);
         updateCloud({ ...cfg, lastUpload: Date.now(), lastError: undefined });
+        // Прогресс для полоски партнёра — в тот же момент, что и сохранение; сбой здесь не мешает игре.
+        const note = progressNote(content, s);
+        if (note) await putFile(cfg.token, cloudPaths.progress(cloudPairId(s), s.me), JSON.stringify(note), `${s.me} ${name}: прогресс`).catch(() => {});
         if (manual) setToast({ text: 'Сохранение отправлено.' });
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
@@ -198,6 +203,7 @@ export function App() {
         </div>
       </header>
       {updateBar}
+      {tab === 'story' && !showResult && !continuation && save.phase !== 'ended' && <ProgressStrip save={save} token={cloud?.token} />}
       <Boundary save={save}>{body}</Boundary>
       {save.phase !== 'ended' && (
         <nav className="nav"><div className="nav-inner">

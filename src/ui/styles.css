@@ -164,3 +164,11 @@ input[type=checkbox] { flex: none; width: 22px; height: 22px; margin: 0; accent-
 .update-bar .btn { flex: none; min-height: 44px; padding: 0 14px; }
 .center { text-align: center; }
 .big-state { font: 600 30px/1.15 var(--story); margin: 40px 0 10px; }
+
+/* Прогресс участка у обоих — одна тонкая строка над историей */
+.progress-strip { display: flex; align-items: center; gap: 5px; padding: 6px 16px 0; color: var(--faint); font-size: 11px; line-height: 1.2; font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; }
+.progress-strip .who { overflow: hidden; text-overflow: ellipsis; max-width: 22%; }
+.progress-strip .pbar { flex: 1 1 0; min-width: 24px; height: 3px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
+.progress-strip .pbar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); opacity: .75; transition: width .4s ease; }
+.progress-strip .val { flex: none; margin-right: 8px; }
+.progress-strip .val:last-child { margin-right: 0; }

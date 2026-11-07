@@ -22,6 +22,8 @@ export const cloudPaths = {
   save: (pairId: string, pid: string) => `pairs/${pairId}/save-${pid}.json`,
   segment: (pairId: string, cp: number, pid: string) => `pairs/${pairId}/kt${cp}-hod-${pid}.txt`,
   answers: (pairId: string, cp: number, pid: string) => `pairs/${pairId}/kt${cp}-otvet-${pid}.txt`,
+  /** Маленький файл с прогрессом участка — его читает телефон партнёра. */
+  progress: (pairId: string, pid: string) => `pairs/${pairId}/progress-${pid}.json`,
 };
 
 /** Повтор хранится отдельно: открытая старая вкладка не перезапишет новые ходы. */
