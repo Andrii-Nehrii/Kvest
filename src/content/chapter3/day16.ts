@@ -19,7 +19,6 @@ const toKoehler: Effect = { restUntil: at(16, 14, 30) };
 const toJannes: Effect = { restUntil: at(16, 15, 10) };
 const toDusk: Effect = { restUntil: at(16, 17) };
 const toDinner: Effect = { restUntil: at(16, 18, 30) };
-const toTobias: Effect = { restUntil: at(16, 19, 30) };
 const toGate: Effect = { restUntil: at(16, 17, 30) };
 const toLeave: Effect = { restUntil: at(16, 16) };
 const toCp: Effect = { restUntil: at(16, 21, 30) };
@@ -88,7 +87,7 @@ export const day16Scenes: Scene[] = [
     ],
     actions: [
       { id: 'c16_ag_hof', label: 'Назваться и сказать: с хутора Людеманов', minutes: 3, terminal: true, goto: 'c16_a_market',
-        text: 'Парень пишет и поднимает голову.\n\n— Henrikes Hof? — Он выпрямляется, будто вспомнил, что надо стоять ровно. — Dann gehen Sie rein.\n\nХутор Хенрике? Тогда проходите.', effects: [{ set: '$.c16_gate', value: 'hof' }] },
+        text: 'Парень записывает и поднимает голову от тетради.\n\n— Henrikes Hof? — Он выпрямляется, будто вспомнил, что надо стоять ровно. — Dann gehen Sie rein.\n\nХутор Хенрике? Тогда проходите.', effects: [{ set: '$.c16_gate', value: 'hof' }] },
       { id: 'c16_ag_name', label: 'Назвать только имя', minutes: 3, terminal: true, goto: 'c16_a_market',
         text: '— Und woher? — Ты пожимаешь плечами. Парень смотрит на тебя, потом записывает: «Fremd». Чужой. Пропускает.', effects: [{ set: '$.c16_gate', value: 'name' }] },
       { id: 'c16_ag_why', label: 'Спросить, зачем этот список', minutes: 4, terminal: true, goto: 'c16_a_market',
@@ -103,18 +102,18 @@ export const day16Scenes: Scene[] = [
     ],
     actions: [
       { id: 'c16_am_fuel', label: 'Сменять на бензин в свою канистру', when: { has: 'can_petrol_10' }, minutes: 15, terminal: true,
-        outcomes: pay('c16_a_stove', {
+        outcomes: pay('c16_a_kerem0', {
           potato: 'Усатый взвешивает пакет на руке, заглядывает внутрь.\n\n— Lüdemann-Kartoffeln, — говорит он. — Die kenn ich. Zwei Liter.\n\nКартошка Людеманов. Знаю. Два литра.\n\nБензин булькает в канистру через воронку.',
           pills: 'Усатый вертит таблетки в пальцах. Смотрит на дату.\n\n— Für meine Frau, — говорит он. — Zwei Liter.\n\nДля жены. Два литра.',
           cash: 'Усатый долго смотрит на купюры. Потом всё-таки берёт.\n\n— Noch, — говорит он. — Nächste Woche nicht mehr.\n\nПока беру. На следующей неделе уже нет.\n\nДва литра булькают в канистру.',
         }, [{ fillCan: 'can_petrol_10', liters: 2 }, { set: '$.c16_fuel', value: true }]) },
       { id: 'c16_am_phone', label: 'Встать в очередь зарядить телефон', minutes: 35, terminal: true,
-        outcomes: pay('c16_a_stove', {
+        outcomes: pay('c16_a_kerem0', {
           potato: 'Подросток соглашается на картошку, хотя хотел яйцо. Полчаса ты стоишь у его стола и смотришь, как растут проценты.',
           pills: 'Подросток соглашается на таблетку, хотя хотел яйцо. Полчаса ты стоишь у его стола и смотришь, как растут проценты.',
           cash: 'Подросток берёт деньги, морщась. Полчаса ты стоишь у его стола и смотришь, как растут проценты.',
         }, [{ charge: 'phone', delta: 18 }, { set: '$.c16_phone', value: true }]) },
-      { id: 'c16_am_look', label: 'Ничего не менять, походить и послушать', minutes: 15, terminal: true, goto: 'c16_a_stove',
+      { id: 'c16_am_look', label: 'Ничего не менять, походить и послушать', minutes: 15, terminal: true, goto: 'c16_a_kerem0',
         text: 'Ты обходишь столы. Меняют без торга, быстро. Все друг друга знают. Чужих тут видно сразу: они слишком долго рассматривают.', effects: [{ set: '$.c16_market', value: 'look' }] },
     ] }),
 
@@ -145,11 +144,11 @@ export const day16Scenes: Scene[] = [
       { when: quiet, text: '— Heute früh hat mir jemand gesagt, wo. Mittwoch, acht Uhr. Mit den Soldaten. — Он открывает тетрадь. — Sie wohnen daneben. Was haben Sie gesehen?\n\nСегодня утром мне сказали, где это. В среду, в восемь, с солдатами. Вы живёте рядом. Что вы видели?' },
     ],
     actions: [
-      { id: 'c16_ab_lie', label: 'Сказать, что вы ничего не знаете', minutes: 4, terminal: true, goto: 'c16_a_boy',
+      { id: 'c16_ab_lie', label: 'Сказать, что вы ничего не знаете', minutes: 4, terminal: true, goto: 'c16_a_bell',
         text: 'Брандт закрывает тетрадь.\n\n— Wie Sie meinen. — Ни злости, ни удивления. — Der Junge liegt im Punkt. Falls Sie\'s sich ansehen wollen.\n\nКак скажете. Мальчик лежит в пункте. Если захотите посмотреть.', effects: [{ set: '$.c16_ab', value: 'lie' }, brandt(-1), toBrandt] },
-      { id: 'c16_ab_truth', label: 'Рассказать, как там на самом деле', minutes: 10, terminal: true, goto: 'c16_a_boy',
+      { id: 'c16_ab_truth', label: 'Рассказать, как там на самом деле', minutes: 10, terminal: true, goto: 'c16_a_bell',
         text: 'Ты рассказываешь: цепи, шлемы, вёдра воды, имена на дверях. Женщина, которая с каждым здоровается.\n\nБрандт слушает, не перебивая. Потом говорит:\n\n— Und wenn einer sich losreißt? — Он кивает в сторону школы. — Gehen Sie hin. Sehen Sie sich den Jungen an. Dann reden wir weiter.\n\nА если один сорвётся? Сходите туда. Посмотрите на мальчика. Потом поговорим.', effects: [{ set: '$.c16_ab', value: 'truth' }, brandt(2), toBrandt] },
-      { id: 'c16_ab_boy', label: 'Спросить, точно ли мальчика укусил кто-то оттуда', minutes: 6, terminal: true, goto: 'c16_a_boy',
+      { id: 'c16_ab_boy', label: 'Спросить, точно ли мальчика укусил кто-то оттуда', minutes: 6, terminal: true, goto: 'c16_a_bell',
         text: '— Wer denn sonst? — Брандт не повышает голоса. — Von dort sind es drei Kilometer.\n\nА кто ещё? Оттуда три километра.\n\nПауза.\n\n— Gehen Sie in den Punkt. Fragen Sie die Mutter. Sie wird Ihnen dasselbe sagen.\n\nСходите в пункт. Спросите мать. Она скажет то же самое.', effects: [{ set: '$.c16_ab', value: 'boy' }, brandt(1), toBrandt] },
     ] }),
 
@@ -174,26 +173,12 @@ export const day16Scenes: Scene[] = [
       { text: 'Мальчик открывает глаза и смотрит на тебя. Лоб у него мокрый.' },
     ],
     actions: [
-      { id: 'c16_am_who', label: 'Спросить мать, знает ли она Брандта', minutes: 5, terminal: true, goto: 'c16_a_doctor',
+      { id: 'c16_am_who', label: 'Спросить мать, знает ли она Брандта', minutes: 5, terminal: true, outcomes: [{ id: 'leo', when: all({ v: 'w.c13_leo', op: '==', value: 'drive' }, { npc: 'c12_leo', alive: true, at: 'c13_sammel' }, { npc: 'c12_marcus', alive: true, at: 'c13_sammel' }), goto: 'c16_a_leo' }, { id: 'doc', goto: 'c16_a_doctor' }],
         text: 'Женщина смеётся, коротко и устало.\n\n— Das ist mein Vater, — говорит она. — Er hat mich heute früh dreimal gefragt, ob es von der Bahn war. Ich habe gesagt: weiß nicht.\n\nЭто мой отец. Сегодня утром трижды спрашивал, не с насыпи ли это. Я сказала: не знаю.', effects: [{ set: '$.c16_mother', value: 'who' }] },
-      { id: 'c16_am_pills', label: 'Отдать ей ибупрофен для мальчика', when: { has: 'ibuprofen' }, minutes: 3, terminal: true, goto: 'c16_a_doctor',
+      { id: 'c16_am_pills', label: 'Отдать ей ибупрофен для мальчика', when: { has: 'ibuprofen' }, minutes: 3, terminal: true, outcomes: [{ id: 'leo', when: all({ v: 'w.c13_leo', op: '==', value: 'drive' }, { npc: 'c12_leo', alive: true, at: 'c13_sammel' }, { npc: 'c12_marcus', alive: true, at: 'c13_sammel' }), goto: 'c16_a_leo' }, { id: 'doc', goto: 'c16_a_doctor' }],
         text: 'Она берёт таблетки обеими руками.\n\n— Danke, — говорит она. — Gegen das Fieber.\n\nСпасибо. От температуры.\n\nТы не говоришь, что от этой температуры не помогает. Она и сама знает.', effects: [{ set: '$.c16_mother', value: 'pills' }, { take: 'ibuprofen', qty: 2 }] },
-      { id: 'c16_am_leave', label: 'Пожелать им удачи и уйти', minutes: 2, terminal: true, goto: 'c16_a_doctor',
+      { id: 'c16_am_leave', label: 'Пожелать им удачи и уйти', minutes: 2, terminal: true, outcomes: [{ id: 'leo', when: all({ v: 'w.c13_leo', op: '==', value: 'drive' }, { npc: 'c12_leo', alive: true, at: 'c13_sammel' }, { npc: 'c12_marcus', alive: true, at: 'c13_sammel' }), goto: 'c16_a_leo' }, { id: 'doc', goto: 'c16_a_doctor' }],
         text: 'Мать кивает, не глядя. Мальчик провожает тебя глазами до самой двери.', effects: [{ set: '$.c16_mother', value: 'leave' }] },
-    ] }),
-
-  S16({ id: 'c16_a_kerem', for: 'any', chapter: 'ch3', title: 'Керем', location: village, camp: village16, ambient: dusk16,
-    text: [
-      { text: 'У ворот пожарной части кто-то окликает тебя по имени. Керем. С тележкой из супермаркета, в ней две канистры.\n\n— Ты живой! — Он хлопает тебя по плечу. — Дениз послал. Солярку меняем на еду.' },
-      { text: 'Потом, тише:\n\n— Слушай. Трактор Хенрике у нас в мастерской стоит. Оле пригнал неделю назад, сцепление. Всё сделали. А забрать некому.' },
-    ],
-    actions: [
-      { id: 'c16_ak_tractor', label: 'Сказать: трактор заберём, как сможем', minutes: 6, terminal: true, goto: 'c16_a_back',
-        text: '— Ключ в замке, — говорит Керем. — Солярки в баке на полдня. Дениз сказал: для Хенрике хоть даром. — Он улыбается. — Только приходите сами. Семь километров по дороге.', effects: [{ set: '$.c16_ak', value: 'tractor' }, { set: 'w.c16_tractor_known', value: true }, { npc: 'kerem', trust: 1 }, toLeave] },
-      { id: 'c16_ak_hosts', label: 'Рассказать Керему про Хенрике и Оле', minutes: 8, terminal: true, goto: 'c16_a_back',
-        text: 'Керем слушает и долго молчит.\n\n— Кровь берут, — повторяет он. — У тех, кто выжил. — Он смотрит на канистры. — Дениз скажет: нехорошо это. Когда у людей кровь берут, а не спрашивают.', effects: [{ set: '$.c16_ak', value: 'hosts' }, { set: 'w.c16_tractor_known', value: true }, { npc: 'kerem', trust: 2 }, toLeave] },
-      { id: 'c16_ak_news', label: 'Спросить, что слышно в Бухгольце', minutes: 6, terminal: true, goto: 'c16_a_back',
-        text: '— Больница пустая, — говорит Керем. — Совсем. Кто мог, ушёл. Кто не мог… — Он не договаривает. — Позавчера оттуда по дорогам разбрелись. В рубашках. Дениз двоих видел.', effects: [{ set: '$.c16_ak', value: 'news' }, { set: 'w.c16_tractor_known', value: true }, { npc: 'kerem', trust: 1 }, toLeave] },
     ] }),
 
   S16({ id: 'c16_a_back', for: 'any', chapter: 'ch3', title: 'Обратно', location: lane, ambient: dusk16,
@@ -331,11 +316,13 @@ export const day16Scenes: Scene[] = [
   S16({ id: 'c16_b_jannes2', for: 'any', chapter: 'ch3', title: 'Про маму', camp: yard14, ambient: day16,
     text: [{ text: 'Яннес стоит у калитки и мнёт в руках пустую пачку от сигарет.\n\n— Mama hat Papa die Kette vom Bein genommen, — говорит он. — Letzte Nacht. Nur noch ein Seil um den Bauch. Sie sagt, er hat sie angesehen.\n\nМама сняла с папы цепь с ноги. Вчера ночью. Только верёвка вокруг пояса. Говорит, он на неё посмотрел.\n\nОн смотрит на свои ботинки.\n\n— Sagt ihr nicht, dass ich es erzählt habe.\n\nНе говорите ей, что это я рассказал.' }],
     actions: [
-      { id: 'c16_bj2_promise', label: 'Пообещать молчать', minutes: 3, terminal: true, goto: 'c16_b_bread',
+      { id: 'c16_bj2_go', label: 'Пойти с ним в колонию: помочь довезти воду', when: not(own16('bj', 'no')), minutes: 4, terminal: true, goto: 'c16_b_cw_road',
+        text: 'Яннес смотрит на тебя, потом на дом.\n\n— Echt? — говорит он. Правда? — И подвигается, чтобы ты взял{m:ся|ась} за вторую ручку тачки.', effects: [{ set: '$.c16_bj2', value: 'go' }, { set: '$.c16_route', value: 'colony' }, jannes(2)] },
+      { id: 'c16_bj2_promise', label: 'Пообещать молчать', minutes: 3, terminal: true, goto: 'c16_b_nina2',
         text: 'Яннес кивает и уходит через поле. Тачка скрипит. Ты смотришь, пока он не поднимается на насыпь.', effects: [{ set: '$.c16_bj2', value: 'promise' }, jannes(1)] },
-      { id: 'c16_bj2_chain', label: 'Сказать: надень цепь обратно сам, ночью', minutes: 5, risky: true, terminal: true, goto: 'c16_b_bread',
+      { id: 'c16_bj2_chain', label: 'Сказать: надень цепь обратно сам, ночью', minutes: 5, risky: true, terminal: true, goto: 'c16_b_nina2',
         text: '— Sie schläft bei ihm, — говорит Яннес. — Auf dem Stuhl. Wie soll ich?\n\nОна спит при нём. На стуле. Как я надену?\n\nОн уходит, не попрощавшись.', effects: [{ set: '$.c16_bj2', value: 'chain' }] },
-      { id: 'c16_bj2_knife', label: 'Спросить, что он сделает, если отец сорвётся', minutes: 5, terminal: true, goto: 'c16_b_bread',
+      { id: 'c16_bj2_knife', label: 'Спросить, что он сделает, если отец сорвётся', minutes: 5, terminal: true, goto: 'c16_b_nina2',
         text: 'Яннес кладёт ладонь на нож на поясе. Потом убирает.\n\n— Ich weiß es nicht, — говорит он. — Ehrlich. Ich weiß es nicht.\n\nНе знаю. Честно. Не знаю.', effects: [{ set: '$.c16_bj2', value: 'knife' }, jannes(1)] },
     ] }),
 
@@ -380,12 +367,12 @@ export const day16Scenes: Scene[] = [
       { text: 'Вы рассказываете друг другу про день. Сначала коротко. Потом подробнее.' },
     ],
     actions: [
-      { id: 'c16_d_eat', label: 'Есть и рассказывать', minutes: 25, terminal: true, outcomes: split('c16_tobias', 'c16_tobias'), enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
-        text: 'Картошка горячая, соль крупная, Хенрике держала её в банке из-под кофе. Ты ешь и говоришь с набитым ртом. Никто не делает замечаний.', effects: [{ set: '$.c16_d', value: 'eat' }, meal('eat'), toTobias] },
-      { id: 'c16_d_pack', label: 'Отложить свою порцию на завтра', minutes: 5, terminal: true, outcomes: split('c16_tobias', 'c16_tobias'), enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
-        text: 'Ты накрываешь свою тарелку другой тарелкой. Завтра будет длинный день.', effects: [{ set: '$.c16_d', value: 'pack' }, meal('pack'), toTobias] },
-      { id: 'c16_d_tea', label: 'Только чай и разговор', minutes: 15, terminal: true, outcomes: split('c16_tobias', 'c16_tobias'),
-        text: 'Ты держишь кружку обеими руками и говоришь. {partner} слушает, подперев щёку кулаком.', effects: [{ set: '$.c16_d', value: 'tea' }, toTobias] },
+      { id: 'c16_d_eat', label: 'Есть и рассказывать', minutes: 25, terminal: true, goto: 'c16_dishes', enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
+        text: 'Картошка горячая, соль крупная, Хенрике держала её в банке из-под кофе. Ты ешь и говоришь с набитым ртом. Никто не делает замечаний.', effects: [{ set: '$.c16_d', value: 'eat' }, meal('eat') ] },
+      { id: 'c16_d_pack', label: 'Отложить свою порцию на завтра', minutes: 5, terminal: true, goto: 'c16_dishes', enabled: { camp: 'tableMeal' }, disabledReason: 'Своя порция уже использована или не выделена',
+        text: 'Ты накрываешь свою тарелку другой тарелкой. Завтра будет длинный день.', effects: [{ set: '$.c16_d', value: 'pack' }, meal('pack') ] },
+      { id: 'c16_d_tea', label: 'Только чай и разговор', minutes: 15, terminal: true, goto: 'c16_dishes',
+        text: 'Ты держишь кружку обеими руками и говоришь. {partner} слушает, подперев щёку кулаком.', effects: [{ set: '$.c16_d', value: 'tea' } ] },
     ] }),
 
   S16({ id: 'c16_tobias', for: 'any', chapter: 'ch3', title: 'Красный огонёк у калитки', camp: yard14, ambient: dusk16,
@@ -449,12 +436,12 @@ export const day16Scenes: Scene[] = [
   S16({ id: 'c16_a_doctor', for: 'any', chapter: 'ch3', title: 'Врач', location: sammel, ambient: { tempC: 12, outdoor: false, wet: false },
     text: [{ text: 'У выхода из спортзала за партой сидит врач пункта. Та же женщина с собранными в узел волосами, что принимала Хенрике. Перед ней стопка бумаг и термос.\n\n— Lüdemann, — говорит она, узнав тебя. — Der Junge mit den Antikörpern. Die Mutter ist mit ihm in Lüneburg. Jeden Tag geht ein Wagen hin.\n\nЛюдеманы. Парень с антителами. Мать с ним в Люнебурге. Туда каждый день ходит машина.' }],
     actions: [
-      { id: 'c16_ado_note', label: 'Написать Хенрике записку', minutes: 10, terminal: true, goto: 'c16_a_kerem',
-        text: 'Врач даёт тебе листок из блокнота. Ты пишешь коротко: Нина с вами, хутор в порядке, куры живы, как Оле? Врач складывает листок вчетверо и кладёт в конверт с надписью «Lüneburg».\n\n— Morgen hin, übermorgen zurück. Wenn sie antwortet.\n\nЗавтра туда, послезавтра обратно. Если ответит.', effects: [{ set: '$.c16_doc', value: 'note' }] },
-      { id: 'c16_ado_blood', label: 'Спросить, зачем у Оле берут кровь', minutes: 6, terminal: true, goto: 'c16_a_kerem',
-        text: 'Врач долго смотрит на тебя.\n\n— Plasma, — говорит она. — Von denen, die es überstanden haben. Für die Forschung. Freiwillig, sagen sie. — Она закручивает крышку термоса. — Ich sage nur, was man mir sagt.\n\nПлазма. От тех, кто переболел. Для исследований. Добровольно, говорят. Я говорю только то, что мне говорят.', effects: [{ set: '$.c16_doc', value: 'blood' }] },
-      { id: 'c16_ado_go', label: 'Кивнуть и выйти', minutes: 2, terminal: true, goto: 'c16_a_kerem',
-        text: 'Врач уже смотрит в бумаги. У неё в очереди трое.', effects: [{ set: '$.c16_doc', value: 'go' }] },
+      { id: 'c16_ado_note', label: 'Написать Хенрике записку', minutes: 10, terminal: true, goto: 'c16_a_back',
+        text: 'Врач даёт тебе листок из блокнота. Ты пишешь коротко: Нина с вами, хутор в порядке, куры живы, как Оле? Врач складывает листок вчетверо и кладёт в конверт с надписью «Lüneburg».\n\n— Morgen hin, übermorgen zurück. Wenn sie antwortet.\n\nЗавтра туда, послезавтра обратно. Если ответит.', effects: [{ set: '$.c16_doc', value: 'note' }, toLeave] },
+      { id: 'c16_ado_blood', label: 'Спросить, зачем у Оле берут кровь', minutes: 6, terminal: true, goto: 'c16_a_back',
+        text: 'Врач долго смотрит на тебя.\n\n— Plasma, — говорит она. — Von denen, die es überstanden haben. Für die Forschung. Freiwillig, sagen sie. — Она закручивает крышку термоса. — Ich sage nur, was man mir sagt.\n\nПлазма. От тех, кто переболел. Для исследований. Добровольно, говорят. Я говорю только то, что мне говорят.', effects: [{ set: '$.c16_doc', value: 'blood' }, toLeave] },
+      { id: 'c16_ado_go', label: 'Кивнуть и выйти', minutes: 2, terminal: true, goto: 'c16_a_back',
+        text: 'Врач уже смотрит в бумаги. У неё в очереди трое.', effects: [{ set: '$.c16_doc', value: 'go' }, toLeave] },
     ] }),
 
   S16({ id: 'c16_a_gatefix', for: 'any', chapter: 'ch3', title: 'Задняя калитка', camp: yard14, ambient: dusk16,
@@ -489,11 +476,11 @@ export const day16Scenes: Scene[] = [
   S16({ id: 'c16_a_barn', for: 'any', chapter: 'ch3', title: 'Сарай', camp: yard14, ambient: dusk16,
     text: [{ text: 'После Тобиаса ты заходишь в сарай с фонарём. Сено, старый плуг, мешки. В балке под крышей железное кольцо: сюда когда-то привязывали телёнка. Стены из досок, щели в палец.' }],
     actions: [
-      { id: 'c16_ab_ring', label: 'Проверить кольцо и балку на прочность', minutes: 10, terminal: true, goto: 'c16_night',
+      { id: 'c16_ab_ring', label: 'Проверить кольцо и балку на прочность', minutes: 10, terminal: true, goto: 'c16_glow',
         text: 'Ты повисаешь на кольце всем весом. Балка скрипит, но держит. Кольцо вбито насквозь. Если понадобится, выдержит.', effects: [{ set: '$.c16_barn', value: 'ring' }] },
-      { id: 'c16_ab_straw', label: 'Отгрести сено от стены у кольца', minutes: 15, activity: 'light', terminal: true, goto: 'c16_night',
+      { id: 'c16_ab_straw', label: 'Отгрести сено от стены у кольца', minutes: 15, activity: 'light', terminal: true, goto: 'c16_glow',
         text: 'Ты отгребаешь сено вилами, расчищаешь круг у кольца. Под сеном пол из досок, сухой. Ты сам{m:|а} не знаешь, зачем делаешь это до того, как вы решили.', effects: [{ set: '$.c16_barn', value: 'straw' }] },
-      { id: 'c16_ab_out', label: 'Постоять и выйти', minutes: 3, terminal: true, goto: 'c16_night',
+      { id: 'c16_ab_out', label: 'Постоять и выйти', minutes: 3, terminal: true, goto: 'c16_glow',
         text: 'Ты стоишь, светя на кольцо, и выходишь. Пусть сначала будет решение.', effects: [{ set: '$.c16_barn', value: 'out' }] },
     ] }),
 
@@ -528,22 +515,22 @@ export const day16Scenes: Scene[] = [
   S16({ id: 'c16_b_utesms', for: 'any', chapter: 'ch3', title: 'Сообщение', camp: kitchen14,
     text: [{ text: 'Телефон вибрирует. Незнакомый номер, но ты знаешь, чей. Уте.\n\n«Morgen ist Spaziergang. Macht euch keine Sorgen. U.»\n\nЗавтра прогулка. Не беспокойтесь. У.' }],
     actions: [
-      { id: 'c16_bus_ask', label: 'Спросить, какая прогулка', minutes: 4, terminal: true, goto: 'c16_dinner',
-        text: 'Ответ приходит через минуту: «Er und ich. Wie früher. Am Bach entlang». Он и я. Как раньше. Вдоль ручья.', effects: [{ set: '$.c16_us', value: 'ask' }, { charge: 'phone', delta: -1 }, toDinner] },
-      { id: 'c16_bus_chain', label: 'Ответить: только на цепи', minutes: 3, terminal: true, goto: 'c16_dinner',
-        text: '«Nur an der Kette, bitte». Только на цепи, пожалуйста.\n\nДве серые галочки. Прочитано. Ответа нет.', effects: [{ set: '$.c16_us', value: 'chain' }, { charge: 'phone', delta: -1 }, toDinner] },
-      { id: 'c16_bus_keep', label: 'Не отвечать и показать {A.dat} за ужином', minutes: 2, terminal: true, goto: 'c16_dinner',
-        text: 'Ты кладёшь телефон экраном вниз. «Не беспокойтесь» — от этого почему-то беспокойнее всего.', effects: [{ set: '$.c16_us', value: 'keep' }, toDinner] },
+      { id: 'c16_bus_ask', label: 'Спросить, какая прогулка', minutes: 4, terminal: true, goto: 'c16_b_merle',
+        text: 'Ответ приходит через минуту: «Er und ich. Wie früher. Am Bach entlang». Он и я. Как раньше. Вдоль ручья.', effects: [{ set: '$.c16_us', value: 'ask' }, { charge: 'phone', delta: -1 } ] },
+      { id: 'c16_bus_chain', label: 'Ответить: только на цепи', minutes: 3, terminal: true, goto: 'c16_b_merle',
+        text: '«Nur an der Kette, bitte». Только на цепи, пожалуйста.\n\nДве серые галочки. Прочитано. Ответа нет.', effects: [{ set: '$.c16_us', value: 'chain' }, { charge: 'phone', delta: -1 } ] },
+      { id: 'c16_bus_keep', label: 'Не отвечать и показать {A.dat} за ужином', minutes: 2, terminal: true, goto: 'c16_b_merle',
+        text: 'Ты кладёшь телефон экраном вниз. «Не беспокойтесь» — от этого почему-то беспокойнее всего.', effects: [{ set: '$.c16_us', value: 'keep' } ] },
     ] }),
 
   S16({ id: 'c16_b_barn', for: 'any', chapter: 'ch3', title: 'Радио', camp: yard14, ambient: dusk16,
     text: [{ text: 'Ты заходишь в сарай с фонарём: посмотреть, о чём просил Тобиас. Кольцо в балке, сено, старый плуг. На полке у двери транзисторный приёмник Хенрике, весь в паутине. Батареек в нём нет.' }],
     actions: [
-      { id: 'c16_bba_radio', label: 'Вставить свои батарейки и взять приёмник', when: { has: 'batteries_aa' }, minutes: 8, terminal: true, goto: 'c16_night',
+      { id: 'c16_bba_radio', label: 'Вставить свои батарейки и взять приёмник', when: { has: 'batteries_aa' }, minutes: 8, terminal: true, goto: 'c16_glow',
         text: 'Батарейки встают туго. Ты крутишь ручку. Шипение, обрывок шлягера, мужской голос: «…Lüneburg… Registrierung…» — и снова шлягер. Приёмник работает.', effects: [{ set: '$.c16_bba', value: 'radio' }, { take: 'batteries_aa', qty: 1 }, { give: 'radio', qty: 1, charge: 100 }] },
-      { id: 'c16_bba_clean', label: 'Расчистить место у кольца', minutes: 15, activity: 'light', terminal: true, goto: 'c16_night',
+      { id: 'c16_bba_clean', label: 'Расчистить место у кольца', minutes: 15, activity: 'light', terminal: true, goto: 'c16_glow',
         text: 'Ты отгребаешь сено от стены и подметаешь доски. Ещё ничего не решено. Но так будет проще, если решите.', effects: [{ set: '$.c16_bba', value: 'clean' }] },
-      { id: 'c16_bba_out', label: 'Закрыть сарай и вернуться в дом', minutes: 3, terminal: true, goto: 'c16_night',
+      { id: 'c16_bba_out', label: 'Закрыть сарай и вернуться в дом', minutes: 3, terminal: true, goto: 'c16_glow',
         text: 'Ты закрываешь дверь сарая на щеколду. Внутри темно и пахнет сеном. Как будто ничего не изменилось.', effects: [{ set: '$.c16_bba', value: 'out' }] },
     ] }),
 

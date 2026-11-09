@@ -22,17 +22,16 @@ const cold = night16;
 const toDawn: Effect = { restUntil: at(17, 6, 25), sleeping: true };
 const toBreakfast: Effect = { restUntil: at(17, 7, 30) };
 const toKoehler: Effect = { restUntil: at(17, 9) };
-const toNoon: Effect = { restUntil: at(17, 12, 20) };
 const toYard: Effect = { restUntil: at(17, 11, 50) };
+const toCheck: Effect = { restUntil: at(17, 12) };
 const toCp: Effect = { restUntil: at(17, 13) };
 const afterBreakfast = [
-  { id: 'can', when: all(A17, { has: 'can_petrol_10' }, flag('$.c16_fuel')), goto: 'c17_a_can' },
-  { id: 'brandt', when: all(A17, toBrandt), goto: 'c17_a_vgo' },
-  { id: 'a', when: A17, goto: 'c17_a_pump' },
-  { id: 'b', goto: 'c17_b_koehler', effects: [toKoehler] },
+  { id: 'a', when: A17, goto: 'c17_a_sms' },
+  { id: 'b', goto: 'c17_b_morning' },
 ];
-const toJens = [{ id: 'jens', when: jensAlive, goto: 'c17_b_jens' }, { id: 'back', goto: 'c17_b_back' }];
-const afterCan = [{ id: 'brandt', when: toBrandt, goto: 'c17_a_vgo' }, { id: 'a', goto: 'c17_a_pump' }];
+const toJens = [{ id: 'jens', when: jensAlive, goto: 'c17_b_jens' }, { id: 'back', goto: 'c17_b_pit' }];
+const toMarcus = [{ id: 'marcus', when: all({ npc: 'c12_marcus', alive: true, at: 'c13_sammel' }, { npc: 'c12_leo', alive: true, at: 'c13_sammel' }), goto: 'c17_a_v_marcus' }, { id: 'back', goto: 'c17_a_vback' }];
+const afterCan = [{ id: 'brandt', when: toBrandt, goto: 'c17_a_vgo' }, { id: 'a', goto: 'c17_a_choice' }];
 
 export const day17Scenes: Scene[] = [
   // ───────────── Ночь: к Уте ─────────────
@@ -203,9 +202,9 @@ export const day17Scenes: Scene[] = [
   S17({ id: 'c17_n_back', for: 'any', chapter: 'ch3', title: 'До утра', camp: house14,
     text: [{ text: 'Дом снова затихает. Куры в курятнике бормочут и успокаиваются.' }],
     actions: [
-      { id: 'c17_nb_tea', label: 'Сначала выпить горячего', minutes: 10, terminal: true, outcomes: [{ id: 'a', when: A17, goto: 'c17_dawn' }, { id: 'b', goto: 'c17_n_b_gate' }],
+      { id: 'c17_nb_tea', label: 'Сначала выпить горячего', minutes: 10, terminal: true, outcomes: [{ id: 'a', when: A17, goto: 'c17_dawn', effects: [{ restUntil: at(17, 6, 25), sleeping: true }] }, { id: 'b', goto: 'c17_n_b_gate' }],
         text: 'Чай обжигает пальцы через кружку. Дрожь уходит не сразу, сначала из рук, потом из коленей.', effects: [{ set: '$.c17_nb', value: 'tea' }, { body: 'stress', delta: -1 }, { restUntil: at(17, 6), sleeping: true }] },
-      { id: 'c17_nb_sleep', label: 'Спать до рассвета', minutes: 1, terminal: true, outcomes: [{ id: 'a', when: A17, goto: 'c17_dawn' }, { id: 'b', goto: 'c17_n_b_gate' }],
+      { id: 'c17_nb_sleep', label: 'Спать до рассвета', minutes: 1, terminal: true, outcomes: [{ id: 'a', when: A17, goto: 'c17_dawn', effects: [{ restUntil: at(17, 6, 25), sleeping: true }] }, { id: 'b', goto: 'c17_n_b_gate' }],
         text: 'Ты засыпаешь, едва коснувшись подушки.', effects: [{ set: '$.c17_nb', value: 'sleep' }, { restUntil: at(17, 6), sleeping: true }] },
     ] }),
 
@@ -237,20 +236,20 @@ export const day17Scenes: Scene[] = [
       { id: 'c17_dn_albers', label: 'Открыть ему ворота', when: take, minutes: 3, terminal: true, outcomes: split('c17_a_albers', 'c17_b_albers'), effects: [{ set: '$.c17_dn', value: 'albers' }] },
       { id: 'c17_dn_hello', label: 'Сначала поздороваться с Тобиасом', when: take, minutes: 4, terminal: true, outcomes: split('c17_a_albers', 'c17_b_albers'),
         text: '— Morgen, — говорит Тобиас. Голос хриплый, будто он не спал. — Sie hat die Fahrt gut überstanden.\n\nДоброе утро. Дорогу она перенесла хорошо.', effects: [{ set: '$.c17_dn', value: 'hello' }, tobias(1)] },
-      { id: 'c17_dn_wave', label: 'Поднять руку ему вслед', when: refused, minutes: 2, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_dn_wave', label: 'Поднять руку ему вслед', when: refused, minutes: 2, terminal: true, goto: 'c17_dawn2',
         text: 'Тобиас не оборачивается. Уже у поворота он поднимает руку. Не машет. Просто поднимает.', effects: [{ set: '$.c17_dn', value: 'wave' }, toBreakfast] },
-      { id: 'c17_dn_inside', label: 'Остаться в доме', when: refused, minutes: 2, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_dn_inside', label: 'Остаться в доме', when: refused, minutes: 2, terminal: true, goto: 'c17_dawn2',
         text: 'Ты не выходишь. Смотришь из-за занавески, пока велосипед не скрывается за деревьями.', effects: [{ set: '$.c17_dn', value: 'inside' }, toBreakfast] },
     ] }),
 
   S17({ id: 'c17_a_albers', for: 'any', chapter: 'ch3', title: 'Маргит', camp: yard14, ambient: cold,
     text: [{ text: 'Вы с Тобиасом закатываете тачку в сарай. В балке под крышей кольцо, к нему когда-то привязывали телёнка. Тобиас достаёт цепь и замок. Руки у него трясутся так, что ключ дважды падает в солому.\n\n— Mama, — говорит он шлему. — Das ist der Hof von Henrike. Hier bist du sicher.\n\nМама. Это хутор Хенрике. Здесь ты в безопасности.' }],
     actions: [
-      { id: 'c17_aa_chain', label: 'Взять у него замок и застегнуть самому', minutes: 10, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_aa_chain', label: 'Взять у него замок и застегнуть самому', minutes: 10, terminal: true, goto: 'c17_dawn2',
         text: 'Ты застёгиваешь цепь на кольце, потом на щиколотке. Маргит не дёргается. Она поворачивает голову в шлеме на кудахтанье за стеной.\n\nТобиас стоит у двери и смотрит в пол.', effects: [{ set: '$.c17_aa', value: 'chain' }, tobias(2), toBreakfast] },
-      { id: 'c17_aa_light', label: 'Держать свет, пока он делает сам', minutes: 12, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_aa_light', label: 'Держать свет, пока он делает сам', minutes: 12, terminal: true, goto: 'c17_dawn2',
         text: 'Тобиас справляется с третьей попытки. Потом долго стоит на коленях в соломе рядом с матерью. Ты держишь фонарь и смотришь на стену.\n\nНа прощание он говорит тебе: «Donnerstag». В четверг.', effects: [{ set: '$.c17_aa', value: 'light' }, tobias(1), toBreakfast] },
-      { id: 'c17_aa_helmet', label: 'Спросить, можно ли снять с неё шлем', minutes: 8, risky: true, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_aa_helmet', label: 'Спросить, можно ли снять с неё шлем', minutes: 8, risky: true, terminal: true, goto: 'c17_dawn2',
         text: 'Тобиас качает головой.\n\n— Nicht im Hellen, — говорит он. — Im Hellen ist sie unruhig. Abends. Wenn ihr wollt.\n\nНе при свете. При свете она беспокойная. Вечером. Если захотите.', effects: [{ set: '$.c17_aa', value: 'helmet' }, toBreakfast] },
     ] }),
 
@@ -260,11 +259,11 @@ export const day17Scenes: Scene[] = [
       { when: ninaHere, text: 'Нина стоит в дверях сарая. Смотрит на платок, торчащий из-под шлема.\n\n— У мамы был такой, — говорит она. — Похожий.' },
     ],
     actions: [
-      { id: 'c17_ba_water', label: 'Поставить миску ближе, чтобы дотянулась', minutes: 6, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_ba_water', label: 'Поставить миску ближе, чтобы дотянулась', minutes: 6, terminal: true, goto: 'c17_dawn2',
         text: 'Ты придвигаешь миску на длину цепи. Тобиас видит и кивает тебе. Губы у него сжаты в нитку.', effects: [{ set: '$.c17_ba', value: 'water' }, tobias(1), toBreakfast] },
-      { id: 'c17_ba_nina', label: 'Увести Нину в дом', when: ninaHere, minutes: 5, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_ba_nina', label: 'Увести Нину в дом', when: ninaHere, minutes: 5, terminal: true, goto: 'c17_dawn2',
         text: 'Нина идёт сама, не споря. На крыльце оборачивается.\n\n— Она теперь как папа была, — говорит она. — У вас под навесом. Только в сарае.', effects: [{ set: '$.c17_ba', value: 'nina' }, nina(1), toBreakfast] },
-      { id: 'c17_ba_ask', label: 'Спросить Тобиаса, как она любит, чтобы с ней говорили', minutes: 8, terminal: true, goto: 'c17_breakfast',
+      { id: 'c17_ba_ask', label: 'Спросить Тобиаса, как она любит, чтобы с ней говорили', minutes: 8, terminal: true, goto: 'c17_dawn2',
         text: '— Sie hat gern Radio gehört, — говорит Тобиас. — Schlager. Furchtbar. — Он почти улыбается. — Wenn ihr ein Radio habt…\n\nЛюбила радио. Шлягеры. Ужасные. Если у вас есть радио…', effects: [{ set: '$.c17_ba', value: 'ask' }, tobias(2), toBreakfast] },
     ] }),
 
@@ -313,8 +312,11 @@ export const day17Scenes: Scene[] = [
     ] }),
 
   S17({ id: 'c17_a_brandt', for: 'any', chapter: 'ch3', title: 'Пожарная часть', location: village, camp: village16, ambient: day16,
+    onEnter: [{ introduceNpc: 'c16_brandt' }, { set: '$.met.c16_brandt', value: true }],
     text: [
-      { text: 'Брандт сидит за столом в глубине гаража, над картой района. На карте красным кружком обведена колония у насыпи.\n\n— Sie schon wieder, — говорит он. Не зло.\n\nОпять вы.' },
+      { when: flag('$.c16_ab'), text: 'Брандт сидит за столом в глубине гаража, над картой района. На карте красным кружком обведена колония у насыпи.\n\n— Sie schon wieder, — говорит он. Не зло.\n\nОпять вы.' },
+      { when: not(flag('$.c16_ab')), text: 'В глубине гаража пожарной части над картой района сидит мужчина лет шестидесяти, седые усы, куртка с вышитым «Brandt». На карте красным кружком обведена колония у насыпи.\n\n— Vom Lüdemann-Hof? — спрашивает он. — Setzen Sie sich.\n\nС хутора Людеманов? Садитесь.' },
+      { when: flag('$.c16_saw_band'), text: 'Ты говоришь, что вчера сам{m:|а} видел{m:|а} на дороге человека из больницы, с браслетом.' },
       { when: { v: '$.c16_ab', op: '==', value: 'lie' }, text: '— Gestern wussten Sie nichts.\n\nВчера вы ничего не знали.' },
       { when: flag('$.c17_boy_better'), text: 'Ты говоришь, что был{m:|а} у его внука. Брандт поднимает голову.' },
     ],
@@ -335,11 +337,11 @@ export const day17Scenes: Scene[] = [
       { when: { v: '$.c17_brandt', op: '==', value: 'doubt' }, text: 'Брандт молчит, постукивая карандашом по карте.\n\n— Ich habe einen Enkel mit einem Biss im Bein, — говорит он. — Und eine Kolonie mit sieben Bestien an der Bahn. Mittwoch, acht Uhr. — Он смотрит на тебя. — Wenn Sie dabei sein wollen, kommen Sie.\n\nУ меня внук с укусом на ноге. И колония с семью зверями у насыпи. Среда, восемь. Если хотите быть там, приходите.' },
     ],
     actions: [
-      { id: 'c17_ab2_come', label: 'Сказать: будем там', minutes: 4, terminal: true, goto: 'c17_a_vback',
+      { id: 'c17_ab2_come', label: 'Сказать: будем там', minutes: 4, terminal: true, outcomes: toMarcus,
         text: 'Брандт кивает и записывает что-то в тетрадь. Наверное, твоё имя.', effects: [{ set: '$.c17_ab2', value: 'come' }, brandt(1)] },
-      { id: 'c17_ab2_grandson', label: 'Спросить про внука', minutes: 6, terminal: true, goto: 'c17_a_vback',
+      { id: 'c17_ab2_grandson', label: 'Спросить про внука', minutes: 6, terminal: true, outcomes: toMarcus,
         text: '— Er heißt Mats, — говорит Брандт. Впервые за весь разговор у него меняется голос. — Er wollte Feuerwehrmann werden. Wie ich.\n\nЕго зовут Матс. Хотел стать пожарным. Как я.\n\nОн отворачивается к карте.', effects: [{ set: '$.c17_ab2', value: 'grandson' }, brandt(2)] },
-      { id: 'c17_ab2_ask', label: 'Попросить подождать хотя бы до четверга', minutes: 6, risky: true, terminal: true, goto: 'c17_a_vback',
+      { id: 'c17_ab2_ask', label: 'Попросить подождать хотя бы до четверга', minutes: 6, risky: true, terminal: true, outcomes: toMarcus,
         text: '— Bis Donnerstag, — повторяет Брандт. — Warum Donnerstag?\n\nПочему до четверга?\n\nТы не можешь объяснить, что к четвергу Тобиас что-то решит. Ты просто стоишь. Брандт ждёт, потом машет рукой: иди.', effects: [{ set: '$.c17_ab2', value: 'ask' }] },
     ] }),
 
@@ -378,15 +380,14 @@ export const day17Scenes: Scene[] = [
   S17({ id: 'c17_a_ute', for: 'any', chapter: 'ch3', title: 'Уте днём', location: garden, ambient: day16,
     text: [
       { text: 'Уте выходит из одиннадцатого домика с пустой миской. Кай на цепи, на щиколотке свежий бинт.' },
-      { text: '{partner} с Кёлер у четвёртой парцеллы. Кёлер стоит у ставни и не двигается.' },
       { text: '— Mittwoch, — говорит Уте тебе. — Ich gehe nicht weg. Ich stelle mich vor das Tor.\n\nВ среду я не уйду. Встану перед калиткой.' },
     ],
     actions: [
-      { id: 'c17_au_brandt', label: 'Рассказать ей про браслет и внука Брандта', when: any({ v: '$.c16_mother', op: '==', value: 'who' }, flag('$.c16_aby')), minutes: 8, terminal: true, goto: 'c17_a_back2',
+      { id: 'c17_au_brandt', label: 'Рассказать ей про браслет и внука Брандта', when: any({ v: '$.c16_mother', op: '==', value: 'who' }, flag('$.c16_aby')), minutes: 8, terminal: true, goto: 'c17_a_dig',
         text: '— Also nicht von uns, — говорит Уте. — Das wusste ich.\n\nЗначит, не от нас. Я знала.\n\nПотом смотрит на домик одиннадцать и добавляет тише:\n\n— Bis heute Nacht war es so.\n\nДо этой ночи так и было.', effects: [{ set: '$.c17_au', value: 'brandt' }, ute(1)] },
-      { id: 'c17_au_move', label: 'Спросить, согласилась бы она увести их отсюда', minutes: 8, terminal: true, goto: 'c17_a_back2',
+      { id: 'c17_au_move', label: 'Спросить, согласилась бы она увести их отсюда', minutes: 8, terminal: true, goto: 'c17_a_dig',
         text: '— Wohin? — Уте разводит руками. — Zu euch? — Она не смеётся. Смотрит на тебя так, будто проверяет, не шутка ли это. — Ihr habt einen Brunnen. Und Scheunen.\n\nКуда? К вам? У вас колодец. И сараи.', effects: [{ set: '$.c17_au', value: 'move' }, { set: 'w.c17_move_asked', value: true }] },
-      { id: 'c17_au_jannes', label: 'Отойти с Яннесом и спросить, чего хочет он', minutes: 8, terminal: true, goto: 'c17_a_back2',
+      { id: 'c17_au_jannes', label: 'Отойти с Яннесом и спросить, чего хочет он', minutes: 8, terminal: true, goto: 'c17_a_dig',
         text: 'Яннес бросает окурок в ведро.\n\n— Dass es aufhört, — говорит он. — Ohne Soldaten. Ohne dass Mama zusieht. — Пауза. — Ich weiß, das geht nicht.\n\nЧтобы это кончилось. Без солдат. Чтобы мама не смотрела. Знаю, так не бывает.', effects: [{ set: '$.c17_au', value: 'jannes' }, { set: '$.c17_jannes_wish', value: true }, jannes(1)] },
     ] }),
 
@@ -406,6 +407,10 @@ export const day17Scenes: Scene[] = [
       { when: all(ninaHere, jensAlive), text: 'Нина стоит на крыльце в куртке.\n\n— Я тоже, — говорит она. — К папе. Это же не среда, это просто так.' },
     ],
     actions: [
+      { id: 'c17_bk_brandt', label: 'Отвести Кёлер к Брандту: пусть скажет ему сама', when: not(toBrandt), minutes: 5, terminal: true, goto: 'c17_b_v_road',
+        text: 'Кёлер смотрит на тебя долго. Потом кивает.\n\n— Ja, — говорит она. — Erst zu ihm. Dann zu Werner.\n\nДа. Сначала к нему. Потом к Вернеру.', effects: [{ set: '$.c17_bk', value: 'brandt' }, koehler(1), toKoehler] },
+      { id: 'c17_bk_stay', label: 'Остаться на хуторе: Кёлер дойдёт сама', minutes: 4, terminal: true, goto: 'c17_b_f_home',
+        text: '— Allein, — повторяет Кёлер. Потом расправляет плечи. — Gut. Allein.\n\nОдна. Хорошо. Одна.', effects: [{ set: '$.c17_bk', value: 'stay' }, { if: all(ninaHere, jensAlive), then: [{ set: 'w.c17_nina_with_koehler', value: true }] }, koehler(-1), toKoehler] },
       { id: 'c17_bk_go', label: 'Пойти с Кёлер', minutes: 3, terminal: true, goto: 'c17_b_walk',
         text: 'Кёлер берёт тебя под руку, как старую знакомую.', effects: [{ set: '$.c17_bk', value: 'go' }, koehler(1), toKoehler] },
       { id: 'c17_bk_nina', label: 'Взять Нину с собой', when: all(ninaHere, jensAlive), minutes: 3, terminal: true, goto: 'c17_b_walk',
@@ -430,7 +435,6 @@ export const day17Scenes: Scene[] = [
     text: [
       { text: 'Домик четыре. Уте открывает ставню и отходит.\n\nВнутри на стуле сидит крупный мужчина в белом фартуке пекаря. Фартук кто-то выстирал и надел на него. Мука въелась в швы навсегда. Он поворачивает голову на скрип ставни.' },
       { text: 'Кёлер стоит не двигаясь. Потом говорит:\n\n— Er riecht nach Brot. Immer noch.\n\nОн пахнет хлебом. До сих пор.' },
-      { when: home, text: 'У колодца на краю колонии {A} возится с колонкой. Яннес держит ведро.' },
     ],
     actions: [
       { id: 'c17_bwe_stand', label: 'Стоять рядом с ней', minutes: 15, terminal: true, goto: 'c17_b_nine',
@@ -465,11 +469,11 @@ export const day17Scenes: Scene[] = [
       { when: flag('$.c17_nina_came'), text: 'Нина стоит у стекла и читает письмо вслух. По-немецки, медленно, как в школе у доски. Йенс поворачивается то к ней, то к вороне на крыше.' },
     ],
     actions: [
-      { id: 'c17_bj_letter', label: 'Положить Нинино письмо на подоконник', when: flag('$.c17_letter'), minutes: 5, terminal: true, goto: 'c17_b_back',
+      { id: 'c17_bj_letter', label: 'Положить Нинино письмо на подоконник', when: flag('$.c17_letter'), minutes: 5, terminal: true, goto: 'c17_b_pit',
         text: 'Ты кладёшь листок на подоконник и придавливаешь камнем. «Du fehlst mir» видно даже через стекло.', effects: [{ set: '$.c17_bj', value: 'letter' }, nina(1)] },
-      { id: 'c17_bj_nina', label: 'Дождаться, пока Нина дочитает', when: flag('$.c17_nina_came'), minutes: 15, terminal: true, goto: 'c17_b_back',
+      { id: 'c17_bj_nina', label: 'Дождаться, пока Нина дочитает', when: flag('$.c17_nina_came'), minutes: 15, terminal: true, goto: 'c17_b_pit',
         text: 'Нина дочитывает и складывает листок. Просовывает его в щель ставни. Потом поворачивается к тебе.\n\n— Всё, — говорит она. — Я всё сказала. Теперь можно.\n\nТы не спрашиваешь, что можно.', effects: [{ set: '$.c17_bj', value: 'nina' }, { set: 'w.c17_nina_said', value: true }, nina(2)] },
-      { id: 'c17_bj_look', label: 'Постоять минуту и уйти', minutes: 5, terminal: true, goto: 'c17_b_back',
+      { id: 'c17_bj_look', label: 'Постоять минуту и уйти', minutes: 5, terminal: true, goto: 'c17_b_pit',
         text: 'Ты стоишь минуту. Йенс поворачивает голову на ворону, на ветер, на тебя. Потом ты уходишь.', effects: [{ set: '$.c17_bj', value: 'look' }] },
     ] }),
 
@@ -578,16 +582,16 @@ export const day17Scenes: Scene[] = [
     text: [
       { text: 'Без десяти двенадцать вы оба снова во дворе. Солнце так и не вышло.' },
       { when: { v: 'A.c16_doc', op: '==', value: 'note' }, text: 'К калитке подъезжает на велосипеде парень с повязкой, тот, что записывал у пожарной части. Отдаёт сложенный листок.\n\n— Vom Doktor. Aus Lüneburg.\n\nОт врача. Из Люнебурга.\n\nПочерк Хенрике, крупный: «Оле здоров. Берут кровь каждый день, по пол-литра. Говорят, для больных. Домой не отпускают: „пока нужен“. Я с ним. Курам воды. Нину не бросайте. Х.»' },
-      { when: all(albers17('take'), ninaHere, not({ v: 'B.c17_bk', op: '==', value: 'nina' })), text: 'Нина выходит из сарая с пустым ковшом на палке.\n\n— Я её поила, — говорит она. — Как папу. Она пьёт так же.' },
+      { when: all(albers17('take'), ninaHere, not({ v: 'B.c17_bk', op: '==', value: 'nina' }), not(flag('w.c17_nina_with_koehler'))), text: 'Нина выходит из сарая с пустым ковшом на палке.\n\n— Я её поила, — говорит она. — Как папу. Она пьёт так же.' },
       { when: { stocked: 'c17_hen', qty: 1, at: 'c3_farm_stock' }, text: 'В холодной кладовке висит ощипанная курица.' },
     ],
     actions: [
-      { id: 'c17_y_partner', label: 'Рассказать {partner.dat} своё утро', minutes: 10, terminal: true, goto: 'c17_noon',
-        text: 'Вы рассказываете по очереди, перебивая друг друга. Утро у каждого было своё. Половину ты узнаёшь только сейчас.', effects: [{ set: '$.c17_y', value: 'partner' }, toNoon] },
-      { id: 'c17_y_hens', label: 'Сначала дать курам воды', minutes: 10, activity: 'light', terminal: true, goto: 'c17_noon',
-        text: 'В поилке снова корка льда, тонкая. Ты разбиваешь её пальцем. Куры смотрят на тебя одним глазом, по очереди.', effects: [{ set: '$.c17_y', value: 'hens' }, toNoon] },
-      { id: 'c17_y_sit', label: 'Посидеть на крыльце молча', minutes: 10, activity: 'rest', terminal: true, goto: 'c17_noon',
-        text: 'Вы сидите на крыльце рядом. Никто ничего не говорит. Так тоже можно.', effects: [{ set: '$.c17_y', value: 'sit' }, { body: 'stress', delta: -1 }, toNoon] },
+      { id: 'c17_y_partner', label: 'Рассказать {partner.dat} своё утро', minutes: 10, terminal: true, goto: 'c17_check',
+        text: 'Вы рассказываете по очереди, перебивая друг друга. Утро у каждого было своё. Половину ты узнаёшь только сейчас.', effects: [{ set: '$.c17_y', value: 'partner' }, toCheck] },
+      { id: 'c17_y_hens', label: 'Сначала дать курам воды', minutes: 10, activity: 'light', terminal: true, goto: 'c17_check',
+        text: 'В поилке снова корка льда, тонкая. Ты разбиваешь её пальцем. Куры смотрят на тебя одним глазом, по очереди.', effects: [{ set: '$.c17_y', value: 'hens' }, toCheck] },
+      { id: 'c17_y_sit', label: 'Посидеть на крыльце молча', minutes: 10, activity: 'rest', terminal: true, goto: 'c17_check',
+        text: 'Вы сидите на крыльце рядом. Никто ничего не говорит. Так тоже можно.', effects: [{ set: '$.c17_y', value: 'sit' }, { body: 'stress', delta: -1 }, toCheck] },
     ] }),
 
   S17({ id: 'c17_checkpoint', for: 'any', chapter: 'ch3', title: 'Колония', checkpoint: 17, universal: false,

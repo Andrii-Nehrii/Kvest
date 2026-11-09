@@ -241,7 +241,8 @@ export const events2: WorldEvent[] = [
   { id: 'ev4_ilse_turned', at: at(11, 21, 35), scope: 'world', when: { all: [C3, { at: 'a_flat' }, { npc: 'ilse', at: 'a_flat' }, { npc: 'ilse', status: 'turned' }] },
     news: [{ channel: 'direct', learn: 'f_ilse_turned', text: 'В спальне вдруг становится тихо. Надолго. Потом — шаги. Не её шаги: шаркающие, тяжёлые, без остановок, от стены к стене.' }] },
   { id: 'ev4_deniz_leaving', at: at(11, 11, 55), scope: 'world',
-    when: { all: [C3, { at: 'deniz_workshop' }, { npc: 'deniz', at: 'deniz_workshop' }, { npc: 'kerem', at: 'deniz_workshop' }] }, interrupt: true,
+    // Только до КТ15: в участках 16–17 игроки снова бывают в мастерской, а этот отъезд давно случился.
+    when: { all: [C3, { not: { cp: 15 } }, { at: 'deniz_workshop' }, { npc: 'deniz', at: 'deniz_workshop' }, { npc: 'kerem', at: 'deniz_workshop' }] }, interrupt: true,
     effects: [{ set: '$.deniz_leaving', value: true }],
     news: [{ channel: 'direct', text: 'Дениз захлопывает задние двери фургона и вытирает руки. — Едем к Хенрике. Сейчас, пока светло. — Он смотрит на тебя. — С нами?' }] },
   { id: 'ev4_wanderer', at: at(11, 22, 20), scope: 'world', when: { all: [C3, { any: [{ at: 'hof_luedemann' }, { at: 'farm_coop' }] }] }, interrupt: true,

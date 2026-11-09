@@ -316,6 +316,7 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       if (n === 10) s.vars['w.c9_jens'] = 'kept';
       if (n >= 12) for (const npc of ['c12_marcus', 'c12_leo']) s.npcs[npc] ??= introducedPerson(c.npcs[npc], 0);
       if (n >= 14) for (const npc of ['c14_ute', 'c14_jannes']) s.npcs[npc] ??= introducedPerson(c.npcs[npc], 0);
+      if (n >= 17) s.vars['w.c16_tractor'] = true;
       if (n >= 17) s.vars['w.c15_nina'] = id === 'c3_new_nina17' && ['fetch', 'phone', 'later'].includes(option.id) ? 'winsen' : 'stay';
       if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;

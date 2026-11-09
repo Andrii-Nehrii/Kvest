@@ -35,7 +35,7 @@ export const nina = (trust: number): Effect => ({ if: { npc: 'c7_nina', alive: t
 export const ute = (trust: number): Effect => ({ npc: 'c14_ute', trust });
 export const jannes = (trust: number): Effect => ({ npc: 'c14_jannes', trust });
 export const tobias = (trust: number): Effect => ({ npc: 'c15_tobias', trust });
-export const brandt = (trust: number): Effect => ({ npc: 'c16_brandt', trust });
+export const brandt = (trust: number): Effect => ({ if: { npc: 'c16_brandt', alive: true }, then: [{ npc: 'c16_brandt', trust }] });
 export const koehler = (trust: number): Effect => ({ npc: 'c3_koehler', trust });
 
 const wrap = (P: Cond) => (scene: Scene): Scene => ({

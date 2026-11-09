@@ -128,7 +128,8 @@ describe.runIf(byChapter.size > 0)('Подсказки по качеству и 
       expect(bad, 'дать сцене ambient: { outdoor: false, wet: false } или сделать её не safe').toEqual([]);
     });
 
-    it(`${ch}: исходы выборов кто-то читает — флагов, которые только ставятся, не больше 15 % (в главе 2 — 11 %)`, () => {
+    // Проход по всем флагам главы медленный и растёт вместе с главой: запас по времени, смысл проверки прежний.
+    it(`${ch}: исходы выборов кто-то читает — флагов, которые только ставятся, не больше 15 % (в главе 2 — 11 %)`, { timeout: 60000 }, () => {
       const all = JSON.stringify(c.scenes) + JSON.stringify(c.events) + JSON.stringify(c.joint) + JSON.stringify(c.checkpoints) + JSON.stringify(c.npcs);
       const sets = new Set<string>();
       for (const s of list) for (const m of JSON.stringify(s).matchAll(/"set":"([^"]+)"/g)) sets.add(m[1]);

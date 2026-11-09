@@ -36,12 +36,12 @@ describe('участки 16–17: среда', () => {
     it(`КТ15 ${nina}/${garden}: обе линии проходят точку 16, миры сходятся`, () => {
       const b15 = after15(nina, garden);
       for (const p of P) { expect(b15.chars[p].scene).toBe('c16_start'); expect(evalCond({ s: b15, c, pid: p }, point16Available)).toBe(true); }
-      const a = leg(b15, 'A'), b = leg(b15, 'B');
+      const a = leg(b15, 'A', { c16_a_kerem0: 'c16_ak0_stay' }), b = leg(b15, 'B');
       expect(a.vars['A.met.c16_brandt']).toBe(true); expect(b.vars['B.met.c16_brandt']).toBeUndefined();
       expect(a.npcs.c16_brandt?.alive).toBe(true);
-      for (const k of ['c16_pl', 'c16_goods', 'c16_road', 'c16_gate', 'c16_stove', 'c16_ab', 'c16_aby', 'c16_mother', 'c16_ak', 'c16_aba', 'c16_ah', 'c16_d', 'c16_to', 'c16_at', 'c16_finished'])
+      for (const k of ['c16_pl', 'c16_goods', 'c16_road', 'c16_gate', 'c16_route', 'c16_stove', 'c16_ab', 'c16_bell', 'c16_aby', 'c16_mother', 'c16_doc', 'c16_aba', 'c16_ah', 'c16_d', 'c16_to', 'c16_at', 'c16_finished'])
         expect(a.vars[`A.${k}`], k).toBeDefined();
-      for (const k of ['c16_pl', 'c16_bh', 'c16_gen', 'c16_bk', 'c16_bk2', 'c16_bj', 'c16_bj2', 'c16_bhe', 'c16_bd', 'c16_d', 'c16_to', 'c16_bt', 'c16_finished'])
+      for (const k of ['c16_pl', 'c16_bh', 'c16_gen', 'c16_bk', 'c16_bk2', 'c16_bj', 'c16_bj2', 'c16_bd', 'c16_d', 'c16_to', 'c16_bt', 'c16_finished'])
         expect(b.vars[`B.${k}`], k).toBeDefined();
       const s16 = mergeCp(b15, 16, a, b);
       expect(s16.chars.A.time).toBe(s16.chars.B.time);
@@ -91,12 +91,13 @@ describe('участки 16–17: среда', () => {
   });
 
   it('обмен в деревне: своя картошка уходит, в канистре появляется бензин; браслет — настоящая вещь до Брандта', () => {
-    const a = leg(b15, 'A', { c16_a_pack: 'c16_ap_potato', c16_a_market: 'c16_am_fuel', c16_a_boy: 'c16_aby_band' }, 'c16_a_home');
+    const village = { c16_a_pack: 'c16_ap_potato', c16_a_market: 'c16_am_fuel', c16_a_kerem0: 'c16_ak0_stay', c16_a_boy: 'c16_aby_band' };
+    const a = leg(b15, 'A', village, 'c16_a_home');
     expect(qty(a, 'potatoes', 'char', 'A')).toBe(qty(b15, 'potatoes', 'char', 'A') - 3);
     const can = Object.values(a.items).find(i => i.type === 'can_petrol_10' && i.at.kind === 'char')!;
     expect(can.fuel).toBe(2);
     expect(qty(a, 'c16_wristband', 'char', 'A')).toBe(1);
-    const b16 = completeCheckpoint(c, mergeCp(b15, 16, leg(b15, 'A', { c16_a_pack: 'c16_ap_potato', c16_a_market: 'c16_am_fuel', c16_a_boy: 'c16_aby_band' }), leg(b15, 'B')), answer16('no', 'brandt')).state;
+    const b16 = completeCheckpoint(c, mergeCp(b15, 16, leg(b15, 'A', village), leg(b15, 'B')), answer16('no', 'brandt')).state;
     const a17 = leg(b16, 'A', { c17_a_brandt: 'c17_ab_band' });
     expect(a17.vars['A.c17_brandt']).toBe('convinced');
     expect(qty(a17, 'c16_wristband', 'char', 'A')).toBe(0);
@@ -115,4 +116,26 @@ describe('участки 16–17: среда', () => {
       const out = completeCheckpoint(c, mergeCp(x16, 17, leg(x16, 'A'), b), { A: { c3_new_colony17: 'stand', c3_new_nina17: 'home' }, B: { c3_new_colony17: 'stand', c3_new_nina17: 'home' } }).state;
       for (const p of P) expect(out.chars[p].scene).toBe('c18_start');
     });
+
+  it('развилки: у A деревня или трактор, у B хутор или колония; без трактора перевезти колонию нельзя', () => {
+    const tractor = leg(b15, 'A', { c16_a_kerem0: 'c16_ak0_go' });
+    expect(tractor.vars['w.c16_tractor']).toBe(true); expect(tractor.chars.A.visited.c16_a_brandt).toBeUndefined();
+    const village = leg(b15, 'A', { c16_a_kerem0: 'c16_ak0_stay' });
+    expect(village.vars['w.c16_tractor']).toBeUndefined(); expect(village.chars.A.visited.c16_a_bell).toBe(1);
+    const colonyB = leg(b15, 'B', { c16_b_jannes2: 'c16_bj2_go' });
+    expect(colonyB.chars.B.visited.c16_b_cw_ute).toBe(1); expect(colonyB.chars.B.visited.c16_b_bread).toBeUndefined();
+    const s16 = mergeCp(b15, 16, village, colonyB);
+    const b16 = completeCheckpoint(c, s16, answer16('no', 'stay')).state;
+    // A без трактора: утром можно за ним сходить; B — к Брандту с Кёлер или остаться.
+    const aT = leg(b16, 'A', { c17_a_choice: 'c17_ach_tractor' }), aF = leg(b16, 'A', { c17_a_choice: 'c17_ach_farm' });
+    expect(aT.vars['w.c17_tractor']).toBe(true); expect(aF.vars['A.c17_afb']).toBeDefined();
+    const bV = leg(b16, 'B', { c17_b_koehler: 'c17_bk_brandt' }), bF = leg(b16, 'B', { c17_b_koehler: 'c17_bk_stay' });
+    expect(bV.vars['B.met.c16_brandt']).toBe(true); expect(bF.chars.B.visited.c17_b_f_msg).toBe(1);
+    const noTractor = mergeCp(b16, 17, aF, bF);
+    expect(c.joint.c3_new_colony17.options.filter(o => evalCond({ s: noTractor, c, pid: 'A' }, o.when)).map(o => o.id)).not.toContain('move');
+    const withTractor = mergeCp(b16, 17, aT, bV);
+    expect(c.joint.c3_new_colony17.options.filter(o => evalCond({ s: withTractor, c, pid: 'A' }, o.when)).map(o => o.id)).toContain('move');
+    const out = completeCheckpoint(c, withTractor, { A: { c3_new_colony17: 'move', c3_new_nina17: 'home' }, B: { c3_new_colony17: 'move', c3_new_nina17: 'home' } }).state;
+    expect(out.vars['w.c17_colony']).toBe('move');
+  });
 });
