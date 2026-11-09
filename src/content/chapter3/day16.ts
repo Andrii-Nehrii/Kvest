@@ -425,7 +425,8 @@ export const day16Scenes: Scene[] = [
       { id: 'c16_bt_no', label: 'Спросить, что будет, если вы откажете', minutes: 5, terminal: true, goto: 'c16_b_barn',
         text: '— Dann mache ich es Mittwoch selbst, — говорит Тобиас. — Vor Brandt. Ich will nicht, dass sie es machen.\n\nТогда в среду сделаю сам. До Брандта. Не хочу, чтобы это сделали они.', effects: [{ set: '$.c16_bt', value: 'no' }] },
       { id: 'c16_bt_jens', label: 'Спросить, что будет с Йенсом', when: jensAlive, minutes: 5, terminal: true, goto: 'c16_b_barn',
-        text: 'Тобиас смотрит мимо тебя, на окно кухни.\n\n— Jens auch, — говорит он. — Alle sieben. — Пауза. — Ich weiß, wer oben schläft.\n\nЙенс тоже. Все семеро. Я знаю, кто у вас наверху спит.', effects: [{ set: '$.c16_bt', value: 'jens' }] },
+        text: 'Тобиас смотрит мимо тебя, на окно кухни.\n\n— Jens auch, — говорит он. — Alle sieben.\n\nЙенс тоже. Все семеро.', effects: [{ set: '$.c16_bt', value: 'jens' }],
+        outcomes: [{ id: 'nina', when: ninaHere, text: 'Пауза.\n\n— Ich weiß, wer oben schläft.\n\nЯ знаю, кто у вас наверху спит.' }] },
     ] }),
 
   S16({ id: 'c16_night', for: 'any', chapter: 'ch3', title: 'До ночи', camp: house14,
