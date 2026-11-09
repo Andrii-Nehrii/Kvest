@@ -25,6 +25,7 @@ import { hub, localMove } from './common';
 import { all, C4, flag, isA, isB, not, together } from './world3';
 import { A12, B12, P12, P13, guests13, house12, kitchen12, point12Available, point13Available, report12, wound12 } from './point12';
 import { A14, P14, P15, house14, jens15, nina15, point14Available, point15Available, yard14 } from './point14';
+import { A16, P16, P17, albers17, garden16, ninaAway, ninaHere, point16Available, point17Available, sweep17 } from './point16';
 
 const plan = (id: string): Cond => ({ v: 'w.day3', op: '==', value: id });
 const southPlan: Cond = { any: ['farm', 'workshop', 'a_flat'].map(plan) };
@@ -680,3 +681,44 @@ export const newEntry15: Scene = {
   ] as ActionDef[]).map(a => ({ ...a, when: all(P15, a.when ?? { always: true }) })),
 };
 
+// Вход в базе КТ15: без onEnter и места. Паёк точки записывается первым ходом.
+export const newEntry16: Scene = {
+  id: 'c16_start', for: 'any', chapter: 'ch3', title: 'После полудня', universal: false, safe: true, camp: yard14,
+  ambient: { tempC: 6, outdoor: true, wet: false },
+  text: [
+    { when: all(point16Available, ninaHere), text: 'Нина вешает куртку на крючок у двери, рядом с вашими, и уходит наверх. Слышно, как она двигает раскладушку ближе к окну.' },
+    { when: all(point16Available, ninaAway), text: 'Обратно из Винзена вы едете молча. Во дворе Corsa остывает и тихо пощёлкивает. На кухонном столе стоит Нинина кружка.' },
+    { when: all(point16Available, garden16('help')), text: 'У задней калитки стоят пустые вёдра. В среду понадобятся.' },
+    { when: all(point16Available, garden16('tell')), text: 'Патрульная машина уехала. На дороге в грязи ещё видны следы её колёс.' },
+    { when: all(point16Available, garden16('away')), text: 'Колея тачки через поле почти растаяла.' },
+    { when: not(point16Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c16_begin', label: 'Пойти на кухню', when: point16Available, minutes: 2, terminal: true, goto: 'c16_plan', effects: [prepareCamp] },
+    { id: 'c16_begin_yard', label: 'Сначала обойти двор', when: point16Available, minutes: 8, terminal: true, goto: 'c16_plan',
+      text: 'Навес, пустая кабина, курятник, сарай. Под навесом на сиденье всё ещё лежит пустая бутылка-воронка. Ты её не трогаешь.',
+      effects: [prepareCamp] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P16, a.when ?? { always: true }) })),
+};
+
+// Вход в базе КТ16: без onEnter и места. Ночь начинается первым личным ходом.
+export const newEntry17: Scene = {
+  id: 'c17_start', for: 'any', chapter: 'ch3', title: 'Ночь', universal: false, safe: true, camp: house14,
+  ambient: { tempC: 15, outdoor: false, wet: false },
+  text: [
+    { when: all(point17Available, sweep17('warn')), text: 'В десять вы выходите к насыпи. Фонарь заклеен красной изолентой. Мороз сразу щиплет щёки.' },
+    { when: all(point17Available, { any: [sweep17('brandt'), sweep17('stay')] }), text: 'Дом затихает к десяти. Генератор в сарае замолкает, и становится слышно, как тикают часы Хенрике.' },
+    { when: all(point17Available, albers17('take')), text: 'Сарай подметён. В балке под крышей старое кольцо. Утром в половине седьмого приедет Тобиас.' },
+    { when: not(point17Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c17_go', label: 'Одеться потеплее и идти к насыпи', when: all(point17Available, sweep17('warn')), minutes: 5, terminal: true, goto: 'c17_w_rails',
+      text: 'Ты надеваешь всё, что есть. Две пары носков, свитер под куртку.', effects: [prepareCamp, { restUntil: at(16, 22) }] },
+    { id: 'c17_sleep', label: 'Лечь спать', when: all(point17Available, { any: [sweep17('brandt'), sweep17('stay')] }), minutes: 1, terminal: true,
+      outcomes: [{ id: 'a', when: A16, goto: 'c17_n_a_wake' }, { id: 'b', goto: 'c17_n_b_wake' }],
+      text: 'Ты засыпаешь не сразу. Слушаешь двор. Потом проваливаешься.', effects: [prepareCamp, { restUntil: at(17, 2, 10), sleeping: true }] },
+    { id: 'c17_watch', label: 'Посидеть до полуночи у окна', when: all(point17Available, { any: [sweep17('brandt'), sweep17('stay')] }), minutes: 1, terminal: true,
+      outcomes: [{ id: 'a', when: A16, goto: 'c17_n_a_wake' }, { id: 'b', goto: 'c17_n_b_wake' }],
+      text: 'Ты сидишь у окна с кружкой. Двор, поле, насыпь. До полуночи ничего. Потом ты засыпаешь.', effects: [prepareCamp, { restUntil: at(17, 0) }, { restUntil: at(17, 2, 10), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P17, a.when ?? { always: true }) })),
+};

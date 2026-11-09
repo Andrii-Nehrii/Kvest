@@ -16,6 +16,7 @@ import { point10Available } from './chapter3/point10';
 import { point11Available } from './chapter3/point11';
 import { point12Available, point13Available } from './chapter3/point12';
 import { point14Available, point15Available } from './chapter3/point14';
+import { point16Available, point17Available } from './chapter3/point16';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -315,6 +316,7 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       if (n === 10) s.vars['w.c9_jens'] = 'kept';
       if (n >= 12) for (const npc of ['c12_marcus', 'c12_leo']) s.npcs[npc] ??= introducedPerson(c.npcs[npc], 0);
       if (n >= 14) for (const npc of ['c14_ute', 'c14_jannes']) s.npcs[npc] ??= introducedPerson(c.npcs[npc], 0);
+      if (n >= 17) s.vars['w.c15_nina'] = id === 'c3_new_nina17' && ['fetch', 'phone', 'later'].includes(option.id) ? 'winsen' : 'stay';
       if (option.id === 'search') s.npcs.kerem.location = 'b75_road';
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;
       if (option.id === 'boards') s.vars['w.c3_f8_window_broken'] = true;
@@ -345,7 +347,9 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 12 || P.every(pid => evalCond({ s: out.state, c, pid }, point12Available)))
       && (n + 1 !== 13 || P.every(pid => evalCond({ s: out.state, c, pid }, point13Available)))
       && (n + 1 !== 14 || P.every(pid => evalCond({ s: out.state, c, pid }, point14Available)))
-      && (n + 1 !== 15 || P.every(pid => evalCond({ s: out.state, c, pid }, point15Available)))) {
+      && (n + 1 !== 15 || P.every(pid => evalCond({ s: out.state, c, pid }, point15Available)))
+      && (n + 1 !== 16 || P.every(pid => evalCond({ s: out.state, c, pid }, point16Available)))
+      && (n + 1 !== 17 || P.every(pid => evalCond({ s: out.state, c, pid }, point17Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

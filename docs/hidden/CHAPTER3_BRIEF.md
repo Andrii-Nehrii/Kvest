@@ -2,7 +2,7 @@
 
 ## Состояние
 
-Глава написана до КТ15: дуга 9–11 (`CHAPTER3_ARC9_PLAN.md`), дуга 12–13 (`CHAPTER3_ARC12_PLAN.md`) и дуга 14–15 (`CHAPTER3_ARC14_PLAN.md`).
+Глава написана до КТ17: дуга 9–11 (`CHAPTER3_ARC9_PLAN.md`), дуга 12–13 (`CHAPTER3_ARC12_PLAN.md`), дуга 14–15 (`CHAPTER3_ARC14_PLAN.md`) и дуга 16–17 (`CHAPTER3_ARC16_PLAN.md`).
 Прежнее состояние до КТ8: Действующий участок 6 — `farm6b.ts`, `farm6long.ts`, `farm6care.ts`; участок 7 — `night7*`, `dawn7*`.
 Новый запрос 04.11 «сделай интересно Некст точку» снял прежнюю паузу. Написан один полный участок 8:
 `road8.ts`, `search8a.ts`, `return8a.ts`, `bus8b.ts`, `wait8b.ts`, `meeting8.ts`; итоги — `finish8.ts`.

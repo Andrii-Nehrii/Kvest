@@ -25,6 +25,7 @@ import { npcs8 } from './chapter3/actors8';
 import { npcs9 } from './chapter3/actors9';
 import { npcs12 } from './chapter3/point12';
 import { npcs14 } from './chapter3/point14';
+import { npcs16 } from './chapter3/point16';
 import { checkpoints3, jointChapter3 } from './chapter3/kt5';
 import { agenda3, bases3, events3, facts3, locations3, projects3, stock3, npcs3 } from './chapter3/world3';
 
@@ -84,7 +85,7 @@ export const content: Content = {
   epochLabel: '10.11.2026',
   items: { ...items, c3_hose: { id: 'c3_hose', name: 'шланг с хомутами', weight: 800, tags: ['parts'] }, c3_flour: { id: 'c3_flour', name: 'мука, кг', weight: 1000, tags: ['food', 'staple', 'needs_cooking'], food: { kcal: 3400 } } }, locations: { ...locations, ...locations2, ...locations3 }, routes: [],
   scenes: withLateSegment1(withRepeatableMoves({ ...openingScenes, ...aTownScenes, ...aRoadScenes, ...bTownScenes, ...bRoadScenes, ...chapter2Scenes, ...scenes3 })),
-  facts: { ...facts, ...facts2, ...facts3 }, npcs: withAgenda({ ...withAgenda(npcs, agenda2), ...npcs2, ...npcs3, ...npcs8, ...npcs9, ...npcs12, ...npcs14 }, agenda3), events: [...events, ...events2, ...events3, ...incidentEvents3],
+  facts: { ...facts, ...facts2, ...facts3 }, npcs: withAgenda({ ...withAgenda(npcs, agenda2), ...npcs2, ...npcs3, ...npcs8, ...npcs9, ...npcs12, ...npcs14, ...npcs16 }, agenda3), events: [...events, ...events2, ...events3, ...incidentEvents3],
   joint: { ...joint, ...joint3, ...jointChapter3 }, checkpoints: [...checkpoints, checkpoint3(kt3Next), checkpoint4, ...checkpoints3], messages, characters,
   partnerContactAfter: CONTACT_AFTER,
   initialVars: {

@@ -14,7 +14,13 @@ export const locations: Record<string, LocationDef> = Object.fromEntries([
   L({ id: 'a_yard', name: 'Двор и парковка', region: 'buchholz', indoor: false, description: 'Шесть машин, мусорные баки, мокрый газон.' }),
   L({ id: 'a_street', name: 'Улица у дома', region: 'buchholz', indoor: false, media: ['people'] }),
   L({ id: 'deniz_workshop', name: 'Автомастерская Айдына', region: 'buchholz', indoor: true, power: 'grid', description: 'Бокс на две машины в промзоне на краю города.' }),
-  L({ id: 'hof_luedemann', name: 'Хутор Людеманов', region: 'lk', indoor: false, description: 'Ферма в полях под Jesteburg.' }),
+  L({ id: 'hof_luedemann', name: 'Хутор Людеманов', region: 'lk', indoor: false, description: 'Ферма в полях под Jesteburg.',
+    // Генератор Хенрике с бензином (участки 16–17): только окна, на которые его заправили; см. chapter3/point16.ts.
+    localPower: { any: [
+      { all: [{ cp: 15 }, { not: { cp: 16 } }, { flag: 'w.c16_gen' }, { after: at(16, 17) }, { before: at(16, 22) }] },
+      { all: [{ cp: 16 }, { not: { cp: 17 } }, { flag: 'w.c16_gen' }, { after: at(17, 6, 30) }, { before: at(17, 9, 30) }] },
+      { all: [{ cp: 16 }, { not: { cp: 17 } }, { flag: 'w.c17_gen' }, { after: at(17, 9) }, { before: at(17, 12, 30) }] },
+    ] } }),
   L({ id: 'a_house7', name: 'Седьмой дом, подъезд', region: 'buchholz', indoor: true, description: 'Соседний дом, такой же красный кирпич.' }),
   L({ id: 'a_hospital', name: 'Krankenhaus Buchholz', region: 'buchholz', indoor: false, media: ['people'], description: 'Больница на окраине: корпуса, парковка, приёмное отделение, свой генератор.' }),
   L({ id: 'a_market', name: 'Супермаркет у развязки', region: 'buchholz', indoor: true, power: 'grid', media: ['people'] }),
