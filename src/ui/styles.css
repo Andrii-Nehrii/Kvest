@@ -172,3 +172,22 @@ input[type=checkbox] { flex: none; width: 22px; height: 22px; margin: 0; accent-
 .progress-strip .pbar { flex: 1 1 0; min-width: 24px; height: 3px; border-radius: 3px; background: var(--surface-2); overflow: hidden; }
 .progress-strip .pbar i { display: block; height: 100%; border-radius: 3px; background: var(--accent); opacity: .75; transition: width .4s ease; }
 .progress-strip .val { flex: none; }
+.pair-map { display: block; width: 100%; height: auto; }
+.pair-map line { stroke: var(--line); stroke-width: 1.5; }
+.pair-map .pt.mine { fill: var(--text); }
+.pair-map .pt.theirs { fill: var(--bg); stroke: var(--faint); stroke-width: 1.2; }
+.pair-map .ring { fill: none; stroke-width: 1.6; }
+.pair-map .ring.me { stroke: var(--accent); }
+.pair-map .ring.them { stroke: var(--info); }
+.pair-map text { fill: var(--muted); font-size: 10px; }
+.pair-map text.theirs { fill: var(--faint); }
+.map-legend { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px; }
+.map-legend .lg { display: inline-block; width: 9px; height: 9px; border-radius: 50%; border: 1.6px solid var(--faint); vertical-align: -1px; margin-right: 4px; }
+.map-legend .lg.me { border-color: var(--accent); }
+.map-legend .lg.them { border-color: var(--info); }
+details.manual { margin: 10px 0; }
+details.manual > summary { color: var(--faint); font-size: 13px; padding: 10px 2px; cursor: pointer; }
+.sync-list { list-style: none; margin: 0; padding: 0; }
+.sync-list li { display: flex; gap: 8px; padding: 3px 0; font-size: 14px; }
+.sync-list li .mark { flex: none; width: 16px; color: var(--faint); }
+.sync-list li.ok .mark { color: var(--ok); }

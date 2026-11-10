@@ -76,6 +76,10 @@ function useCloudExchange(save: LocalSave, cloud: CloudConfig | null | undefined
   return { on: !!token, note, sent: { seg: !!segCode && sent.seg === segCode, ans: !!ansCode && sent.ans === ansCode }, waitingSeg, waitingAns };
 }
 
+function Sync({ ok, done, wait }: { ok: boolean; done: string; wait: string }) {
+  return <li className={ok ? 'ok' : ''}><span className="mark">{ok ? '✓' : '…'}</span><span>{ok ? done : wait}</span></li>;
+}
+
 export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: CloudConfig | null; onSave: (s: LocalSave) => void }) {
   const cp = save.cp!;
   const def = content.checkpoints.find((x) => x.index === cp.index);
@@ -100,6 +104,30 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
   const fresh = cp.merged ? cp.merged.log.filter((e) => e.pid === save.me && ['message', 'checkpoint', 'system', 'news'].includes(e.kind)
     && e.seq > (save.state!.logSeq[save.me] ?? 0)) : [];
 
+  const segCards = (
+    <>
+      {iPlayed && (
+        <section className="card stepcard done">
+          <h3>Твой ход — отправь {fmt(ctx, '{partner.dat}')}</h3>
+          {segCode ? <CodeOut code={segCode} hint="В коде — только твои решения. Мир у партнёра посчитается заново из них." /> : <div className="muted">Готовлю код…</div>}
+        </section>
+      )}
+      {needPartner && (
+        <section className={`card stepcard ${cp.partnerRecords ? 'done' : ''}`}>
+          <h3>Ход партнёра</h3>
+          {cp.partnerRecords ? <div className="muted">Получен и проверен.</div> : <CodeIn cta="Принять ход" onSubmit={async (t) => onSave(await acceptPartnerSegment(content, save, t))} />}
+        </section>
+      )}
+    </>
+  );
+  const ansOut = sendAnswer && ansCode ? <CodeOut code={ansCode} hint="Отправь свой ответ партнёру. Кто что выбрал, станет видно только в итоге." /> : null;
+  const ansIn = cp.merged && partnerQ ? (
+    <section className={`card stepcard ${cp.partnerAnswers ? 'done' : ''}`}>
+      <h3>Ответ партнёра</h3>
+      {cp.partnerAnswers ? <div className="muted">Получен.</div> : <CodeIn cta="Принять ответ" onSubmit={async (t) => onSave(await acceptPartnerAnswers(content, save, t))} />}
+    </section>
+  ) : null;
+
   return (
     <div className="page">
       <div className="scene-title">Контрольная точка №{cp.index}</div>
@@ -112,36 +140,24 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
       {finish === 'checkpoint' && sceneText.length > 0 && <div className="story">{sceneText.map((t, i) => <Narrative key={i} text={t} />)}</div>}
       <p className="lead">{fmt({ ...ctx, s: save.state! }, FINISH_TEXT[finish])}</p>
       {net.on && (
-        <Card title="Облако">
-          <div className="small">
-            {iPlayed && (net.sent.seg ? 'Твой ход выложен. ' : 'Выкладываю твой ход… ')}
-            {net.waitingSeg && 'Жду ход партнёра — проверяю каждые 12 секунд, пока экран открыт. '}
-            {sendAnswer && (net.sent.ans ? 'Твой ответ выложен. ' : 'Выкладываю ответ… ')}
-            {net.waitingAns && 'Жду ответ партнёра… '}
-            {!net.waitingSeg && !net.waitingAns && cp.merged && (!partnerQ || cp.partnerAnswers) && 'Обмен завершён.'}
-          </div>
+        <Card title="Обмен">
+          <ul className="sync-list">
+            {iPlayed && <Sync ok={net.sent.seg} done="Твой ход отправлен" wait="Отправляю твой ход…" />}
+            {needPartner && <Sync ok={!!cp.partnerRecords} done={fmt(ctx, 'Ход {partner.gen} получен')} wait={fmt(ctx, 'Ждём {partner.acc}…')} />}
+            {sendAnswer && <Sync ok={net.sent.ans} done="Твой ответ отправлен" wait="Отправляю твой ответ…" />}
+            {cp.merged && partnerQ && <Sync ok={!!cp.partnerAnswers} done={fmt(ctx, 'Ответ {partner.gen} получен')} wait={fmt(ctx, 'Ждём ответ {partner.gen}…')} />}
+          </ul>
+          {(net.waitingSeg || net.waitingAns) && <div className="faint small" style={{ marginTop: 6 }}>Проверяется само, пока экран открыт.</div>}
           {net.note && <div className="errors">{net.note}</div>}
-          <div className="faint small" style={{ marginTop: 6 }}>Коды ниже — запасной способ, если облако не работает.</div>
         </Card>
       )}
       <div className="steps">
-        {iPlayed && (
-          <section className="card stepcard done">
-            <h3>Твой ход — отправь {fmt(ctx, '{partner.dat}')}</h3>
-            {segCode ? <CodeOut code={segCode} hint="В коде — только твои решения. Мир у партнёра посчитается заново из них." /> : <div className="muted">Готовлю код…</div>}
-          </section>
-        )}
-        {needPartner && (
-          <section className={`card stepcard ${cp.partnerRecords ? 'done' : ''}`}>
-            <h3>Ход партнёра</h3>
-            {cp.partnerRecords ? <div className="muted">Получен и проверен.</div> : <CodeIn cta="Принять ход" onSubmit={async (t) => onSave(await acceptPartnerSegment(content, save, t))} />}
-          </section>
-        )}
+        {!net.on && segCards}
         {cp.merged && (
           <section className="card stepcard done">
             <h3>Общий мир</h3>
             <div className="world-code">{shortHash(cp.mergedHash!)}</div>
-            <div className="small muted" style={{ margin: '6px 0 10px' }}>Сравните с партнёром — коды должны совпасть. {dateLabel(cp.merged.chars[save.me].time)}, {clock(cp.merged.chars[save.me].time)}.</div>
+            <div className="small muted" style={{ margin: '6px 0 10px' }}>{net.on ? '' : 'Сравните с партнёром — коды должны совпасть. '}{dateLabel(cp.merged.chars[save.me].time)}, {clock(cp.merged.chars[save.me].time)}.</div>
             {fresh.map((e) => <Narrative key={e.seq} className="story" text={e.text} />)}
           </section>
         )}
@@ -167,16 +183,21 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
                 Подтвердить ответ
               </button>
             )}
-            {sendAnswer && (ansCode ? <CodeOut code={ansCode} hint="Отправь свой ответ партнёру. Кто что выбрал, станет видно только в итоге." /> : null)}
+            {!net.on && ansOut}
           </section>
         )}
-        {cp.merged && partnerQ && (
-          <section className={`card stepcard ${cp.partnerAnswers ? 'done' : ''}`}>
-            <h3>Ответ партнёра</h3>
-            {cp.partnerAnswers ? <div className="muted">Получен.</div> : <CodeIn cta="Принять ответ" onSubmit={async (t) => onSave(await acceptPartnerAnswers(content, save, t))} />}
-          </section>
-        )}
+        {!net.on && ansIn}
       </div>
+      {net.on && (
+        <details className="manual">
+          <summary>Коды вручную — если обмен не идёт сам</summary>
+          <div className="steps">
+            {segCards}
+            {cp.merged && sendAnswer && ansCode && <section className="card stepcard done"><h3>Твой ответ</h3>{ansOut}</section>}
+            {ansIn}
+          </div>
+        </details>
+      )}
       {readyToFinish(content, save) && net.on && sendAnswer && !net.sent.ans && (
         <div className="errors">Твой ответ ещё не ушёл в облако — без него {fmt(ctx, '{partner}')} не сможет закончить точку. Подожди немного или отправь код ответа вручную.</div>
       )}

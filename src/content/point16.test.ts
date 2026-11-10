@@ -4,6 +4,7 @@ import { evalCond } from '../engine/conditions';
 import type { GameState } from '../engine/types';
 import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
 import { point16Available, point17Available } from './chapter3/point16';
+import { point18Available } from './chapter3/point18';
 import { phone } from '../engine/world';
 import { content as c } from './index';
 
@@ -137,5 +138,42 @@ describe('участки 16–17: среда', () => {
     expect(c.joint.c3_new_colony17.options.filter(o => evalCond({ s: withTractor, c, pid: 'A' }, o.when)).map(o => o.id)).toContain('move');
     const out = completeCheckpoint(c, withTractor, { A: { c3_new_colony17: 'move', c3_new_nina17: 'home' }, B: { c3_new_colony17: 'move', c3_new_nina17: 'home' } }).state;
     expect(out.vars['w.c17_colony']).toBe('move');
+  });
+  // Точка 18: сутки порознь. A — хутор и колония, B — Люнебург.
+  const b16w = completeCheckpoint(c, structuredClone(s16) as GameState, answer16('take', 'brandt')).state;
+  const s17w = mergeCp(b16w, 17, leg(b16w, 'A'), leg(b16w, 'B'));
+  const after17 = (colony: string, nina = 'home') => completeCheckpoint(c, structuredClone(s17w) as GameState,
+    { A: { c3_new_colony17: colony, c3_new_nina17: nina }, B: { c3_new_colony17: colony, c3_new_nina17: nina } }).state;
+  const both18 = (x: Record<string, string>) => ({ A: x, B: x });
+
+  for (const colony of ['move', 'stand', 'end', 'away'])
+    it(`КТ17 ${colony}: точка 18 проходится порознь, миры сходятся, дальше продолжение`, () => {
+      const b17 = after17(colony);
+      for (const p of P) expect(evalCond({ s: b17, c, pid: p }, point18Available)).toBe(true);
+      const a = leg(b17, 'A'), b = leg(b17, 'B');
+      expect(a.vars['w.c18_colony']).toBeDefined(); expect(a.vars['w.c18_ilse']).toBeDefined();
+      expect(b.vars['w.c18_henrike']).toBeDefined(); expect(b.chars.B.visited.c18_b_ole).toBe(1);
+      expect(a.chars.A.visited.c18_b_truck).toBeUndefined(); expect(b.chars.B.visited.c18_a_alone).toBeUndefined();
+      for (const p of P) expect((p === 'A' ? a : b).chars[p].location).toBe('hof_luedemann');
+      const s18 = mergeCp(b17, 18, a, b);
+      expect(s18.chars.A.time).toBe(s18.chars.B.time);
+      const out = completeCheckpoint(c, s18, both18({ c3_new_friday18: 'go', c3_new_house18: 'open' })).state;
+      expect(out.vars['w.c18_friday']).toBe('go'); expect(out.vars['w.c18_house']).toBe('open');
+      for (const p of P) expect(out.chars[p].scene).toBe('c19_start');
+    });
+
+  it('точка 18: развилки и потери настоящие', () => {
+    const stand = after17('stand');
+    const held = leg(stand, 'A', { c18_s_gate: 'c18_s1_door', c18_s_eight: 'c18_s2_stay' });
+    expect(['spared', 'cleared']).toContain(held.vars['w.c18_colony']);
+    if (held.vars['w.c18_colony'] === 'cleared') expect(held.vars['w.c18_a_held']).toBe(true);
+    const end = leg(after17('end'), 'A', { c18_e_kai: 'c18_e3_self', c18_e_morning: 'c18_e4_farm' });
+    expect(end.vars['w.c18_kai']).toBe('a'); expect(end.vars['w.c18_ute']).toBe('farm'); expect(end.vars['w.c18_colony']).toBe('ended');
+    const moved = leg(after17('move'), 'A', { c18_m_second: 'c18_m4_leave', c18_m_morning: 'c18_m5_block' });
+    expect(moved.vars['w.c18_moved']).toBe(4); expect(moved.vars['w.c18_tractor_lost']).toBe(true); expect(moved.vars['w.c18_a_held']).toBe(true);
+    const b = leg(stand, 'B', { c18_b_fork: 'c18_bf_kitchen', c18_b_doctor: 'c18_bd_ole', c18_b_dawn: 'c18_bw_home', c18_b_lists: 'c18_bi_station' });
+    expect(b.vars['w.c18_ole_rest']).toBe(true); expect(b.vars['w.c18_henrike']).toBe('home'); expect(b.npcs.henrike.location).toBe('hof_luedemann');
+    expect(leg(stand, 'B', { c18_b_doctor: 'c18_bd_ole' }, 'c18_b_supper').chars.B.body.bloodLoss).toBeGreaterThan(stand.chars.B.body.bloodLoss);
+    expect(leg(stand, 'B', { c18_b_dawn: 'c18_bw_stay' }).vars['w.c18_henrike_key']).toBe(true);
   });
 });

@@ -16,6 +16,8 @@ const list: ItemType[] = [
   { id: 'c16_flour', name: 'ржаная мука Кёлер, кг', weight: 1000, tags: ['food', 'needs_cooking'], food: { kcal: 3300 }, spoilsAfter: 90 * 1440 },
   { id: 'c16_wristband', name: 'больничный браслет «Klinikum Buchholz, Station 4»', weight: 5, tags: [] },
   { id: 'c16_bread', name: 'хлеб с хутора, буханка', weight: 700, tags: ['food'], food: { hunger: 30, kcal: 1300, minutes: 10 }, spoilsAfter: 5 * 1440 },
+  { id: 'c18_fork', name: 'камертон в замшевом чехле', weight: 60, tags: [] },
+  { id: 'c18_insulin', name: 'инсулин, две шприц-ручки', weight: 60, tags: ['medicine'] },
   { id: 'c17_hen', name: 'ощипанная курица', weight: 1200, tags: ['food', 'needs_cooking'], food: { kcal: 1500 }, spoilsAfter: 3 * 1440 },
   { id: 'c8_helmut_coat', name: 'пальто Хельмута', weight: 1500, tags: ['clothing'], clothing: { warmth: 4, biteProtection: 2, slot: 'outer' } },
   { id: 'c3_porridge', name: 'приготовленная порция овсяной каши', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 925, minutes: 10 }, spoilsAfter: 1440 },

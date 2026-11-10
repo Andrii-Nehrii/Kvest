@@ -1,3 +1,4 @@
+import { A18, B18, P18, point18Available } from './point18';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import { farm6bAvailable } from './farm6b';
@@ -721,4 +722,36 @@ export const newEntry17: Scene = {
       outcomes: [{ id: 'a', when: A16, goto: 'c17_n_a_wake' }, { id: 'b', goto: 'c17_n_b_wake' }],
       text: 'Ты сидишь у окна с кружкой. Двор, поле, насыпь. До полуночи ничего. Потом ты засыпаешь.', effects: [prepareCamp, { restUntil: at(17, 0) }, { restUntil: at(17, 2, 10), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(P17, a.when ?? { always: true }) })),
+};
+
+const pack18 = (id: string, label: string, text: string, value: string, extra: Effect[] = []): ActionDef => ({
+  id, label, when: all(point18Available, B18), minutes: 10, terminal: true, goto: 'c18_b_truck', text,
+  effects: [prepareCamp, { set: '$.c18_pack', value }, ...extra, { restUntil: at(17, 15) }],
+});
+
+// Вход в базе КТ17: без onEnter и места. Машина из Люнебурга — первым ходом на обеих линиях.
+export const newEntry18: Scene = {
+  id: 'c18_start', for: 'any', chapter: 'ch3', title: 'Одно место', universal: false, safe: true, camp: house14, ambient: { tempC: 15, outdoor: false, wet: false },
+  text: [
+    { when: point18Available, text: 'В половине третьего во двор въезжает армейский грузовик с брезентом. Водитель не глушит мотор. Он протягивает через окно сложенный листок и говорит: «Lüdemann-Hof? Für euch».' },
+    { when: point18Available, text: 'Почерк Хенрике, карандашом.\n\n«Оле хуже. Я не спала четыре ночи. Мне нужен один человек на сутки, сидеть с ним. В наш корпус пускают только женщин. Пусть приедет {B}. Машина идёт обратно завтра к вечеру. Х.»' },
+    { when: point18Available, text: '— Ein Platz, — говорит водитель. — Zehn Minuten.\n\nОдно место. Десять минут.' },
+    { when: all(point18Available, A18), text: '{B} уже ищет глазами свой рюкзак. Вы оба понимаете, что завтра утром ты будешь здесь один.' },
+    { when: all(point18Available, B18), text: '{A} смотрит на тебя, потом в сторону насыпи. Завтрашнее утро достанется ему одному.' },
+    { when: not(point18Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c18_sa_food', label: 'Собрать ей еду в дорогу', when: all(point18Available, A18), minutes: 10, terminal: true, goto: 'c18_a_alone',
+      text: 'Ты заворачиваешь в полотенце хлеб, четыре варёные картофелины и соль в спичечном коробке. {B} убирает свёрток под куртку. Вы стоите у борта, пока водитель не стучит ладонью по дверце.',
+      effects: [prepareCamp, { set: '$.c18_sa', value: 'food' }, { restUntil: at(17, 15) }] },
+    { id: 'c18_sa_plan', label: 'Договориться, что делать, если связи не будет', when: all(point18Available, A18), minutes: 10, terminal: true, goto: 'c18_a_alone',
+      text: 'Вы договариваетесь быстро. Если она не вернётся к вечеру среды, ты ждёшь до полудня четверга и едешь в Люнебург сам. Если тебя не будет дома, она идёт к Кёлер. Больше вы ничего не успеваете.',
+      effects: [prepareCamp, { set: '$.c18_sa', value: 'plan' }, { body: 'stress', delta: -1 }, { restUntil: at(17, 15) }] },
+    { id: 'c18_sa_hold', label: 'Просто постоять с ней у борта', when: all(point18Available, A18), minutes: 10, terminal: true, goto: 'c18_a_alone',
+      text: 'Вы стоите у заднего борта. Мотор трясёт брезент. Она застёгивает тебе верхнюю пуговицу куртки, как будто это ты уезжаешь.',
+      effects: [prepareCamp, { set: '$.c18_sa', value: 'hold' }, { restUntil: at(17, 15) }] },
+    pack18('c18_sb_med', 'Взять бинты и всё, что есть от жара', 'Ты складываешь в рюкзак бинты и таблетки. {A} подсаживает тебя в кузов. Брезент падает, и двор пропадает.', 'med'),
+    pack18('c18_sb_warm', 'Взять второй свитер и плед', 'Ты берёшь свитер и плед с кресла Хенрике. {A} подсаживает тебя в кузов. Брезент падает, и двор пропадает.', 'warm'),
+    pack18('c18_sb_food', 'Взять хлеб и варёную картошку на двоих', 'Ты заворачиваешь хлеб и картошку в полотенце. {A} подсаживает тебя в кузов. Брезент падает, и двор пропадает.', 'food'),
+  ] as ActionDef[]).map(a => ({ ...a, when: all(P18, a.when ?? { always: true }) })),
 };

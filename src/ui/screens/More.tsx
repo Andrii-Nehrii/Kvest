@@ -10,6 +10,7 @@ import { knownNpc, RULE_LABELS } from '../format';
 import { Card, CodeOut } from '../kit';
 import { saveFile } from '../download';
 import { useState } from 'react';
+import { PairMap, PairStats } from './Pair';
 import { checkCloud, type CloudConfig } from '../../app/cloud';
 
 export function CloudCard({ cloud, onCloud, onUpload }: { cloud: CloudConfig | null; onCloud: (c: CloudConfig | null) => void; onUpload?: () => void }) {
@@ -76,6 +77,8 @@ export function More({ save, ctx, onPlan, onReset, cloud, onCloud, onUpload }: {
         <div className="li kv"><span>Светло</span><span>{hhmm(day.sunrise)}–{hhmm(day.sunset)}</span></div>
         <div className="li kv"><span>Связь</span><span>{!net ? 'телефон недоступен' : [net.voice && 'звонки', net.sms && 'SMS', net.data && 'интернет'].filter(Boolean).join(', ') || 'нет сети'}</span></div>
       </Card>
+      <PairMap ctx={ctx} base={save.base!} />
+      <PairStats ctx={ctx} />
       <Card title="Бытовые правила">
         <div className="small muted" style={{ marginBottom: 6 }}>Рутина без лишних нажатий. Сюжетных решений правила не принимают.</div>
         {(Object.keys(RULE_LABELS) as (keyof StandingRules)[]).map((k) => (
