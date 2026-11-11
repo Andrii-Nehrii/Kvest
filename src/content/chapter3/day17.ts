@@ -27,7 +27,7 @@ const toCheck: Effect = { restUntil: at(17, 12) };
 const toCp: Effect = { restUntil: at(17, 13) };
 const afterBreakfast = [
   { id: 'a', when: A17, goto: 'c17_a_sms' },
-  { id: 'b', goto: 'c17_b_morning' },
+  { id: 'b', goto: 'c17_b_pantry' },
 ];
 const toJens = [{ id: 'jens', when: jensAlive, goto: 'c17_b_jens' }, { id: 'back', goto: 'c17_b_pit' }];
 const toMarcus = [{ id: 'marcus', when: all({ npc: 'c12_marcus', alive: true, at: 'c13_sammel' }, { npc: 'c12_leo', alive: true, at: 'c13_sammel' }), goto: 'c17_a_v_marcus' }, { id: 'back', goto: 'c17_a_vback' }];
@@ -458,6 +458,8 @@ export const day17Scenes: Scene[] = [
         text: 'Уте кивает. Она не ждала другого ответа. Но и «нет» тоже не ждала.', effects: [{ set: '$.c17_bu', value: 'talk' }, { set: 'w.c17_move_asked', value: true }] },
       { id: 'c17_bu_no', label: 'Сказать честно: вряд ли сможем', minutes: 5, terminal: true, outcomes: toJens,
         text: '— Ich weiß, — говорит Уте. — Ich musste fragen.\n\nЗнаю. Я должна была спросить.', effects: [{ set: '$.c17_bu', value: 'no' }, { set: 'w.c17_move_asked', value: true }] },
+      { id: 'c17_bu_iod', label: 'Отдать Уте йод из аптечки: для щиколотки Кая', when: all({ has: 'disinfectant' }, flag('$.c17_vetbox'), not(flag('$.c17_ute_iod'))), minutes: 5, combinable: true,
+        text: 'Уте откручивает пробку и нюхает.\n\n— Jod. Das brennt. Er merkt es nicht mehr.\n\nЙод. Жжёт. Он этого уже не чувствует.\n\nОна уходит в одиннадцатый и возвращается с парой серых варежек.\n\n— Ich stricke schneller, als sie sie auftragen.\n\nЯ вяжу быстрее, чем они их снашивают.', effects: [{ take: 'disinfectant' }, { give: 'gloves' }, { set: '$.c17_ute_iod', value: true }, { set: 'w.c17_ute_iod', value: true }, ute(2)] },
       { id: 'c17_bu_truth', label: 'Спросить, отпустила ли она Кая нарочно', when: not(flag('$.c17_ute_truth')), minutes: 6, terminal: true, outcomes: toJens,
         text: 'Уте смотрит на одиннадцатый домик.\n\n— Ja, — говорит она. — Ich wollte, dass er einmal frei geht. Nicht in Brandts Käfig. — Пауза. — Er ist nicht in den Wald gegangen. Er ist zu Menschen gegangen. Das hätte ich wissen müssen.\n\nДа. Хотела, чтобы он хоть раз пошёл свободно. Не в клетку к Брандту. Он пошёл не в лес. Он пошёл к людям. Мне надо было это знать.', effects: [{ set: '$.c17_bu', value: 'truth' }, { set: '$.c17_ute_truth', value: true }, { set: 'w.c17_move_asked', value: true }] },
     ] }),

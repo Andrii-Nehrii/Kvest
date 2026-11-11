@@ -44,7 +44,7 @@ export const day18BScenes: Scene[] = [
       { id: 'c18_bg_hide', label: 'Сказать, что телефона нет', minutes: 10, risky: true, terminal: true, goto: 'c18_b_reg',
         outcomes: [
           { id: 'ok', check: { traits: ['stealth', 'persuasion'], difficulty: 3 }, text: 'Телефон лежит в ботинке под стелькой, выключенный. Сержант смотрит на тебя, потом на очередь за тобой и машет: проходи.', effects: [set('gate', 'hid'), { phonePower: false }] },
-          { id: 'fail', text: 'Сержант молча показывает на твой ботинок. Телефон уходит в отдельный ящик, без жетона.\n\n— Kommandant. Freitag.\n\nЧерез коменданта. В пятницу.\n\nРюкзак он тоже проверяет, и свёрток из дома остаётся на столе.', effects: [set('gate', 'caught'), w('phone_held', true), { phonePower: false }, { body: 'stress', delta: 3 }] },
+          { id: 'fail', text: 'Сержант молча показывает на твой ботинок. Телефон уходит в отдельный ящик, без жетона.\n\n— Kommandant. Freitag.\n\nЧерез коменданта. В пятницу.\n\nРюкзак он тоже проверяет, и свёрток из дома остаётся на столе.', effects: [set('gate', 'caught'), w('phone_held', true), { if: { has: 'c17_vet_pen' }, then: [{ take: 'c17_vet_pen' }] }, { phonePower: false }, { body: 'stress', delta: 3 }] },
         ] },
     ] }),
 
@@ -133,6 +133,10 @@ export const day18BScenes: Scene[] = [
         text: 'Игла толстая. Пакет наполняется двенадцать минут. Потом врач переписывает листок на спинке койки Оле: «jeden zweiten Tag». Через день. У тебя звенит в ушах, когда ты встаёшь.', effects: [set('bd', 'ole'), w('ole_rest', true), { body: 'bloodLoss', delta: 9 }, { body: 'fatigue', delta: 10 }, npc('henrike', 2), npc('ole', 1)] },
       { id: 'c18_bd_insulin', label: 'Сдать кровь за инсулин для Мерле', when: merle, minutes: 50, risky: true, terminal: true, goto: 'c18_b_kids',
         text: 'Игла толстая. Пакет наполняется двенадцать минут. Врач достаёт из холодильника две шприц-ручки и заворачивает их в перчатку со льдом.\n\n— Bis Freitag kühl halten.\n\nДо пятницы держать в холоде. У тебя звенит в ушах, когда ты встаёшь.', effects: [set('bd', 'insulin'), w('insulin', true), { give: 'c18_insulin' }, { body: 'bloodLoss', delta: 9 }, { body: 'fatigue', delta: 10 }] },
+      { id: 'c18_bd_pen_ole', label: 'Отдать ей флаконы пенициллина: пусть у Оле берут через день', when: { has: 'c17_vet_pen' }, minutes: 15, terminal: true, goto: 'c18_b_kids',
+        text: 'Доктор Алерс встряхивает флакон и смотрит порошок на свет.\n\n— Tierarznei. Abgelaufen. Trocken gelagert?\n\nВетеринарный. Просрочен. Хранили в сухом?\n\nТы киваешь.\n\n— Dann wirkt es noch. Dafür dürfen Sie auch bitten.\n\nТогда ещё действует. За это тоже можете просить.\n\nОна переписывает листок на спинке койки Оле: «jeden zweiten Tag». Через день.', effects: [set('bd', 'ole'), set('bd_paid', 'pen'), w('ole_rest', true), { take: 'c17_vet_pen' }, npc('henrike', 2), npc('ole', 1)] },
+      { id: 'c18_bd_pen_ins', label: 'Отдать ей флаконы пенициллина за инсулин для Мерле', when: all({ has: 'c17_vet_pen' }, merle), minutes: 15, terminal: true, goto: 'c18_b_kids',
+        text: 'Доктор Алерс встряхивает флакон и смотрит порошок на свет.\n\n— Tierarznei. Abgelaufen. Trocken gelagert?\n\nВетеринарный. Просрочен. Хранили в сухом?\n\nТы киваешь. Она достаёт из холодильника две шприц-ручки и заворачивает их в перчатку со льдом.\n\n— Bis Freitag kühl halten.\n\nДо пятницы держать в холоде.', effects: [set('bd', 'insulin'), set('bd_paid', 'pen'), w('insulin', true), { give: 'c18_insulin' }, { take: 'c17_vet_pen' }] },
       { id: 'c18_bd_no', label: 'Отказаться: завтра нужны силы', minutes: 10, terminal: true, goto: 'c18_b_kids',
         text: '— Verstehe, — говорит она без обиды и возвращается к картам. Понимаю.', effects: [set('bd', 'no')] },
     ] }),
@@ -160,11 +164,11 @@ export const day18BScenes: Scene[] = [
     ],
     actions: [
       { id: 'c18_bb_night', label: 'Спросить, как тут проходят ночи у доноров', minutes: 20, terminal: true, goto: 'c18_b_night',
-        text: '— Um halb drei kommen sie manchmal ein zweites Mal. Wenn bei den Kindern einer kippt. Dann fragen sie nicht.\n\nВ полтретьего иногда приходят второй раз. Если у детей кому-то плохо. Тогда не спрашивают.', effects: [set('bb', 'night'), until(17, 22, 0)] },
+        text: '— Um halb drei kommen sie manchmal ein zweites Mal. Wenn bei den Kindern einer kippt. Dann fragen sie nicht.\n\nВ полтретьего иногда приходят второй раз. Если у детей кому-то плохо. Тогда не спрашивают.', effects: [set('bb', 'night'), until(18, 2, 30)] },
       { id: 'c18_bb_henrike', label: 'Попросить её присмотреть за Хенрике', minutes: 20, terminal: true, goto: 'c18_b_night',
-        text: '— Die im Mantel? Die isst nichts, — говорит фрау Петерс. Та, что в пальто? Она ничего не ест. — Ich setze mich neben sie. Bei mir essen alle.\n\nСяду рядом с ней. У меня едят все.', effects: [set('bb', 'henrike'), w('peters', true), npc('henrike', 1), until(17, 22, 0)] },
+        text: '— Die im Mantel? Die isst nichts, — говорит фрау Петерс. Та, что в пальто? Она ничего не ест. — Ich setze mich neben sie. Bei mir essen alle.\n\nСяду рядом с ней. У меня едят все.', effects: [set('bb', 'henrike'), w('peters', true), npc('henrike', 1), until(18, 2, 30)] },
       { id: 'c18_bb_sleep', label: 'Полчаса полежать', minutes: 30, terminal: true, goto: 'c18_b_night',
-        text: 'Ты лежишь с закрытыми глазами и слушаешь, как дышат шестьдесят женщин.', effects: [set('bb', 'sleep'), { body: 'fatigue', delta: -6 }, until(17, 22, 0)] },
+        text: 'Ты лежишь с закрытыми глазами и слушаешь, как дышат шестьдесят женщин.', effects: [set('bb', 'sleep'), { body: 'fatigue', delta: -6 }, until(18, 2, 30)] },
     ] }),
 
   B({ id: 'c18_b_night', title: 'Полтретьего',
@@ -174,15 +178,15 @@ export const day18BScenes: Scene[] = [
       { text: 'Оле просыпается и сам подставляет руку. Губы у него белые.' },
     ],
     actions: [
-      { id: 'c18_bn_block', label: 'Встать между каталкой и койкой', minutes: 20, risky: true, terminal: true, goto: 'c18_b_dawn',
+      { id: 'c18_bn_block', label: 'Встать между каталкой и койкой', minutes: 20, risky: true, terminal: true, goto: 'c18_b_ward',
         outcomes: [
-          { id: 'ok', when: flag('w.c18_ole_rest'), text: 'Ты снимаешь листок со спинки и держишь его перед лицом санитара. Он читает, матерится шёпотом и увозит каталку к другой койке.\n\nОле смотрит на тебя зло. Потом засыпает.', effects: [set('bn', 'block'), w('ole_spared_night', true), npc('ole', -1)] },
-          { id: 'out', text: 'Ты встаёшь перед каталкой. Санитар зовёт дежурного. Тебя выводят в коридор, пропуск рвут пополам. Через стекло двери ты видишь, как Оле увозят.\n\nДо утра ты сидишь на лестнице.', effects: [set('bn', 'out'), w('pass_lost', true), npc('ole', -2), { body: 'stress', delta: 4 }] },
+          { id: 'ok', when: flag('w.c18_ole_rest'), text: 'Ты снимаешь листок со спинки и держишь его перед лицом санитара. Он читает, матерится шёпотом и увозит каталку к другой койке.\n\nОле смотрит на тебя зло. Потом засыпает.', effects: [set('bn', 'block'), w('ole_spared_night', true), npc('ole', -1), until(18, 4)] },
+          { id: 'out', text: 'Ты встаёшь перед каталкой. Санитар зовёт дежурного. Тебя выводят в коридор, пропуск рвут пополам. Через стекло двери ты видишь, как Оле увозят.\n\nДо утра ты сидишь на лестнице.', effects: [set('bn', 'out'), w('pass_lost', true), npc('ole', -2), { body: 'stress', delta: 4 }, until(18, 4)] },
         ] },
-      { id: 'c18_bn_hand', label: 'Идти рядом и держать его за руку', minutes: 60, terminal: true, goto: 'c18_b_dawn',
-        text: 'Ты идёшь рядом с каталкой. В процедурной он смотрит не на иглу, а в окно детской палаты напротив. Там горит ночник. Когда пакет полон, он сжимает твои пальцы и не помнит об этом.', effects: [set('bn', 'hand'), npc('ole', 3, 'c18_held_hand'), { body: 'stress', delta: 2 }] },
-      { id: 'c18_bn_wake', label: 'Бежать будить Хенрике', minutes: 30, terminal: true, goto: 'c18_b_dawn',
-        text: 'Хенрике приходит в пальто поверх рубашки. Она не кричит. Она садится на край каталки, и санитары не решаются её сдвинуть. Через десять минут приходит врач и отменяет забор.\n\n— Ein Mal, — говорит врач. — Das geht ein Mal.\n\nОдин раз. Так получится один раз.', effects: [set('bn', 'wake'), w('ole_spared_night', true), npc('henrike', 2), npc('ole', -1)] },
+      { id: 'c18_bn_hand', label: 'Идти рядом и держать его за руку', minutes: 60, terminal: true, goto: 'c18_b_ward',
+        text: 'Ты идёшь рядом с каталкой. В процедурной он смотрит не на иглу, а в окно детской палаты напротив. Там горит ночник. Когда пакет полон, он сжимает твои пальцы и не помнит об этом.', effects: [set('bn', 'hand'), npc('ole', 3, 'c18_held_hand'), { body: 'stress', delta: 2 }, until(18, 4)] },
+      { id: 'c18_bn_wake', label: 'Бежать будить Хенрике', minutes: 30, terminal: true, goto: 'c18_b_ward',
+        text: 'Хенрике приходит в пальто поверх рубашки. Она не кричит. Она садится на край каталки, и санитары не решаются её сдвинуть. Через десять минут приходит врач и отменяет забор.\n\n— Ein Mal, — говорит врач. — Das geht ein Mal.\n\nОдин раз. Так получится один раз.', effects: [set('bn', 'wake'), w('ole_spared_night', true), npc('henrike', 2), npc('ole', -1), until(18, 4)] },
     ] }),
 
   B({ id: 'c18_b_dawn', title: 'Шесть утра',
@@ -208,14 +212,14 @@ export const day18BScenes: Scene[] = [
       { text: 'Где-то в это время у насыпи всё уже случилось. Часы над дверью показывают девять двенадцать.' },
     ],
     actions: [
-      { id: 'c18_bi_north', label: 'Стена «Hamburg-Nord / Stormarn»: Мерле', minutes: 120, terminal: true, goto: 'c18_b_farewell',
+      { id: 'c18_bi_north', label: 'Стена «Hamburg-Nord / Stormarn»: Мерле', minutes: 120, terminal: true, goto: 'c18_b_free',
         text: 'Аренсбург, три листа. «Thiessen, Uwe. Thiessen, Birgit. Thiessen, Merle — registriert 15.11., versorgt». Зарегистрирована, обеспечена. Ты читаешь строчку четыре раза.', effects: [set('bi', 'north'), w('merle_listed', true), { body: 'stress', delta: -3 }, until(18, 12, 0)] },
-      { id: 'c18_bi_barmbek', label: 'Стена «Hamburg-Barmbek»: свой дом', minutes: 120, terminal: true, goto: 'c18_b_farewell',
+      { id: 'c18_bi_barmbek', label: 'Стена «Hamburg-Barmbek»: свой дом', minutes: 120, terminal: true, goto: 'c18_b_free',
         outcomes: [
           { id: 'okafor', when: okaforStayed, text: 'Твоя улица, твой номер дома. Одиннадцать фамилий. Напротив своей ты читаешь: «abgemeldet». Напротив «Okafor, E.» стоит: «verblieben — versorgt Hausgemeinschaft». Остался, ухаживает за жильцами дома. Запись от шестнадцатого.', effects: [set('bi', 'barmbek'), w('okafor_listed', true), until(18, 12, 0)] },
           { id: 'none', text: 'Твоя улица, твой номер дома. Одиннадцать фамилий. Напротив своей ты читаешь: «abgemeldet». Выбыла. Напротив шести других пусто.', effects: [set('bi', 'barmbek'), until(18, 12, 0)] },
         ] },
-      { id: 'c18_bi_station', label: 'Стена «Klinikum Buchholz, Station 4»', minutes: 120, terminal: true, goto: 'c18_b_farewell',
+      { id: 'c18_bi_station', label: 'Стена «Klinikum Buchholz, Station 4»', minutes: 120, terminal: true, goto: 'c18_b_free',
         text: 'Шестьдесят одна фамилия. Двадцать три зачёркнуты синей ручкой. У каждой указан адрес. Ты переписываешь на ладонь тех, кто жил в Бухгольце на одной улице с {A.ins}: «Brockmann, Ilse». Не зачёркнута.', effects: [set('bi', 'station'), w('ilse_listed', true), until(18, 12, 0)] },
     ] }),
 
@@ -225,6 +229,7 @@ export const day18BScenes: Scene[] = [
       { when: own('gate', 'gave'), text: 'Телефон из ячейки сорок один холодный, как камень. Сети нет.' },
       { when: flag('w.c18_phone_held'), text: 'Твой телефон остаётся у коменданта до пятницы. Сержант разводит руками.' },
       { when: flag('w.c18_henrike'), text: 'Оле стоит у окна второго этажа. Он не машет.' },
+      { when: { v: 'w.c18_seat', op: '==', value: 'hanna' }, text: 'Мальчик Ханны спит у неё на руках и не просыпается на постах.' },
       { text: 'У третьего поста, за Зальцхаузеном, колонна стоит десять минут. Двое солдат курят у борта и говорят про утро под Йестебургом. Слов через брезент не разобрать.' },
     ],
     actions: [

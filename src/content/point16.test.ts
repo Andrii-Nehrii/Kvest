@@ -7,6 +7,7 @@ import { point16Available, point17Available } from './chapter3/point16';
 import { point18Available } from './chapter3/point18';
 import { phone } from '../engine/world';
 import { content as c } from './index';
+import { knownContacts } from '../ui/people';
 
 // Положение реальной пары: КТ9 keep, КТ10 door/barn, КТ11 report/stay, КТ12 split, КТ13 drive/walk, КТ14 give/house.
 function after14(jens = 'give') {
@@ -175,5 +176,43 @@ describe('участки 16–17: среда', () => {
     expect(b.vars['w.c18_ole_rest']).toBe(true); expect(b.vars['w.c18_henrike']).toBe('home'); expect(b.npcs.henrike.location).toBe('hof_luedemann');
     expect(leg(stand, 'B', { c18_b_doctor: 'c18_bd_ole' }, 'c18_b_supper').chars.B.body.bloodLoss).toBeGreaterThan(stand.chars.B.body.bloodLoss);
     expect(leg(stand, 'B', { c18_b_dawn: 'c18_bw_stay' }).vars['w.c18_henrike_key']).toBe(true);
+  });
+
+  it('запертые находки: аптечка в точке 17 и коптильня в точке 18', () => {
+    const code = leg(b16w, 'B', { c17_b_pantry: 'c17_bp_417' });
+    expect(qty(code, 'c17_vet_pen', 'char', 'B')).toBe(1); expect(code.chars.B.visited.c17_b_morning).toBe(1); expect(code.chars.B.visited.c17_b_pantry2).toBeUndefined();
+    const brute = leg(b16w, 'B', { c17_b_pantry: 'c17_bp_538', c17_b_pantry2: 'c17_bp2_all' });
+    expect(qty(brute, 'c17_vet_pen', 'char', 'B')).toBe(1); expect(brute.chars.B.visited.c17_b_morning).toBeUndefined(); expect(brute.chars.B.time).toBe(code.chars.B.time);
+    const pry = leg(b16w, 'B', { c17_b_pantry: 'c17_bp_714', c17_b_pantry2: 'c17_bp2_pry' });
+    expect(qty(pry, 'c17_vet_pen')).toBe(0); expect(pry.vars['w.c17_vetbox']).toBe('part');
+    expect(leg(b16w, 'B', { c17_b_pantry: 'c17_bp_leave' }).vars['w.c17_vetbox']).toBeUndefined();
+    const b17 = completeCheckpoint(c, mergeCp(b16w, 17, leg(b16w, 'A'), code), both18({ c3_new_colony17: 'stand', c3_new_nina17: 'home' })).state;
+    expect(qty(b17, 'c17_vet_pen', 'char', 'B')).toBe(1);
+    // B: флаконы вместо крови; при неудаче на КПП их отбирают; второе место достаётся живому человеку.
+    const trade = leg(b17, 'B', { c18_b_doctor: 'c18_bd_pen_ole', c18_b_dawn: 'c18_bw_stay' });
+    expect(trade.vars['w.c18_ole_rest']).toBe(true); expect(qty(trade, 'c17_vet_pen')).toBe(0); expect(trade.vars['B.c18_bd_paid']).toBe('pen');
+    expect(leg(b17, 'B', { c18_b_doctor: 'c18_bd_pen_ole' }, 'c18_b_supper').chars.B.body.bloodLoss).toBeLessThanOrEqual(b17.chars.B.body.bloodLoss);
+    expect(['eva', 'jana']).toContain(trade.vars['w.c18_seat']); expect(trade.chars.B.visited.c18_b_ward).toBe(1); expect(trade.chars.B.visited.c18_b_free).toBe(1);
+    if (trade.vars['w.c18_seat'] === 'eva') expect(trade.npcs.c8_eva.location).toBe('hof_luedemann');
+    expect(leg(b17, 'B', { c18_b_dawn: 'c18_bw_self', c18_b_seat: 'c18_bs2_hanna' }).vars['w.c18_seat']).toBe('hanna');
+    expect(leg(b17, 'B', { c18_b_queue: 'c18_bu_doctor', c18_b_answer: 'c18_ba_man' }).vars['w.c18_ole_free_day']).toBe(true);
+    // A: ключ у соли — без шума; иначе колун. Колбаса меняется на услугу.
+    const key = leg(b17, 'A', { c18_a_smoke: 'c18_sm_salt', c18_a_knock: 'c18_kn_wurst', c18_a_patrol: 'c18_ap_gift' });
+    expect(key.vars['w.c18_smoke']).toBe('key'); expect(key.chars.A.visited.c18_a_smoke2).toBeUndefined();
+    expect(qty(key, 'c18_wurst')).toBe(0); expect(qty(key, 'c18_ham', 'place', 'c3_farm_stock')).toBe(1);
+    expect(key.vars['w.c18_roofing']).toBe(true); expect(key.vars['w.c18_list_checked']).toBe(true);
+    const broke = leg(b17, 'A', { c18_a_smoke: 'c18_sm_room', c18_a_smoke2: 'c18_sm2_break', c18_a_knock: 'c18_kn_in' });
+    expect(broke.vars['w.c18_smoke']).toBe('broke'); expect(qty(broke, 'c18_wurst', 'char', 'A')).toBe(2); expect(broke.vars['w.c18_lodger']).toBe(true);
+    const left = leg(b17, 'A', { c18_a_smoke: 'c18_sm_shop', c18_a_smoke2: 'c18_sm2_leave' });
+    expect(left.vars['w.c18_smoke']).toBeUndefined(); expect(qty(left, 'c18_wurst')).toBe(0);
+    expect(acts(leg(b17, 'A', { c18_a_smoke: 'c18_sm_skip' }, 'c18_a_knock'), 'A').some(x => x.def.id === 'c18_kn_wurst')).toBe(false);
+    const s18 = mergeCp(b17, 18, key, trade);
+    expect(s18.chars.A.time).toBe(s18.chars.B.time);
+    // Карточки: каждый знает только встреченных на своей линии.
+    const cards = (s: GameState, pid: 'A' | 'B') => knownContacts({ s, c, pid }).map(x => x.id);
+    expect(cards(key, 'A')).toContain('c18_volker'); expect(cards(key, 'A')).not.toContain('c18_ahlers'); expect(cards(b17, 'A')).not.toContain('c18_volker');
+    for (const id of ['c18_ahlers', 'c18_peters', 'c18_hanna']) expect(cards(trade, 'B'), id).toContain(id);
+    expect(cards(trade, 'B')).not.toContain('c18_volker');
+    expect(cards(mergeCp(b17, 18, broke, trade), 'B')).toContain('c18_volker');
   });
 });

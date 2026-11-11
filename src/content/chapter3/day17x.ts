@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { yard14 } from './point14';
+import { house14, yard14 } from './point14';
 import { S17, albers17, brandt, day16, jannes, koehler, nina, ninaHere, tobias, ute, village16 } from './point16';
 import { kitchen14 } from './point14';
 
@@ -20,6 +20,8 @@ export const afterSms = [
 ];
 const split = (a: string, b: string) => [{ id: 'a', when: { me: 'A' } as Cond, goto: a }, { id: 'b', goto: b }];
 const road = 'b75_road';
+const wrongCode = 'Колёсики щёлкают. Ты тянешь дужку. Она не поддаётся.';
+const vetBox: Effect[] = [{ give: 'bandages' }, { give: 'disinfectant' }, { give: 'nitrile_gloves', qty: 2 }, { give: 'c17_vet_pen' }];
 
 export const day17xScenes: Scene[] = [
   // ───────────── A: выбор утра ─────────────
@@ -300,8 +302,42 @@ export const day17xScenes: Scene[] = [
     ] }),
 
 
+  // ───────────── B: запертая аптечка в кладовке. Код — бирка на доске с ключами (c17_dawn2). ─────────────
+  S17({ id: 'c17_b_pantry', for: 'any', chapter: 'ch3', title: 'Кладовка', camp: house14,
+    text: [
+      { text: 'После завтрака ты уносишь хлеб в холодную кладовку. На верхней полке, за пустыми банками, стоит белый жестяной ящик с зелёным крестом. На крышке трафаретом: «Stallapotheke». Аптечка для коровника.' },
+      { text: 'Коров на хуторе нет давно. Ящик заперт на замок с тремя колёсиками. Он тяжёлый, и внутри звякает стекло.' },
+    ],
+    actions: [
+      { id: 'c17_bp_269', label: 'Набрать 2-6-9', minutes: 3, terminal: true, goto: 'c17_b_pantry2', text: wrongCode, effects: [{ set: '$.c17_box', value: 'miss' }] },
+      { id: 'c17_bp_417', label: 'Набрать 4-1-7', minutes: 3, terminal: true, goto: 'c17_b_morning',
+        text: 'Дужка отскакивает с первого раза. Внутри всё уложено рукой Хенрике: бинты для копыт в вощёной бумаге, тёмный пузырёк йода, длинные перчатки. На дне, в вате, два флакона с белым порошком. На этикетке корова и надпись «Procain-Penicillin». Срок вышел весной.',
+        effects: [{ set: '$.c17_box', value: 'code' }, { set: '$.c17_vetbox', value: 'full' }, { set: 'w.c17_vetbox', value: 'full' }, ...vetBox] },
+      { id: 'c17_bp_538', label: 'Набрать 5-3-8', minutes: 3, terminal: true, goto: 'c17_b_pantry2', text: wrongCode, effects: [{ set: '$.c17_box', value: 'miss' }] },
+      { id: 'c17_bp_714', label: 'Набрать 7-1-4', minutes: 3, terminal: true, goto: 'c17_b_pantry2', text: wrongCode, effects: [{ set: '$.c17_box', value: 'miss' }] },
+      { id: 'c17_bp_leave', label: 'Поставить ящик на место', minutes: 2, terminal: true, goto: 'c17_b_morning',
+        text: 'Ты задвигаешь ящик обратно за банки. Заперто — значит, не для тебя.', effects: [{ set: '$.c17_box', value: 'none' }] },
+    ] }),
+
+  S17({ id: 'c17_b_pantry2', for: 'any', chapter: 'ch3', title: 'Три колёсика', camp: house14,
+    text: [
+      { text: 'Дужка держит. Комбинаций тысяча. До прихода Кёлер час с небольшим, и во дворе хватает дел.' },
+      { when: take, text: 'В малом сарае Маргит ходит по кругу. Миска у неё пустая.' },
+    ],
+    actions: [
+      { id: 'c17_bp2_all', label: 'Перебирать подряд, с трёх нулей', minutes: 55, terminal: true, goto: 'c17_b_koehler',
+        text: 'Ты садишься на перевёрнутое ведро и крутишь колёсики по порядку. Пальцы стынут. На четыреста семнадцатой дужка отскакивает. Ты смотришь на цифры и вспоминаешь жёлтую бирку на крючке у двери.\n\nВнутри бинты для копыт, пузырёк йода, длинные перчатки и два флакона с порошком: «Procain-Penicillin». Во дворе уже хлопает калитка.',
+        effects: [{ set: '$.c17_box', value: 'brute' }, { set: '$.c17_vetbox', value: 'full' }, { set: 'w.c17_vetbox', value: 'full' }, ...vetBox, { body: 'fatigue', delta: 2 }, { restUntil: at(17, 9) }] },
+      { id: 'c17_bp2_pry', label: 'Поддеть крышку отвёрткой', minutes: 10, terminal: true, goto: 'c17_b_morning',
+        text: 'Жесть гнётся, петля лопается, и крышка проваливается внутрь. По пальцам течёт йод. Флаконы на дне раздавлены, порошок смешался со стеклом. Целы только бинты в вощёной бумаге и перчатки.',
+        effects: [{ set: '$.c17_box', value: 'pry' }, { set: '$.c17_vetbox', value: 'part' }, { set: 'w.c17_vetbox', value: 'part' }, { give: 'bandages' }, { give: 'nitrile_gloves', qty: 2 }] },
+      { id: 'c17_bp2_leave', label: 'Поставить ящик на место', minutes: 2, terminal: true, goto: 'c17_b_morning',
+        text: 'Ты ставишь ящик обратно на полку. Колёсики возвращаешь на три нуля.', effects: [{ set: '$.c17_box', value: 'left' }] },
+    ] }),
+
   S17({ id: 'c17_dawn2', for: 'any', chapter: 'ch3', title: 'Перед завтраком', camp: kitchen14,
     text: [
+      { text: 'На кухне полутемно. У двери доска с крючками для ключей. На крайнем крючке вместо ключа висит жёлтая коровья бирка с цифрами 417. Края у неё затёрты до блеска.' },
       { when: ninaHere, text: 'Нина сидит на кухне одетая, будто не ложилась. Перед ней чашка с остывшим чаем.\n\n— Завтра, — говорит она. — Что вы решили? Только не говорите «посмотрим».' },
       { when: { not: ninaHere }, text: 'Телефон вибрирует. Нина из Винзена: «Was passiert morgen? Lena sagt, die Soldaten fahren zur Bahn». Что будет завтра? Лена говорит, солдаты едут к насыпи.' },
     ],

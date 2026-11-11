@@ -15,7 +15,7 @@ const until = (d: number, h: number, m = 0, sleeping = false): Effect => ({ rest
 const tableOnly = { enabled: { camp: 'tableMeal' } as Cond, disabledReason: 'Своя порция уже использована или не выделена' };
 const koehlerThere: Cond = flag('B.c17_koehler_wed');
 const seen: Cond = own('m4', 'wait');
-const afterSupper = [{ id: 'hens', goto: 'c18_a_hens' }];
+const afterSupper = [{ id: 'courier', goto: 'c18_a_courier' }];
 const A = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S18({ ...scene, for: 'any', chapter: 'ch3',
   actions: scene.actions.map(a => ({ ...a, when: all(A18, a.when ?? { always: true }) })) });
 
@@ -69,6 +69,7 @@ export const day18AScenes: Scene[] = [
   A({ id: 'c18_a_supper', title: 'Ужин на одного', camp: kitchen14,
     text: [
       { text: 'На столе две тарелки. Одну ты убираешь обратно на полку.' },
+      { text: 'На подоконнике лежит тетрадь Хенрике, раскрытая на последней записи. Её рукой, наискось: «Schinken hängt, wo es zieht. Schlüssel beim Salz».' },
       { when: ninaFarm, text: 'Нина ест напротив и читает что-то в телефоне под столом.' },
     ],
     actions: [
@@ -126,12 +127,13 @@ export const day18AScenes: Scene[] = [
     text: [
       { text: 'Без двадцати пять последние трое сидят в прицепе. Колония пустая. Двери домиков открыты.' },
       { when: own('m3', 'stay'), text: 'Без Уте вы провозились на час дольше.' },
+      { when: own('co', 'ask'), text: 'Про пять часов ты знаешь с вечера. На первой ходке вы с Яннесом бросили через дренажную канаву две доски.' },
       { text: 'Яннес трогает тебя за плечо. У переезда, на полевой дороге, стоят две пары фар. Оцепление пришло на три часа раньше, чем говорил патруль.' },
     ],
     actions: [
       { id: 'c18_m4_field', label: 'Ехать через поле без фар', minutes: 70, activity: 'heavy', risky: true, terminal: true, goto: 'c18_m_morning',
         outcomes: [
-          { id: 'ok', check: { traits: ['driving', 'technical'], difficulty: 3 }, text: 'Ты ведёшь трактор по мёрзлой пашне на первой передаче. Борозды бьют в руль. Яннес идёт впереди и показывает рукой. В шесть вы во дворе. Все семеро.', effects: [set('m4', 'field'), w('moved', 7), until(18, 8, 40, true)] },
+          { id: 'ok', check: { traits: ['driving', 'technical'], difficulty: 3, mods: [{ when: own('co', 'ask'), bonus: 2 }] }, text: 'Ты ведёшь трактор по мёрзлой пашне на первой передаче. Борозды бьют в руль. Яннес идёт впереди и показывает рукой. В шесть вы во дворе. Все семеро.', effects: [set('m4', 'field'), w('moved', 7), until(18, 8, 40, true)] },
           { id: 'fail', text: 'Правое колесо прицепа уходит в дренажную канаву. Ось ложится на землю. Дальше вы ведёте троих пешком, на верёвках. У самой дороги один рвёт верёвку и уходит в темноту к лесу. Яннес бежит следом и возвращается один.\n\n— Herr Stamer, — говорит он. — Er war immer der Schnellste.\n\nГосподин Штамер. Он всегда был самый быстрый.', effects: [set('m4', 'lost'), w('moved', 6), w('stamer_lost', true), w('trailer_lost', true), { body: 'stress', delta: 4 }, until(18, 8, 40, true)] },
         ] },
       { id: 'c18_m4_wait', label: 'Заглушить мотор и ждать, пока фары уйдут', minutes: 150, terminal: true, goto: 'c18_m_morning',
@@ -215,11 +217,11 @@ export const day18AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c18_e4_farm', label: 'Позвать Уте и Яннеса на хутор', minutes: 40, move: true, terminal: true, goto: 'c18_a_tobias',
-        text: '— У нас есть комната, — говоришь ты.\n\nУте берёт вязание, термос и связку ключей с бирками. Яннес несёт её чемодан. По шпалам вы идёте втроём.', effects: [set('e4', 'farm'), w('colony', 'ended'), w('ute', 'farm'), npc('c14_ute', 2), npc('c14_jannes', 2), until(18, 9, 30)] },
+        text: '— У нас есть комната, — говоришь ты.\n\nУте берёт вязание, термос и связку ключей с бирками. Яннес несёт её чемодан. По шпалам вы идёте втроём.', effects: [set('e4', 'farm'), w('colony', 'ended'), w('ute', 'farm'), npc('c14_ute', 2), npc('c14_jannes', 2), until(18, 11, 30)] },
       { id: 'c18_e4_names', label: 'Отдать офицеру список с именами', minutes: 40, move: true, terminal: true, goto: 'c18_a_tobias',
-        text: 'Ты диктуешь имена по биркам, офицер пишет. Теперь это люди с фамилиями, а не «семь единиц». Уте остаётся в одиннадцатом. Яннес провожает тебя до будки обходчика.', effects: [set('e4', 'names'), w('colony', 'ended'), w('ute', 'colony'), w('names_listed', true), until(18, 9, 30)] },
+        text: 'Ты диктуешь имена по биркам, офицер пишет. Теперь это люди с фамилиями, а не «семь единиц». Уте остаётся в одиннадцатом. Яннес провожает тебя до будки обходчика.', effects: [set('e4', 'names'), w('colony', 'ended'), w('ute', 'colony'), w('names_listed', true), until(18, 11, 30)] },
       { id: 'c18_e4_go', label: 'Уйти молча', minutes: 35, move: true, terminal: true, goto: 'c18_a_tobias',
-        text: 'Ты уходишь по шпалам. На полпути оборачиваешься: Уте стоит у калитки и смотрит не на солдат, а тебе вслед.', effects: [set('e4', 'go'), w('colony', 'ended'), w('ute', 'colony'), until(18, 9, 30)] },
+        text: 'Ты уходишь по шпалам. На полпути оборачиваешься: Уте стоит у калитки и смотрит не на солдат, а тебе вслед.', effects: [set('e4', 'go'), w('colony', 'ended'), w('ute', 'colony'), until(18, 11, 30)] },
     ] }),
 
   // ───────────── stand / away: ночь дома ─────────────
@@ -367,24 +369,25 @@ export const day18AScenes: Scene[] = [
       { when: any(flag('w.c18_ute'), flag('w.c18_jannes_home')), text: 'В доме теперь слышно чужие шаги наверху.' },
     ],
     actions: [
-      { id: 'c18_ano_eat', label: 'Поесть и лечь', minutes: 25, terminal: true, goto: 'c18_a_wait', ...tableOnly,
-        text: 'Ты ешь стоя, у плиты. Потом ложишься, не раздеваясь.', effects: [set('ano', 'eat'), meal('eat'), until(18, 16, 30, true)] },
-      { id: 'c18_ano_sleep', label: 'Лечь сразу', minutes: 5, terminal: true, goto: 'c18_a_wait',
-        text: 'Ты ложишься поверх одеяла в ботинках и засыпаешь раньше, чем вспоминаешь их снять.', effects: [set('ano', 'sleep'), until(18, 16, 30, true)] },
-      { id: 'c18_ano_koehler', label: 'Сначала дойти до Кёлер, как обещал', when: own('ak', 'promise'), minutes: 60, activity: 'moderate', terminal: true, goto: 'c18_a_wait',
-        text: 'Кёлер открывает сразу, будто стояла за дверью. Ты рассказываешь всё, что видел, не смягчая. Она слушает стоя. Потом заворачивает тебе с собой шесть яиц в газету.', effects: [set('ano', 'koehler'), npc('c3_koehler', 3, 'c18_kept_word'), { place: 'eggs', at: 'c3_farm_stock', qty: 1 }, until(18, 16, 30, true)] },
+      { id: 'c18_ano_eat', label: 'Поесть и лечь', minutes: 25, terminal: true, goto: 'c18_a_knock', ...tableOnly,
+        text: 'Ты ешь стоя, у плиты. Потом ложишься, не раздеваясь.', effects: [set('ano', 'eat'), meal('eat'), until(18, 16, 5, true)] },
+      { id: 'c18_ano_sleep', label: 'Лечь сразу', minutes: 5, terminal: true, goto: 'c18_a_knock',
+        text: 'Ты ложишься поверх одеяла в ботинках и засыпаешь раньше, чем вспоминаешь их снять.', effects: [set('ano', 'sleep'), until(18, 16, 5, true)] },
+      { id: 'c18_ano_koehler', label: 'Сначала дойти до Кёлер, как обещал', when: own('ak', 'promise'), minutes: 60, activity: 'moderate', terminal: true, goto: 'c18_a_knock',
+        text: 'Кёлер открывает сразу, будто стояла за дверью. Ты рассказываешь всё, что видел, не смягчая. Она слушает стоя. Потом заворачивает тебе с собой шесть яиц в газету.', effects: [set('ano', 'koehler'), npc('c3_koehler', 3, 'c18_kept_word'), { place: 'eggs', at: 'c3_farm_stock', qty: 1 }, until(18, 16, 5, true)] },
     ] }),
 
   A({ id: 'c18_a_wait', title: 'К пяти', camp: yard14, ambient: cold18,
     text: [
-      { text: 'Ты просыпаешься в сумерках. Половина пятого. Колонна из Люнебурга должна быть к пяти.' },
+      { text: 'Половина пятого. Колонна из Люнебурга должна быть к пяти.' },
+      { when: flag('w.c18_lodger'), text: 'На сеновале Фолькер раскатывает спальник и стучит чем-то железным.' },
     ],
     actions: [
-      { id: 'c18_aw_stove', label: 'Затопить и согреть воды к её приезду', minutes: 40, terminal: true, goto: 'c18_a_patrol',
+      { id: 'c18_aw_stove', label: 'Затопить и согреть воды к её приезду', minutes: 30, terminal: true, goto: 'c18_a_patrol',
         text: 'Ты греешь два ведра и ставишь таз у печи. После суток в казарме горячая вода ей будет нужнее разговоров.', effects: [set('aw', 'stove'), until(18, 17, 0)] },
-      { id: 'c18_aw_road', label: 'Выйти встречать на дорогу', minutes: 45, terminal: true, goto: 'c18_a_patrol',
+      { id: 'c18_aw_road', label: 'Выйти встречать на дорогу', minutes: 30, terminal: true, goto: 'c18_a_patrol',
         text: 'Ты стоишь у столба с почтовым ящиком Людеманов. Пальцы ног мёрзнут через десять минут. Ты не уходишь.', effects: [set('aw', 'road'), until(18, 17, 0)] },
-      { id: 'c18_aw_write', label: 'Записать утро на бумаге, пока помнишь', minutes: 40, terminal: true, goto: 'c18_a_patrol',
+      { id: 'c18_aw_write', label: 'Записать утро на бумаге, пока помнишь', minutes: 30, terminal: true, goto: 'c18_a_patrol',
         text: 'Ты пишешь в тетради Хенрике, с обратной стороны: время, кто пришёл, что сказал. Выходит полторы страницы. Вслух столько ты бы не выговорил.', effects: [set('aw', 'write'), { body: 'stress', delta: -2 }, until(18, 17, 0)] },
     ] }),
 ];
