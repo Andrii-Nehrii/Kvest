@@ -1,4 +1,7 @@
 import { A18, B18, P18, point18Available } from './point18';
+import { any as any18, ninaFarm as ninaFarm18, v as v18 } from './point18';
+import { A19, B19, atFarm, cold19, evaHere, girlHere, henrikeHome, inLue, janaHere, point19Available, point20Available, set19, until, uteHere, volkerHere, npc as npc19 } from './point19';
+import { indoor16 } from './point16';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import { farm6bAvailable } from './farm6b';
@@ -755,3 +758,60 @@ export const newEntry18: Scene = {
     pack18('c18_sb_food', 'Взять хлеб и варёную картошку на двоих', 'Ты заворачиваешь хлеб и картошку в полотенце. {A} подсаживает тебя в кузов. Брезент падает, и двор пропадает.', 'food'),
   ] as ActionDef[]).map(a => ({ ...a, when: all(P18, a.when ?? { always: true }) })),
 };
+
+const onlyA19 = (a: ActionDef): ActionDef => ({ ...a, when: all(A19, a.when ?? { always: true }) });
+const onlyB19 = (a: ActionDef): ActionDef => ({ ...a, when: all(B19, a.when ?? { always: true }) });
+
+// ───────────── Вход: вечер среды после КТ18 ─────────────
+// Вход в базе КТ18: без onEnter и места.
+export const newEntry19: Scene = {
+  id: 'c19_start', for: 'any', chapter: 'ch3', title: 'Вечер среды', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point19Available, text: 'Разговор на кухне кончается сам: чайник остыл, и говорить больше не о чем. На часах без двадцати восемь.' },
+    { when: all(point19Available, henrikeHome), text: 'Хенрике моет чашки, хотя никто не просил. Иногда она замирает с полотенцем в руках и смотрит на дверь.' },
+    { when: all(point19Available, uteHere), text: 'Уте сидит в углу на табурете со своим вязанием. Яннес спит рядом с ней сидя, привалившись к тёплой печке.' },
+    { when: all(point19Available, flag('w.c18_jannes_home'), not(uteHere)), text: 'Яннес сидит у печки в куртке и каждые десять минут смотрит в окно, на дорогу к насыпи.' },
+    { when: all(point19Available, evaHere), text: 'Эва стоит в прихожей с рюкзаком на плечах. Снять его она не решается.' },
+    { when: all(point19Available, janaHere), text: 'Яна стоит в прихожей с рюкзаком на плечах. Снять его она не решается.' },
+    { when: all(point19Available, volkerHere), text: 'Над сеновалом горит фонарь Фолькера. Оттуда пахнет табаком.' },
+    { when: all(point19Available, ninaFarm18), text: 'Нина сидит на лестнице, на третьей ступеньке.' },
+    { when: all(point19Available, v18('w.c18_house', 'closed')), text: 'На воротах висит второй замок. Ключ лежит на полке у двери.' },
+    { when: all(point19Available, v18('w.c18_house', 'known')), text: 'На гвозде у двери висит календарь. На обороте вы написали список.' },
+    { when: not(point19Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    onlyA19({ id: 'c19_s_bed', label: 'Устроить новых людей на ночь', when: any18(girlHere, uteHere, flag('w.c18_jannes_home')), minutes: 30, activity: 'light', terminal: true, goto: 'c19_wed_night',
+      text: 'Ты стаскиваешь с чердака два матраса. Один кладёшь в комнату за кухней, где тепло от печки. Второй — на втором этаже, у Нининой двери. Простыней не хватает, и ты стелешь скатерть.', effects: [prepareCamp, set19('s', 'bed'), until(18, 21, 0)] }),
+    onlyA19({ id: 'c19_s_henrike', label: 'Посидеть с Хенрике, пока она моет посуду', when: henrikeHome, minutes: 30, terminal: true, goto: 'c19_wed_night',
+      text: 'Ты берёшь второе полотенце. Хенрике протягивает тебе мокрую чашку и долго молчит.\n\n— Der Hof steht, — говорит она наконец. — Das habt ihr gut gemacht.\n\nХутор стоит. Вы хорошо справились. Для Хенрике это много.', effects: [prepareCamp, set19('s', 'henrike'), npc19('henrike', 2), until(18, 21, 0)] }),
+    onlyA19({ id: 'c19_s_round', label: 'Обойти двор: ворота, сараи, курятник', minutes: 25, activity: 'light', terminal: true, goto: 'c19_wed_night', ambientDuring: cold19,
+      text: 'Ворота закрыты. Куры сидят на насесте. У длинного сарая ты долго слушаешь тишину и идёшь в дом, только когда замерзают уши.', effects: [prepareCamp, set19('s', 'round'), until(18, 21, 0)] }),
+    onlyA19({ id: 'c19_s_sleep', label: 'Лечь сразу: ночь у тебя была длинная', minutes: 5, terminal: true, goto: 'c19_wed_night',
+      text: 'Ты поднимаешься наверх, не дожидаясь остальных.', effects: [prepareCamp, set19('s', 'sleep'), until(18, 20, 0)] }),
+    onlyB19({ id: 'c19_s_wash', label: 'Вымыться горячей водой', minutes: 35, terminal: true, goto: 'c19_wed_night',
+      text: 'Таз стоит у печи. Ты моешься по частям, как в детстве на даче, и вода сразу становится серой. Запах казармы уходит не весь.', effects: [prepareCamp, set19('s', 'wash'), { body: 'stress', delta: -2 }, until(18, 21, 0)] }),
+    onlyB19({ id: 'c19_s_girl', label: 'Показать новенькой, где что', when: girlHere, minutes: 25, terminal: true, goto: 'c19_wed_night',
+      text: 'Ты показываешь, где туалет, где колодец и какая ступенька скрипит. Рюкзак она снимает только в комнате за кухней.\n\n— Ich bin nützlich, — говорит она. — Ihr werdet sehen.\n\nЯ буду полезной. Вот увидите.', effects: [prepareCamp, set19('s', 'girl'), { if: evaHere, then: [npc19('c8_eva', 2)] }, until(18, 21, 0)] }),
+    onlyB19({ id: 'c19_s_nina', label: 'Сесть рядом с Ниной на лестнице', when: ninaFarm18, minutes: 25, terminal: true, goto: 'c19_wed_night',
+      text: 'Ты садишься на ступеньку ниже. Нина долго молчит, потом кладёт голову тебе на плечо. Через десять минут она уже спит.', effects: [prepareCamp, set19('s', 'nina'), npc19('c7_nina', 2), until(18, 21, 0)] }),
+    onlyB19({ id: 'c19_s_sleep', label: 'Лечь сразу: после казармы гудит голова', minutes: 5, terminal: true, goto: 'c19_wed_night',
+      text: 'Подушка пахнет вашим домом. Раскладушек больше нет.', effects: [prepareCamp, set19('s', 'sleep'), until(18, 20, 0)] }),
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point19Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 20 ─────────────
+// Вход в базе КТ19: без onEnter и места (игроки могут быть в Люнебурге или дома).
+export const newEntry20: Scene = {
+  id: 'c20_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true,
+  text: [
+    { when: all(point20Available, inLue), text: 'Казарма на краю Люнебурга ещё в темноте. У шлагбаума горит прожектор. Corsa остывает на обочине и тикает.' },
+    { when: all(point20Available, atFarm), text: 'Пятница начинается без поездки. Во дворе темно, у курятника иней.' },
+    { when: not(point20Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c20_go_gate', label: 'Выйти из машины', when: inLue, minutes: 2, terminal: true, goto: 'c20_g_gate', effects: [prepareCamp] },
+    { id: 'c20_go_yard', label: 'Выйти во двор', when: atFarm, minutes: 2, terminal: true, goto: 'c20_f_dawn', effects: [prepareCamp] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point20Available, a.when ?? { always: true }) })),
+};
+

@@ -178,6 +178,57 @@ describe('участки 16–17: среда', () => {
     expect(leg(stand, 'B', { c18_b_dawn: 'c18_bw_stay' }).vars['w.c18_henrike_key']).toBe(true);
   });
 
+  // Точка 19: четверг, у A хутор, у B Йестебург; КТ19 — поездка в Люнебург и ружьё.
+  const after18 = (colony: string, friday = 'go', henrike?: Record<string, string>) => {
+    const b17 = after17(colony);
+    const s18 = mergeCp(b17, 18, leg(b17, 'A'), leg(b17, 'B', henrike ?? {}));
+    return completeCheckpoint(c, s18, both18({ c3_new_friday18: friday, c3_new_house18: 'known' })).state;
+  };
+  for (const [colony, friday] of [['move', 'go'], ['stand', 'write'], ['end', 'no'], ['away', 'go']] as const)
+    it(`КТ17 ${colony}, пятница ${friday}: точка 19 проходится, на КТ19 можно уехать в Люнебург`, () => {
+      const b18 = after18(colony, friday);
+      for (const p of P) expect(b18.chars[p].scene).toBe('c19_start');
+      const a = leg(b18, 'A'), b = leg(b18, 'B');
+      expect(a.chars.A.visited.c19_a_patrol).toBe(1); expect(b.chars.B.visited.c19_b_queue).toBe(1);
+      expect(a.chars.A.visited.c19_b_queue).toBeUndefined(); expect(b.chars.B.visited.c19_a_patrol).toBeUndefined();
+      const s19 = mergeCp(b18, 19, a, b);
+      expect(s19.chars.A.time).toBe(s19.chars.B.time);
+      const go = completeCheckpoint(c, structuredClone(s19) as GameState, both18({ c3_new_trip19: 'go', c3_new_gun19: 'lock' })).state;
+      for (const p of P) { expect(go.chars[p].scene).toBe('c20_start'); expect(go.chars[p].location).toBe('c18_lueneburg'); }
+      const stay = completeCheckpoint(c, structuredClone(s19) as GameState, both18({ c3_new_trip19: 'stay', c3_new_gun19: 'keep' })).state;
+      for (const p of P) expect(stay.chars[p].location).toBe('hof_luedemann');
+      // Точка 20 в обеих ветках: Люнебург и хутор; КТ20 — к колонне, домой в объезд или ждать.
+      for (const [b19, place, fuel] of [[go, 'c18_lueneburg', 30], [stay, 'hof_luedemann', 12]] as const) {
+        const a20 = leg(b19, 'A'), b20 = leg(b19, 'B');
+        for (const p of P) expect((p === 'A' ? a20 : b20).chars[p].location).toBe(place);
+        const s20 = mergeCp(b19, 20, a20, b20);
+        expect(s20.chars.A.time).toBe(s20.chars.B.time);
+        const before = car(s20).fuel!;
+        const toConvoy = completeCheckpoint(c, structuredClone(s20) as GameState, both18({ c3_new_convoy20: 'go', c3_new_ole20: 'his' })).state;
+        for (const p of P) { expect(toConvoy.chars[p].scene).toBe('c21_start'); expect(toConvoy.chars[p].location).toBe(before >= fuel * 0.064 ? 'c21_convoy' : place); }
+        const wait = completeCheckpoint(c, structuredClone(s20) as GameState, both18({ c3_new_convoy20: 'wait', c3_new_ole20: 'promise' })).state;
+        for (const p of P) expect(wait.chars[p].location).toBe(place);
+        if (place === 'c18_lueneburg') {
+          const home = completeCheckpoint(c, structuredClone(s20) as GameState, both18({ c3_new_convoy20: 'home', c3_new_ole20: 'enough' })).state;
+          for (const p of P) expect(home.chars[p].location).toBe(before >= 48 * 0.064 ? 'hof_luedemann' : place);
+        }
+      }
+    });
+
+  it('точка 19: листок Оле, ружьё, солярка, пайки', () => {
+    const b18 = after18('stand');
+    const gun = leg(b18, 'A', { c19_a_letter: 'c19_al_cellar', c19_a_cellar: 'c19_ac_take', c19_a_diesel: 'c19_ad_dig' });
+    expect(qty(gun, 'c19_flinte', 'char', 'A')).toBe(1); expect(qty(gun, 'c19_shells', 'char', 'A')).toBe(4);
+    expect(gun.vars['w.c19_gun']).toBe('house'); expect(gun.chars.A.visited.c19_a_weapons).toBe(1);
+    const skip = leg(b18, 'A', { c19_a_letter: 'c19_al_put' });
+    expect(skip.vars['w.c19_gun']).toBeUndefined(); expect(skip.chars.A.visited.c19_a_cellar).toBeUndefined();
+    const b = leg(b18, 'B', { c19_b_queue: 'c19_bq_take' });
+    expect(b.vars['B.c19_bq']).toBe('take');
+    const s19 = mergeCp(b18, 19, gun, b);
+    const locked = completeCheckpoint(c, s19, both18({ c3_new_trip19: 'stay', c3_new_gun19: 'lock' })).state;
+    expect(qty(locked, 'c19_flinte', 'place', 'c3_farm_stock')).toBe(1); expect(qty(locked, 'c19_flinte', 'char', 'A')).toBe(0);
+  });
+
   it('запертые находки: аптечка в точке 17 и коптильня в точке 18', () => {
     const code = leg(b16w, 'B', { c17_b_pantry: 'c17_bp_417' });
     expect(qty(code, 'c17_vet_pen', 'char', 'B')).toBe(1); expect(code.chars.B.visited.c17_b_morning).toBe(1); expect(code.chars.B.visited.c17_b_pantry2).toBeUndefined();

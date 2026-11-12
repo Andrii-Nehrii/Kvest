@@ -1,0 +1,90 @@
+import type { JointDecision, MergeNote } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { all, flag } from './world3';
+import { v } from './point18';
+import { P19, carHere, henrikeHome } from './point19';
+
+export const finished19: Cond = all(P19, flag('A.c19_finished'), flag('B.c19_finished'));
+const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished19, when), text });
+
+// Сверка в пятницу в пять утра: что было у каждого в четверг. Видят оба.
+export const point19Notes: MergeNote[] = [
+  N('c19_gun_house', v('w.c19_gun', 'house'), '{A} нашёл в подвале, за картошкой, отцовское ружьё Людеманов: старую вертикалку и четыре патрона. Ружьё теперь в доме.'),
+  N('c19_gun_locked', v('w.c19_gun', 'locked'), '{A} нашёл в подвале, за картошкой, отцовское ружьё Людеманов. Он запер его обратно, ключ у него.'),
+  N('c19_gun_henrike', v('w.c19_gun', 'henrike'), 'В подвале за картошкой лежит отцовское ружьё Людеманов. Ключ от ниши Хенрике убрала в фартук.'),
+  N('c19_gun_declared', flag('w.c19_gun_declared'), 'Ружьё записано у патруля: «Bockflinte, Lüdemann». Брандт про него знает.'),
+  N('c19_gun_lie', flag('w.c19_gun_lie'), 'Патрулю {A} сказал, что оружия в доме нет.'),
+  N('c19_schnaps', flag('w.c19_schnaps'), 'Там же стояли две бутылки старого шнапса. {A} забрал их на обмен.'),
+  N('c19_diesel_tractor', v('w.c19_diesel', 'tractor'), 'Под навозом за длинным сараем была солярка: литров четырнадцать. Она уже в тракторе.'),
+  N('c19_diesel_can', v('w.c19_diesel', 'can'), 'Под навозом за длинным сараем была канистра солярки, литров четырнадцать. Она стоит под навесом.'),
+  N('c19_diesel_marked', v('w.c19_diesel', 'marked'), 'Под навозом за длинным сараем лежит канистра солярки. {A} проверил и оставил её там.'),
+  N('c19_ilse_water', v('w.c19_ilse', 'water'), 'Ильзе в будке обходчика. {A} налил ей воды. Она пила с пола.'),
+  N('c19_ilse_fork', v('w.c19_ilse', 'fork'), 'Ильзе в будке обходчика. Когда звучит камертон, она замирает и слушает.'),
+  N('c19_ilse_ended', v('w.c19_ilse', 'ended'), 'Ильзе больше нет. {A} похоронил её у насыпи.'),
+  N('c19_ilse_post', v('w.c19_ilse', 'post'), 'Про Ильзе в будке {A} сказал патрулю. Они обещали «закончить сегодня».'),
+  N('c19_roof', any2(v('w.c19_roof', 'volker'), v('w.c19_roof', 'a')), 'Крыша курятника перекрыта.'),
+  N('c19_jacket', flag('w.c19_jacket_torn'), 'Рукав куртки {A.gen} распорот о жесть на ладонь.'),
+  N('c19_volker', flag('w.c19_volker_asked'), 'На вопрос, кто у него остался в Тоштедте, Фолькер ответил: «Никого». И замолчал до вечера.'),
+  N('c19_list_all', v('w.c19_list', 'all'), 'Патруль дописал в список всех, кто живёт в доме. В понедельник Брандт придёт смотреть на каждого.'),
+  N('c19_list_guests', v('w.c19_list', 'guests'), 'Патрулю {A} сказал, что у вас гости и в пятницу они уедут. Солдат так и записал.'),
+  N('c19_nina_visit', flag('w.c19_nina_visit'), 'Нина ходила к отцу. Обратно она держалась за рукав.'),
+  N('c19_nina_promise', flag('w.c19_nina_promise'), 'Нине в Винзен {A} пообещал: в выходные её заберут.'),
+  N('c19_fuel_offer', flag('w.c19_fuel_offer'), 'Керем передал от Дениза: в субботу они меняют бензин на солярку и шнапс.'),
+  N('c19_ws_gun', flag('w.c19_workshop_gun_taken'), 'Ружьё, которое было в мастерской, люди Брандта забрали «на учёт».'),
+  N('c19_b_ration', { always: true }, '{B} была в Йестебурге с Кёлер. Пайки там дают только лично и только тем, кто в списке: полбуханки и банка фасоли.'),
+  N('c19_b_listed', flag('w.c19_b_listed'), '{B} теперь тоже вписана в список, от руки, «до понедельника».'),
+  N('c19_doc', flag('w.c19_doc_trust'), 'Врач пункта в Йестебурге записала имя {B.gen} в блокнот: «Если что-то понадобится, идите ко мне, не к солдату».'),
+  N('c19_plasma', flag('w.c19_plasma_holds'), 'Врач сказала про плазму: «Она держит. Сколько держит — не знает никто».'),
+  N('c19_monday', { always: true }, 'Брандт объявил: с понедельника все, кто переболел, должны отметиться у него. «Их кровь спасает детей. Как моего внука».'),
+  N('c19_mats', flag('w.c19_mats_doubt'), 'Мать Матса сказала {B.dat}: жара у него не было ни разу. Плазму ему дали в понедельник, на всякий случай.'),
+  N('c19_hanna', flag('w.c19_hanna_girl'), 'Ханна не знает, что стало с девочкой, которой давали кровь её мужа. Она боялась спросить.'),
+  N('c19_brockmann', flag('w.c19_brockmann_note'), '{B} принесла с остановки записку Красного Креста: сын Брокманов из Торонто ищет Ильзе и Герда.'),
+  N('c19_brockmann_ans', flag('w.c19_brockmann_answer'), 'На остановке висит записка Красного Креста: сын Брокманов из Торонто ищет родителей. {B} написала на обороте, где видела имя Ильзе.'),
+  N('c19_barmbek', flag('w.c19_barmbek_note'), 'На остановке в Йестебурге теперь висит записка {B.gen}: как найти хутор, для тех, кто из Бармбека.'),
+  N('c19_question', flag('w.c19_buchholz_question'), 'На доске у пожарной части кто-то написал: «Спросите, куда делись переболевшие из Бухгольца». Половину листка сорвали.'),
+  N('c19_insulin', flag('w.c19_insulin_address'), 'В Йестебурге ищут инсулин: Kirchweg 4. {B} запомнила адрес.'),
+  N('c19_soap', flag('w.c19_soap'), 'У вас есть кусок мыла. За него просили передать Брандту, что чей-то сын не переболел и никуда не поедет.'),
+  N('c19_wet', flag('w.c19_b_wet'), 'По дороге домой {B} провалилась в канаву: двое из больницы шли через поле к шоссе.'),
+  N('c19_walkers', flag('w.c19_saw_walkers'), 'Ночью по полю к шоссе шли люди. По трое, по четверо. К хутору они не сворачивали.'),
+  N('c19_route', flag('w.c19_route_known'), 'Транспорт из Ганновера пойдёт по A7 до Гарльсторфа, потом через Зальцхаузен. Гарльсторф в двенадцати километрах.'),
+  N('c19_donor', flag('w.c19_heard_donor'), 'Замена для Оле — студентка-ветеринар из Ганновера, переболела в октябре. Говорят, едет без охоты.'),
+];
+function any2(a: Cond, b: Cond): Cond { return { any: [a, b] }; }
+
+const toLue = { journey: { to: 'c18_lueneburg', km: 40, minutes: 65, vehicle: 'opel_corsa' } };
+export const point19Trip: JointDecision = {
+  id: 'c3_new_trip19', checkpoint: 19, canParticipate: P19,
+  prompt: { default: 'Пять утра пятницы. В полдень в Люнебург должен прийти транспорт из Ганновера с заменой для Оле. Ехать надо сейчас, затемно: сорок километров, около 2,6 литра бензина в одну сторону. Можно остаться на хуторе. Разные ответы — как решили в среду.' },
+  options: [
+    { id: 'go', label: { default: 'Ехать в Люнебург сейчас' }, when: all(P19, carHere),
+      feasible: all({ has: 'car_keys' }, carHere, { fuelFor: 'opel_corsa', km: 40 }),
+      effects: [toLue, { set: 'w.c19_trip', value: 'go' },
+        { if: all(henrikeHome, { npc: 'henrike', alive: true }), then: [{ npc: 'henrike', moveTo: 'c18_lueneburg' }, { set: 'w.c19_henrike_rode', value: true }] }],
+      text: 'Вы выезжаете в двадцать минут шестого. Фары выхватывают иней на обочинах. У Зальцхаузена пост пустой, шлагбаум поднят. В половине седьмого вы у казармы.' },
+    { id: 'stay', label: { default: 'Остаться на хуторе' }, effects: [{ set: 'w.c19_trip', value: 'stay' }],
+      text: 'Вы снимаете куртки и ставите чайник. До рассвета ещё два часа.' },
+  ],
+  arbiters: [
+    { id: 'c19_trip_wed', when: all(P19, v('w.c18_friday', 'go')), winner: 'go', text: 'Вы не сходитесь. Тогда держитесь того, что решили в среду: едете.' },
+    { id: 'c19_trip_stay', when: P19, winner: 'stay', text: 'Вы не сходитесь. В среду вы решили не ехать — остаётесь.' },
+  ],
+  default: 'stay',
+};
+
+export const point19Gun: JointDecision = {
+  id: 'c3_new_gun19', checkpoint: 19, canParticipate: all(P19, flag('w.c19_gun')),
+  prompt: { default: 'В подвале нашлось отцовское ружьё Людеманов, незарегистрированное. Брандт переписывает оружие. Можно держать его в доме под рукой, запереть обратно в подвал или самим отдать на учёт. Разные ответы — в подвал.' },
+  options: [
+    { id: 'keep', label: { default: 'Держать в доме под рукой' }, effects: [{ set: 'w.c19_gun_plan', value: 'keep' }],
+      text: 'Ружьё стоит за шкафом, патроны в банке с пуговицами. Где — знаете вы двое.' },
+    { id: 'lock', label: { default: 'Запереть обратно в подвал' },
+      effects: [{ set: 'w.c19_gun_plan', value: 'lock' }, { if: { has: 'c19_flinte' }, then: [{ take: 'c19_flinte' }, { place: 'c19_flinte', at: 'c3_farm_stock', qty: 1 }] },
+        { if: { has: 'c19_shells' }, then: [{ take: 'c19_shells', qty: 4 }, { place: 'c19_shells', at: 'c3_farm_stock', qty: 4 }] }],
+      text: 'Ружьё снова за маленькой дверью, за картошкой. Ключ на гвоздике за маятником.' },
+    { id: 'register', label: { default: 'Отдать на учёт: записать у Брандта' }, effects: [{ set: 'w.c19_gun_plan', value: 'register' }, { set: 'w.c19_gun_declared', value: true }],
+      text: 'Вы решаете записать ружьё сами, в понедельник. Скрывать от Брандта ещё и это вы не хотите.' },
+  ],
+  compromises: [{ pair: ['keep', 'lock'], result: 'lock' }, { pair: ['keep', 'register'], result: 'lock' }, { pair: ['lock', 'register'], result: 'lock' }],
+  arbiters: [{ id: 'c19_gun_lock', when: P19, winner: 'lock', text: 'Вы не сходитесь. Ружьё возвращается в подвал.' }],
+  default: 'keep',
+};

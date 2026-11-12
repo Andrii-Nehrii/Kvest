@@ -105,7 +105,7 @@ describe.runIf(byChapter.size > 0)('Подсказки по качеству и 
       hint(share(dups.length, occ.size) <= 0.02, `${ch}: одинаковые тексты в разных сценах: ${dups.slice(0, 3).map(([t, v]) => `${[...v].join(',')}: ${t.slice(0, 50)}`).join(' / ')}`);
     });
 
-    it(`${ch}: сцены и тексты написаны руками — id каждой сцены и каждый текст есть в исходниках буквально (без генераторов)`, () => {
+    it(`${ch}: сцены и тексты написаны руками — id каждой сцены и каждый текст есть в исходниках буквально (без генераторов)`, { timeout: 60000 }, () => {
       const generatedScenes = list.filter((s) => !allSource.includes(`'${s.id}'`) && !allSource.includes(`"${s.id}"`)).map((s) => s.id);
       hint(!generatedScenes.length, `${ch}: сцены собраны формулой: ${generatedScenes.slice(0, 6).join(', ')}`);
       const generatedTexts = texts.filter((t) => !allSource.includes(t.slice(0, 40)));

@@ -21,6 +21,8 @@ const list: ItemType[] = [
   { id: 'c17_vet_pen', name: 'коровий пенициллин, два флакона порошка', weight: 80, tags: ['medicine'], description: 'Procain-Penicillin из стойловой аптечки. Срок вышел весной, хранился сухим.' },
   { id: 'c18_wurst', name: 'копчёная колбаса, кольцо', weight: 350, tags: ['food'], food: { hunger: 24, thirst: -4, kcal: 1100, minutes: 8 }, spoilsAfter: 60 * 1440 },
   { id: 'c18_ham', name: 'копчёный окорок, кусок', weight: 1500, tags: ['food'], food: { hunger: 30, thirst: -5, kcal: 3300, minutes: 10 }, spoilsAfter: 90 * 1440 },
+  { id: 'c19_flinte', name: 'отцовская двустволка Людеманов', weight: 3200, tags: ['weapon'], description: 'Старая вертикалка, смазанная, в промасленной тряпке. Не зарегистрирована.' },
+  { id: 'c19_shells', name: 'патроны к двустволке', weight: 40, tags: ['ammo'] },
   { id: 'c17_hen', name: 'ощипанная курица', weight: 1200, tags: ['food', 'needs_cooking'], food: { kcal: 1500 }, spoilsAfter: 3 * 1440 },
   { id: 'c8_helmut_coat', name: 'пальто Хельмута', weight: 1500, tags: ['clothing'], clothing: { warmth: 4, biteProtection: 2, slot: 'outer' } },
   { id: 'c3_porridge', name: 'приготовленная порция овсяной каши', weight: 750, tags: ['food'], food: { hunger: 20, thirst: 18, kcal: 925, minutes: 10 }, spoilsAfter: 1440 },
