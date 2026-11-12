@@ -1,0 +1,8 @@
+{
+  "about": "Журнал приёмов по точкам. rolled — что выпало по жребию, used — что реально вошло в точку, carry — крупное, перенесённое на следующую, findFor — кому досталась находка, resourceKind — вид ресурса, note — почему отступили от жребия.",
+  "points": [
+    { "point": 16, "rolled": [], "used": ["resource", "thread"], "resourceKind": "топливо", "note": "до введения жребия" },
+    { "point": 17, "rolled": [], "used": ["find"], "findFor": "B", "note": "до введения жребия" },
+    { "point": 18, "rolled": [], "used": ["split_full", "find", "thread"], "findFor": "A", "note": "до введения жребия; в точке есть настоящие потери" }
+  ]
+}
