@@ -11,6 +11,20 @@ const lue: Cond = { at: 'c18_lueneburg' };
 // Сверка в пятницу в половине четвёртого. Видят оба.
 export const point20Notes: MergeNote[] = [
   N('c20_convoy', { always: true }, 'Транспорт из Ганновера с десяти сорока стоит на съезде с автобана у Гарльсторфа. Люди на дороге, один грузовик перевернулся. С четверти первого связи нет.'),
+  N('c20_down_a', v('A.c20_d3', 'down'), '{A} без сознания. Глубокая рана, много крови. Его занесли в дом.'),
+  N('c20_down_b', v('B.c20_d3', 'down'), '{B} без сознания. Глубокая рана, много крови. Её занесли в дом.'),
+  N('c20_coop_lost', all(flag('w.c20_coop_lost'), { not: flag('w.c20_coop_saved') }), 'Курятник разорён. Из двенадцати кур осталось четыре.'),
+  N('c20_coop_saved', flag('w.c20_coop_saved'), 'Курятник отбили. Половина кур жива.'),
+  N('c20_shots', flag('w.c20_shots'), 'Во дворе стреляли из отцовского ружья. Выстрелы было слышно далеко.'),
+  N('c20_ute_saved', flag('w.c20_ute_saved'), 'Уте вывели из длинного сарая, пока во дворе были чужие.'),
+  N('c20_rail', flag('w.c20_rail'), '{B} била в рельс у ворот. Солдаты приехали на звон.'),
+  N('c20_ole_hurt', flag('w.c20_ole_hurt'), 'Во дворе казармы Оле сбили с ног: лицо разбито, рука прокушена через рукав. Он с иммунитетом, но крови потерял много.'),
+  N('c20_ole_safe', all(flag('w.c20_ole_safe'), { at: 'c18_lueneburg' }), 'Оле успели увести со двора казармы до того, как к нему подошли.'),
+  N('c20_peters', flag('w.c20_peters_saved'), 'Фрау Петерс подняли с земли и дотащили до корпуса.'),
+  N('c20_let_in', flag('w.c20_let_in'), '{B} открыла дверь корпуса и впустила двух женщин и мальчика.'),
+  N('c20_kept_out', flag('w.c20_kept_out'), 'В дверь женского корпуса стучали снаружи. {B} не открыла.'),
+  N('c20_lue_gate', flag('w.c20_lue_gate'), '{A} закрыл ворота прачечной. Ещё двое с поля войти уже не смогли.'),
+  N('c20_soldier', flag('w.c20_saved_soldier'), 'Молодого солдата у фургона оттащили вовремя. Он жив.'),
   N('c20_p', flag('w.c20_p_known'), '{A} видел в зале списков: напротив всех шестидесяти одной фамилии из Station 4 карандашом стоит «P». Писарь сказал: плазма, все они были в исследовании.'),
   N('c20_ahlers_p', flag('w.c20_ahlers_p'), 'Доктор Алерс не стала отрицать: исследование шло в Бухгольце, пока не пропал ток. «Что было дальше, вы видели в списке».'),
   N('c20_gerd', flag('w.c20_gerd_written'), 'Напротив «Brockmann, Gerd» на стене в Люнебурге теперь написано рукой {A.gen}: «10.11, лестница. Болен».'),
@@ -64,17 +78,18 @@ export const point20Notes: MergeNote[] = [
 
 const carLue: Cond = { itemAt: 'opel_corsa', place: 'c18_lueneburg' };
 const carFarm: Cond = { itemAt: 'opel_corsa', place: 'hof_luedemann' };
+const bothUp: Cond[] = [{ cap: 'canAct', op: '>=', value: 1 }, { partner: 'active' }];
 const canGo: Cond = any(all(lue, carLue, { fuelFor: 'opel_corsa', km: 30 }), all({ at: 'hof_luedemann' }, carFarm, { fuelFor: 'opel_corsa', km: 12 }));
 
 export const point20Convoy: JointDecision = {
   id: 'c3_new_convoy20', checkpoint: 20, canParticipate: P20,
   prompt: { default: 'Колонна из Ганновера стоит у Гарльсторфа, связи нет. Там плазма, инсулин и девушка, которая должна заменить Оле. Можно поехать туда на Corsa, пока не стемнело. Из Люнебурга можно уехать домой в объезд, через Винзен. Можно никуда не ехать до утра. Разные ответы — ближе к осторожному.' },
   options: [
-    { id: 'go', label: { default: 'Ехать к колонне у Гарльсторфа' }, when: any(carLue, carFarm), feasible: all({ has: 'car_keys' }, canGo),
+    { id: 'go', label: { default: 'Ехать к колонне у Гарльсторфа' }, when: any(carLue, carFarm), feasible: all({ has: 'car_keys' }, canGo, ...bothUp),
       effects: [{ set: 'w.c20_convoy', value: 'go' },
         { if: lue, then: [{ journey: { to: 'c21_convoy', km: 30, minutes: 50, vehicle: 'opel_corsa' } }], else: [{ journey: { to: 'c21_convoy', km: 12, minutes: 25, vehicle: 'opel_corsa' } }] }],
       text: 'Вы выезжаете, пока ещё светло. Последние километры фары выхватывают брошенные машины на обочинах. Над съездом с автобана мигает синим.' },
-    { id: 'home', label: { default: 'Ехать домой в объезд, через Винзен' }, when: carLue, feasible: all(lue, { has: 'car_keys' }, carLue, { fuelFor: 'opel_corsa', km: 48 }),
+    { id: 'home', label: { default: 'Ехать домой в объезд, через Винзен' }, when: carLue, feasible: all(lue, { has: 'car_keys' }, carLue, { fuelFor: 'opel_corsa', km: 48 }, ...bothUp),
       effects: [{ set: 'w.c20_convoy', value: 'home' }, { journey: { to: 'hof_luedemann', km: 48, minutes: 75, vehicle: 'opel_corsa' } }],
       text: 'Вы едете на север, в объезд, через Винзен. Дорога пустая. Где-то справа, за лесом, над автобаном стоит зарево.' },
     { id: 'wait', label: { default: 'Никуда не ехать до утра' }, effects: [{ set: 'w.c20_convoy', value: 'wait' }],

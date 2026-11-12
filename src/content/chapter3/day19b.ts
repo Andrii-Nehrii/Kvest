@@ -18,6 +18,7 @@ const B = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S19({ ...scene, for:
 /** B есть в списке на пайки: «все» или «двое»; при «хозяева» её нет. */
 const listedB: Cond = any(v('w.c18_list', 'all'), v('w.c18_list', 'two'));
 const ration: Effect[] = [{ give: 'bread' }, { give: 'canned_beans' }];
+const lockerMiss = 'Колёсики щёлкают. Ты тянешь дужку. Она не поддаётся.';
 const companion: Cond = any(own19('bk', 'nina'), own19('bk', 'girl'));
 const toQueue = [{ id: 'road', when: own19('bk', 'road'), goto: 'c19_b_road' }, { id: 'field', goto: 'c19_b_field' }];
 const afterBrandt = [{ id: 'hanna', when: v('w.c18_seat', 'hanna'), goto: 'c19_b_hanna' }, { id: 'board', goto: 'c19_b_board' }];
@@ -217,15 +218,43 @@ export const day19BScenes: Scene[] = [
       { when: not(wernerAlive), text: 'На столе два фартука. Один она надевает. Второй так и лежит, аккуратно сложенный.' },
     ],
     actions: [
-      { id: 'c19_bkb_knead', label: 'Встать рядом и месить тесто', minutes: 70, activity: 'moderate', terminal: true, goto: 'c19_b_back',
+      { id: 'c19_bkb_knead', label: 'Встать рядом и месить тесто', minutes: 70, activity: 'moderate', terminal: true, goto: 'c19_b_locker',
         text: 'Тесто тяжёлое и липкое. Через полчаса у тебя горят плечи. Кёлер поправляет тебя одним словом: «Faust». Кулаком. Когда ты уходишь, она заворачивает тебе в полотенце буханку, ещё тёплую.', effects: [set19('bkb', 'knead'), { give: 'c16_bread' }, npc('c3_koehler', 2), until(19, 14, 45)] },
-      { id: 'c19_bkb_talk', label: 'Посидеть с ней, пока хлеб в печи', minutes: 50, terminal: true, goto: 'c19_b_back',
+      { id: 'c19_bkb_talk', label: 'Посидеть с ней, пока хлеб в печи', minutes: 50, terminal: true, goto: 'c19_b_locker',
         text: 'Кёлер рассказывает про Вернера: как он ставил тесто в три ночи и пел. Голос у него был громкий, на всю улицу. Ты слушаешь. Буханку она всё равно заворачивает, «für den Weg». В дорогу.', effects: [set19('bkb', 'talk'), { give: 'c16_bread' }, npc('c3_koehler', 1), until(19, 14, 30)] },
       { id: 'c19_bkb_go', label: 'Поблагодарить и идти домой, пока светло', minutes: 10, terminal: true, goto: 'c19_b_back',
         text: 'Кёлер провожает тебя до калитки и стоит, пока ты не сворачиваешь.', effects: [set19('bkb', 'go'), until(19, 13, 50)] },
     ] }),
 
-  B({ id: 'c19_b_back', title: 'Поле', location: lane, ambient: cold19,
+    // Находка B (серия 19–24): шкафчик Вернера; код — год на вывеске пекарни, который был в тексте сцены выше.
+  B({ id: 'c19_b_locker', title: 'Задняя комната', location: village, ambient: indoorV,
+    text: [
+      { text: 'Кёлер просит принести из задней комнаты мешок муки. Там холодно и пахнет мышами. За мешками у стены стоит железный шкафчик, какие бывают в раздевалках. На дверце выцветшая буква «W.» и кодовый замок на четыре цифры.' },
+      { text: 'Из щели у дверцы пахнет кофе. Настоящим, молотым. Этого запаха не было с понедельника.' },
+      { text: 'Кёлер стоит в дверях с полотенцем в руках.\n\n— Werners Spind. Den Code hat er keinem gesagt. Nicht mal mir.\n\nШкафчик Вернера. Код он никому не говорил. Даже мне.' },
+    ],
+    actions: [
+      { id: 'c19_bl_1958', label: 'Набрать 1-9-5-8', minutes: 3, terminal: true, goto: 'c19_b_locker2', text: lockerMiss, effects: [set19('blk', 'miss')] },
+      { id: 'c19_bl_1962', label: 'Набрать 1-9-6-2', minutes: 3, terminal: true, goto: 'c19_b_back',
+        text: 'Замок щёлкает. Кёлер ахает за спиной.\n\nВнутри банка кофе, полкило, нераспечатанная. Блок сигарет. Пакет сахара. Губная гармошка в коробке и фотография: двое детей у этой самой пекарни, под той же вывеской.\n\nКёлер забирает гармошку и фотографию и садится на мешок.\n\n— Nimm den Kaffee und die Zigaretten. Werner hat nie geraucht. Die waren zum Tauschen. — Она вытирает глаза. — Den Zucker backe ich für die Kinder.\n\nВозьми кофе и сигареты. Вернер никогда не курил, это на обмен. Сахар я испеку детям.',
+        effects: [set19('blk', 'code'), w19('locker', 'open'), { give: 'coffee' }, { give: 'c19_cigs' }, npc('c3_koehler', 3, 'c19_opened_werner_locker')] },
+      { id: 'c19_bl_1975', label: 'Набрать 1-9-7-5', minutes: 3, terminal: true, goto: 'c19_b_locker2', text: lockerMiss, effects: [set19('blk', 'miss')] },
+      { id: 'c19_bl_2006', label: 'Набрать 2-0-0-6', minutes: 3, terminal: true, goto: 'c19_b_locker2', text: lockerMiss, effects: [set19('blk', 'miss')] },
+      { id: 'c19_bl_flour', label: 'Взять муку и не трогать чужое', minutes: 5, terminal: true, goto: 'c19_b_back',
+        text: 'Ты взваливаешь мешок на плечо. Запах кофе тянется за тобой до самой печи.', effects: [set19('blk', 'none')] },
+    ] }),
+
+  B({ id: 'c19_b_locker2', title: 'Шкафчик', location: village, ambient: indoorV,
+    text: [{ text: 'Дужка не поддаётся. Кёлер молча смотрит от двери. Комбинаций десять тысяч, а до темноты три часа дороги.' }],
+    actions: [
+      { id: 'c19_bl2_break', label: 'Сбить замок молотком', minutes: 15, terminal: true, goto: 'c19_b_back',
+        text: 'Замок слетает с третьего удара. Кёлер вздрагивает на каждом.\n\nВнутри кофе, сигареты, сахар, губная гармошка и фотография. Кёлер забирает всё, кроме сигарет, и прижимает к себе.\n\n— Die Zigaretten. Werner hat nicht geraucht, — говорит она, не глядя на тебя. Сигареты возьми. Вернер не курил. — Und jetzt geh bitte.\n\nА теперь иди, пожалуйста.',
+        effects: [set19('blk', 'break'), w19('locker', 'broken'), { give: 'c19_cigs' }, npc('c3_koehler', -2, 'c19_broke_werner_locker')] },
+      { id: 'c19_bl2_leave', label: 'Оставить и отнести муку', minutes: 5, terminal: true, goto: 'c19_b_back',
+        text: 'Ты взваливаешь мешок на плечо. Кёлер у двери кивает, будто так и надо.\n\n— Er hat ihn mitgenommen, den Code, — говорит она. Он унёс его с собой.', effects: [set19('blk', 'left')] },
+    ] }),
+
+B({ id: 'c19_b_back', title: 'Поле', location: lane, ambient: cold19,
     text: [
       { text: 'Обратно ты идёшь одна. Солнце низко, тени длинные. У поворота к хутору останавливаешься: на поле, между дорогой и насыпью, двое.' },
       { text: 'Больничные рубашки, босые ноги в грязи. Идут медленно, в сторону шоссе. У одного на запястье белеет браслет. До них метров двести. Ветер от них к тебе.' },

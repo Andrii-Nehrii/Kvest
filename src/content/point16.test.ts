@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { completeCheckpoint } from '../engine/checkpoint';
+import { applyEffects } from '../engine/effects';
+import { segmentFinished } from '../engine/game';
 import { evalCond } from '../engine/conditions';
 import type { GameState } from '../engine/types';
 import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
@@ -214,6 +216,25 @@ describe('участки 16–17: среда', () => {
         }
       }
     });
+
+  it('точка 20: опасная сцена — осторожный не выбывает; выбывший доживает до точки, его ведёт партнёр, поездки нет', () => {
+    const b18 = after18('stand');
+    const s19 = mergeCp(b18, 19, leg(b18, 'A'), leg(b18, 'B'));
+    const b19 = completeCheckpoint(c, s19, both18({ c3_new_trip19: 'stay', c3_new_gun19: 'keep' })).state;
+    const careful = leg(b19, 'A', { c20_f_d_alarm: 'c20_fd1_door', c20_f_d_fence: 'c20_fd2_watch', c20_f_d_end: 'c20_fd3_back' });
+    expect(careful.chars.A.visited.c20_f_d_end).toBe(1); expect(careful.vars['w.c20_down']).toBeUndefined();
+    // Третье звено с тяжёлым исходом: A без сознания посреди участка.
+    const a = leg(b19, 'A', {}, 'c20_f_d_end');
+    a.vars['A.c20_out'] = true; a.vars['A.c20_d2'] = 'hurt';
+    applyEffects({ s: a, c, pid: 'A' }, [{ injure: 'laceration', site: 'leftLeg', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }]);
+    expect(segmentFinished(c, a, 'A')).toBe('incapacitated');
+    const s20 = mergeCp(b19, 20, a, leg(b19, 'B'));
+    expect(s20.chars.A.body.consciousness).not.toBe('dead');
+    const out = completeCheckpoint(c, s20, { B: { c3_new_convoy20: 'go', c3_new_ole20: 'his' } }).state;
+    expect(out.chars.A.controlledBy).toBe('B'); expect(out.chars.B.scene).toBe('c21_start');
+    expect(out.vars['w.c20_convoy']).not.toBe('go');
+    for (const p of P) expect(out.chars[p].location).toBe('hof_luedemann');
+  });
 
   it('точка 19: листок Оле, ружьё, солярка, пайки', () => {
     const b18 = after18('stand');

@@ -341,23 +341,26 @@ export const day20FScenes: Scene[] = [
       { text: 'В начале третьего над лесом на востоке поднимается дым. Не печной: чёрный, жирный, столбом. Ветер клонит его к северу. Это там, где автобан.' },
     ],
     actions: [
-      { id: 'c20_fs_roof', label: 'Залезть на крышу сарая и посмотреть', when: A19, minutes: 20, activity: 'moderate', risky: true, terminal: true, goto: 'c20_f_tobias',
+      { id: 'c20_fs_roof', label: 'Залезть на крышу сарая и посмотреть', when: A19, minutes: 20, activity: 'moderate', risky: true, terminal: true, goto: 'c20_f_d_alarm',
         outcomes: [
           { id: 'ok', check: { traits: ['agility'], difficulty: 2, uses: ['mobility'], mods: [{ when: { has: 'gloves' }, bonus: 1 }] }, text: 'С конька видно дальше, чем ты думал{m:|а}. Над лесом у автобана столб дыма и синие вспышки, мелкие, как спички. Звука не слышно. Ты слезаешь осторожно: черепица мокрая.', effects: [set20('fs', 'roof'), w20('smoke_seen', true)] },
           { id: 'slip', text: 'На мокрой черепице нога соскальзывает. Ты повисаешь на руках у водостока и спрыгиваешь в грязь, неловко. Ладонь ободрана о жесть. Дым ты так и не разглядел{m:|а}.', effects: [set20('fs', 'slip'), { injure: 'scratch', site: 'rightArm', severity: 1 }, { body: 'stress', delta: 2 }] },
         ], effects: [until(20, 14, 40)] },
-      { id: 'c20_fs_watch', label: 'Смотреть со двора', minutes: 15, terminal: true, goto: 'c20_f_tobias',
+      { id: 'c20_fs_watch', label: 'Смотреть со двора', minutes: 15, terminal: true, goto: 'c20_f_d_alarm',
         text: 'Дым густеет, потом становится серым и редким. Кто-то там что-то тушит. Или оно догорело само.', effects: [set20('fs', 'watch'), until(20, 14, 40)] },
-      { id: 'c20_fs_ask', label: 'Спросить Уте, что это может быть', when: all(B19, uteHere), minutes: 15, terminal: true, goto: 'c20_f_tobias',
+      { id: 'c20_fs_ask', label: 'Спросить Уте, что это может быть', when: all(B19, uteHere), minutes: 15, terminal: true, goto: 'c20_f_d_alarm',
         text: 'Уте выходит на крыльцо, смотрит из-под ладони.\n\n— Diesel brennt so, — говорит она. Так горит солярка. — Kai hat so einen Laster mal angezündet. Aus Versehen.\n\nКай однажды так поджёг грузовик. Нечаянно.', effects: [set20('fs', 'ask'), w20('smoke_seen', true), until(20, 14, 40)] },
-      { id: 'c20_fs_away', label: 'Не смотреть: заняться делом', minutes: 15, activity: 'light', terminal: true, goto: 'c20_f_tobias',
+      { id: 'c20_fs_away', label: 'Не смотреть: заняться делом', minutes: 15, activity: 'light', terminal: true, goto: 'c20_f_d_alarm',
         text: 'Ты носишь воду из колодца в кухню, ведро за ведром. Когда снова поднимаешь глаза, дыма почти не видно.', effects: [set20('fs', 'away'), until(20, 14, 40)] },
     ] }),
 
   // ───────────── Вместе: известие ─────────────
   F({ id: 'c20_f_tobias', title: 'Известие', camp: yard14, ambient: day19,
     text: [
-      { text: 'Без двадцати три у ворот тормозит «Вольф». Тобиас не глушит мотор.\n\n— Der Transport steht seit zehn Uhr vierzig an der Ausfahrt Garlstorf. Personen auf der Fahrbahn, ein LKW umgekippt. Seit Viertel nach zwölf kein Funk.\n\nТранспорт с десяти сорока стоит на съезде у Гарльсторфа. Люди на проезжей части, грузовик перевернулся. С четверти первого связи нет.' },
+      { text: 'Через двадцать минут у ворот тормозит «Вольф». Тобиас выпрыгивает с автоматом, за ним двое солдат. Они идут по двору, переворачивают тех, кто лежит, и стреляют туда, где ещё шевелятся. Тобиас подходит к крыльцу последним.' },
+      { when: flag('w.c20_rail'), text: '— Wir haben euren Gong gehört, — говорит он. Мы слышали ваш рельс.' },
+      { when: flag('w.c20_shots'), text: '— Wir haben die Schüsse gehört. Ihr habt Glück, dass nicht mehr gekommen sind.\n\nМы слышали выстрелы. Вам повезло, что больше не пришло.' },
+      { text: '— Der Transport steht seit zehn Uhr vierzig an der Ausfahrt Garlstorf. Personen auf der Fahrbahn, ein LKW umgekippt. Seit Viertel nach zwölf kein Funk.\n\nТранспорт с десяти сорока стоит на съезде у Гарльсторфа. Люди на проезжей части, грузовик перевернулся. С четверти первого связи нет. Эти, — он кивает на двор, — оттуда.' },
       { text: '— Brandt sammelt um vier an der Feuerwehr alle mit Autos. — Он смотрит на Corsa. — Zwölf Kilometer. Ich sage nicht, dass ihr müsst.\n\nБрандт в четыре собирает у пожарной части всех, у кого машины. Двенадцать километров. Я не говорю, что вы обязаны.' },
     ],
     actions: [

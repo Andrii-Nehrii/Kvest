@@ -139,6 +139,8 @@ export const shared19: Scene[] = [
         text: 'Ты ставишь будильник на половину пятого и засыпаешь сразу.', effects: [set19('ni', 'sleep'), { set: '$.c19_finished', value: true }, until(20, 4, 45, true)] },
       { id: 'c19_ni_watch', label: 'Посидеть у окна до часу ночи', minutes: 5, terminal: true, goto: 'c19_checkpoint',
         text: 'Ты сидишь у тёмного окна с кружкой. В половине первого по полю снова идут люди, четверо, к шоссе. Один спотыкается и встаёт, не вскрикнув. Ты ложишься в час и спишь плохо.', effects: [set19('ni', 'watch'), w19('saw_walkers', true), { set: '$.c19_finished', value: true }, until(20, 1, 0), until(20, 4, 45, true)] },
+      { id: 'c19_ni_pour', label: 'Перелить бензин из канистры в бак', when: all(A19, carHere, flag('w.c19_siphoned')), minutes: 20, ambientDuring: cold19, terminal: true, goto: 'c19_checkpoint',
+        text: 'Ты светишь фонариком на горловину и льёшь медленно, через воронку из пластиковой бутылки. Пахнет так, что режет глаза. Стрелка на приборной панели поднимается.', effects: [set19('ni', 'pour'), { refuel: 'opel_corsa', liters: 10, fromCan: 'can_petrol_10' }, { set: '$.c19_finished', value: true }, until(20, 4, 45, true)] },
       { id: 'c19_ni_car', label: 'Сначала проверить машину и бак', when: carHere, minutes: 20, ambientDuring: cold19, terminal: true, goto: 'c19_checkpoint',
         text: 'Ты светишь фонариком на приборную панель. Стрелка бензина стоит там, где стояла. Ты протираешь стёкла от инея, чтобы утром не тратить на это время.', effects: [set19('ni', 'car'), { set: '$.c19_finished', value: true }, until(20, 4, 45, true)] },
     ] }),
@@ -149,7 +151,7 @@ export const shared19: Scene[] = [
 
 export const checkpoint20: Scene[] = [
   S20({ id: 'c20_checkpoint', for: 'any', chapter: 'ch3', title: 'Половина четвёртого', checkpoint: 20, universal: false, camp: house14,
-    text: [{ text: 'Половина четвёртого. Через час стемнеет. Вы стоите на кухне в куртках и решаете, что делаете этим вечером.' }], actions: [] }),
+    text: [{ text: 'Около четырёх. Скоро стемнеет. Во дворе пахнет порохом и мокрыми перьями. Вы на кухне и решаете, что делаете этим вечером.' }], actions: [] }),
   S20({ id: 'c20_checkpoint_l', for: 'any', chapter: 'ch3', title: 'Половина четвёртого', checkpoint: 20, universal: false, location: 'c18_lueneburg',
-    text: [{ text: 'Половина четвёртого. Через час стемнеет. Вы стоите у машины за шлагбаумом и решаете, что делаете этим вечером.' }], actions: [] }),
+    text: [{ text: 'Половина четвёртого. Через час стемнеет. Вы стоите у машины за шлагбаумом, у тебя ещё дрожат руки. Вы решаете, что делаете этим вечером.' }], actions: [] }),
 ];

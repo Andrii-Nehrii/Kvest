@@ -42,6 +42,7 @@ import { day18yScenes } from './day18y';
 import { checkpoint20, shared19 } from './point19';
 import { day20GScenes } from './day20g';
 import { day20FScenes } from './day20f';
+import { day20DScenes } from './day20d';
 import { day19AScenes } from './day19a';
 import { day19BScenes } from './day19b';
 import { checkpoint18, evening18 } from './point18';
@@ -63,6 +64,6 @@ export const scenes3: Record<string, Scene> = Object.fromEntries([
   newEntry9, ...entry9Scenes, ...farm9AScenes, ...farm9BScenes, ...common9Scenes,
   newEntry10, ...night10SScenes, ...night10FScenes, ...night10Scenes,
   newEntry11, ...dawn11Scenes, ...day11Scenes, ...noon11Scenes,
-  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, newEntry16, ...day16Scenes, ...day16xScenes, newEntry17, ...day17Scenes, ...day17xScenes, newEntry18, ...day18AScenes, ...day18BScenes, ...day18xScenes, ...day18yScenes, evening18, checkpoint18, newEntry19, ...shared19, ...day19AScenes, ...day19BScenes, newEntry20, ...day20GScenes, ...day20FScenes, ...checkpoint20, ...checkpointScenes,
+  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, newEntry16, ...day16Scenes, ...day16xScenes, newEntry17, ...day17Scenes, ...day17xScenes, newEntry18, ...day18AScenes, ...day18BScenes, ...day18xScenes, ...day18yScenes, evening18, checkpoint18, newEntry19, ...shared19, ...day19AScenes, ...day19BScenes, newEntry20, ...day20GScenes, ...day20FScenes, ...day20DScenes, ...checkpoint20, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(withFarmCare(s))]));
 export const incidentEvents3 = [...morning12Events];
