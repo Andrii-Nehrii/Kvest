@@ -10,6 +10,7 @@ const lue = 'c18_lueneburg';
 const camp = { at: lue, stock: 'c3_farm_stock', rest: false } as const;
 const yardAir = { tempC: 4, outdoor: true, wet: false };
 const fed: Effect[] = [{ body: 'hunger', delta: -40 }, { body: 'thirst', delta: -35 }];
+const prepare = { camp: { kind: 'prepare' as const, quiet: true } };
 const G = (scene: Omit<Scene, 'for' | 'chapter' | 'location'>): Scene => S20({ ...scene, for: 'any', chapter: 'ch3', location: lue, camp: scene.camp ?? camp, safe: false });
 const henrikeHere: Cond = { npc: 'henrike', alive: true, at: lue };
 const phoneHeld: Cond = flag('w.c18_phone_held');
@@ -32,11 +33,11 @@ export const day20GScenes: Scene[] = [
     ],
     actions: [
       { id: 'c20_gg_give', label: 'Сдать телефон в ячейку', when: any(A19, not(phoneHeld)), minutes: 10, terminal: true, goto: 'c20_g_ole',
-        text: 'Телефон уходит в ячейку. Жетон с номером на шнурке холодит шею.', effects: [set20('gg', 'give'), { phonePower: false }, until(20, 6, 50)] },
+        text: 'Телефон уходит в ячейку. Жетон с номером на шнурке холодит шею.', effects: [prepare, set20('gg', 'give'), { phonePower: false }, until(20, 6, 50)] },
       { id: 'c20_gg_car', label: 'Оставить телефон в машине', when: any(A19, not(phoneHeld)), minutes: 10, terminal: true, goto: 'c20_g_ole',
-        text: 'Ты возвращаешься к машине и кладёшь телефон в бардачок, выключенный. Сержант смотрит и ничего не говорит.', effects: [set20('gg', 'car'), { phonePower: false }, until(20, 6, 50)] },
+        text: 'Ты возвращаешься к машине и кладёшь телефон в бардачок, выключенный. Сержант смотрит и ничего не говорит.', effects: [prepare, set20('gg', 'car'), { phonePower: false }, until(20, 6, 50)] },
       { id: 'c20_gg_ask', label: 'Спросить про свой телефон у коменданта', when: all(B19, phoneHeld), minutes: 10, terminal: true, goto: 'c20_g_ole',
-        text: '— Ab neun, — говорит сержант. С девяти. — Zimmer zwölf. Mit Ausweis.\n\nКомната двенадцать. С документом.', effects: [set20('gg', 'ask'), until(20, 6, 50)] },
+        text: '— Ab neun, — говорит сержант. С девяти. — Zimmer zwölf. Mit Ausweis.\n\nКомната двенадцать. С документом.', effects: [prepare, set20('gg', 'ask'), until(20, 6, 50)] },
     ] }),
 
   G({ id: 'c20_g_ole', title: 'Донорский блок',
@@ -186,15 +187,30 @@ export const day20GScenes: Scene[] = [
       { text: '— Heute Mittag kommt Neues, — говорит сестра. — Bis dahin reicht es. Gerade so.\n\nСегодня в полдень привезут новое. До тех пор хватит. Еле-еле.' },
     ],
     actions: [
-      { id: 'c20_gbk_read', label: 'Войти и дочитать им «Джима Пуговку»', minutes: 30, terminal: true, goto: 'c20_g_ahlers',
+      { id: 'c20_gbk_read', label: 'Войти и дочитать им «Джима Пуговку»', minutes: 30, terminal: true, goto: 'c20_g_b_drk',
         outcomes: [
           { id: 'again', when: v('B.c18_bq', 'read'), text: 'Девочка у окна держит книгу раскрытой на той же странице, где ты {m:остановился|остановилась} в среду. Ты читаешь дальше. Она поправляет тебя реже. К концу главы она спит, единственная, кто не спал в прошлый раз.', effects: [set20('gbk', 'read'), { body: 'stress', delta: -2 }] },
           { id: 'first', text: 'Ты читаешь главу. Немецкий у тебя с акцентом. Девочка у окна поправляет тебя на каждом третьем слове и смеётся, когда ты путаешь Лукаса с локомотивом.', effects: [set20('gbk', 'read'), { body: 'stress', delta: -2 }] },
         ], effects: [until(20, 10, 30)] },
-      { id: 'c20_gbk_hours', label: 'Спросить сестру, что будет, если транспорт не придёт', minutes: 15, terminal: true, goto: 'c20_g_ahlers',
+      { id: 'c20_gbk_hours', label: 'Спросить сестру, что будет, если транспорт не придёт', minutes: 15, terminal: true, goto: 'c20_g_b_drk',
         text: 'Сестра долго смотрит на кровать у окна.\n\n— Dann zählen wir. Bei ihr vielleicht einen Tag. Bei den Kleinen weniger.\n\nТогда будем считать. У неё, может быть, сутки. У маленьких меньше.', effects: [set20('gbk', 'hours'), w20('kids_hours', true), { body: 'stress', delta: 2 }, until(20, 10, 15)] },
-      { id: 'c20_gbk_sweets', label: 'Отдать девочке карамельки', when: own20('gbp', 'wash'), minutes: 10, terminal: true, goto: 'c20_g_ahlers',
+      { id: 'c20_gbk_sweets', label: 'Отдать девочке карамельки', when: own20('gbp', 'wash'), minutes: 10, terminal: true, goto: 'c20_g_b_drk',
         text: 'Сестра разрешает, только через стекло, через окошко для лекарств. Девочка прячет обе карамельки под подушку и показывает тебе большой палец.', effects: [set20('gbk', 'sweets'), until(20, 10, 10)] },
+    ] }),
+
+  G({ id: 'c20_g_b_drk', title: 'Стол Красного Креста',
+    text: [
+      { text: 'У входа в зал списков стол с табличкой «DRK-Suchdienst». Женщина в жилете с крестом записывает, кто кого ищет, и отправляет записки дальше: в другие пункты, в Гамбург, если туда кто-то едет.' },
+      { when: flag('w.c18_okafor_listed'), text: 'В среду ты {m:видел|видела} на стене Бармбека: Окафор остался в вашем доме и ухаживает за жильцами.' },
+      { when: flag('w.c18_merle_listed'), text: 'В среду ты {m:видел|видела} на стене: Мерле с родителями в Аренсбурге, «зарегистрирована, обеспечена».' },
+    ],
+    actions: [
+      { id: 'c20_gbd_okafor', label: 'Написать Окафору: где ты и как найти хутор', when: flag('w.c18_okafor_listed'), minutes: 20, terminal: true, goto: 'c20_g_ahlers',
+        text: 'Ты пишешь на бланке по-немецки, медленно: имя, «Barmbek, Hausgemeinschaft», и ниже — хутор Людеманов под Йестебургом, поворот у почтового ящика. Женщина в жилете кладёт бланк в стопку с надписью «Hamburg». — Wenn einer fährt, — говорит она. Если кто-то поедет.', effects: [set20('gbd2', 'okafor'), w20('drk_okafor', true), until(20, 10, 30)] },
+      { id: 'c20_gbd_merle', label: 'Написать Мерле в Аренсбург', when: flag('w.c18_merle_listed'), minutes: 20, terminal: true, goto: 'c20_g_ahlers',
+        text: 'Ты пишешь коротко: жива, на хуторе под Йестебургом, у тебя есть инсулин или был, если дойдёт письмо — ответь через Красный Крест. Женщина в жилете морщится: Аренсбург за Эльбой. — Dauert, — говорит она. Долго.', effects: [set20('gbd2', 'merle'), w20('drk_merle', true), until(20, 10, 30)] },
+      { id: 'c20_gbd_self', label: 'Записать себя: кто ты и где тебя искать', minutes: 15, terminal: true, goto: 'c20_g_ahlers',
+        text: 'Женщина в жилете вписывает тебя в толстую тетрадь: имя, откуда, где сейчас. Твоя строчка двести сорок третья на этой странице.', effects: [set20('gbd2', 'self'), w20('drk_self', true), until(20, 10, 25)] },
     ] }),
 
   // ───────────── Снова вместе: доктор Алерс ─────────────
@@ -225,20 +241,20 @@ export const day20GScenes: Scene[] = [
       { text: 'За гаражом курилка: бочка с песком, лавка, трое солдат. Один из них радист. Рация у него на ремне шипит.' },
     ],
     actions: [
-      { id: 'c20_gas_listen', label: 'Сесть рядом и слушать', minutes: 30, terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gas_listen', label: 'Сесть рядом и слушать', minutes: 30, terminal: true, goto: 'c20_g_a_henrike',
         text: 'Радист говорит, не глядя на тебя: колонна вышла из Ганновера в шесть. Последний раз выходила на связь в десять, у Зольтау. Говорит, что автобан у Гарльсторфа «voll», полный. Чем полный, он не уточняет.', effects: [set20('gas', 'listen'), w20('radio_early', true), until(20, 11, 40)] },
-      { id: 'c20_gas_smoke', label: 'Попросить сигарету, хотя не куришь', minutes: 20, terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gas_smoke', label: 'Попросить сигарету, хотя не куришь', minutes: 20, terminal: true, goto: 'c20_g_a_henrike',
         text: 'Солдат протягивает пачку. Ты кашляешь с первой затяжки, и все трое смеются, впервые за утро. Потом один говорит: «Die Kuh tut mir leid». Мне жаль корову. Его никто не одёргивает.', effects: [set20('gas', 'smoke'), until(20, 11, 30)] },
-      { id: 'c20_gas_car', label: 'Пойти посидеть в машине', minutes: 20, terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gas_car', label: 'Пойти посидеть в машине', minutes: 20, terminal: true, goto: 'c20_g_a_henrike',
         text: 'В машине тихо. Ты смотришь на стрелку бензина и считаешь в уме: до дома сорок километров.', effects: [set20('gas', 'car'), until(20, 11, 30)] },
     ] }),
 
   G({ id: 'c20_g_b_kitchen', title: 'Кухня',
     text: [{ text: 'На кухне Кася Новак режет капусту. Нож останавливается, когда ты входишь.\n\n— Barmbek! — Она вытирает руки о халат. — Tim spricht von dir. Von der Frau mit dem Buch.\n\nТим про тебя говорит. Про тётю с книжкой.' }],
     actions: [
-      { id: 'c20_gbki_help', label: 'Встать рядом и резать капусту', minutes: 40, activity: 'light', terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gbki_help', label: 'Встать рядом и резать капусту', minutes: 40, activity: 'light', terminal: true, goto: 'c20_g_b_donor',
         text: 'Вы режете вдвоём. Кася говорит про Тима: как он держится, как боится уколов и не плачет. Про то, что будет, если плазма кончится, она не говорит ни слова. Нож у неё стучит быстрее, когда ты спрашиваешь.', effects: [set20('gbki', 'help'), npc('kasia', 2), until(20, 11, 40)] },
-      { id: 'c20_gbki_truth', label: 'Спросить, что ей сказали врачи', minutes: 20, terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gbki_truth', label: 'Спросить, что ей сказали врачи', minutes: 20, terminal: true, goto: 'c20_g_b_donor',
         text: '— Dass es hält, — говорит Кася. Что держит. — Ich frage nicht weiter. Wenn ich weiterfrage, sagen sie es mir.\n\nЯ дальше не спрашиваю. Если спрошу, они мне скажут.', effects: [set20('gbki', 'truth'), w20('kasia_holds', true), until(20, 11, 20)] },
     ] }),
 
@@ -248,10 +264,44 @@ export const day20GScenes: Scene[] = [
       { when: v('w.c18_seat', 'hanna'), text: 'На скамейке у плаца женщина с девочкой лет пяти. Девочка болтает ногами. Женщина смотрит на ворота так, как смотрят все здесь сегодня.' },
     ],
     actions: [
-      { id: 'c20_gbh_sit', label: 'Посидеть рядом', minutes: 30, terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gbh_sit', label: 'Посидеть рядом', minutes: 30, terminal: true, goto: 'c20_g_b_donor',
         text: 'Вы сидите молча. Мимо проходят солдаты, сестра с каталкой, Хенрике в пальто. Так проходят полчаса.', effects: [set20('gbh', 'sit'), { body: 'stress', delta: -1 }, until(20, 11, 40)] },
-      { id: 'c20_gbh_farm', label: 'Сказать, как найти хутор, если станет некуда', minutes: 15, terminal: true, goto: 'c20_g_wait',
+      { id: 'c20_gbh_farm', label: 'Сказать, как найти хутор, если станет некуда', minutes: 15, terminal: true, goto: 'c20_g_b_donor',
         text: 'Ты объясняешь: Йестебург, поворот у почтового ящика Людеманов. Женщина повторяет за тобой, чтобы запомнить.', effects: [set20('gbh', 'farm'), w20('more_address', true), until(20, 11, 20)] },
+    ] }),
+
+  G({ id: 'c20_g_a_henrike', title: 'Хенрике в коридоре',
+    text: [
+      { text: 'Хенрике ловит тебя в коридоре штаба и отводит к окну, подальше от людей.\n\n— Hör zu. Wenn ich nicht zurückkomme… — Она сама себя обрывает. — Nein. Anders. Der Hof. Wer wohnt jetzt da?\n\nСлушай. Если я не вернусь… Нет. Иначе. Хутор. Кто там сейчас живёт?' },
+      { when: flag('w.c18_henrike_key'), text: 'Ключ от её шкафа на шнурке у {B.gen}. Хенрике знает.' },
+    ],
+    actions: [
+      { id: 'c20_gah_tell', label: 'Перечислить всех, кто сейчас в доме', minutes: 20, terminal: true, goto: 'c20_g_wait',
+        outcomes: [
+          { id: 'many', when: any(v('w.c18_house', 'open'), v('w.c18_seat', 'eva'), v('w.c18_seat', 'jana'), v('w.c18_ute', 'farm'), flag('w.c18_lodger')), text: 'Ты перечисляешь. Хенрике загибает пальцы и на пятом перестаёт.\n\n— Viele Münder, — говорит она. Много ртов. — Die Kartoffeln reichen bis Februar. Danach — Saat. Nicht essen. Hörst du? Die Saat nicht essen.\n\nКартошки хватит до февраля. Дальше — семенная. Не есть. Слышишь? Семенную не есть.', effects: [set20('gah', 'tell'), w20('seed_warning', true), npc('henrike', 1)] },
+          { id: 'few', text: 'Ты перечисляешь. Хенрике кивает на каждое имя.\n\n— Gut. Die Saatkartoffeln sind die hinten links. Die esst ihr nicht.\n\nХорошо. Семенная картошка — сзади слева. Её вы не едите.', effects: [set20('gah', 'tell'), w20('seed_warning', true), npc('henrike', 1)] },
+        ], effects: [until(20, 11, 55)] },
+      { id: 'c20_gah_promise', label: 'Пообещать, что хутор будет в порядке', minutes: 15, terminal: true, goto: 'c20_g_wait',
+        text: '— Versprich nichts, — говорит Хенрике. Не обещай. — Mach einfach.\n\nПросто делай.\n\nНо руку тебе на плечо она всё-таки кладёт. Коротко.', effects: [set20('gah', 'promise'), npc('henrike', 2), until(20, 11, 50)] },
+      { id: 'c20_gah_ole', label: 'Спросить, что она будет делать, если Оле не уйдёт', minutes: 15, terminal: true, goto: 'c20_g_wait',
+        text: 'Хенрике долго смотрит в окно, на донорский блок.\n\n— Bleiben. Bis er geht oder bis sie ihn raustragen. — Она поправляет воротник пальто. — Was sonst?\n\nОставаться. Пока он не уйдёт или пока его не вынесут. А что ещё?', effects: [set20('gah', 'ole'), { body: 'stress', delta: 1 }, until(20, 11, 50)] },
+    ] }),
+
+  G({ id: 'c20_g_b_donor', title: 'Забор крови',
+    text: [
+      { when: not(flag('w.c18_ole_rest')), text: 'В донорском блоке сестра уже ставит Оле катетер. Пакет на стойке пустой и плоский. Оле смотрит в потолок.' },
+      { when: flag('w.c18_ole_rest'), text: 'В донорском блоке у Оле сегодня свободный день. Зато на соседней койке пожилой мужчина с белыми губами. На листке у его кровати: «Tag 7».' },
+    ],
+    actions: [
+      { id: 'c20_gbd_hand', label: 'Сесть рядом и держать за руку, пока идёт', minutes: 20, terminal: true, goto: 'c20_g_wait',
+        outcomes: [
+          { id: 'ole', when: not(flag('w.c18_ole_rest')), text: 'Пакет наполняется медленно, тёмно-красный. Оле не смотрит на него. Он смотрит на тебя и рассказывает про кур: какая несётся, какая клюёт других. Когда пакет полный, он замолкает на середине фразы.', effects: [set20('gbd', 'hand'), npc('ole', 2), { body: 'stress', delta: 1 }] },
+          { id: 'old', text: 'Мужчина на соседней койке берёт твою руку сам, не открывая глаз. Пальцы ледяные. Его зовут Вальтер, он из Уэльцена, у него внук. Больше он ничего не успевает сказать: приходит сестра с пакетом.', effects: [set20('gbd', 'hand'), w20('walter', true), { body: 'stress', delta: 2 }] },
+        ], effects: [until(20, 11, 55)] },
+      { id: 'c20_gbd_nurse', label: 'Спросить сестру, сколько у них берут', minutes: 15, terminal: true, goto: 'c20_g_wait',
+        text: '— So viel, wie die Kinder brauchen, — говорит сестра заученно. Сколько нужно детям. Потом, тише, не глядя на тебя: — Mehr, als man darf.\n\nБольше, чем можно.', effects: [set20('gbd', 'nurse'), w20('nurse_more', true), until(20, 11, 50)] },
+      { id: 'c20_gbd_go', label: 'Не смотреть: выйти во двор', minutes: 10, terminal: true, goto: 'c20_g_wait',
+        text: 'Ты выходишь. Во дворе холодно, и это хорошо.', effects: [set20('gbd', 'go'), until(20, 11, 45)] },
     ] }),
 
   // ───────────── Ожидание и известие ─────────────
@@ -290,12 +340,26 @@ export const day20GScenes: Scene[] = [
       { text: 'Обед никто не отменял. В гараже суп из порошка и хлеб. Солдаты едят быстро и молча. Шуток больше нет.' },
     ],
     actions: [
-      { id: 'c20_gl_eat', label: 'Поесть', minutes: 25, terminal: true, goto: 'c20_g_ole2',
+      { id: 'c20_gl_eat', label: 'Поесть', minutes: 25, terminal: true, goto: 'c20_g_fence',
         text: 'Суп горячий, и это главное. Ты доедаешь и берёшь второй кусок хлеба в карман.', effects: [set20('gl', 'eat'), ...fed, until(20, 14, 0)] },
-      { id: 'c20_gl_henrike', label: 'Отнести суп Хенрике на плац', minutes: 20, terminal: true, goto: 'c20_g_ole2',
+      { id: 'c20_gl_henrike', label: 'Отнести суп Хенрике на плац', minutes: 20, terminal: true, goto: 'c20_g_fence',
         text: 'Хенрике берёт миску обеими руками и ест прямо на бордюре, не отрывая глаз от ворот. Ты ешь свой хлеб стоя.', effects: [set20('gl', 'henrike'), npc('henrike', 1), { body: 'hunger', delta: -15 }, until(20, 14, 0)] },
-      { id: 'c20_gl_skip', label: 'Не есть', minutes: 10, terminal: true, goto: 'c20_g_ole2',
+      { id: 'c20_gl_skip', label: 'Не есть', minutes: 10, terminal: true, goto: 'c20_g_fence',
         text: 'Кусок в горло не лезет. Ты пьёшь воду из-под крана в умывальной.', effects: [set20('gl', 'skip'), { body: 'thirst', delta: -20 }, until(20, 13, 50)] },
+    ] }),
+
+  G({ id: 'c20_g_fence', title: 'Вдоль забора', ambient: yardAir,
+    text: [
+      { text: 'После обеда ты идёшь вдоль забора казармы, просто чтобы двигаться. За сеткой поле, за полем дорога на Люнебург.' },
+      { text: 'По полю идут трое в больничных рубашках. Медленно, в сторону города. На вышке у ворот солдат снимает винтовку с плеча и кладёт на перила.' },
+    ],
+    actions: [
+      { id: 'c20_gf_watch', label: 'Остановиться и смотреть', minutes: 20, terminal: true, goto: 'c20_g_ole2',
+        text: 'Трое идут, не меняя шага. Солдат на вышке ждёт, пока они подойдут к канаве у забора. Потом стреляет три раза, с промежутками. Ты не отворачиваешься. Солдат перекидывает винтовку обратно на плечо и закуривает.', effects: [set20('gf', 'watch'), { body: 'stress', delta: 3 }, until(20, 14, 20)] },
+      { id: 'c20_gf_talk', label: 'Подойти к вышке и спросить солдата', minutes: 20, terminal: true, goto: 'c20_g_ole2',
+        text: '— Nur wenn sie an den Graben kommen, — говорит солдат сверху. Только если подходят к канаве. — Jeden Tag mehr. Alle aus Richtung Autobahn.\n\nКаждый день больше. Все со стороны автобана.\n\nТрое сворачивают вдоль канавы и уходят к лесу. Он не стреляет.', effects: [set20('gf', 'talk'), w20('more_each_day', true), until(20, 14, 20)] },
+      { id: 'c20_gf_back', label: 'Повернуть назад, к плацу', minutes: 10, terminal: true, goto: 'c20_g_ole2',
+        text: 'Ты возвращаешься. За спиной, далеко, хлопают три выстрела. Ты не оборачиваешься.', effects: [set20('gf', 'back'), until(20, 14, 15)] },
     ] }),
 
   G({ id: 'c20_g_ole2', title: 'Оле во дворе', ambient: yardAir,
@@ -321,7 +385,7 @@ export const day20GScenes: Scene[] = [
 
   G({ id: 'c20_g_car', title: 'Перед дорогой', ambient: yardAir,
     text: [
-      { text: 'В три вы стоите у машины за шлагбаумом. Солнце уже низко. Через полтора часа стемнеет.' },
+      { text: 'Ближе к трём вы стоите у машины за шлагбаумом. Солнце уже низко. Через полтора часа стемнеет.' },
       { when: { fuelFor: 'opel_corsa', km: 40 }, text: 'Стрелка бензина показывает, что до дома хватит. С запасом или нет — смотря какой дорогой.' },
       { when: not({ fuelFor: 'opel_corsa', km: 40 }), text: 'Стрелка бензина почти на нуле. До дома сорок километров. Может не хватить.' },
       { when: flag('w.c20_two_wagons'), text: 'В четыре к Гарльсторфу уйдут две армейские машины. Гражданским сказали оставаться.' },

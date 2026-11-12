@@ -16,9 +16,11 @@ const afterCaches = [{ id: 'booth', when: ilseKept, goto: 'c19_a_booth' }, { id:
 const afterCellar = [{ id: 'diesel', when: not(flag('$.c19_ad')), goto: 'c19_a_diesel' }, ...afterCaches];
 const afterDiesel = [{ id: 'cellar', when: all(letter, not(flag('$.c19_ac')), not(own19('al', 'put'))), goto: 'c19_a_cellar' }, ...afterCaches];
 const gunKnown: Cond = flag('w.c19_gun');
-const afterPatrol = [{ id: 'gun', when: gunKnown, goto: 'c19_a_weapons' }, { id: 'noon', goto: 'c19_a_noon' }];
-const afterNoon = [{ id: 'nina', when: ninaFarm, goto: 'c19_a_nina' }, { id: 'call', goto: 'c19_a_ninacall' }];
-const afterNina = [{ id: 'ute', when: uteHere, goto: 'c19_a_ute' }, { id: 'jannes', when: jannesHere, goto: 'c19_a_jannes' }, { id: 'kerem', goto: 'c19_a_kerem' }];
+const afterPatrol = [{ id: 'gun', when: gunKnown, goto: 'c19_a_weapons' }, { id: 'noon', goto: 'c19_a_noon', effects: [until(19, 12, 45)] }];
+const afterWell = [{ id: 'nina', when: ninaFarm, goto: 'c19_a_nina' }, { id: 'call', goto: 'c19_a_ninacall' }];
+const afterNoon = [{ id: 'well', goto: 'c19_a_well' }];
+const afterGirl = [{ id: 'ute', when: uteHere, goto: 'c19_a_ute' }, { id: 'jannes', when: jannesHere, goto: 'c19_a_jannes' }, { id: 'kerem', goto: 'c19_a_kerem' }];
+const afterNina = [{ id: 'girl', when: girlHere, goto: 'c19_a_girl' }, ...afterGirl];
 const listed = (who: string) => `${who} в списке нет.`;
 
 export const day19AScenes: Scene[] = [
@@ -136,7 +138,7 @@ export const day19AScenes: Scene[] = [
       { when: own19('ab', 'tell'), text: 'Ты помнишь про будку у насыпи.' },
     ],
     actions: [
-      { id: 'c19_ap_add', label: 'Дописать всех, кто живёт в доме', minutes: 20, terminal: true, outcomes: afterPatrol,
+      { id: 'c19_ap_add', label: 'Дописать всех, кто живёт в доме', when: not(v('w.c18_list', 'all')), minutes: 20, terminal: true, outcomes: afterPatrol,
         text: 'Солдат вбивает фамилии одну за другой. На каждой он поднимает глаза и смотрит на человека.\n\n— Montag kommt Herr Brandt persönlich, — говорит он. — Er will jeden sehen.\n\nВ понедельник придёт сам господин Брандт. Он хочет видеть каждого.', effects: [set19('ap', 'add'), w19('list', 'all')] },
       { id: 'c19_ap_guests', label: 'Сказать: это гости, завтра уходят', when: not(v('w.c18_list', 'all')), minutes: 10, terminal: true, outcomes: afterPatrol,
         text: '— Gäste, — повторяет солдат. — Bis morgen.\n\nГости. До завтра.\n\nОн записывает в заметки: «Lüdemann-Hof, Gäste, Abreise Fr.» Отъезд в пятницу. Теперь это записано.', effects: [set19('ap', 'guests'), w19('list', 'guests')] },
@@ -150,9 +152,9 @@ export const day19AScenes: Scene[] = [
     text: [{ text: 'Солдат уже убирает планшет, но останавливается.\n\n— Waffen im Haus? Herr Brandt lässt alles registrieren.\n\nОружие в доме есть? Господин Брандт велел всё переписать.' }],
     actions: [
       { id: 'c19_aw_truth', label: 'Сказать правду: старая двустволка, отцовская', minutes: 15, terminal: true, goto: 'c19_a_noon',
-        text: 'Солдат вписывает: «Bockflinte, Kal. 12, Lüdemann». Номер на стволе он переписывает сам.\n\n— Behalten Sie sie. Für den Hof. Aber Brandt weiß es jetzt.\n\nОставьте. Для двора. Но теперь Брандт знает.', effects: [set19('aw', 'truth'), w19('gun_declared', true)] },
+        text: 'Солдат вписывает: «Bockflinte, Kal. 12, Lüdemann». Номер на стволе он переписывает сам.\n\n— Behalten Sie sie. Für den Hof. Aber Brandt weiß es jetzt.\n\nОставьте. Для двора. Но теперь Брандт знает.', effects: [set19('aw', 'truth'), w19('gun_declared', true), until(19, 12, 45)] },
       { id: 'c19_aw_lie', label: 'Сказать: оружия нет', minutes: 5, terminal: true, goto: 'c19_a_noon',
-        text: '— Keine, — говоришь ты. Нет.\n\nСолдат кивает и уходит к машине. Молодой смотрит на окна твоей комнаты чуть дольше, чем нужно.', effects: [set19('aw', 'lie'), w19('gun_lie', true)] },
+        text: '— Keine, — говоришь ты. Нет.\n\nСолдат кивает и уходит к машине. Молодой смотрит на окна твоей комнаты чуть дольше, чем нужно.', effects: [set19('aw', 'lie'), w19('gun_lie', true), until(19, 12, 45)] },
     ] }),
 
   A({ id: 'c19_a_noon', title: 'Обед', camp: kitchen14,
@@ -171,6 +173,20 @@ export const day19AScenes: Scene[] = [
         text: 'Ты отламываешь горбушку и ешь на ходу.', effects: [set19('an', 'skip'), until(19, 14, 0)] },
     ] }),
 
+  A({ id: 'c19_a_well', title: 'Колонка', camp: yard14, ambient: day19,
+    text: [
+      { text: 'После обеда колонка во дворе качает воздух. Рычаг ходит легко, слишком легко, и из носика только хрипит. Ночью был мороз: прихватило трубу или села кожа в поршне.' },
+      { text: 'Воды в канистрах в кладовке на день, может на два, если людей столько, сколько сейчас.' },
+    ],
+    actions: [
+      { id: 'c19_awl_fix', label: 'Разобрать и починить самому', minutes: 50, activity: 'moderate', terminal: true, outcomes: afterWell,
+        text: 'Ты откручиваешь крышку. Кожаная манжета на поршне высохла и треснула. Ты вырезаешь новую из голенища старого сапога Хенрике ножом, по старой. Через сорок минут колонка снова качает. Вода сначала ржавая, потом чистая.', effects: [set19('awl', 'fix'), w19('well', 'ok'), until(19, 14, 0)] },
+      { id: 'c19_awl_hot', label: 'Отогреть трубу кипятком и тряпками', minutes: 35, activity: 'light', terminal: true, outcomes: afterWell,
+        text: 'Три чайника кипятка, старые полотенца, терпение. На третьем чайнике колонка кашляет и выплёвывает ржавую воду, потом чистую. Ты обматываешь трубу мешковиной и проволокой. Сегодня ночью не замёрзнет.', effects: [set19('awl', 'hot'), w19('well', 'ok'), until(19, 14, 0)] },
+      { id: 'c19_awl_later', label: 'Оставить до тепла: воды пока хватит', minutes: 10, terminal: true, outcomes: afterWell,
+        text: 'Ты вешаешь на рычаг табличку из картона: «Kaputt». Потом пересчитываешь канистры в кладовке ещё раз.', effects: [set19('awl', 'later'), w19('well', 'broken'), until(19, 13, 40)] },
+    ] }),
+
   A({ id: 'c19_a_nina', title: 'Нина', camp: house14,
     text: [
       { when: jensBarn, text: 'Нина ждёт тебя у двери длинного сарая. В руках у неё миска с водой.\n\n— Ich will zu Papa. Nicht durch den Spalt. Rein.\n\nЯ хочу к папе. Не через щель. Внутрь.' },
@@ -182,7 +198,7 @@ export const day19AScenes: Scene[] = [
       { id: 'c19_ani_with', label: 'Пойти с ней и быть рядом', when: any(jensBarn, jensColony, jensGone), minutes: 50, activity: 'light', terminal: true, outcomes: afterNina,
         text: 'Вы идёте вместе. Там, куда она шла, Нина долго стоит молча. Потом говорит отцу что-то по-немецки, быстро, будто боится не успеть. Обратно она держит тебя за рукав.', effects: [set19('ani', 'with'), w19('nina_visit', true), npc('c7_nina', 3), { body: 'stress', delta: 2 }, until(19, 15, 0)] },
       { id: 'c19_ani_no', label: 'Сказать: не сегодня', when: any(jensBarn, jensColony, jensGone), minutes: 10, terminal: true, outcomes: afterNina,
-        text: '— Heute nicht, — говоришь ты.\n\nНина ставит миску на землю, аккуратно, чтобы не расплескать, и уходит в дом. Миска так и стоит у двери.', effects: [set19('ani', 'no'), npc('c7_nina', -2), until(19, 14, 20)] },
+        text: '— Heute nicht, — говоришь ты.\n\nНина смотрит на тебя долго, не споря. Потом уходит в дом и закрывает за собой дверь. Тихо. Так закрывают, когда хотят хлопнуть.', effects: [set19('ani', 'no'), npc('c7_nina', -2), until(19, 14, 20)] },
       { id: 'c19_ani_ute', label: 'Позвать Уте: она знает, как с ними', when: all(uteHere, any(jensBarn, jensColony)), minutes: 50, terminal: true, outcomes: afterNina,
         text: 'Уте берёт Нину за руку, как берут ученицу перед экзаменом.\n\n— Wir gehen zusammen. Er erkennt Stimmen, nicht Gesichter.\n\nПойдём вместе. Он узнаёт голоса, не лица.\n\nТы ждёшь снаружи.', effects: [set19('ani', 'ute'), w19('nina_visit', true), npc('c14_ute', 2), npc('c7_nina', 2), until(19, 15, 0)] },
       { id: 'c19_ani_job', label: 'Дать ей настоящее дело: яйца и куры на ней', when: not(any(jensBarn, jensColony, jensGone)), minutes: 15, terminal: true, outcomes: afterNina,
@@ -203,6 +219,20 @@ export const day19AScenes: Scene[] = [
         text: 'Ты складываешь поленницу заново, ровнее. Работа помогает не смотреть на телефон.', effects: [set19('anc', 'work'), until(19, 14, 30)] },
     ] }),
 
+  A({ id: 'c19_a_girl', title: 'Новенькая', camp: house14,
+    text: [
+      { when: evaHere, text: 'Эва ждёт тебя в сенях. Рукава закатаны, руки красные от холодной воды.\n\n— Gib mir Arbeit. Richtige Arbeit. Sonst denke ich nach.\n\nДай мне работу. Настоящую. Иначе я начинаю думать.' },
+      { when: janaHere, text: 'Яна ждёт тебя в сенях. Рукава закатаны, руки красные от холодной воды.\n\n— Gib mir Arbeit. Richtige Arbeit. Sonst denke ich nach.\n\nДай мне работу. Настоящую. Иначе я начинаю думать.' },
+    ],
+    actions: [
+      { id: 'c19_ag_wood', label: 'Поставить её колоть дрова вместе с тобой', minutes: 40, activity: 'heavy', terminal: true, outcomes: afterGirl,
+        text: 'Она колет неумело, но упрямо. На десятом полене топор перестаёт отскакивать. Вы работаете молча, и это молчание хорошее.', effects: [set19('ag', 'wood'), { if: evaHere, then: [npc('c8_eva', 2)] }, { place: 'firewood', at: 'c3_farm_stock', qty: 10 }, until(19, 15, 10)] },
+      { id: 'c19_ag_story', label: 'Спросить, что с ней было до казармы', minutes: 30, terminal: true, outcomes: afterGirl,
+        text: 'Она рассказывает, глядя на свои руки: дорога, чужие люди, человек, который отошёл ненадолго и не вернулся. Подробностей она не даёт, ты не спрашиваешь. В конце она говорит: «Danke, dass du nicht sagst, dass es vorbeigeht». Спасибо, что не говоришь, что пройдёт.', effects: [set19('ag', 'story'), { if: evaHere, then: [npc('c8_eva', 2)] }, until(19, 14, 55)] },
+      { id: 'c19_ag_kitchen', label: 'Отдать ей кухню и кур', minutes: 15, terminal: true, outcomes: afterGirl,
+        text: 'Она кивает и уходит, не дослушав. Через полчаса из кухни пахнет луком, а в курятнике выметен пол.', effects: [set19('ag', 'kitchen'), until(19, 14, 50)] },
+    ] }),
+
   A({ id: 'c19_a_ute', title: 'Уте', camp: tense14, ambient: day19,
     text: [
       { when: barnChained, text: 'В длинном сарае Уте с вёдрами. Она моет пол в проходе между стойлами, на коленях. Цепи звякают каждый раз, когда она передвигает ведро.\n\n— Sie riechen die Hühner, — говорит она. — Seit gestern sind sie unruhig.\n\nОни чуют кур. Со вчерашнего дня беспокойные.' },
@@ -210,10 +240,14 @@ export const day19AScenes: Scene[] = [
       { when: colonyGone, text: 'Уте сидит у окна в комнате за кухней. Вязание лежит на коленях, спицы не двигаются. На подоконнике связка ключей с бирками.\n\n— Ich weiß nicht, was ich mit den Händen machen soll, — говорит она.\n\nНе знаю, куда деть руки.' },
     ],
     actions: [
-      { id: 'c19_au_help', label: 'Помочь ей', minutes: 45, activity: 'moderate', terminal: true, goto: 'c19_a_kerem',
+      { id: 'c19_au_help', label: 'Помочь ей с вёдрами', when: barnChained, minutes: 45, activity: 'moderate', terminal: true, goto: 'c19_a_kerem',
         text: 'Ты делаешь то, что она показывает, и не задаёшь вопросов. Уте работает быстро и говорит с каждым, мимо кого проходит, по имени. Под конец она говорит и с тобой, тем же голосом.', effects: [set19('au', 'help'), npc('c14_ute', 2), until(19, 15, 40)] },
       { id: 'c19_au_hens', label: 'Перенести кур подальше от сарая', when: barnChained, minutes: 45, activity: 'moderate', terminal: true, goto: 'c19_a_kerem',
         text: 'Ты переставляешь клетки и насест к дальнему углу двора, за поленницу. Куры недовольны. В сарае к вечеру становится тише.', effects: [set19('au', 'hens'), w19('hens_moved', true), until(19, 15, 40)] },
+      { id: 'c19_au_walk', label: 'Сходить с ней к колонии', when: all(colonyStands, not(barnChained)), minutes: 50, move: true, terminal: true, goto: 'c19_a_kerem',
+        text: 'Уте идёт быстро, вязание под мышкой. У калитки колонии она здоровается с каждым домиком, по номерам. Ты ждёшь у ленты. Обратно она идёт медленнее и молчит до самого двора.', effects: [set19('au', 'walk'), npc('c14_ute', 2), until(19, 15, 40)] },
+      { id: 'c19_au_pit', label: 'Сходить с ней к холмикам за теплицей', when: colonyGone, minutes: 50, move: true, terminal: true, goto: 'c19_a_kerem',
+        text: 'Уте идёт вдоль ряда и поправляет бирки на проволоке, одну за другой. У одной она стоит дольше. Потом достаёт из кармана ключ с биркой и вешает рядом, на ту же проволоку.\n\n— Jetzt sind alle Schlüssel da, wo sie hingehören.\n\nТеперь все ключи там, где им место.', effects: [set19('au', 'pit'), npc('c14_ute', 3), { body: 'stress', delta: 2 }, until(19, 15, 40)] },
       { id: 'c19_au_task', label: 'Дать ей дело: кухня и хлеб на всех', when: not(barnChained), minutes: 20, terminal: true, goto: 'c19_a_kerem',
         text: 'Уте смотрит на тебя поверх очков. Потом встаёт и снимает с крючка фартук Хенрике.\n\n— Mehl?\n\nМука? Ты показываешь, где. Через час в доме пахнет хлебом.', effects: [set19('au', 'task'), npc('c14_ute', 1), until(19, 15, 20)] },
       { id: 'c19_au_leave', label: 'Оставить её одну', minutes: 5, terminal: true, goto: 'c19_a_kerem',
@@ -231,9 +265,9 @@ export const day19AScenes: Scene[] = [
 
   A({ id: 'c19_a_kerem', title: 'Керем', camp: yard14, ambient: day19,
     text: [
-      { when: { npc: 'kerem', alive: true }, text: 'В четыре у ворот звенит велосипедный звонок. Керем, в шапке до бровей, с термосом на багажнике. Он ехал двадцать километров из Бухгольца.\n\n— Deniz schickt mich. Wir wollten wissen, ob ihr lebt.\n\nДениз прислал. Хотели знать, живы ли вы.' },
+      { when: { npc: 'kerem', alive: true }, text: 'Около четырёх у ворот звенит велосипедный звонок. Керем, в шапке до бровей, с термосом на багажнике. Он ехал двадцать километров из Бухгольца.\n\n— Deniz schickt mich. Wir wollten wissen, ob ihr lebt.\n\nДениз прислал. Хотели знать, живы ли вы.' },
       { when: { npc: 'kerem', alive: true }, text: 'Он рассказывает, пока пьёт: в Бухгольце люди Брандта переписывают оружие и тех, кто переболел. У мастерской вчера стояли двое из больницы. Дениз отогнал их ломом, без крови.' },
-      { when: not({ npc: 'kerem', alive: true }), text: 'В четыре у ворот звонит велосипедный звонок. Незнакомый парень с повязкой дружинника передаёт записку от Дениза: «Живы? Если надо — приезжайте. Д.»' },
+      { when: not({ npc: 'kerem', alive: true }), text: 'Около четырёх у ворот звенит велосипедный звонок. Незнакомый парень с повязкой дружинника передаёт записку от Дениза: «Живы? Если надо — приезжайте. Д.»' },
     ],
     actions: [
       { id: 'c19_ak_trade', label: 'Спросить, что они берут на обмен', minutes: 20, terminal: true, goto: 'c19_a_wait',
@@ -255,7 +289,7 @@ export const day19AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c19_awt_road', label: 'Выйти навстречу по дороге к Йестебургу', minutes: 30, move: true, terminal: true, goto: 'c19_eve',
-        text: 'Ты доходишь до поворота у почтового ящика Людеманов. Минут через двадцать на дороге появляются две фигуры, одна с сумкой. Ты узнаёшь её по походке раньше, чем по лицу.', effects: [set19('awt', 'road'), until(19, 17, 0)] },
+        text: 'Ты доходишь до поворота у почтового ящика Людеманов. Дорога пустая. Ты стоишь, пока не начинают мёрзнуть ноги, и смотришь в сторону Йестебурга.', effects: [set19('awt', 'road'), until(19, 17, 0)] },
       { id: 'c19_awt_stove', label: 'Затопить и поставить воду', minutes: 30, terminal: true, goto: 'c19_eve',
         text: 'Ты растапливаешь плиту и ставишь два ведра. Когда хлопает калитка, вода уже шумит.', effects: [set19('awt', 'stove'), until(19, 17, 0)] },
       { id: 'c19_awt_rest', label: 'Полчаса полежать', minutes: 30, activity: 'rest', terminal: true, goto: 'c19_eve',

@@ -251,14 +251,31 @@ export const day19BScenes: Scene[] = [
       { when: all(not(henrikeHome), uteHere), text: 'Уте выходит на крыльцо в фартуке Хенрике.' },
     ],
     actions: [
-      { id: 'c19_bho_stock', label: 'Отнести всё, что принесла, в общий запас', minutes: 15, terminal: true, goto: 'c19_eve',
+      { id: 'c19_bho_stock', label: 'Отнести всё, что принесла, в общий запас', minutes: 15, terminal: true, goto: 'c19_b_afternoon',
         text: 'Ты выкладываешь на полку в кладовке всё, что донесла. Немного, но всё по-честному.', effects: [set19('bho', 'stock'),
           { if: { has: 'canned_beans' }, then: [{ take: 'canned_beans' }, { place: 'canned_beans', at: 'c3_farm_stock', qty: 1 }] },
-          { if: { has: 'c16_bread' }, then: [{ take: 'c16_bread' }, { place: 'c16_bread', at: 'c3_farm_stock', qty: 1 }] }, until(19, 17, 0)] },
-      { id: 'c19_bho_dry', label: 'Сначала переодеться в сухое', when: own19('bbk', 'ditch'), minutes: 20, terminal: true, goto: 'c19_eve',
-        text: 'Ты стягиваешь мокрые джинсы у печки. Кожа на голени красная и чужая. Тепло возвращается медленно.', effects: [set19('bho', 'dry'), { body: 'stress', delta: -1 }, until(19, 17, 0)] },
-      { id: 'c19_bho_tell', label: 'Сразу рассказать, что объявил Брандт', minutes: 15, terminal: true, goto: 'c19_eve',
-        text: 'Ты говоришь с порога: понедельник, переболевшие, транспорт из Ганновера, плазма. На кухне становится тихо.', effects: [set19('bho', 'tell'), until(19, 17, 0)] },
+          { if: { has: 'c16_bread' }, then: [{ take: 'c16_bread' }, { place: 'c16_bread', at: 'c3_farm_stock', qty: 1 }] }, until(19, 15, 30)] },
+      { id: 'c19_bho_dry', label: 'Сначала переодеться в сухое', when: own19('bbk', 'ditch'), minutes: 20, terminal: true, goto: 'c19_b_afternoon',
+        text: 'Ты стягиваешь мокрые джинсы у печки. Кожа на голени красная и чужая. Тепло возвращается медленно.', effects: [set19('bho', 'dry'), { body: 'stress', delta: -1 }, until(19, 15, 30)] },
+      { id: 'c19_bho_tell', label: 'Сразу рассказать, что объявил Брандт', minutes: 15, terminal: true, goto: 'c19_b_afternoon',
+        text: 'Ты говоришь с порога: понедельник, переболевшие, транспорт из Ганновера, плазма. На кухне становится тихо.', effects: [set19('bho', 'tell'), until(19, 15, 30)] },
+    ] }),
+
+  B({ id: 'c19_b_afternoon', title: 'До темноты', camp: house14, safe: true,
+    text: [
+      { text: 'До темноты ещё больше часа. Ноги гудят после дороги.' },
+      { when: ninaFarm, text: 'Нина сидит на кухне над тетрадью Хенрике и что-то чертит линейкой.' },
+      { when: all(uteHere, not(ninaFarm)), text: 'Уте замешивает тесто на столе. Мука у неё до локтей.' },
+    ],
+    actions: [
+      { id: 'c19_baf_nina', label: 'Посмотреть, что чертит Нина', when: ninaFarm, minutes: 40, terminal: true, goto: 'c19_eve',
+        text: 'Это таблица: куры по кличкам, яйца по дням, кто болеет. Нина придумала курам имена. Одну зовут Хенрике, потому что она всех клюёт. Ты смеёшься впервые за день, и Нина тоже.', effects: [set19('baf', 'nina'), npc('c7_nina', 2), { body: 'stress', delta: -2 }, until(19, 17, 0)] },
+      { id: 'c19_baf_dough', label: 'Встать рядом с Уте и месить', when: uteHere, minutes: 50, activity: 'light', terminal: true, goto: 'c19_eve',
+        text: 'Уте показывает, как складывать тесто к себе и от себя. Руки у неё быстрые и сильные. «Kai hat das nie gelernt», — говорит она. Кай так и не научился. Больше она про него ничего не говорит.', effects: [set19('baf', 'dough'), npc('c14_ute', 2), until(19, 17, 0)] },
+      { id: 'c19_baf_sleep', label: 'Лечь на час', minutes: 5, terminal: true, goto: 'c19_eve',
+        text: 'Ты ложишься в одежде. Засыпаешь под звук чьих-то шагов внизу.', effects: [set19('baf', 'sleep'), until(19, 17, 0, true)] },
+      { id: 'c19_baf_note', label: 'Записать, что было в Йестебурге, пока не забылось', minutes: 30, terminal: true, goto: 'c19_eve',
+        text: 'Ты пишешь в тетради Хенрике, на последней странице: мальчик с жёлтым пакетом, Матс с мячом, Брандт на ступенях. Слово «плазма» на странице выходит четыре раза.', effects: [set19('baf', 'note'), until(19, 17, 0)] },
     ] }),
 ];
 

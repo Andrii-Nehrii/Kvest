@@ -767,7 +767,7 @@ const onlyB19 = (a: ActionDef): ActionDef => ({ ...a, when: all(B19, a.when ?? {
 export const newEntry19: Scene = {
   id: 'c19_start', for: 'any', chapter: 'ch3', title: 'Вечер среды', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
-    { when: point19Available, text: 'Разговор на кухне кончается сам: чайник остыл, и говорить больше не о чем. На часах без двадцати восемь.' },
+    { when: point19Available, text: 'Разговор на кухне кончается сам: чайник остыл, и говорить больше не о чем. На часах половина восьмого.' },
     { when: all(point19Available, henrikeHome), text: 'Хенрике моет чашки, хотя никто не просил. Иногда она замирает с полотенцем в руках и смотрит на дверь.' },
     { when: all(point19Available, uteHere), text: 'Уте сидит в углу на табурете со своим вязанием. Яннес спит рядом с ней сидя, привалившись к тёплой печке.' },
     { when: all(point19Available, flag('w.c18_jannes_home'), not(uteHere)), text: 'Яннес сидит у печки в куртке и каждые десять минут смотрит в окно, на дорогу к насыпи.' },
@@ -810,8 +810,12 @@ export const newEntry20: Scene = {
     { when: not(point20Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
-    { id: 'c20_go_gate', label: 'Выйти из машины', when: inLue, minutes: 2, terminal: true, goto: 'c20_g_gate', effects: [prepareCamp] },
+    { id: 'c20_go_gate', label: 'Выйти из машины сразу', when: inLue, minutes: 2, terminal: true, goto: 'c20_g_gate', effects: [prepareCamp] },
+    { id: 'c20_go_sit', label: 'Посидеть минуту в тёплой машине', when: inLue, minutes: 10, terminal: true, goto: 'c20_g_gate',
+      text: 'Мотор тикает, остывая. Стёкла запотевают изнутри. Ты сидишь, пока не перестают дрожать руки, и только потом открываешь дверь.', effects: [prepareCamp, { body: 'stress', delta: -1 }] },
     { id: 'c20_go_yard', label: 'Выйти во двор', when: atFarm, minutes: 2, terminal: true, goto: 'c20_f_dawn', effects: [prepareCamp] },
+    { id: 'c20_go_stove', label: 'Сесть у плиты с кружкой', when: atFarm, minutes: 10, terminal: true, goto: 'c20_f_dawn',
+      text: 'Плита ещё тёплая со вчера. Ты подбрасываешь полено и греешь руки о кружку, пока чайник не закипит снова.', effects: [prepareCamp] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point20Available, a.when ?? { always: true }) })),
 };
 
