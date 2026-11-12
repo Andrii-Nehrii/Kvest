@@ -98,7 +98,7 @@ export const shared19: Scene[] = [
   // ───────────── Вечер четверга: снова вместе ─────────────
   S19({ id: 'c19_eve', for: 'any', chapter: 'ch3', title: 'Вольф у ворот', camp: yard14, ambient: cold19,
     text: [
-      { text: 'В пять, уже в сумерках, у ворот останавливается армейский «Вольф». Из него выходит Тобиас. Планшет он оставляет на сиденье, как в прошлый раз.' },
+      { text: 'В пять, уже в сумерках, у ворот останавливается армейский «Вольф». Из него выходит Тобиас. Планшет он оставляет на сиденье.' },
       { text: '— Morgen Mittag kommt ein Transport aus Hannover nach Lüneburg, — говорит он. — Mit Ersatz für euren Ole. Ich dachte, ihr wollt das wissen.\n\nЗавтра в полдень в Люнебург придёт транспорт из Ганновера. С заменой для вашего Оле. Я подумал, вы захотите знать.' },
       { text: 'Потом, тише:\n\n— Und ab Montag will Brandt alle sehen, die es überstanden haben. Alle Genesenen. Für Lüneburg.\n\nА с понедельника Брандт хочет видеть всех, кто переболел. Всех. Для Люнебурга.' },
     ],

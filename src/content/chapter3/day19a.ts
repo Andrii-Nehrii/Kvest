@@ -279,7 +279,7 @@ export const day19AScenes: Scene[] = [
       { id: 'c19_ak_gun', label: 'Спросить про ружьё, которое у них', when: { v: 'A.c12_gun', op: '==', value: 'kerem' }, minutes: 15, terminal: true, goto: 'c19_a_wait',
         text: 'Керем мрачнеет.\n\n— Brandts Leute haben es gestern mitgenommen. Registriert, sagen sie. Zurück gibt es nicht.\n\nЛюди Брандта забрали его вчера. «Зарегистрировано». Обратно не отдают.', effects: [set19('ak', 'gun'), w19('workshop_gun_taken', true)] },
       { id: 'c19_ak_feed', label: 'Накормить его и отпустить засветло', minutes: 25, terminal: true, goto: 'c19_a_wait',
-        text: 'Ты наливаешь ему супа из кастрюли на плите. Керем ест быстро и смотрит на часы. До темноты ему двадцать километров.\n\n— Grüß {B}, — говорит он уже с велосипеда.', effects: [set19('ak', 'feed'), npc('kerem', 2), until(19, 16, 15)] },
+        text: 'Ты наливаешь ему супа из кастрюли на плите. Керем ест быстро и смотрит на часы. До темноты ему двадцать километров.\n\n— Grüß sie von mir, — говорит он уже с велосипеда. Передай ей привет.', effects: [set19('ak', 'feed'), npc('kerem', 2), until(19, 16, 15)] },
     ] }),
 
   A({ id: 'c19_a_wait', title: 'К пяти', camp: yard14, ambient: cold19,
