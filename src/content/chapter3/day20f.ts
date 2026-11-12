@@ -13,14 +13,13 @@ const prepare = { camp: { kind: 'prepare' as const, quiet: true } };
 const F = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S20({ ...scene, for: 'any', chapter: 'ch3' });
 const rain = { tempC: 5, outdoor: true, wet: true };
 const guests: Cond = v('w.c19_list', 'guests');
-const post: Cond = flag('w.c18_post');
 const ilseStill: Cond = all(v('w.c18_ilse', 'kept'), any(v('w.c19_ilse', 'water'), v('w.c19_ilse', 'fork'), not(flag('w.c19_ilse'))));
 const gunHere: Cond = any(v('w.c19_gun_plan', 'keep'), all(v('w.c19_gun', 'house'), not(flag('w.c19_gun_plan'))));
 const afterBreakfast = [{ id: 'patrol', when: all(A19, guests), goto: 'c20_f_a_patrol' }, { id: 'work', when: A19, goto: 'c20_f_a_work' },
-  { id: 'van', when: post, goto: 'c20_f_b_van', effects: [until(20, 9, 30)] }, { id: 'koehler', goto: 'c20_f_b_koehler', effects: [until(20, 9, 30)] }];
-const afterMorningA = [{ id: 'volker', when: volkerHere, goto: 'c20_f_a_volker' }, { id: 'booth', when: ilseStill, goto: 'c20_f_a_booth' },
+  { id: 'fever', when: girlHere, goto: 'c20_f_b_fever' }, { id: 'rain', goto: 'c20_f_b_rain' }];
+export const afterMorningA = [{ id: 'volker', when: volkerHere, goto: 'c20_f_a_volker' }, { id: 'booth', when: ilseStill, goto: 'c20_f_a_booth' },
   { id: 'barn', when: barnChained, goto: 'c20_f_a_barn' }, { id: 'car', goto: 'c20_f_a_car' }];
-const afterTobias = [{ id: 'a', when: A19, goto: 'c20_f_a_house' }, { id: 'b', goto: 'c20_f_b_food' }];
+const afterTobias = [{ id: 'yard', goto: 'c20_f_yard' }];
 const insulinWalk: Cond = all(flag('w.c19_insulin_address'), { has: 'c18_insulin' });
 const afterNoon = [{ id: 'a', when: A19, goto: 'c20_f_a_afternoon' }, { id: 'ins', when: insulinWalk, goto: 'c20_f_b_insulin' }, { id: 'nina', when: ninaFarm, goto: 'c20_f_b_nina' }, { id: 'girl', when: girlHere, goto: 'c20_f_b_girl' }, { id: 'b', goto: 'c20_f_b_ute' }];
 
@@ -31,15 +30,15 @@ export const day20FScenes: Scene[] = [
       { when: v('w.c18_friday', 'go'), text: 'В среду вы собирались ехать за Оле. Не поехали.' },
     ],
     actions: [
-      { id: 'c20_fd_sleep', label: 'Лечь ещё на два часа', minutes: 5, terminal: true, goto: 'c20_f_breakfast',
+      { id: 'c20_fd_sleep', label: 'Лечь ещё на два часа', minutes: 5, terminal: true, goto: 'c20_f_morning',
         text: 'Ты ложишься в одежде поверх одеяла и засыпаешь, едва закрыв глаза.', effects: [prepare, set20('fd', 'sleep'), until(20, 7, 0, true)] },
-      { id: 'c20_fd_stretcher', label: 'Сделать носилки из двух жердей и мешков', when: A19, minutes: 90, activity: 'moderate', terminal: true, goto: 'c20_f_breakfast',
+      { id: 'c20_fd_stretcher', label: 'Сделать носилки из двух жердей и мешков', when: A19, minutes: 90, activity: 'moderate', terminal: true, goto: 'c20_f_morning',
         text: 'Две жерди от старой изгороди, три мешка из-под картошки, проволока. Ты продеваешь жерди в мешки и проверяешь, ложась сверху. Держит. Носилки стоят в сенях. Ты надеешься, что они не понадобятся.', effects: [prepare, set20('fd', 'stretcher'), w20('stretcher', true), until(20, 7, 0)] },
-      { id: 'c20_fd_stove', label: 'Затопить и обойти двор', when: A19, minutes: 60, activity: 'light', terminal: true, goto: 'c20_f_breakfast', ambientDuring: cold19,
+      { id: 'c20_fd_stove', label: 'Затопить и обойти двор', when: A19, minutes: 60, activity: 'light', terminal: true, goto: 'c20_f_morning', ambientDuring: cold19,
         text: 'Плита разгорается со второй спички. Во дворе тихо. На инее у задней калитки свежие следы босых ног, уходят к полю. Ночью кто-то стоял у калитки. Потом ушёл.', effects: [prepare, set20('fd', 'stove'), w20('prints', true), until(20, 7, 0)] },
-      { id: 'c20_fd_porridge', label: 'Сварить кашу на всех', when: B19, minutes: 60, activity: 'light', terminal: true, goto: 'c20_f_breakfast',
+      { id: 'c20_fd_porridge', label: 'Сварить кашу на всех', when: B19, minutes: 60, activity: 'light', terminal: true, goto: 'c20_f_morning',
         text: 'Ты варишь овсянку в самой большой кастрюле Хенрике и мешаешь, чтобы не пригорела. Когда дом просыпается, на плите уже всё готово.', effects: [prepare, set20('fd', 'porridge'), npc('henrike', 1), until(20, 7, 0)] },
-      { id: 'c20_fd_porch', label: 'Посидеть на крыльце, пока светает', when: B19, minutes: 60, terminal: true, goto: 'c20_f_breakfast', ambientDuring: cold19,
+      { id: 'c20_fd_porch', label: 'Посидеть на крыльце, пока светает', when: B19, minutes: 60, terminal: true, goto: 'c20_f_morning', ambientDuring: cold19,
         text: 'Ты сидишь, завернувшись в плед Хенрике. Поле светлеет полосами. Около шести по дальней кромке проходят двое, к шоссе. Ты провожаешь их глазами.', effects: [prepare, set20('fd', 'porch'), { body: 'stress', delta: -1 }, until(20, 7, 0)] },
     ] }),
 
@@ -66,9 +65,9 @@ export const day20FScenes: Scene[] = [
       { when: janaHere, text: 'Яна стоит в дверях кухни с полотенцем и не двигается.' },
     ],
     actions: [
-      { id: 'c20_fap_add', label: 'Сказать правду: они остаются, впишите', minutes: 20, terminal: true, outcomes: afterMorningA,
+      { id: 'c20_fap_add', label: 'Сказать правду: они остаются, впишите', minutes: 20, terminal: true, goto: 'c20_f_a_wood',
         text: 'Солдат вздыхает и вбивает фамилии.\n\n— Warum nicht gleich? — Почему не сразу? — Montag will Brandt jeden sehen.\n\nВ понедельник Брандт хочет видеть каждого.', effects: [set20('fap', 'add'), w20('list', 'all'), until(20, 9, 0)] },
-      { id: 'c20_fap_lie', label: 'Сказать: уходят после обеда', minutes: 10, terminal: true, outcomes: afterMorningA,
+      { id: 'c20_fap_lie', label: 'Сказать: уходят после обеда', minutes: 10, terminal: true, goto: 'c20_f_a_wood',
         text: 'Солдат долго смотрит на тебя. Потом пишет: «Abreise Fr. Nachmittag». И ниже ещё что-то, мелко. Что — ты не видишь.', effects: [set20('fap', 'lie'), w20('list', 'lie2'), until(20, 8, 50)] },
     ] }),
 
@@ -78,17 +77,17 @@ export const day20FScenes: Scene[] = [
       { when: tractorHere, text: 'Трактор под навесом.' },
     ],
     actions: [
-      { id: 'c20_faw_stretcher', label: 'Сделать носилки из жердей и мешков', when: not(own20('fd', 'stretcher')), minutes: 80, activity: 'moderate', terminal: true, outcomes: afterMorningA,
+      { id: 'c20_faw_stretcher', label: 'Сделать носилки из жердей и мешков', when: not(own20('fd', 'stretcher')), minutes: 80, activity: 'moderate', terminal: true, goto: 'c20_f_a_wood',
         text: 'Две жерди от старой изгороди, три мешка, проволока. Ты проверяешь, ложась сверху. Держит. Носилки стоят в сенях. Хорошо бы не пригодились.', effects: [set20('faw', 'stretcher'), w20('stretcher', true), until(20, 9, 45)] },
-      { id: 'c20_faw_tractor', label: 'Перебрать и смазать трактор', when: tractorHere, minutes: 80, activity: 'moderate', terminal: true, outcomes: afterMorningA,
+      { id: 'c20_faw_tractor', label: 'Перебрать и смазать трактор', when: tractorHere, minutes: 80, activity: 'moderate', terminal: true, goto: 'c20_f_a_wood',
         text: 'Масло, фильтр, клеммы аккумулятора в зелёной корке. Ты чистишь их наждаком. Трактор заводится с первого раза и ровно стучит под навесом.', effects: [set20('faw', 'tractor'), w20('tractor_serviced', true), until(20, 9, 45)] },
-      { id: 'c20_faw_diesel', label: 'Выкопать солярку к субботнему обмену', when: v('w.c19_diesel', 'marked'), minutes: 50, activity: 'heavy', terminal: true, outcomes: afterMorningA,
+      { id: 'c20_faw_diesel', label: 'Выкопать солярку к субботнему обмену', when: v('w.c19_diesel', 'marked'), minutes: 50, activity: 'heavy', terminal: true, goto: 'c20_f_a_wood',
         text: 'Под дождём навоз пахнет ещё сильнее. Канистра выходит из кучи с чавканьем. Литров четырнадцать. Ты ставишь её под навес, подальше от дома.', effects: [set20('faw', 'diesel'), { set: 'w.c19_diesel', value: 'can' }, { give: 'can_diesel_20', fuel: 14 }, until(20, 9, 30)] },
-      { id: 'c20_faw_coop', label: 'Залатать сетку курятника и пересчитать кур', minutes: 60, activity: 'moderate', terminal: true, outcomes: afterMorningA,
+      { id: 'c20_faw_coop', label: 'Залатать сетку курятника и пересчитать кур', minutes: 60, activity: 'moderate', terminal: true, goto: 'c20_f_a_wood',
         text: 'В углу сетки, у земли, снова подкоп. Ты заваливаешь его камнями и прибиваешь доску. Кур двенадцать. Одна сидит в углу нахохлившись. Ты отсаживаешь её в ящик у печки.', effects: [set20('faw', 'coop'), w20('coop_fixed', true), until(20, 9, 30)] },
-      { id: 'c20_faw_cellar', label: 'Перебрать картошку в подвале', minutes: 70, activity: 'light', terminal: true, outcomes: afterMorningA,
+      { id: 'c20_faw_cellar', label: 'Перебрать картошку в подвале', minutes: 70, activity: 'light', terminal: true, goto: 'c20_f_a_wood',
         text: 'В подвале пахнет землёй. Ты перебираешь мешок за мешком: гнилую в ведро, проросшую отдельно. Сзади слева лежит картошка помельче, отдельно от остальной, в ящиках с надписью мелом: «Saat». Семенная. Её ты не трогаешь.', effects: [set20('faw', 'cellar'), w20('seed_seen', true), until(20, 9, 40)] },
-      { id: 'c20_faw_wood', label: 'Наколоть дров на неделю', minutes: 80, activity: 'heavy', terminal: true, outcomes: afterMorningA,
+      { id: 'c20_faw_wood', label: 'Наколоть дров на неделю', minutes: 80, activity: 'heavy', terminal: true, goto: 'c20_f_a_wood',
         text: 'Полтора часа ты колешь, пока не перестаёшь чувствовать руки. Поленница у стены сарая выросла на полметра.', effects: [set20('faw', 'wood'), { place: 'firewood', at: 'c3_farm_stock', qty: 20 }, until(20, 9, 45)] },
     ] }),
 
@@ -187,13 +186,13 @@ export const day20FScenes: Scene[] = [
       { when: flag('w.c19_jacket_torn'), text: 'На спинке стула висит куртка {A.gen} с распоротым рукавом.' },
     ],
     actions: [
-      { id: 'c20_fbw_sew', label: 'Зашить рукав куртки', when: flag('w.c19_jacket_torn'), minutes: 45, activity: 'light', terminal: true, goto: 'c20_f_brandt',
+      { id: 'c20_fbw_sew', label: 'Зашить рукав куртки', when: flag('w.c19_jacket_torn'), minutes: 45, activity: 'light', terminal: true, goto: 'c20_f_b_pantry',
         text: 'Нитки нашлись в шкатулке Хенрике, суровые. Ты шьёшь в два слоя, мелким стежком. Красиво не выходит, но дыры больше нет.', effects: [set20('fbw', 'sew'), w20('jacket_sewn', true), until(20, 11, 0)] },
-      { id: 'c20_fbw_wash', label: 'Постирать на всех, с мылом', when: flag('w.c19_soap'), minutes: 70, activity: 'moderate', terminal: true, goto: 'c20_f_brandt',
+      { id: 'c20_fbw_wash', label: 'Постирать на всех, с мылом', when: flag('w.c19_soap'), minutes: 70, activity: 'moderate', terminal: true, goto: 'c20_f_b_pantry',
         text: 'Хозяйственное мыло пахнет детством. Ты стираешь до красных рук. Через час над печкой на верёвке висят носки, рубашки и чья-то наволочка.', effects: [set20('fbw', 'wash'), { body: 'stress', delta: -2 }, until(20, 11, 0)] },
-      { id: 'c20_fbw_plain', label: 'Постирать своё, сколько успеешь', minutes: 50, activity: 'light', terminal: true, goto: 'c20_f_brandt',
+      { id: 'c20_fbw_plain', label: 'Постирать своё, сколько успеешь', minutes: 50, activity: 'light', terminal: true, goto: 'c20_f_b_pantry',
         text: 'Без мыла вода только серая. Но джинсы хотя бы не пахнут казармой.', effects: [set20('fbw', 'plain'), until(20, 11, 0)] },
-      { id: 'c20_fbw_rest', label: 'Оставить стирку и прилечь', minutes: 50, activity: 'rest', terminal: true, goto: 'c20_f_brandt',
+      { id: 'c20_fbw_rest', label: 'Оставить стирку и прилечь', minutes: 50, activity: 'rest', terminal: true, goto: 'c20_f_b_pantry',
         text: 'Ты ложишься на час. Слышно, как в соседней комнате кто-то полощет бельё и тихо поёт.', effects: [set20('fbw', 'rest'), { body: 'fatigue', delta: -6 }, until(20, 11, 0)] },
     ] }),
 
@@ -224,19 +223,19 @@ export const day20FScenes: Scene[] = [
       { when: flag('w.c20_prints'), text: 'Утренние следы у калитки, видимо, их.' },
     ],
     actions: [
-      { id: 'c20_fwk_gate', label: 'Запереть заднюю калитку и ждать во дворе', when: A19, minutes: 25, terminal: true, goto: 'c20_f_radio',
+      { id: 'c20_fwk_gate', label: 'Запереть заднюю калитку и ждать во дворе', when: A19, minutes: 25, terminal: true, goto: 'c20_f_wire',
         text: 'Ты задвигаешь засов и встаёшь за поленницей. Двое доходят до калитки. Один толкает её плечом, раз, другой. Калитка держит. Через несколько минут они поворачивают и бредут вдоль забора к дороге.', effects: [set20('fwk', 'gate'), { body: 'stress', delta: 2 }, until(20, 12, 0)] },
-      { id: 'c20_fwk_steer', label: 'Выйти с вилами и увести их от дома шумом', when: A19, minutes: 30, activity: 'moderate', risky: true, terminal: true, goto: 'c20_f_radio',
+      { id: 'c20_fwk_steer', label: 'Выйти с вилами и увести их от дома шумом', when: A19, minutes: 30, activity: 'moderate', risky: true, terminal: true, goto: 'c20_f_wire',
         outcomes: [
           { id: 'ok', check: { traits: ['agility', 'stealth'], difficulty: 3, uses: ['mobility'] }, text: 'Ты выходишь в поле сбоку и стучишь вилами по пустому ведру. Двое поворачивают на звук и идут за тобой. Ты пятишься к лесополосе и бросаешь ведро в канаву. Они остаются у канавы. Ты возвращаешься кругом, весь в глине.', effects: [set20('fwk', 'steer'), w20('steered', true)] },
           { id: 'slip', text: 'На мокрой пашне ноги разъезжаются. Ты падаешь на колено, и первый уже в трёх шагах. Ты отталкиваешь его черенком вил в грудь, он садится в грязь. Ты отступаешь к калитке задом, не сводя с них глаз. Колено саднит, брюки разорваны.', effects: [set20('fwk', 'slip'), { injure: 'bruise', site: 'leftLeg', severity: 2 }, { body: 'stress', delta: 4 }] },
         ], effects: [until(20, 12, 0)] },
-      { id: 'c20_fwk_inside', label: 'Загнать всех в дом и смотреть из окна', when: B19, minutes: 25, terminal: true, goto: 'c20_f_radio',
+      { id: 'c20_fwk_inside', label: 'Загнать всех в дом и смотреть из окна', when: B19, minutes: 25, terminal: true, goto: 'c20_f_wire',
         outcomes: [
           { id: 'kids', when: any(ninaFarm, girlHere), text: 'Ты собираешь всех на кухне и задёргиваешь занавеску наполовину. Двое у задней калитки стоят долго. Нина держит тебя за рукав и не дышит. Потом они уходят вдоль забора.', effects: [set20('fwk', 'inside'), npc('c7_nina', 1)] },
           { id: 'alone', text: 'Ты стоишь у окна кухни, отодвинув край занавески. Двое у задней калитки стоят долго. Потом уходят вдоль забора к дороге.', effects: [set20('fwk', 'inside')] },
         ], effects: [until(20, 12, 0)] },
-      { id: 'c20_fwk_bell', label: 'Позвать остальных: пусть все будут во дворе', when: B19, minutes: 25, terminal: true, goto: 'c20_f_radio',
+      { id: 'c20_fwk_bell', label: 'Позвать остальных: пусть все будут во дворе', when: B19, minutes: 25, terminal: true, goto: 'c20_f_wire',
         text: 'Ты стучишь в двери и окна. Через минуту во дворе все, кто есть: с вилами, с лопатой, с кочергой. Двое у калитки смотрят на людей сквозь сетку. Потом поворачивают к дороге. Никто так и не сказал ни слова.', effects: [set20('fwk', 'bell'), { body: 'stress', delta: 1 }, until(20, 12, 0)] },
     ] }),
 
@@ -281,9 +280,9 @@ export const day20FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c20_fn_eat', label: 'Поесть', minutes: 25, terminal: true, outcomes: afterNoon, ...tableOnly,
-        text: 'Ты ешь, и еда кажется вкуснее, чем вчера. Может быть, потому что вечер неизвестно какой.', effects: [set20('fn', 'eat'), meal('eat'), until(20, 13, 40)] },
+        text: 'Ты ешь, и еда кажется вкуснее, чем вчера. Может быть, потому что вечер неизвестно какой.', effects: [set20('fn', 'eat'), meal('eat'), until(20, 13, 20)] },
       { id: 'c20_fn_pack', label: 'Отложить порцию на вечер', minutes: 5, terminal: true, outcomes: afterNoon, ...tableOnly,
-        text: 'Ты заворачиваешь картошку в бумагу и кладёшь в карман куртки.', effects: [set20('fn', 'pack'), meal('pack'), until(20, 13, 40)] },
+        text: 'Ты заворачиваешь картошку в бумагу и кладёшь в карман куртки.', effects: [set20('fn', 'pack'), meal('pack'), until(20, 13, 20)] },
       { id: 'c20_fn_skip', label: 'Только хлеб', minutes: 10, terminal: true, outcomes: afterNoon,
         text: 'Ты отламываешь кусок и выходишь на крыльцо.', effects: [set20('fn', 'skip'), until(20, 13, 30)] },
     ] }),
@@ -292,22 +291,22 @@ export const day20FScenes: Scene[] = [
     text: [{ text: 'Дождь стихает. Небо над полем светлеет к западу, а с востока, со стороны автобана, тяжёлое и серое.' }],
     actions: [
       { id: 'c20_faa_gun', label: 'Разобрать и проверить ружьё', when: gunHere, minutes: 40, terminal: true, goto: 'c20_f_smoke',
-        text: 'Ты раскладываешь ружьё на газете. Правый ствол ходит чисто. Левый курок взводится через раз: пружина устала. Значит, по-настоящему у тебя один выстрел, и потом второй, если повезёт.', effects: [set20('faa', 'gun'), w20('left_barrel', true), until(20, 14, 20)] },
+        text: 'Ты раскладываешь ружьё на газете. Правый ствол ходит чисто. Левый курок взводится через раз: пружина устала. Значит, по-настоящему у тебя один выстрел, и потом второй, если повезёт.', effects: [set20('faa', 'gun'), w20('left_barrel', true), until(20, 13, 55)] },
       { id: 'c20_faa_gate', label: 'Укрепить заднюю калитку', minutes: 40, activity: 'moderate', terminal: true, goto: 'c20_f_smoke',
-        text: 'Ты прибиваешь поперечину и вешаешь второй засов. Если кто-то снова встанет у калитки ночью, она хотя бы не откроется от толчка.', effects: [set20('faa', 'gate'), w20('gate_fixed', true), until(20, 14, 20)] },
+        text: 'Ты прибиваешь поперечину и вешаешь второй засов. Если кто-то снова встанет у калитки ночью, она хотя бы не откроется от толчка.', effects: [set20('faa', 'gate'), w20('gate_fixed', true), until(20, 13, 55)] },
       { id: 'c20_faa_map', label: 'Разложить карту и прикинуть дорогу к Гарльсторфу', when: { has: 'road_map' }, minutes: 40, terminal: true, goto: 'c20_f_smoke',
-        text: 'Карта области истёрлась на сгибах. От хутора до Гарльсторфа двенадцать километров по дороге, через Ханштедт. Но есть полевая дорога вдоль леса, которая выходит к автобану чуть севернее съезда, к мосту. Ты обводишь её карандашом.', effects: [set20('faa', 'map'), w20('field_route', true), until(20, 14, 20)] },
+        text: 'Карта области истёрлась на сгибах. От хутора до Гарльсторфа двенадцать километров по дороге, через Ханштедт. Но есть полевая дорога вдоль леса, которая выходит к автобану чуть севернее съезда, к мосту. Ты обводишь её карандашом.', effects: [set20('faa', 'map'), w20('field_route', true), until(20, 13, 55)] },
       { id: 'c20_faa_sleep', label: 'Поспать час', minutes: 5, terminal: true, goto: 'c20_f_smoke',
-        text: 'Ты ложишься и засыпаешь сразу. Тело берёт своё, пока дают.', effects: [set20('faa', 'sleep'), until(20, 14, 20, true)] },
+        text: 'Ты ложишься и засыпаешь сразу. Тело берёт своё, пока дают.', effects: [set20('faa', 'sleep'), until(20, 13, 55, true)] },
     ] }),
 
   F({ id: 'c20_f_b_nina', title: 'Нина', camp: house14,
     text: [{ text: 'Нина сидит на подоконнике в своей комнате и смотрит на восток.\n\n— Da hinten ist die Autobahn, oder? — спрашивает она. Там автобан, да? — Papa hat da immer geflucht. Stau.\n\nПапа всегда там ругался. Пробки.' }],
     actions: [
       { id: 'c20_fbn_sit', label: 'Сесть рядом и смотреть вместе', minutes: 30, terminal: true, goto: 'c20_f_smoke',
-        text: 'Вы смотрите на серое небо над лесом. Нина рассказывает, как отец пел в машине и путал слова. Ты смеёшься. Она тоже, впервые за неделю.', effects: [set20('fbn', 'sit'), npc('c7_nina', 2), { body: 'stress', delta: -2 }, until(20, 14, 20)] },
+        text: 'Вы смотрите на серое небо над лесом. Нина рассказывает, как отец пел в машине и путал слова. Ты смеёшься. Она тоже, впервые за неделю.', effects: [set20('fbn', 'sit'), npc('c7_nina', 2), { body: 'stress', delta: -2 }, until(20, 13, 55)] },
       { id: 'c20_fbn_task', label: 'Попросить её помочь собрать аптечку', minutes: 30, terminal: true, goto: 'c20_f_smoke',
-        text: 'Нина раскладывает на кровати всё, что есть: бинты, пластыри, таблетки. Пишет на каждой упаковке фломастером, от чего. Получается аккуратно, как в тетради.', effects: [set20('fbn', 'task'), w20('kit_ready', true), npc('c7_nina', 1), until(20, 14, 20)] },
+        text: 'Нина раскладывает на кровати всё, что есть: бинты, пластыри, таблетки. Пишет на каждой упаковке фломастером, от чего. Получается аккуратно, как в тетради.', effects: [set20('fbn', 'task'), w20('kit_ready', true), npc('c7_nina', 1), until(20, 13, 55)] },
     ] }),
 
   F({ id: 'c20_f_b_girl', title: 'Новенькая', camp: house14,
@@ -317,9 +316,9 @@ export const day20FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c20_fbg_no', label: 'Сказать: ты нужна здесь, на хуторе', minutes: 15, terminal: true, goto: 'c20_f_smoke',
-        text: 'Она кивает слишком быстро. Картофелину дочищает уже молча, но не отворачивается.', effects: [set20('fbg', 'no'), until(20, 14, 10)] },
+        text: 'Она кивает слишком быстро. Картофелину дочищает уже молча, но не отворачивается.', effects: [set20('fbg', 'no'), until(20, 13, 45)] },
       { id: 'c20_fbg_maybe', label: 'Сказать: если поедем — решим вместе', minutes: 15, terminal: true, goto: 'c20_f_smoke',
-        text: '— Gut, — говорит она. Хорошо. И идёт искать свою куртку, на всякий случай.', effects: [set20('fbg', 'maybe'), w20('girl_ready', true), until(20, 14, 10)] },
+        text: '— Gut, — говорит она. Хорошо. И идёт искать свою куртку, на всякий случай.', effects: [set20('fbg', 'maybe'), w20('girl_ready', true), until(20, 13, 45)] },
     ] }),
 
   F({ id: 'c20_f_b_ute', title: 'Уте', camp: house14,
@@ -329,7 +328,7 @@ export const day20FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c20_fbu_sit', label: 'Сесть рядом', when: uteHere, minutes: 30, terminal: true, goto: 'c20_f_smoke',
-        text: 'Уте вяжет и рассказывает, как Кай в молодости гнал машину ночью из Гамбурга, потому что она рожала Яннеса. Сто восемьдесят по автобану. «Er hat geflucht wie ein Kutscher». Ругался, как извозчик.', effects: [set20('fbu', 'sit'), npc('c14_ute', 2), until(20, 14, 20)] },
+        text: 'Уте вяжет и рассказывает, как Кай в молодости гнал машину ночью из Гамбурга, потому что она рожала Яннеса. Сто восемьдесят по автобану. «Er hat geflucht wie ein Kutscher». Ругался, как извозчик.', effects: [set20('fbu', 'sit'), npc('c14_ute', 2), until(20, 13, 55)] },
       { id: 'c20_fbu_ask', label: 'Спросить, как она выдерживала ждать', when: uteHere, minutes: 20, terminal: true, goto: 'c20_f_smoke',
         text: '— Gar nicht, — говорит Уте. Никак. — Man wartet und hält es nicht aus. Beides gleichzeitig.\n\nЖдёшь и не выдерживаешь. Одновременно.', effects: [set20('fbu', 'ask'), until(20, 14, 10)] },
       { id: 'c20_fbu_window', label: 'Постоять у окна', when: not(uteHere), minutes: 20, terminal: true, goto: 'c20_f_smoke',
@@ -345,13 +344,13 @@ export const day20FScenes: Scene[] = [
         outcomes: [
           { id: 'ok', check: { traits: ['agility'], difficulty: 2, uses: ['mobility'], mods: [{ when: { has: 'gloves' }, bonus: 1 }] }, text: 'С конька видно дальше, чем ты думал{m:|а}. Над лесом у автобана столб дыма и синие вспышки, мелкие, как спички. Звука не слышно. Ты слезаешь осторожно: черепица мокрая.', effects: [set20('fs', 'roof'), w20('smoke_seen', true)] },
           { id: 'slip', text: 'На мокрой черепице нога соскальзывает. Ты повисаешь на руках у водостока и спрыгиваешь в грязь, неловко. Ладонь ободрана о жесть. Дым ты так и не разглядел{m:|а}.', effects: [set20('fs', 'slip'), { injure: 'scratch', site: 'rightArm', severity: 1 }, { body: 'stress', delta: 2 }] },
-        ], effects: [until(20, 14, 40)] },
+        ], effects: [until(20, 14, 15)] },
       { id: 'c20_fs_watch', label: 'Смотреть со двора', minutes: 15, terminal: true, goto: 'c20_f_d_alarm',
-        text: 'Дым густеет, потом становится серым и редким. Кто-то там что-то тушит. Или оно догорело само.', effects: [set20('fs', 'watch'), until(20, 14, 40)] },
+        text: 'Дым густеет, потом становится серым и редким. Кто-то там что-то тушит. Или оно догорело само.', effects: [set20('fs', 'watch'), until(20, 14, 15)] },
       { id: 'c20_fs_ask', label: 'Спросить Уте, что это может быть', when: all(B19, uteHere), minutes: 15, terminal: true, goto: 'c20_f_d_alarm',
-        text: 'Уте выходит на крыльцо, смотрит из-под ладони.\n\n— Diesel brennt so, — говорит она. Так горит солярка. — Kai hat so einen Laster mal angezündet. Aus Versehen.\n\nКай однажды так поджёг грузовик. Нечаянно.', effects: [set20('fs', 'ask'), w20('smoke_seen', true), until(20, 14, 40)] },
+        text: 'Уте выходит на крыльцо, смотрит из-под ладони.\n\n— Diesel brennt so, — говорит она. Так горит солярка. — Kai hat so einen Laster mal angezündet. Aus Versehen.\n\nКай однажды так поджёг грузовик. Нечаянно.', effects: [set20('fs', 'ask'), w20('smoke_seen', true), until(20, 14, 15)] },
       { id: 'c20_fs_away', label: 'Не смотреть: заняться делом', minutes: 15, activity: 'light', terminal: true, goto: 'c20_f_d_alarm',
-        text: 'Ты носишь воду из колодца в кухню, ведро за ведром. Когда снова поднимаешь глаза, дыма почти не видно.', effects: [set20('fs', 'away'), until(20, 14, 40)] },
+        text: 'Ты носишь воду из колодца в кухню, ведро за ведром. Когда снова поднимаешь глаза, дыма почти не видно.', effects: [set20('fs', 'away'), until(20, 14, 15)] },
     ] }),
 
   // ───────────── Вместе: известие ─────────────
@@ -365,11 +364,11 @@ export const day20FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c20_ft_lea', label: 'Спросить, что с донором из Ганновера', minutes: 10, terminal: true, outcomes: afterTobias,
-        text: '— Keiner weiß es. Sie saß im zweiten LKW. — Тобиас трёт глаза. — Wenn sie noch da ist, ist sie wichtiger als alles andere auf dem Laster.\n\nНикто не знает. Она сидела во втором грузовике. Если она ещё там, она важнее всего остального в кузове.', effects: [set20('ft', 'lea'), w20('lea_second_truck', true), until(20, 14, 55)] },
+        text: '— Keiner weiß es. Sie saß im zweiten LKW. — Тобиас трёт глаза. — Wenn sie noch da ist, ist sie wichtiger als alles andere auf dem Laster.\n\nНикто не знает. Она сидела во втором грузовике. Если она ещё там, она важнее всего остального в кузове.', effects: [set20('ft', 'lea'), w20('lea_second_truck', true), until(20, 14, 40)] },
       { id: 'c20_ft_who', label: 'Спросить, кто ещё поедет', minutes: 10, terminal: true, outcomes: afterTobias,
-        text: '— Brandt, drei Feuerwehrleute, zwei Bauern mit Treckern. Und wir, zwei Wagen. — Он пожимает плечами. — Mehr nicht.\n\nБрандт, трое пожарных, двое фермеров на тракторах. И мы, две машины. Больше никого.', effects: [set20('ft', 'who'), until(20, 14, 55)] },
+        text: '— Brandt, drei Feuerwehrleute, zwei Bauern mit Treckern. Und wir, zwei Wagen. — Он пожимает плечами. — Mehr nicht.\n\nБрандт, трое пожарных, двое фермеров на тракторах. И мы, две машины. Больше никого.', effects: [set20('ft', 'who'), until(20, 14, 40)] },
       { id: 'c20_ft_water', label: 'Вынести ему воды и промолчать', minutes: 10, terminal: true, outcomes: afterTobias,
-        text: 'Тобиас пьёт из горлышка, возвращает бутылку и уезжает к следующему двору. В зеркале ты видишь, как он поднимает руку.', effects: [set20('ft', 'water'), npc('c15_tobias', 1), until(20, 14, 55)] },
+        text: 'Тобиас пьёт из горлышка, возвращает бутылку и уезжает к следующему двору. В зеркале ты видишь, как он поднимает руку.', effects: [set20('ft', 'water'), npc('c15_tobias', 1), until(20, 14, 40)] },
     ] }),
 
   F({ id: 'c20_f_b_insulin', title: 'Kirchweg 4', location: 'c16_jesteburg', ambient: rain,

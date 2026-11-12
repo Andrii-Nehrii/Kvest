@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
 import { tense14 } from './point14';
-import { any, ninaFarm } from './point18';
+import { any, ninaFarm, v } from './point18';
 import { A19, B19, S20, barnChained, girlHere, henrikeHome, jannesHere, npc, own20, set20, until, uteHere, w20 } from './point19';
 
 // Участок 20: большая опасная сцена (серия 19–24) в обеих ветках. Правила — TECHNIQUES.md §3.1.
@@ -14,8 +14,13 @@ const worse: Cond = any(own20('d2', 'hurt'), own20('d2', 'jam'));
 const jacketBad: Cond = all(flag('w.c19_jacket_torn'), not(flag('w.c20_jacket_sewn')), not(flag('w.c20_jacket_taped')));
 const helpers: Cond = any(jannesHere, flag('w.c20_volker_stays'));
 const gun: Cond = { has: 'c19_flinte' };
-const knowsBarrel: Cond = flag('w.c20_left_barrel');
+const knowsBarrel: Cond = any(flag('w.c20_left_barrel'), flag('w.c19_left_barrel'));
 const gateFixed: Cond = flag('w.c20_gate_fixed');
+/** Подготовка из добавленных сцен 19–20: собака у ворот, увиденные утром в лесополосе, знание дверей и закрытые ворота прачечной. */
+const dogWarn: Cond = any(v('w.c19_dog', 'house'), v('w.c19_dog', 'gate'));
+const woodSeen: Cond = any(flag('w.c20_wood_seen'), flag('w.c20_wood_warned'));
+const knowsDoors: Cond = flag('$.c20_knows_doors');
+const lueGateClosed: Cond = v('w.c20_lue_gate', 'closed');
 const uteBarn: Cond = all(barnChained, uteHere);
 /** Тяжёлое ранение третьего звена: потеря сознания. Страховка жизни держит, пока второй на ногах; спасать — в точке 21. */
 const down = (site: 'leftLeg' | 'rightArm' | 'torso'): Effect[] => [
@@ -33,6 +38,8 @@ export const day20DScenes: Scene[] = [
     text: [
       { text: 'С заднего крыльца кричат, высоко, на одной ноте. Ты выглядываешь во двор.' },
       { text: 'Из лесополосы на поле выходят люди. Шестеро. Сначала цепочкой, потом кучей. Двое бегут, неловко, рывками, как бегут пьяные. Остальные идут. Прямо на хутор, на крик кур. До задней изгороди метров четыреста.' },
+      { when: dogWarn, text: 'Бруно залаял у ворот на минуту раньше крика. Эту минуту у тебя никто не отнимет.' },
+      { when: all(A19, woodSeen), text: 'Те самые, из ложбины у ручья. Ты их узнаёшь по курткам поверх рубашек.' },
       { when: barnChained, text: 'В длинном сарае разом звенят цепи. Все семь колец.' },
       { when: uteBarn, text: 'Уте там, в сарае, с вёдрами.' },
       { when: henrikeHome, text: 'Хенрике уже на крыльце, с кочергой в руке.\n\n— Alle ins Haus! Keiner geht raus!\n\nВсе в дом! Никто не выходит!' },
@@ -41,21 +48,21 @@ export const day20DScenes: Scene[] = [
     ],
     actions: [
       { id: 'c20_fd1_door', label: 'Загнать всех в дом и запереть дверь', when: A19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Ты задвигаешь засов и подпираешь дверь скамьёй. Окна кухни выходят во двор. Отсюда видно всё.', effects: [set20('d1', 'door'), until(20, 14, 50)] },
+        text: 'Ты задвигаешь засов и подпираешь дверь скамьёй. Окна кухни выходят во двор. Отсюда видно всё.', effects: [set20('d1', 'door'), until(20, 14, 20)] },
       { id: 'c20_fd1_up', label: 'Увести детей наверх, подальше от окон', when: all(B19, any(ninaFarm, girlHere)), minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Ты гонишь всех на второй этаж и сажаешь на пол у дальней стены. Нина держит новенькую за руку. Никто не плачет.', effects: [set20('d1', 'up'), until(20, 14, 50)] },
+        text: 'Ты гонишь всех на второй этаж и сажаешь на пол у дальней стены. Нина держит новенькую за руку. Никто не плачет.', effects: [set20('d1', 'up'), until(20, 14, 20)] },
       { id: 'c20_fd1_gun', label: 'Взять ружьё и встать в дверях', when: all(A19, gun), minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Ружьё за шкафом, патроны в банке с пуговицами. Ты заряжаешь оба ствола в сенях, руки слушаются плохо. Встаёшь в дверях, плечом к косяку.', effects: [set20('d1', 'gun'), until(20, 14, 50)] },
+        text: 'Ружьё за шкафом, патроны в банке с пуговицами. Ты заряжаешь оба ствола в сенях, руки слушаются плохо. Встаёшь в дверях, плечом к косяку.', effects: [set20('d1', 'gun'), until(20, 14, 20)] },
       { id: 'c20_fd1_fork', label: 'Схватить вилы и бежать к задней калитке', when: A19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Вилы у курятника. Ты бежишь через двор по грязи. Сзади кричат, чтобы ты {m:вернулся|вернулась}.', effects: [set20('d1', 'fork'), out(), until(20, 14, 50)] },
+        text: 'Вилы у курятника. Ты бежишь через двор по грязи. Сзади кричат, чтобы ты {m:вернулся|вернулась}.', effects: [set20('d1', 'fork'), out(), until(20, 14, 20)] },
       { id: 'c20_fd1_barn', label: 'Бежать к сараю за Уте', when: all(A19, uteBarn), minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Ты бежишь к длинному сараю. Изнутри грохот цепей и голос Уте: она поёт им, громко, сбиваясь.', effects: [set20('d1', 'barn'), out(), until(20, 14, 50)] },
+        text: 'Ты бежишь к длинному сараю. Изнутри грохот цепей и голос Уте: она поёт им, громко, сбиваясь.', effects: [set20('d1', 'barn'), out(), until(20, 14, 20)] },
       { id: 'c20_fd1_poker', label: 'Взять кочергу и выйти во двор', when: B19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Кочерга тяжёлая, с налипшей сажей. Ты выходишь на крыльцо. Двое бегущих уже у изгороди.', effects: [set20('d1', 'out'), out(), until(20, 14, 50)] },
+        text: 'Кочерга тяжёлая, с налипшей сажей. Ты выходишь на крыльцо. Двое бегущих уже у изгороди.', effects: [set20('d1', 'out'), out(), until(20, 14, 20)] },
       { id: 'c20_fd1_water', label: 'Поставить кипяток и встать у окна второго этажа', when: B19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Выварка со стиркой ещё горячая. Ты тащишь ведро наверх, расплёскивая на ступени, и открываешь окно над задним двором.', effects: [set20('d1', 'water'), until(20, 14, 50)] },
+        text: 'Выварка со стиркой ещё горячая. Ты тащишь ведро наверх, расплёскивая на ступени, и открываешь окно над задним двором.', effects: [set20('d1', 'water'), until(20, 14, 20)] },
       { id: 'c20_fd1_rail', label: 'Бить в рельс у ворот: звать на помощь', when: B19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Обрезок рельса висит у ворот на цепи, Хенрике звала им к обеду. Ты бьёшь ломом, раз за разом. Звон катится по полю. Двое из шестерых поворачивают головы на звук.', effects: [set20('d1', 'rail'), w20('rail', true), until(20, 14, 50)] },
+        text: 'Обрезок рельса висит у ворот на цепи, Хенрике звала им к обеду. Ты бьёшь ломом, раз за разом. Звон катится по полю. Двое из шестерых поворачивают головы на звук.', effects: [set20('d1', 'rail'), w20('rail', true), until(20, 14, 20)] },
     ] }),
 
   farm({ id: 'c20_f_d_fence', title: 'У изгороди', ambient: yard,
@@ -79,12 +86,12 @@ export const day20DScenes: Scene[] = [
         ] },
       { id: 'c20_fd2_hold', label: 'Держать калитку вдвоём с тем, кто рядом', when: all(A19, helpers, any(own20('d1', 'fork'), own20('d1', 'barn'))), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_f_d_end',
         outcomes: [
-          { id: 'ok', check: { traits: ['strength'], difficulty: 3, uses: ['strength'], mods: [{ when: gateFixed, bonus: 2 }] }, text: 'Вы наваливаетесь на калитку вдвоём. Доски гнутся внутрь, но засов держит. Через щель видно лицо, серое, с открытым ртом. Ты не смотришь в глаза.', effects: [set20('d2', 'hold')] },
+          { id: 'ok', check: { traits: ['strength'], difficulty: 3, uses: ['strength'], mods: [{ when: gateFixed, bonus: 2 }, { when: dogWarn, bonus: 1 }, { when: woodSeen, bonus: 1 }] }, text: 'Вы наваливаетесь на калитку вдвоём. Доски гнутся внутрь, но засов держит. Через щель видно лицо, серое, с открытым ртом. Ты не смотришь в глаза.', effects: [set20('d2', 'hold')] },
           { id: 'cut', text: 'Калитка подаётся. Ты отлетаешь на проволоку изгороди, и она распарывает тебе руку от локтя до запястья. Кровь тёплая и быстрая. Тот, что был за калиткой, уже во дворе.', effects: hurt('leftArm') },
         ] },
       { id: 'c20_fd2_fork', label: 'Отталкивать их вилами', when: all(A19, isOut, not(own20('d1', 'barn'))), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_f_d_end',
         outcomes: [
-          { id: 'ok', check: { traits: ['melee', 'strength'], difficulty: 3, uses: ['strength', 'mobility'], mods: [{ when: jacketBad, bonus: -2 }, { when: helpers, bonus: 1 }] }, text: 'Ты бьёшь черенком в грудь, не зубьями. Первый садится в грязь. Второй наваливается на вилы всем весом, и ты отступаешь, шаг за шагом, к курятнику. Он не чувствует, что ему больно. Ты чувствуешь за двоих.', effects: [set20('d2', 'fork')] },
+          { id: 'ok', check: { traits: ['melee', 'strength'], difficulty: 3, uses: ['strength', 'mobility'], mods: [{ when: jacketBad, bonus: -2 }, { when: helpers, bonus: 1 }, { when: woodSeen, bonus: 1 }] }, text: 'Ты бьёшь черенком в грудь, не зубьями. Первый садится в грязь. Второй наваливается на вилы всем весом, и ты отступаешь, шаг за шагом, к курятнику. Он не чувствует, что ему больно. Ты чувствуешь за двоих.', effects: [set20('d2', 'fork')] },
           { id: 'cut', text: 'Рукав цепляется за зубья. Пока ты дёргаешь его, второй хватает тебя за плечо и тянет на себя. Ты вырываешься и падаешь на проволоку у курятника. Ладонь и предплечье распороты. Кровь идёт по пальцам и капает в грязь.', effects: hurt('rightArm') },
         ] },
       { id: 'c20_fd2_ute_a', label: 'Вывести Уте из сарая через переднюю дверь', when: all(A19, own20('d1', 'barn')), minutes: 10, risky: true, terminal: true, goto: 'c20_f_d_end',
@@ -136,7 +143,8 @@ export const day20DScenes: Scene[] = [
   // ───────────── Люнебург: ворота прачечной ─────────────
   lue({ id: 'c20_g_breach', title: 'Двор прачечной', ambient: lueYard,
     text: [
-      { text: 'Оле ещё стоит у стены, когда со стороны прачечной кричит женщина. Ворота хозяйственного двора, открытые утром для фургона, так и стоят нараспашку. Между фургонами идут четверо в больничных рубашках. Один почти бежит.' },
+      { when: not(all(A19, lueGateClosed)), text: 'Оле ещё стоит у стены, когда со стороны прачечной кричит женщина. Ворота хозяйственного двора, открытые утром для фургона, так и стоят нараспашку. Между фургонами идут четверо в больничных рубашках. Один почти бежит.' },
+      { when: all(A19, lueGateClosed), text: 'Оле ещё стоит у стены, когда со стороны прачечной кричит женщина. Ворота хозяйственного двора, которые ты {m:закрыл|закрыла} в полдень, снова стоят нараспашку: вернулся фургон прачечной, и шофёр бросил их, как было утром. Клин так и лежит у тебя в кармане. Между фургонами идут четверо в больничных рубашках. Один почти бежит.' },
       { text: 'Солдат на вышке вскидывает винтовку и опускает. Между ним и ними женщины с корзинами белья.' },
       { text: '— Alle rein! Weg vom Hof! — кричит фельдфебель с крыльца штаба. Все внутрь! Прочь со двора!' },
       { text: 'Оле держится за стену. Идти быстро он не может.' },
@@ -167,12 +175,12 @@ export const day20DScenes: Scene[] = [
     actions: [
       { id: 'c20_gb2_gate', label: 'Сбить клин и закрыть ворота', when: all(A19, own20('d1', 'gate')), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_g_breach3',
         outcomes: [
-          { id: 'ok', check: { traits: ['strength'], difficulty: 3, uses: ['strength'] }, text: 'Клин выбивается с третьего пинка. Ты наваливаешься на створку, и она идёт, со скрежетом, по бетону. Щеколда падает. Снаружи, на поле, стоят ещё двое. Сюда они уже не войдут.', effects: [set20('d2', 'gate'), w20('lue_gate', true)] },
+          { id: 'ok', check: { traits: ['strength'], difficulty: 3, uses: ['strength'], mods: [{ when: lueGateClosed, bonus: 2 }, { when: knowsDoors, bonus: 1 }] }, text: 'Клин выбивается с третьего пинка. Ты наваливаешься на створку, и она идёт, со скрежетом, по бетону. Щеколда падает. Снаружи, на поле, стоят ещё двое. Сюда они уже не войдут.', effects: [set20('d2', 'gate'), w20('lue_gate', true)] },
           { id: 'cut', text: 'Клин не поддаётся. Тот, что бегал, врезается в тебя сбоку, и ты бьёшься рукой о щеколду. Рукав распорот, ладонь тоже. Ты отпихиваешь его ногой и прижимаешься к створке. Кровь течёт в рукав.', effects: hurt('rightArm') },
         ] },
       { id: 'c20_gb2_pole', label: 'Отталкивать их шестом от женщин', when: all(A19, own20('d1', 'pole')), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_g_breach3',
         outcomes: [
-          { id: 'ok', check: { traits: ['melee', 'agility'], difficulty: 3, uses: ['strength', 'mobility'] }, text: 'Рогулька упирается первому в грудь. Ты толкаешь, он идёт на тебя, ты толкаешь снова. За спиной хлопает дверь корпуса: последние внутри.', effects: [set20('d2', 'pole')] },
+          { id: 'ok', check: { traits: ['melee', 'agility'], difficulty: 3, uses: ['strength', 'mobility'], mods: [{ when: knowsDoors, bonus: 1 }] }, text: 'Рогулька упирается первому в грудь. Ты толкаешь, он идёт на тебя, ты толкаешь снова. За спиной хлопает дверь корпуса: последние внутри.', effects: [set20('d2', 'pole')] },
           { id: 'cut', text: 'Шест ломается о плечо первого, как спичка. Обломок рвёт тебе ладонь. Ты отступаешь, держа руку у груди, и спотыкаешься о корзину с бельём.', effects: hurt('leftArm') },
         ] },
       { id: 'c20_gb2_ole', label: 'Затащить Оле внутрь и закрыть дверь', when: all(B19, own20('d1', 'ole')), minutes: 10, terminal: true, goto: 'c20_g_breach3',
@@ -181,14 +189,14 @@ export const day20DScenes: Scene[] = [
         text: 'Через стекло видно, как третий поднимается по ступенькам штаба. Ты держишь ручку двери обеими руками. Он упирается лбом в стекло, прямо напротив твоего лица.', effects: [set20('d2', 'watch'), { body: 'stress', delta: 4 }] },
       { id: 'c20_gb2_peters', label: 'Тащить фрау Петерс к корпусу', when: all(B19, own20('d1', 'peters')), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_g_breach3',
         outcomes: [
-          { id: 'ok', check: { traits: ['strength', 'agility'], difficulty: 3, uses: ['strength', 'mobility'] }, text: 'Ты поднимаешь её под мышки. Она лёгкая и цепкая. Вы ковыляете к корпусу, и кто-то изнутри распахивает дверь и втаскивает вас обеих.', effects: [set20('d2', 'peters'), w20('peters_saved', true)] },
+          { id: 'ok', check: { traits: ['strength', 'agility'], difficulty: 3, uses: ['strength', 'mobility'], mods: [{ when: knowsDoors, bonus: 1 }] }, text: 'Ты поднимаешь её под мышки. Она лёгкая и цепкая. Вы ковыляете к корпусу, и кто-то изнутри распахивает дверь и втаскивает вас обеих.', effects: [set20('d2', 'peters'), w20('peters_saved', true)] },
           { id: 'cut', text: 'Ты тянешь её, она тяжелее, чем кажется. Один из тех, у верёвок, поворачивается к вам. Ты толкаешь фрау Петерс к двери и падаешь сама, ладонями на разбитое стекло от упавшей банки. Руки в крови.', effects: [...hurt('leftArm'), w20('peters_saved', true)] },
         ] },
       { id: 'c20_gb2_kids', label: 'Держать дверь детской вместе с сестрой', when: all(B19, own20('d1', 'kids')), minutes: 10, terminal: true, goto: 'c20_g_breach3',
         text: 'Вы держите ручку вдвоём. Внизу кричат и стреляют. Девочка у окна садится в кровати и смотрит на тебя. Ты улыбаешься ей. Не знаешь, как это у тебя получается.', effects: [set20('d2', 'kids'), w20('kids_door', true)] },
       { id: 'c20_gb2_open', label: 'Открыть и впустить тех, кто стучит', when: all(B19, own20('d1', 'door')), minutes: 10, risky: true, terminal: true, goto: 'c20_g_breach3',
         outcomes: [
-          { id: 'ok', check: { traits: ['agility'], difficulty: 2, uses: ['mobility'] }, text: 'Ты отодвигаешь засов. Внутрь влетают две женщины и мальчик. Ты захлопываешь дверь за ними, и в неё сразу же глухо бьёт что-то тяжёлое. Засов держит.', effects: [set20('d2', 'open'), w20('let_in', true)] },
+          { id: 'ok', check: { traits: ['agility'], difficulty: 2, uses: ['mobility'], mods: [{ when: knowsDoors, bonus: 1 }] }, text: 'Ты отодвигаешь засов. Внутрь влетают две женщины и мальчик. Ты захлопываешь дверь за ними, и в неё сразу же глухо бьёт что-то тяжёлое. Засов держит.', effects: [set20('d2', 'open'), w20('let_in', true)] },
           { id: 'cut', text: 'Ты открываешь. Две женщины и мальчик проскакивают внутрь, и в щель протискивается рука в больничном рукаве. Ты наваливаешься на дверь, и край двери рвёт тебе пальцы. Засов задвигает кто-то другой.', effects: [...hurt('leftArm'), w20('let_in', true)] },
         ] },
       { id: 'c20_gb2_keep', label: 'Не открывать', when: all(B19, own20('d1', 'door')), minutes: 10, terminal: true, goto: 'c20_g_breach3',
@@ -202,18 +210,18 @@ export const day20DScenes: Scene[] = [
       { when: all(B19, not(flag('w.c20_ole_safe'))), text: 'Оле так и стоит у стены. Четвёртый идёт к нему.' },
     ],
     actions: [
-      { id: 'c20_gb3_stay', label: 'Оставаться там, где ты есть', minutes: 10, terminal: true, goto: 'c20_g_car',
+      { id: 'c20_gb3_stay', label: 'Оставаться там, где ты есть', minutes: 10, terminal: true, goto: 'c20_g_after',
         outcomes: [
           { id: 'a', when: A19, text: 'Ещё два выстрела. Потом тишина и хриплый голос фельдфебеля. Двор усыпан бельём и гильзами. У стены кто-то лежит, вокруг уже стоят люди. Отсюда не видно, кто.', effects: [set20('d3', 'stay')] },
           { id: 'safe', when: flag('w.c20_ole_safe'), text: 'Ещё два выстрела. Потом тишина и голос фельдфебеля, хриплый. Двор усыпан бельём и гильзами.', effects: [set20('d3', 'stay')] },
           { id: 'ole', text: 'Ещё два выстрела. Потом тишина. Оле лежит у стены, там, где стоял. Лицо разбито о бетон, рука прокушена через рукав. Хенрике бежит к нему через весь двор, без пальто.', effects: [set20('d3', 'stay'), w20('ole_hurt', true), { npc: 'ole', status: 'injured' }, { body: 'stress', delta: 5 }] },
-        ] },      { id: 'c20_gb3_pull', label: 'Оттащить его от солдата', when: all(isOut, any(A19, flag('w.c20_ole_safe'))), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_g_car',
+        ] },      { id: 'c20_gb3_pull', label: 'Оттащить его от солдата', when: all(isOut, any(A19, flag('w.c20_ole_safe'))), minutes: 10, activity: 'heavy', risky: true, terminal: true, goto: 'c20_g_after',
         outcomes: [
           { id: 'ok', check: { traits: ['strength', 'melee'], difficulty: 4, uses: ['strength', 'mobility'] }, text: 'Ты хватаешь его за ворот рубашки и рвёшь на себя. Он отпускает винтовку и поворачивается к тебе. Солдат успевает. Выстрел в упор, у самого твоего плеча. В ушах звенит до вечера.', effects: [set20('d3', 'pull'), w20('saved_soldier', true), { body: 'stress', delta: 5 }] },
           { id: 'down', when: worse, text: 'Ты хватаешь его, и раненая рука не держит. Он разворачивается, вы падаете вместе, и твоя голова бьётся о бампер фургона. Потом что-то острое, край номерного знака, под рёбрами. Ты слышишь выстрел очень далеко.\n\nПотом тихо.', effects: [set20('d3', 'down'), ...down('torso')] },
           { id: 'fall', text: 'Ты хватаешь его за плечо, он стряхивает тебя, как куртку. Ты падаешь на бетон. Солдат сам выкручивает винтовку и стреляет. Ты лежишь, пока кто-то не поднимает тебя за локоть.', effects: [set20('d3', 'fall'), { injure: 'bruise', site: 'torso', severity: 2 }, { body: 'stress', delta: 4 }] },
         ] },
-      { id: 'c20_gb3_ole', label: 'Бежать к Оле', when: all(B19, not(flag('w.c20_ole_safe'))), minutes: 10, risky: true, terminal: true, goto: 'c20_g_car',
+      { id: 'c20_gb3_ole', label: 'Бежать к Оле', when: all(B19, not(flag('w.c20_ole_safe'))), minutes: 10, risky: true, terminal: true, goto: 'c20_g_after',
         outcomes: [
           { id: 'ok', check: { traits: ['agility'], difficulty: 3, uses: ['mobility'] }, text: 'Ты успеваешь раньше. Хватаешь Оле за куртку и тянешь за угол, к двери донорского блока. Четвёртого снимают с вышки, когда он поворачивает за вами.', effects: [set20('d3', 'ole'), w20('ole_safe', true), npc('ole', 3, 'c20_pulled_me_in'), npc('henrike', 3)] },
           { id: 'late', text: 'Ты не успеваешь. Четвёртый сбивает Оле с ног, и они падают вместе. Выстрел с вышки. Ты подбегаешь, когда всё уже кончилось. Оле лежит на боку, лицо разбито о бетон, рука прокушена через рукав. Он смотрит на тебя и говорит: «Ich bin doch immun». Я же с иммунитетом. И смеётся, страшно.', effects: [set20('d3', 'late'), w20('ole_hurt', true), { npc: 'ole', status: 'injured' }, { body: 'stress', delta: 6 }] },

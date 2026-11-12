@@ -16,9 +16,9 @@ const afterCaches = [{ id: 'booth', when: ilseKept, goto: 'c19_a_booth' }, { id:
 const afterCellar = [{ id: 'diesel', when: not(flag('$.c19_ad')), goto: 'c19_a_diesel' }, ...afterCaches];
 const afterDiesel = [{ id: 'cellar', when: all(letter, not(flag('$.c19_ac')), not(own19('al', 'put'))), goto: 'c19_a_cellar' }, ...afterCaches];
 const gunKnown: Cond = flag('w.c19_gun');
-const afterPatrol = [{ id: 'gun', when: gunKnown, goto: 'c19_a_weapons' }, { id: 'noon', goto: 'c19_a_noon', effects: [until(19, 12, 45)] }];
+const afterPatrol = [{ id: 'gun', when: gunKnown, goto: 'c19_a_weapons' }, { id: 'soldier', goto: 'c19_a_soldier' }];
 const afterWell = [{ id: 'nina', when: ninaFarm, goto: 'c19_a_nina' }, { id: 'call', goto: 'c19_a_ninacall' }];
-const afterNoon = [{ id: 'well', goto: 'c19_a_well' }];
+const afterNoon = [{ id: 'cart', goto: 'c19_a_cart' }];
 const afterGirl = [{ id: 'ute', when: uteHere, goto: 'c19_a_ute' }, { id: 'jannes', when: jannesHere, goto: 'c19_a_jannes' }, { id: 'kerem', goto: 'c19_a_kerem' }];
 const afterNina = [{ id: 'girl', when: girlHere, goto: 'c19_a_girl' }, ...afterGirl];
 const listed = (who: string) => `${who} в списке нет.`;
@@ -151,10 +151,10 @@ export const day19AScenes: Scene[] = [
   A({ id: 'c19_a_weapons', title: 'Оружие', camp: yard14, ambient: day19,
     text: [{ text: 'Солдат уже убирает планшет, но останавливается.\n\n— Waffen im Haus? Herr Brandt lässt alles registrieren.\n\nОружие в доме есть? Господин Брандт велел всё переписать.' }],
     actions: [
-      { id: 'c19_aw_truth', label: 'Сказать правду: старая двустволка, отцовская', minutes: 15, terminal: true, goto: 'c19_a_noon',
-        text: 'Солдат вписывает: «Bockflinte, Kal. 12, Lüdemann». Номер на стволе он переписывает сам.\n\n— Behalten Sie sie. Für den Hof. Aber Brandt weiß es jetzt.\n\nОставьте. Для двора. Но теперь Брандт знает.', effects: [set19('aw', 'truth'), w19('gun_declared', true), until(19, 12, 45)] },
-      { id: 'c19_aw_lie', label: 'Сказать: оружия нет', minutes: 5, terminal: true, goto: 'c19_a_noon',
-        text: '— Keine, — говоришь ты. Нет.\n\nСолдат кивает и уходит к машине. Молодой смотрит на окна твоей комнаты чуть дольше, чем нужно.', effects: [set19('aw', 'lie'), w19('gun_lie', true), until(19, 12, 45)] },
+      { id: 'c19_aw_truth', label: 'Сказать правду: старая двустволка, отцовская', minutes: 15, terminal: true, goto: 'c19_a_soldier',
+        text: 'Солдат вписывает: «Bockflinte, Kal. 12, Lüdemann». Номер на стволе он переписывает сам.\n\n— Behalten Sie sie. Für den Hof. Aber Brandt weiß es jetzt.\n\nОставьте. Для двора. Но теперь Брандт знает.', effects: [set19('aw', 'truth'), w19('gun_declared', true)] },
+      { id: 'c19_aw_lie', label: 'Сказать: оружия нет', minutes: 5, terminal: true, goto: 'c19_a_soldier',
+        text: '— Keine, — говоришь ты. Нет.\n\nСолдат кивает и уходит к машине. Молодой смотрит на окна твоей комнаты чуть дольше, чем нужно.', effects: [set19('aw', 'lie'), w19('gun_lie', true)] },
     ] }),
 
   A({ id: 'c19_a_noon', title: 'Обед', camp: kitchen14,
@@ -166,11 +166,11 @@ export const day19AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c19_an_eat', label: 'Поесть', minutes: 25, terminal: true, outcomes: afterNoon, ...tableOnly,
-        text: 'Суп горячий. Ты съедаешь всё и вытираешь тарелку хлебом.', effects: [set19('an', 'eat'), meal('eat'), until(19, 14, 0)] },
+        text: 'Суп горячий. Ты съедаешь всё и вытираешь тарелку хлебом.', effects: [set19('an', 'eat'), meal('eat'), until(19, 13, 15)] },
       { id: 'c19_an_give', label: 'Отдать свою порцию тому, кто стоит у подоконника', minutes: 10, terminal: true, outcomes: afterNoon, ...tableOnly,
-        text: 'Ты ставишь свою тарелку на подоконник и уходишь во двор. Есть ты будешь вечером.', effects: [set19('an', 'give'), meal('pack'), { if: girlHere, then: [npc('c8_eva', 1)] }, until(19, 14, 0)] },
+        text: 'Ты ставишь свою тарелку на подоконник и уходишь во двор. Есть ты будешь вечером.', effects: [set19('an', 'give'), meal('pack'), { if: girlHere, then: [npc('c8_eva', 1)] }, until(19, 13, 15)] },
       { id: 'c19_an_skip', label: 'Взять хлеба и сразу во двор', minutes: 10, terminal: true, outcomes: afterNoon,
-        text: 'Ты отламываешь горбушку и ешь на ходу.', effects: [set19('an', 'skip'), until(19, 14, 0)] },
+        text: 'Ты отламываешь горбушку и ешь на ходу.', effects: [set19('an', 'skip'), until(19, 13, 15)] },
     ] }),
 
   A({ id: 'c19_a_well', title: 'Колонка', camp: yard14, ambient: day19,
@@ -273,7 +273,7 @@ export const day19AScenes: Scene[] = [
     actions: [
       { id: 'c19_ak_trade', label: 'Спросить, что они берут на обмен', minutes: 20, terminal: true, goto: 'c19_a_wait',
         outcomes: [
-          { id: 'diesel', when: flag('w.c19_diesel'), text: '— Diesel? — Керем поднимает брови. — Für Diesel gibt Deniz Benzin. Samstag. Fünf Liter gegen zehn.\n\nЗа солярку Дениз даст бензин. В субботу. Пять литров за десять.\n\nТы запоминаешь.', effects: [set19('ak', 'trade'), w19('fuel_offer', true)] },
+          { id: 'diesel', when: all(flag('w.c19_diesel'), not(flag('w.c19_diesel_taken'))), text: '— Diesel? — Керем поднимает брови. — Für Diesel gibt Deniz Benzin. Samstag. Fünf Liter gegen zehn.\n\nЗа солярку Дениз даст бензин. В субботу. Пять литров за десять.\n\nТы запоминаешь.', effects: [set19('ak', 'trade'), w19('fuel_offer', true)] },
           { id: 'schnaps', when: flag('w.c19_schnaps'), text: '— Schnaps? — Керем смеётся впервые за разговор. — Dafür kriegst du bei uns fast alles. Samstag.\n\nЗа шнапс у нас дают почти всё. В субботу.', effects: [set19('ak', 'trade'), w19('fuel_offer', true)] },
           { id: 'none', text: '— Alles, was nicht verdirbt, — говорит Керем. Всё, что не портится. — Benzin haben wir wenig. Aber für Diesel würde Deniz tauschen.\n\nБензина мало. Но за солярку Дениз бы поменялся.', effects: [set19('ak', 'trade')] },
         ] },
@@ -285,7 +285,7 @@ export const day19AScenes: Scene[] = [
 
   A({ id: 'c19_a_wait', title: 'К пяти', camp: yard14, ambient: cold19,
     text: [
-      { text: 'Солнце садится в половине пятого. {B} ушла с Кёлер в девять и ещё не вернулась.' },
+      { text: 'Солнце садится в половине пятого. {B} ушла с Кёлер в девять. На дороге к Йестебургу пока никого.' },
       { when: flag('w.c19_saw_walkers'), text: 'Ты вспоминаешь людей, которые ночью шли по полю к шоссе.' },
     ],
     actions: [
@@ -307,12 +307,12 @@ export const day19AScenes: Scene[] = [
       { text: 'Горловина бака сверху, со стороны дороги. До темноты полчаса.' },
     ],
     actions: [
-      { id: 'c19_ak2_fast', label: 'Сливать быстро, пока светло', minutes: 25, activity: 'moderate', risky: true, terminal: true, goto: 'c19_eve',
+      { id: 'c19_ak2_fast', label: 'Сливать быстро, пока светло', minutes: 25, activity: 'moderate', risky: true, terminal: true, goto: 'c19_a_mailbag',
         outcomes: [
           { id: 'ok', check: { traits: ['technical'], difficulty: 3, uses: ['focus'] }, text: 'Шланг в горловину, вдох, и бензин бьёт в рот. Ты сплёвываешь и опускаешь шланг в канистру. Литров шесть, потом струйка слабеет: бак лежит неудобно. Почтальон стучит не переставая. Ты не смотришь на него, пока не завинчиваешь крышку.', effects: [set19('ak2', 'fast'), w19('siphoned', 6), { fillCan: 'can_petrol_10', liters: 6 }, { body: 'stress', delta: 2 }] },
           { id: 'spill', text: 'Ты втягиваешь слишком сильно. Бензин заливает горло, тебя выворачивает в канаву. Шланг выскакивает, половина льётся на рукав. Канистра набирается на три литра. От тебя разит так, что до вечера кружится голова.', effects: [set19('ak2', 'spill'), w19('siphoned', 3), { fillCan: 'can_petrol_10', liters: 3 }, { body: 'stress', delta: 3 }, { body: 'thirst', delta: 10 }] },
         ], effects: [until(19, 17, 0)] },
-      { id: 'c19_ak2_full', label: 'Сливать медленно, до последнего', minutes: 50, activity: 'moderate', terminal: true, goto: 'c19_eve',
+      { id: 'c19_ak2_full', label: 'Сливать медленно, до последнего', minutes: 50, activity: 'moderate', terminal: true, goto: 'c19_a_mailbag',
         text: 'Ты перекладываешь шланг трижды, пока не находишь нижнюю точку бака. Полная канистра, десять литров. Обратно идёшь уже в темноте, на ощупь по колее. Почтальон стучит тебе вслед, пока не перестаёт быть слышно.', effects: [set19('ak2', 'full'), w19('siphoned', 10), { fillCan: 'can_petrol_10', liters: 10 }, { body: 'fatigue', delta: 6 }, { body: 'stress', delta: 3 }, until(19, 17, 15)] },
       { id: 'c19_ak2_leave', label: 'Не трогать: это чья-то машина и чей-то человек', minutes: 20, move: true, terminal: true, goto: 'c19_eve',
         text: 'Ты стоишь у канавы, пока почтальон не устаёт стучать. Потом уходишь с пустой канистрой. На полпути понимаешь, что знаешь его: он носил почту на вашу улицу в Бухгольце.', effects: [set19('ak2', 'leave'), until(19, 17, 0)] },
