@@ -8,7 +8,7 @@ import { clamp, round } from './rng';
 import type { Activity, ItemInstance } from './types';
 import { other } from './types';
 import {
-  carriedWeight, carryLimit, countTag, environment, heldItems, itemType, log, me, network, phoneUsable, takeItems, type Ctx,
+  carriedWeight, carryLimit, countTag, environment, heldItems, itemType, lifelineFor, log, me, network, phoneUsable, takeItems, type Ctx,
 } from './world';
 
 export interface AdvanceResult {
@@ -37,7 +37,7 @@ export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts:
     const overloaded = carriedWeight(ctx) > carryLimit(ctx) * 1.25;
     const act = overloaded ? HEAVIER[activity] : activity;
     const before = symptoms(ch.body, ch.time);
-    const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`);
+    const r = tickBody(ch.body, ch.traits, ch.time, step, act, env, `${ctx.s.seed}:${ctx.pid}`, lifelineFor(ctx.s, ctx.pid));
     drainBatteries(ctx, step);
     tickControlledPartner(ctx, step);
     baseTicksDuring(ctx, ch.time, ch.time + step);
@@ -71,7 +71,7 @@ function tickControlledPartner(ctx: Ctx, minutes: number) {
   const dt = me(ctx).time + minutes - p.time;
   if (dt <= 0) return;
   const pctx: Ctx = { ...ctx, pid };
-  const r = tickBody(p.body, p.traits, p.time, dt, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`);
+  const r = tickBody(p.body, p.traits, p.time, dt, 'rest', environment(pctx), `${ctx.s.seed}:${pid}`, lifelineFor(ctx.s, pid));
   p.time += dt;
   if (r.died) log(pctx, 'system', 'Смерть.');
 }

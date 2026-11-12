@@ -1,5 +1,5 @@
 // Доступ к состоянию: переменные, инвентарь, связь, среда, журнал, случайность.
-import { capabilities, painLevel, type Environment } from './body';
+import { canAct, capabilities, LIFELINE_FROM, painLevel, type Environment } from './body';
 import type { Content, ItemType } from './content-types';
 import { unit } from './rng';
 import type { CharacterState, GameState, ItemInstance, LogEntry, PlayerId, Scalar } from './types';
@@ -105,6 +105,12 @@ export function carriedWeight(ctx: Ctx, pid: PlayerId = ctx.pid): number {
 }
 
 /** Комфортная нагрузка: 10 кг + 2,5 кг за единицу силы. Сверх неё растёт усталость. */
+/** Действует ли «страховка жизни» для pid на этой линии: с участка 19, пока партнёр может действовать. */
+export function lifelineFor(s: Ctx['s'], pid: PlayerId): boolean {
+  const partner = s.chars[other(pid)];
+  return s.checkpoint >= LIFELINE_FROM && canAct(partner.body);
+}
+
 export function carryLimit(ctx: Ctx, pid: PlayerId = ctx.pid): number {
   return 10000 + ctx.s.chars[pid].traits.strength * 2500;
 }

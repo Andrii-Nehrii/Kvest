@@ -11,7 +11,7 @@ import { canonical, stateHash, unit } from './rng';
 import { advanceTime, applyStandingRules } from './simulate';
 import type { GameState, HistoryRecord, ItemInstance, NpcState, PlayerId, Scalar } from './types';
 import { other, PLAYERS } from './types';
-import { environment, log, network, phoneUsable, type Ctx } from './world';
+import { environment, lifelineFor, log, network, phoneUsable, type Ctx } from './world';
 
 const clone = <T>(x: T): T => structuredClone(x);
 const same = (a: unknown, b: unknown) => canonical(a) === canonical(b);
@@ -232,7 +232,7 @@ function syncClocksTo(c: Content, s: GameState, target: number) {
     }
     // Потерял сознание или погиб, пока ждал, — или был недееспособен с самого начала: тело живёт до общего момента.
     if (ch.time < target && !isDead(ch.body)) {
-      tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`);
+      tickBody(ch.body, ch.traits, ch.time, target - ch.time, 'rest', environment(ctx), `${s.seed}:${pid}`, lifelineFor(s, pid));
     }
     ch.time = target;
   }

@@ -125,6 +125,19 @@ const HEAL_DAYS: Record<string, number> = {
   bruise: 7, cut: 9, laceration: 16, scratch: 5, bite: 18, sprain: 18, fracture: 45, burn: 20, concussion: 10,
 };
 
+/**
+ * «Страховка жизни» (решение владельца 12.11, с участка 19 — `s.checkpoint >= LIFELINE_FROM`): пока партнёр может действовать,
+ * тело выбывшего не переходит порог смерти от крови, холода и жажды. Умереть можно, только если не спас и сам выбыл.
+ * Болезнь от возбудителя этим не останавливается (законы мира) — поэтому укусы персонажам игроков в этих точках не ставятся.
+ */
+export const LIFELINE_FROM = 18;
+export function holdOnToLife(b: Body, t: Minutes) {
+  if (b.consciousness === 'dead') return;
+  if (b.bloodLoss > 92) b.bloodLoss = 92;
+  if (b.coreTemp < 28) b.coreTemp = 28;
+  if (b.dehydratedSince !== undefined && t - b.dehydratedSince > 46 * 60) b.dehydratedSince = t - 46 * 60;
+}
+
 export interface TickResult {
   notes: string[];
   died?: string;
@@ -133,7 +146,7 @@ export interface TickResult {
 /**
  * Продвинуть тело на `minutes` минут. Детерминировано: все «броски» — от ключа seed+персонаж+событие.
  */
-export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number, activity: Activity, env: Environment, seedKey: string): TickResult {
+export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number, activity: Activity, env: Environment, seedKey: string, lifeline = false): TickResult {
   const res: TickResult = { notes: [] };
   let t = from;
   let left = minutes;
@@ -228,6 +241,7 @@ export function tickBody(b: Body, traits: Traits, from: Minutes, minutes: number
     t += step;
     left -= step;
     if (isDead(b)) break;
+    if (lifeline) holdOnToLife(b, t);
     const died = checkThresholds(b, t);
     if (died) { res.died = died; break; }
   }

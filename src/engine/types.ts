@@ -337,6 +337,8 @@ export type Effect =
   | { restUntil: Minutes; sleeping?: boolean }
   | { waitTogether: number }
   | { handOver: string; toNpc: string; qty?: number }
+  /** С участка 19: донести или довезти недееспособного партнёра, который рядом (его ведёт эта линия). */
+  | { carryPartner: { to: string; km: number; minutes: number; vehicle?: string; helped?: boolean } }
   | { introduceNpc: string }
   | { takeFromNpc: string; type: string; qty?: number }
   | { npcTransfer: { from: string; to: string; type: string; qty?: number; allowDeadRecipient?: boolean } }

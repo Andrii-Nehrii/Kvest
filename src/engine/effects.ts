@@ -1,7 +1,7 @@
 import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
-import { checkThresholds, fallAsleep, kill, wakeUp } from './body';
+import { checkThresholds, fallAsleep, holdOnToLife, kill, wakeUp } from './body';
 import { performCamp } from './camp';
-import { journey } from './journey';
+import { carryPartner, journey } from './journey';
 import { introduceNpc, npcTransfer, takeFromNpc } from './introduced';
 import { evalCond } from './conditions';
 import { newIllness } from './illness';
@@ -10,7 +10,7 @@ import { advanceTime, type AdvanceResult } from './simulate';
 import type { Effect, PlayerId } from './types';
 import { other, PLAYERS } from './types';
 import {
-  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, phone, resolveKey, setVar, takeItems, type Ctx,
+  fmt, getVar, giveItem, heldItems, itemType, log, me, moveItems, nextId, phone, resolveKey, setVar, takeItems, type Ctx, lifelineFor,
 } from './world';
 
 export interface EffectResult {
@@ -69,6 +69,11 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     }
     moveItems(ctx, i => i.type === e.handOver, qty, { kind: 'char', id: ctx.pid }, { kind: 'npc', id: e.toNpc });
     out.notes.push(`Передано: ${itemType(ctx, e.handOver).name} — ${qty}. Получатель: ${ctx.c.npcs[e.toNpc].name}.`);
+    return;
+  }
+  if ('carryPartner' in e) {
+    const problem = carryPartner(ctx, e.carryPartner);
+    if (problem) { out.interrupted = true; out.notes.push(problem); log(ctx, 'item', problem); }
     return;
   }
   if ('journey' in e) {
@@ -132,6 +137,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
     if (e.target && ctx.s.checkpoint < 6) return;
     const recipient = e.target ? ctx.s.chars[targetPid(ctx, e.target)] : ch;
     recipient.body[e.body] = clamp(recipient.body[e.body] + e.delta, 0, e.body === 'sleepDebt' ? 72 : 100);
+    if (lifelineFor(ctx.s, e.target ? targetPid(ctx, e.target) : ctx.pid)) holdOnToLife(recipient.body, recipient.time);
     if (checkThresholds(recipient.body, recipient.time)) out.interrupted = true;
     return;
   }
@@ -142,6 +148,7 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
       woundInfected: false, healed: 0, exposure: e.exposure,
     });
     ch.body.stress = clamp(ch.body.stress + 8 * e.severity, 0, 100);
+    if (lifelineFor(ctx.s, ctx.pid)) holdOnToLife(ch.body, t);
     if (checkThresholds(ch.body, t)) out.interrupted = true;
     return;
   }
