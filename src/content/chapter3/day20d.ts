@@ -49,8 +49,8 @@ export const day20DScenes: Scene[] = [
     actions: [
       { id: 'c20_fd1_door', label: 'Загнать всех в дом и запереть дверь', when: A19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',
         text: 'Ты задвигаешь засов и подпираешь дверь скамьёй. Окна кухни выходят во двор. Отсюда видно всё.', effects: [set20('d1', 'door'), until(20, 14, 20)] },
-      { id: 'c20_fd1_up', label: 'Увести детей наверх, подальше от окон', when: all(B19, any(ninaFarm, girlHere)), minutes: 5, terminal: true, goto: 'c20_f_d_fence',
-        text: 'Ты гонишь всех на второй этаж и сажаешь на пол у дальней стены. Нина держит новенькую за руку. Никто не плачет.', effects: [set20('d1', 'up'), until(20, 14, 20)] },
+      { id: 'c20_fd1_up', label: 'Увести всех наверх, подальше от окон', when: all(B19, any(ninaFarm, girlHere)), minutes: 5, terminal: true, goto: 'c20_f_d_fence',
+        text: 'Ты гонишь всех на второй этаж и сажаешь на пол у дальней стены. Никто не плачет.', effects: [set20('d1', 'up'), until(20, 14, 20)] },
       { id: 'c20_fd1_gun', label: 'Взять ружьё и встать в дверях', when: all(A19, gun), minutes: 5, terminal: true, goto: 'c20_f_d_fence',
         text: 'Ружьё за шкафом, патроны в банке с пуговицами. Ты заряжаешь оба ствола в сенях, руки слушаются плохо. Встаёшь в дверях, плечом к косяку.', effects: [set20('d1', 'gun'), until(20, 14, 20)] },
       { id: 'c20_fd1_fork', label: 'Схватить вилы и бежать к задней калитке', when: A19, minutes: 5, terminal: true, goto: 'c20_f_d_fence',

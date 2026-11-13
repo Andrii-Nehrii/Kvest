@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { completeCheckpoint } from '../engine/checkpoint';
 import { applyEffects } from '../engine/effects';
 import { segmentFinished } from '../engine/game';
+import { at } from '../engine/time';
 import { evalCond } from '../engine/conditions';
 import type { GameState } from '../engine/types';
 import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
@@ -269,7 +270,7 @@ describe('участки 16–17: среда', () => {
     expect(leg(b17, 'B', { c18_b_dawn: 'c18_bw_self', c18_b_seat: 'c18_bs2_hanna' }).vars['w.c18_seat']).toBe('hanna');
     expect(leg(b17, 'B', { c18_b_queue: 'c18_bu_doctor', c18_b_answer: 'c18_ba_man' }).vars['w.c18_ole_free_day']).toBe(true);
     // A: ключ у соли — без шума; иначе колун. Колбаса меняется на услугу.
-    const key = leg(b17, 'A', { c18_a_smoke: 'c18_sm_salt', c18_a_knock: 'c18_kn_wurst', c18_a_patrol: 'c18_ap_gift' });
+    const key = leg(b17, 'A', { c18_a_pear: 'c18_apr_word', c18_a_smoke: 'c18_sm_salt', c18_a_knock: 'c18_kn_wurst', c18_a_patrol: 'c18_ap_gift' });
     expect(key.vars['w.c18_smoke']).toBe('key'); expect(key.chars.A.visited.c18_a_smoke2).toBeUndefined();
     expect(qty(key, 'c18_wurst')).toBe(0); expect(qty(key, 'c18_ham', 'place', 'c3_farm_stock')).toBe(1);
     expect(key.vars['w.c18_roofing']).toBe(true); expect(key.vars['w.c18_list_checked']).toBe(true);
@@ -286,5 +287,38 @@ describe('участки 16–17: среда', () => {
     for (const id of ['c18_ahlers', 'c18_peters', 'c18_hanna']) expect(cards(trade, 'B'), id).toContain(id);
     expect(cards(trade, 'B')).not.toContain('c18_volker');
     expect(cards(mergeCp(b17, 18, broke, trade), 'B')).toContain('c18_volker');
+  });
+  // Ответы реальной пары на КТ16: Маргит в сарае хутора, ночью предупредили Уте.
+  it('нити КТ16 (take/warn): Тобиас под грушей — список, слово или велосипед; Уте и Хармс; имена вместо «новенькой»', () => {
+    const bp = completeCheckpoint(c, structuredClone(s16) as GameState, answer16('take', 'warn')).state;
+    const s17p = mergeCp(bp, 17, leg(bp, 'A'), leg(bp, 'B'));
+    const b17 = completeCheckpoint(c, s17p, { A: { c3_new_colony17: 'end', c3_new_nina17: 'home' }, B: { c3_new_colony17: 'end', c3_new_nina17: 'home' } }).state;
+    const pear = (favor: string, extra: Record<string, string> = {}) =>
+      leg(b17, 'A', { c18_e_kai: 'c18_e3_self', c18_e_morning: 'c18_e4_farm', c18_a_tobias: 'c18_at_with', c18_a_pear: favor, ...extra });
+    const tob = leg(b17, 'A', { c18_e_kai: 'c18_e3_self', c18_e_morning: 'c18_e4_farm' }, 'c18_a_tobias');
+    expect(tob.chars.A.time).toBeGreaterThanOrEqual(at(18, 11, 40));
+    const bike = pear('c18_apr_none');
+    expect(qty(bike, 'bicycle', 'place', 'hof_luedemann')).toBe(1); expect(bike.vars['w.c18_margit_bike']).toBe(true);
+    const list = pear('c18_apr_list', { c18_a_patrol: 'c18_ap_two' });
+    expect(list.vars['w.c18_list_checked']).toBe(true); expect(qty(list, 'bicycle', 'place', 'hof_luedemann')).toBe(0);
+    const word = pear('c18_apr_word');
+    expect(word.vars['w.c18_tobias_favor']).toBe('word'); expect(word.vars['w.c18_ute']).toBe('farm');
+    const atSeat = leg(b17, 'B', { c18_b_dawn: 'c18_bw_stay' }, 'c18_b_seat');
+    const seat = acts(atSeat, 'B').some(a => a.enabled && a.def.id === 'c18_bs2_eva') ? 'c18_bs2_eva' : 'c18_bs2_jana';
+    const s18 = mergeCp(b17, 18, word, leg(b17, 'B', { c18_b_dawn: 'c18_bw_stay', c18_b_seat: seat }));
+    const b18 = completeCheckpoint(c, s18, both18({ c3_new_friday18: 'write', c3_new_house18: 'known' })).state;
+    const name = b18.vars['w.c18_seat'] === 'eva' ? 'Эвой' : 'Яной';
+    expect(['eva', 'jana']).toContain(b18.vars['w.c18_seat']);
+    const eve = leg(b18, 'A', {}, 'c19_eve');
+    expect(acts(eve, 'A').map(a => a.def.id)).toContain('c19_ev_word');
+    const a19 = leg(b18, 'A', { c19_a_ute: 'c19_au_fuel', c19_eve: 'c19_ev_word' });
+    expect(a19.vars['w.c19_lea_name']).toBe(true); expect(a19.vars['w.c19_ute_harms']).toBe(true);
+    const b19 = leg(b18, 'B');
+    const labels = acts(leg(b18, 'B', {}, 'c19_b_morning'), 'B').map(a => a.def.label).join(' | ');
+    expect(labels).toContain(name); expect(labels).not.toMatch(/новеньк/i);
+    const s19 = mergeCp(b18, 19, a19, b19);
+    const stay = completeCheckpoint(c, s19, both18({ c3_new_trip19: 'stay', c3_new_gun19: 'lock' })).state;
+    const a20 = leg(stay, 'A');
+    expect(a20.vars['w.c20_tobias_way']).toBe(true);
   });
 });

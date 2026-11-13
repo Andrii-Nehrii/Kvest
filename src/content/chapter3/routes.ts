@@ -1,6 +1,6 @@
 import { A18, B18, P18, point18Available } from './point18';
 import { any as any18, ninaFarm as ninaFarm18, v as v18 } from './point18';
-import { A19, B19, atFarm, cold19, evaHere, girlHere, henrikeHome, inLue, janaHere, point19Available, point20Available, set19, until, uteHere, volkerHere, npc as npc19 } from './point19';
+import { A19, B19, atFarm, byGirl, cold19, evaHere, girlHere, henrikeHome, inLue, janaHere, point19Available, point20Available, set19, until, uteHere, volkerHere, npc as npc19 } from './point19';
 import { indoor16 } from './point16';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -790,8 +790,8 @@ export const newEntry19: Scene = {
       text: 'Ты поднимаешься наверх, не дожидаясь остальных.', effects: [prepareCamp, set19('s', 'sleep'), until(18, 20, 0)] }),
     onlyB19({ id: 'c19_s_wash', label: 'Вымыться горячей водой', minutes: 35, terminal: true, goto: 'c19_wed_night',
       text: 'Таз стоит у печи. Ты моешься по частям, как в детстве на даче, и вода сразу становится серой. Запах казармы уходит не весь.', effects: [prepareCamp, set19('s', 'wash'), { body: 'stress', delta: -2 }, until(18, 21, 0)] }),
-    onlyB19({ id: 'c19_s_girl', label: 'Показать новенькой, где что', when: girlHere, minutes: 25, terminal: true, goto: 'c19_wed_night',
-      text: 'Ты показываешь, где туалет, где колодец и какая ступенька скрипит. Рюкзак она снимает только в комнате за кухней.\n\n— Ich bin nützlich, — говорит она. — Ihr werdet sehen.\n\nЯ буду полезной. Вот увидите.', effects: [prepareCamp, set19('s', 'girl'), { if: evaHere, then: [npc19('c8_eva', 2)] }, until(18, 21, 0)] }),
+    ...byGirl(onlyB19({ id: 'c19_s_girl', label: 'Показать {g}е, где что', when: girlHere, minutes: 25, terminal: true, goto: 'c19_wed_night',
+      text: 'Ты показываешь, где туалет, где колодец и какая ступенька скрипит. Рюкзак она снимает только в комнате за кухней.\n\n— Ich bin nützlich, — говорит она. — Ihr werdet sehen.\n\nЯ буду полезной. Вот увидите.', effects: [prepareCamp, set19('s', 'girl'), { if: evaHere, then: [npc19('c8_eva', 2)] }, until(18, 21, 0)] })),
     onlyB19({ id: 'c19_s_nina', label: 'Сесть рядом с Ниной на лестнице', when: ninaFarm18, minutes: 25, terminal: true, goto: 'c19_wed_night',
       text: 'Ты садишься на ступеньку ниже. Нина долго молчит, потом кладёт голову тебе на плечо. Через десять минут она уже спит.', effects: [prepareCamp, set19('s', 'nina'), npc19('c7_nina', 2), until(18, 21, 0)] }),
     onlyB19({ id: 'c19_s_sleep', label: 'Лечь сразу: после казармы гудит голова', minutes: 5, terminal: true, goto: 'c19_wed_night',

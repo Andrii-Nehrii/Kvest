@@ -18,6 +18,7 @@ const afterHens = [
   { id: 'move', when: colony17('move'), goto: 'c18_m_hitch' }, { id: 'end', when: colony17('end'), goto: 'c18_e_walk' }, { id: 'home', goto: 'c18_h_evening' },
 ];
 const denizAlive: Cond = { npc: 'deniz', alive: true };
+const favorList: Cond = v('w.c18_tobias_favor', 'list');
 const ruthHere: Cond = all({ npc: 'c8_ruth', alive: true }, { npc: 'c8_eva', alive: true });
 
 export const day18xScenes: Scene[] = [
@@ -75,13 +76,17 @@ export const day18xScenes: Scene[] = [
   A({ id: 'c18_a_patrol', title: 'Список', camp: yard14, ambient: cold18,
     text: [
       { text: 'В пять у ворот останавливается патруль. Солдат с планшетом, не Тобиас.\n\n— Wer wohnt hier? Namen, alle. Ab morgen gibt es Rationen nur nach Liste.\n\nКто здесь живёт? Имена, все. С завтрашнего дня пайки только по списку.' },
+      { when: favorList, text: 'Он открывает планшет и находит строчку.\n\n— Lüdemann-Hof. Albers hat angerufen. Wen Sie nennen, ist geprüft.\n\nХутор Людеманов. Альберс звонил. Кого назовёте, тот проверен.' },
     ],
     actions: [
       { id: 'c18_ap_all', label: 'Назвать всех, кто сейчас в доме', minutes: 10, terminal: true, goto: 'c18_evening',
-        text: 'Ты называешь всех. Солдат пишет, не поднимая глаз. Напротив каждого имени он ставит крестик: проверить.', effects: [set('ap', 'all'), w('list', 'all'), until(18, 17, 20)] },
+        outcomes: [
+          { id: 'tobias', when: favorList, text: 'Ты называешь всех. Солдат пишет, не поднимая глаз, и напротив каждого имени ставит «geprüft».', effects: [set('ap', 'all'), w('list', 'all'), w('list_checked', true), until(18, 17, 20)] },
+          { id: 'plain', text: 'Ты называешь всех. Солдат пишет, не поднимая глаз. Напротив каждого имени он ставит крестик: проверить.', effects: [set('ap', 'all'), w('list', 'all'), until(18, 17, 20)] },
+        ] },
       { id: 'c18_ap_two', label: 'Назвать только себя и {B.acc}', minutes: 10, terminal: true, goto: 'c18_evening',
-        text: '— Zwei, — повторяет солдат. Двое. Он смотрит на окна второго этажа, но ничего не говорит.', effects: [set('ap', 'two'), w('list', 'two'), until(18, 17, 20)] },
-      { id: 'c18_ap_gift', label: 'Назвать всех и вынести ему кольцо колбасы', when: { has: 'c18_wurst' }, minutes: 10, terminal: true, goto: 'c18_evening',
+        text: '— Zwei, — повторяет солдат. Двое. Он смотрит на окна второго этажа, но ничего не говорит.', effects: [set('ap', 'two'), w('list', 'two'), { if: favorList, then: [w('list_checked', true)] }, until(18, 17, 20)] },
+      { id: 'c18_ap_gift', label: 'Назвать всех и вынести ему кольцо колбасы', when: all({ has: 'c18_wurst' }, not(favorList)), minutes: 10, terminal: true, goto: 'c18_evening',
         text: 'Ты называешь всех и кладёшь на капот кольцо колбасы. Солдат смотрит на него, потом на тебя.\n\n— Bestechung?\n\n— Abendessen.\n\nВзятка? Ужин. Он убирает кольцо под куртку и напротив каждого имени пишет «geprüft». Проверено.', effects: [set('ap', 'gift'), w('list', 'all'), w('list_checked', true), { take: 'c18_wurst' }, until(18, 17, 20)] },
       { id: 'c18_ap_hosts', label: 'Назвать Людеманов: хутор их', minutes: 10, terminal: true, goto: 'c18_evening',
         text: '— Lüdemann, Henrike. Lüdemann, Ole, — пишет солдат. — Und Sie?\n\n— Gäste, — говоришь ты. Гости.', effects: [set('ap', 'hosts'), w('list', 'hosts'), npc('henrike', 1), until(18, 17, 20)] },

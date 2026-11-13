@@ -5,7 +5,7 @@ import { house14, kitchen14, tense14, yard14 } from './point14';
 import { meal } from './point12';
 import { any, ninaFarm, v } from './point18';
 import {
-  A19, B19, S20, barnChained, cold19, day19, evaHere, girlHere, henrikeHome, jannesHere, janaHere, npc, own20, set20, tableOnly, tractorHere, until, uteHere, volkerHere, w20,
+  A19, B19, S20, barnChained, byGirl, cold19, day19, evaHere, girlHere, henrikeHome, jannesHere, janaHere, npc, own20, set20, tableOnly, tractorHere, until, uteHere, volkerHere, w20,
 } from './point19';
 
 // Участок 20, хутор: пятница дома. Список, почта, Брандт, радио, известие о конвое.
@@ -20,6 +20,8 @@ const afterBreakfast = [{ id: 'patrol', when: all(A19, guests), goto: 'c20_f_a_p
 export const afterMorningA = [{ id: 'volker', when: volkerHere, goto: 'c20_f_a_volker' }, { id: 'booth', when: ilseStill, goto: 'c20_f_a_booth' },
   { id: 'barn', when: barnChained, goto: 'c20_f_a_barn' }, { id: 'car', goto: 'c20_f_a_car' }];
 const afterTobias = [{ id: 'yard', goto: 'c20_f_yard' }];
+/** Тобиас похоронил мать под грушей хутора (КТ16) и обещал говорить первым или копал вместе с A. */
+const tobiasWay: Cond = all(v('w.c16_albers', 'take'), any(v('w.c18_tobias_favor', 'word'), v('A.c18_at', 'with')));
 const insulinWalk: Cond = all(flag('w.c19_insulin_address'), { has: 'c18_insulin' });
 const afterNoon = [{ id: 'a', when: A19, goto: 'c20_f_a_afternoon' }, { id: 'ins', when: insulinWalk, goto: 'c20_f_b_insulin' }, { id: 'nina', when: ninaFarm, goto: 'c20_f_b_nina' }, { id: 'girl', when: girlHere, goto: 'c20_f_b_girl' }, { id: 'b', goto: 'c20_f_b_ute' }];
 
@@ -309,7 +311,7 @@ export const day20FScenes: Scene[] = [
         text: 'Нина раскладывает на кровати всё, что есть: бинты, пластыри, таблетки. Пишет на каждой упаковке фломастером, от чего. Получается аккуратно, как в тетради.', effects: [set20('fbn', 'task'), w20('kit_ready', true), npc('c7_nina', 1), until(20, 13, 55)] },
     ] }),
 
-  F({ id: 'c20_f_b_girl', title: 'Новенькая', camp: house14,
+  F({ id: 'c20_f_b_girl', title: 'У окна кухни', camp: house14,
     text: [
       { when: evaHere, text: 'Эва стоит у окна кухни с недочищенной картофелиной в руке.\n\n— Wenn ihr heute Abend wegfahrt, nehmt mich mit. Ich kann Wunden verbinden. Ich habe meinem Vater die Hand verbunden, als es passiert ist.\n\nЕсли вечером поедете, возьмите меня. Я умею перевязывать. Я перевязывала отцу руку, когда это случилось.' },
       { when: janaHere, text: 'Яна стоит у окна кухни с недочищенной картофелиной в руке.\n\n— Wenn ihr heute Abend wegfahrt, nehmt mich mit. Ich kann Wunden verbinden. Ich habe Erste Hilfe gemacht, für den Führerschein.\n\nЕсли вечером поедете, возьмите меня. Я умею перевязывать. Сдавала первую помощь на права.' },
@@ -354,13 +356,14 @@ export const day20FScenes: Scene[] = [
     ] }),
 
   // ───────────── Вместе: известие ─────────────
-  F({ id: 'c20_f_tobias', title: 'Известие', camp: yard14, ambient: day19,
+  F({ id: 'c20_f_tobias', title: 'Известие', camp: yard14, ambient: day19, onEnter: [{ if: tobiasWay, then: [w20('tobias_way', true)] }],
     text: [
       { text: 'Через двадцать минут у ворот тормозит «Вольф». Тобиас выпрыгивает с автоматом, за ним двое солдат. Они идут по двору, переворачивают тех, кто лежит, и стреляют туда, где ещё шевелятся. Тобиас подходит к крыльцу последним.' },
       { when: flag('w.c20_rail'), text: '— Wir haben euren Gong gehört, — говорит он. Мы слышали ваш рельс.' },
       { when: flag('w.c20_shots'), text: '— Wir haben die Schüsse gehört. Ihr habt Glück, dass nicht mehr gekommen sind.\n\nМы слышали выстрелы. Вам повезло, что больше не пришло.' },
       { text: '— Der Transport steht seit zehn Uhr vierzig an der Ausfahrt Garlstorf. Personen auf der Fahrbahn, ein LKW umgekippt. Seit Viertel nach zwölf kein Funk.\n\nТранспорт с десяти сорока стоит на съезде у Гарльсторфа. Люди на проезжей части, грузовик перевернулся. С четверти первого связи нет. Эти, — он кивает на двор, — оттуда.' },
       { text: '— Brandt sammelt um vier an der Feuerwehr alle mit Autos. — Он смотрит на Corsa. — Zwölf Kilometer. Ich sage nicht, dass ihr müsst.\n\nБрандт в четыре собирает у пожарной части всех, у кого машины. Двенадцать километров. Я не говорю, что вы обязаны.' },
+      { when: tobiasWay, text: 'Уже повернувшись к машине, он добавляет тише, только вам:\n\n— Wenn ihr fahrt, dann nicht über die Brücke bei Garlstorf. Da stehen sie dicht. Feldweg ab Lüllau, hinter dem Rasthof raus. So kommt ihr an den zweiten LKW.\n\nЕсли поедете, то не через мост у Гарльсторфа. Там их толпа. Полевой дорогой от Люллау, выедете за стоянкой. Так подъедете ко второму грузовику.' },
     ],
     actions: [
       { id: 'c20_ft_lea', label: 'Спросить, что с донором из Ганновера', minutes: 10, terminal: true, outcomes: afterTobias,
@@ -392,8 +395,12 @@ export const day20FScenes: Scene[] = [
         text: 'Уте кивает, как будто ей вручили класс на время, пока учитель вышел.\n\n— Die Hintertür bleibt zu. Und die Kinder schlafen oben.\n\nЗадняя дверь закрыта. Дети спят наверху.', effects: [set20('fah', 'ute'), w20('in_charge', 'ute'), npc('c14_ute', 1), until(20, 15, 15)] },
       { id: 'c20_fah_volker', label: 'Попросить Фолькера присмотреть', when: flag('w.c20_volker_stays'), minutes: 10, terminal: true, goto: 'c20_f_prepare',
         text: 'Фолькер пожимает плечами.\n\n— Ich bin sowieso wach. Nachts schlafe ich nicht mehr.\n\nЯ всё равно не сплю. По ночам больше не сплю.', effects: [set20('fah', 'volker'), w20('in_charge', 'volker'), until(20, 15, 15)] },
-      { id: 'c20_fah_nina', label: 'Отдать двор Нине и новенькой', when: any(ninaFarm, girlHere), minutes: 10, terminal: true, goto: 'c20_f_prepare',
+      { id: 'c20_fah_nina', label: 'Отдать двор Нине', when: all(ninaFarm, not(girlHere)), minutes: 10, terminal: true, goto: 'c20_f_prepare',
         text: 'Ты показываешь, где засовы, где фонарь, где вилы. Нина повторяет всё вслух, по порядку, как урок.', effects: [set20('fah', 'nina'), w20('in_charge', 'nina'), npc('c7_nina', 2), until(20, 15, 15)] },
+      ...byGirl({ id: 'c20_fah_ng', label: 'Отдать двор Нине и {g}е', when: ninaFarm, minutes: 10, terminal: true, goto: 'c20_f_prepare',
+        text: 'Ты показываешь, где засовы, где фонарь, где вилы. Нина повторяет всё вслух, по порядку, как урок. {g}а стоит рядом и запоминает молча.', effects: [set20('fah', 'nina'), w20('in_charge', 'nina'), npc('c7_nina', 2), until(20, 15, 15)] }),
+      ...byGirl({ id: 'c20_fah_girl', label: 'Отдать двор {g}е', when: not(ninaFarm), minutes: 10, terminal: true, goto: 'c20_f_prepare',
+        text: 'Ты показываешь, где засовы, где фонарь, где вилы. {g}а повторяет всё вслух, по порядку, и пробует засов сама.', effects: [set20('fah', 'girl'), w20('in_charge', 'girl'), until(20, 15, 15)] }),
       { id: 'c20_fah_none', label: 'Никого: вы никуда не едете', minutes: 10, terminal: true, goto: 'c20_f_prepare',
         text: 'Ты говоришь вслух то, что думаешь: ночью вы будете дома. Не все на кухне тебе верят.', effects: [set20('fah', 'none'), until(20, 15, 15)] },
     ] }),

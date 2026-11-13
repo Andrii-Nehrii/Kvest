@@ -4,7 +4,7 @@ import { all, flag, not } from './world3';
 import { house14, kitchen14, tense14, yard14 } from './point14';
 import { any, ninaFarm, v } from './point18';
 import {
-  A19, B19, S20, barnChained, evaHere, girlHere, henrikeHome, jensBarn, npc, own20, set20, until, uteHere, w20,
+  A19, B19, S20, barnChained, byGirl, evaHere, girlHere, henrikeHome, jensBarn, npc, own20, set20, textByGirl, until, uteHere, w20,
 } from './point19';
 import { afterMorningA } from './day20f';
 
@@ -283,7 +283,7 @@ export const day20XScenes: Scene[] = [
   // ───────────── Хутор, B: жар и кладовка ─────────────
   F({ id: 'c20_f_b_fever', title: 'Жар', camp: house14,
     text: [
-      { text: 'Новенькая не встаёт к завтраку. Ты поднимаешься к ней: она лежит, укрывшись с головой, и её трясёт. Лоб горячий и сухой.' },
+      ...textByGirl({ text: '{g}а не встаёт к завтраку. Ты поднимаешься к ней: она лежит, укрывшись с головой, и её трясёт. Лоб горячий и сухой.' }),
       { text: '— Ich bin nicht gebissen, — говорит она сразу, не открывая глаз. — Nirgends. Guck nach.\n\nМеня не кусали. Нигде. Посмотри.' },
       { when: henrikeHome, text: 'Внизу Хенрике говорит громко, чтобы слышали наверху:\n\n— Nicht im Haus. In die Scheune.\n\nНе в доме. В сарай.' },
       { when: not(henrikeHome), text: 'Внизу кто-то спрашивает, не перевести ли её в сарай. Громко, чтобы слышали наверху.' },
@@ -371,8 +371,12 @@ export const day20XScenes: Scene[] = [
         text: 'Три курицы целые, остальных уже не собрать. Ты ощипываешь их над ведром на крыльце, перо липнет к мокрым пальцам. Тела у поленницы ждут. До темноты час.', effects: [set20('fy', 'hens'), w20('bodies', 'left'), { place: 'c17_hen', at: 'c3_farm_stock', qty: 3 }] },
       { id: 'c20_fy_check', label: 'Осмотреть всех, кто был снаружи', when: B19, minutes: 15, terminal: true, outcomes: afterYard,
         text: 'Руки, шеи, лица, при свете из окна кухни. Ссадины, синяки, чья-то сбитая костяшка. Ни одного укуса. Ты проверяешь ещё раз, медленнее.', effects: [set20('fy', 'check'), { body: 'stress', delta: -1 }] },
-      { id: 'c20_fy_kids', label: 'Посидеть наверху с Ниной и новенькой', when: all(B19, any(ninaFarm, girlHere)), minutes: 15, terminal: true, outcomes: afterYard,
+      { id: 'c20_fy_kids', label: 'Посидеть наверху с Ниной', when: all(B19, ninaFarm, not(girlHere)), minutes: 15, terminal: true, outcomes: afterYard,
         text: 'Они сидят на полу у дальней стены, как ты их {m:оставил|оставила}, и не хотят вставать. Ты садишься рядом. Нина кладёт голову тебе на плечо, будто случайно.', effects: [set20('fy', 'kids'), npc('c7_nina', 1), { body: 'stress', delta: -1 }] },
+      ...byGirl({ id: 'c20_fy_kng', label: 'Посидеть наверху с Ниной и {g}ой', when: all(B19, ninaFarm), minutes: 15, terminal: true, outcomes: afterYard,
+        text: 'Они сидят на полу у дальней стены, как ты их {m:оставил|оставила}, и не хотят вставать. Ты садишься рядом. Нина кладёт голову тебе на плечо, будто случайно.', effects: [set20('fy', 'kids'), npc('c7_nina', 1), { body: 'stress', delta: -1 }] }),
+      ...byGirl({ id: 'c20_fy_kg', label: 'Посидеть наверху с {g}ой', when: all(B19, not(ninaFarm)), minutes: 15, terminal: true, outcomes: afterYard,
+        text: '{g}а сидит на полу у дальней стены, как ты её {m:оставил|оставила}. Ты садишься рядом. Она говорит про коров, про дорогу, про что угодно, лишь бы говорить.', effects: [set20('fy', 'kids'), { if: evaHere, then: [npc('c8_eva', 1)] }, { body: 'stress', delta: -1 }] }),
       { id: 'c20_fy_net', label: 'Связать сетку курятника проволокой', when: B19, minutes: 20, terminal: true, outcomes: afterYard,
         text: 'Сетка порвана в трёх местах. Ты стягиваешь края проволокой, обдирая пальцы. Выжившие куры жмутся на насесте и молчат.', effects: [set20('fy', 'net'), w20('coop_tied', true)] },
     ] }),

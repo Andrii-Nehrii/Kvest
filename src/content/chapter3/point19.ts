@@ -1,4 +1,4 @@
-import type { Scene } from '../../engine/content-types';
+import type { ActionDef, Scene, TextBlock } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
@@ -27,6 +27,16 @@ export const evaHere: Cond = v('w.c18_seat', 'eva');
 export const janaHere: Cond = v('w.c18_seat', 'jana');
 export const girlHere: Cond = any(evaHere, janaHere);
 export const volkerHere: Cond = flag('w.c18_lodger');
+export const margit19: Cond = v('w.c16_albers', 'take');
+/** Девушка, приехавшая с B из Люнебурга, по имени: «{g}» — основа имени (Эв-а / Ян-а), окончания пишутся в тексте. */
+const girls = [['Эв', evaHere, ''], ['Ян', janaHere, '_j']] as const;
+const fillGirl = (t: string | undefined, g: string) => t?.replaceAll('{g}', g);
+export const byGirl = (a: ActionDef): ActionDef[] => girls.map(([g, cond, suf]) => ({
+  ...a, id: a.id + suf, when: a.when ? all(a.when, cond) : cond, label: fillGirl(a.label, g)!, text: fillGirl(a.text, g),
+  outcomes: a.outcomes?.map(o => ({ ...o, text: fillGirl(o.text, g) })),
+}));
+export const textByGirl = (b: TextBlock): TextBlock[] => girls.map(([g, cond]) => ({ text: fillGirl(b.text, g)!, when: b.when ? all(b.when, cond) : cond }));
+
 export const ilseKept: Cond = v('w.c18_ilse', 'kept');
 export const letter: Cond = flag('w.c18_ole_letter');
 /** Колония в длинном сарае хутора: перевезли и Брандт оставил (farm) или оставили троих под слово Кёлер. */
@@ -99,6 +109,7 @@ export const shared19: Scene[] = [
   S19({ id: 'c19_eve', for: 'any', chapter: 'ch3', title: 'Вольф у ворот', camp: yard14, ambient: cold19,
     text: [
       { text: 'В пять, уже в сумерках, у ворот останавливается армейский «Вольф». Из него выходит Тобиас. Планшет он оставляет на сиденье.' },
+      { when: margit19, text: 'Сначала он идёт не к вам, а за сарай, к груше. Стоит там минуту без шапки. Потом возвращается к воротам.' },
       { text: '— Morgen Mittag kommt ein Transport aus Hannover nach Lüneburg, — говорит он. — Mit Ersatz für euren Ole. Ich dachte, ihr wollt das wissen.\n\nЗавтра в полдень в Люнебург придёт транспорт из Ганновера. С заменой для вашего Оле. Я подумал, вы захотите знать.' },
       { text: 'Потом, тише:\n\n— Und ab Montag will Brandt alle sehen, die es überstanden haben. Alle Genesenen. Für Lüneburg.\n\nА с понедельника Брандт хочет видеть всех, кто переболел. Всех. Для Люнебурга.' },
     ],
@@ -109,6 +120,10 @@ export const shared19: Scene[] = [
         text: '— Eine Studentin. Tiermedizin, glaube ich. Hat es im Oktober überstanden, in Hannover.\n\nСтудентка. Ветеринар, кажется. Переболела в октябре, в Ганновере.\n\nТобиас пожимает плечами.\n\n— Sie fährt nicht gern, sagt man.\n\nГоворят, едет без охоты.', effects: [set19('ev', 'who'), w19('heard_donor', true), until(19, 17, 20)] },
       { id: 'c19_ev_monday', label: 'Спросить, что будет с теми, кто придёт в понедельник', minutes: 10, terminal: true, goto: 'c19_knock',
         text: '— Sie werden gebraucht, — говорит Тобиас. Их ждут. Потом смотрит на дом за твоей спиной. — Ole hat sich auch freiwillig gemeldet. Am Anfang.\n\nОле тоже вызвался сам. Поначалу.', effects: [set19('ev', 'monday'), w19('monday_known', true), until(19, 17, 20)] },
+      { id: 'c19_ev_word', label: 'Напомнить, что он обещал говорить вам первым', when: v('w.c18_tobias_favor', 'word'), minutes: 15, terminal: true, goto: 'c19_knock',
+        text: 'Тобиас кивает, будто ждал.\n\n— Also. A7 bis Garlstorf, dann über Salzhausen. Der Ersatz ist eine Frau. Lea, vierundzwanzig, Tiermedizin. Sie will nicht. Man hat sie nicht gefragt.\n\nЗначит, так. По A7 до Гарльсторфа, потом через Зальцхаузен. Замена — женщина. Лея, двадцать четыре, ветеринар. Она не хочет. Её никто не спрашивал.\n\nОн смотрит на дорогу.\n\n— Und Brandt glaubt wirklich, dass Plasma seinen Enkel gerettet hat. Ab Montag holt er jeden, der es überstanden hat. Jetzt wisst ihr mehr als er.\n\nА Брандт правда верит, что внука спасла плазма. С понедельника он заберёт каждого, кто переболел. Теперь вы знаете больше него.', effects: [set19('ev', 'word'), w19('route_known', true), w19('heard_donor', true), w19('monday_known', true), w19('lea_name', true), until(19, 17, 25)] },
+      { id: 'c19_ev_water', label: 'Сказать, что поила его мать во вторник', when: all(B19, margit19, v('B.c17_bmo', 'margit')), minutes: 15, terminal: true, goto: 'c19_knock',
+        text: 'Тобиас долго молчит.\n\n— Mit der Kelle am Stock? — спрашивает он. Ковшом на палке? — So hat sie die Tomaten gegossen.\n\nТак она поливала помидоры.\n\nУезжая, он не поднимает руку, как всем на этой дороге. Он выходит из машины, подходит и жмёт тебе руку. Ладонь у него холодная и сухая.', effects: [set19('ev', 'water'), npc('c15_tobias', 2, 'c19_she_gave_water'), until(19, 17, 25)] },
       { id: 'c19_ev_coffee', label: 'Вынести ему кружку горячего', minutes: 10, terminal: true, goto: 'c19_knock',
         text: 'Тобиас пьёт, стоя у машины, и греет пальцы о кружку. Уезжая, он поднимает руку. Так он прощается теперь со всеми на этой дороге.', effects: [set19('ev', 'coffee'), npc('c15_tobias', 1), until(19, 17, 20)] },
     ] }),

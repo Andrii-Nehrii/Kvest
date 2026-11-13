@@ -4,7 +4,7 @@ import { all, flag, not } from './world3';
 import { house14, yard14 } from './point14';
 import { any, ninaFarm, v } from './point18';
 import {
-  B19, S19, colonyGone, colonyStands, barnChained, cold19, day19, evaHere, girlHere, henrikeHome, npc, own19, set19, until, uteHere, w19, wernerAlive,
+  B19, S19, colonyGone, colonyStands, barnChained, byGirl, cold19, day19, evaHere, girlHere, henrikeHome, npc, own19, set19, textByGirl, until, uteHere, w19, wernerAlive,
 } from './point19';
 
 // Участок 19, линия B: четверг в Йестебурге с Кёлер. Пайки по списку, пункт, Матс, Брандт, записки, дорога обратно.
@@ -27,13 +27,13 @@ export const day19BScenes: Scene[] = [
   B({ id: 'c19_b_morning', title: 'До девяти', camp: house14, safe: true,
     text: [
       { text: 'До прихода Кёлер час с небольшим. В доме все чем-то заняты, и тебе тоже хочется быть занятой.' },
-      { when: girlHere, text: 'Новенькая моет посуду, хотя её никто не просил. Тарелки она ставит слишком громко.' },
+      ...textByGirl({ text: '{g}а моет посуду, хотя её никто не просил. Тарелки она ставит слишком громко.' }),
     ],
     actions: [
       { id: 'c19_bm_stock', label: 'Пересчитать запас и записать, чего не хватает', minutes: 40, terminal: true, goto: 'c19_b_koehler',
         text: 'Ты спускаешься в подвал с тетрадью Хенрике. Картошка, вода в канистрах, полмешка муки. Мыла нет совсем. Спичек две коробки. Соли на неделю. Ты вырываешь листок и кладёшь в карман: вдруг в Йестебурге что-то будет.', effects: [set19('bm', 'stock'), w19('needs_list', true), until(19, 9, 0)] },
-      { id: 'c19_bm_girl', label: 'Поговорить с новенькой за посудой', when: girlHere, minutes: 40, terminal: true, goto: 'c19_b_koehler',
-        text: 'Ты вытираешь, она моет. Через десять минут она рассказывает про ферму дяди под Целле, где доила коров каждое лето. Через двадцать — что у неё никого не осталось. Тарелки она больше не швыряет.', effects: [set19('bm', 'girl'), { if: evaHere, then: [npc('c8_eva', 2)] }, until(19, 9, 0)] },
+      ...byGirl({ id: 'c19_bm_girl', label: 'Поговорить с {g}ой за посудой', when: girlHere, minutes: 40, terminal: true, goto: 'c19_b_koehler',
+        text: 'Ты вытираешь, она моет. Через десять минут она рассказывает про ферму дяди под Целле, где доила коров каждое лето. Через двадцать — что у неё никого не осталось. Тарелки она больше не швыряет.', effects: [set19('bm', 'girl'), { if: evaHere, then: [npc('c8_eva', 2)] }, until(19, 9, 0)] }),
       { id: 'c19_bm_henrike', label: 'Спросить Хенрике, что взять в Йестебурге', when: henrikeHome, minutes: 30, terminal: true, goto: 'c19_b_koehler',
         text: 'Хенрике думает, загибая пальцы.\n\n— Seife. Streichhölzer. Und frag im Punkt, ob der Junge Post hat.\n\nМыло. Спички. И спроси в пункте, нет ли писем от мальчика.', effects: [set19('bm', 'henrike'), npc('henrike', 1), until(19, 9, 0)] },
       { id: 'c19_bm_rest', label: 'Посидеть с кружкой у окна', minutes: 30, activity: 'rest', terminal: true, goto: 'c19_b_koehler',
@@ -54,8 +54,8 @@ export const day19BScenes: Scene[] = [
         text: 'Через поле вдвое короче. Кёлер сворачивает туда сама, будто так и собиралась.', effects: [set19('bk', 'field'), until(19, 9, 40)] },
       { id: 'c19_bk_nina', label: 'Взять с собой Нину', when: ninaFarm, minutes: 55, move: true, terminal: true, outcomes: toQueue,
         text: 'Нина собирается за минуту. По дороге она держится рядом с Кёлер и спрашивает её про хлеб: сколько муки, сколько воды, почему ржаной.', effects: [set19('bk', 'nina'), npc('c7_nina', 1), until(19, 9, 55)] },
-      { id: 'c19_bk_girl', label: 'Взять с собой новенькую: ей нужен паёк', when: girlHere, minutes: 55, move: true, terminal: true, outcomes: toQueue,
-        text: 'Новенькая надевает свой рюкзак, хотя он пустой. Без него она, кажется, не умеет выходить из дома.', effects: [set19('bk', 'girl'), until(19, 9, 55)] },
+      ...byGirl({ id: 'c19_bk_girl', label: 'Взять с собой {g}у: ей нужен паёк', when: girlHere, minutes: 55, move: true, terminal: true, outcomes: toQueue,
+        text: '{g}а надевает свой рюкзак, хотя он пустой. Без него она, кажется, не умеет выходить из дома.', effects: [set19('bk', 'girl'), until(19, 9, 55)] }),
     ] }),
 
   B({ id: 'c19_b_road', title: 'Остановка', location: lane, ambient: day19,

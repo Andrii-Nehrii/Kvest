@@ -22,6 +22,8 @@ const afterNoon = [{ id: 'cart', goto: 'c19_a_cart' }];
 const afterGirl = [{ id: 'ute', when: uteHere, goto: 'c19_a_ute' }, { id: 'jannes', when: jannesHere, goto: 'c19_a_jannes' }, { id: 'kerem', goto: 'c19_a_kerem' }];
 const afterNina = [{ id: 'girl', when: girlHere, goto: 'c19_a_girl' }, ...afterGirl];
 const listed = (who: string) => `${who} в списке нет.`;
+/** Ночью 16/17 пара пошла предупредить Уте об облаве (ответ КТ16). */
+const warned19: Cond = v('w.c16_sweep', 'warn');
 
 export const day19AScenes: Scene[] = [
   A({ id: 'c19_a_letter', title: 'Листок Оле', camp: kitchen14,
@@ -142,6 +144,8 @@ export const day19AScenes: Scene[] = [
         text: 'Солдат вбивает фамилии одну за другой. На каждой он поднимает глаза и смотрит на человека.\n\n— Montag kommt Herr Brandt persönlich, — говорит он. — Er will jeden sehen.\n\nВ понедельник придёт сам господин Брандт. Он хочет видеть каждого.', effects: [set19('ap', 'add'), w19('list', 'all')] },
       { id: 'c19_ap_guests', label: 'Сказать: это гости, завтра уходят', when: not(v('w.c18_list', 'all')), minutes: 10, terminal: true, outcomes: afterPatrol,
         text: '— Gäste, — повторяет солдат. — Bis morgen.\n\nГости. До завтра.\n\nОн записывает в заметки: «Lüdemann-Hof, Gäste, Abreise Fr.» Отъезд в пятницу. Теперь это записано.', effects: [set19('ap', 'guests'), w19('list', 'guests')] },
+      { id: 'c19_ap_ask', label: 'Спросить, что значит пометка «проверить»', minutes: 15, terminal: true, outcomes: afterPatrol,
+        text: 'Солдат постарше не поднимает глаз от планшета.\n\n— Wer krank war und gesund ist, kommt auf eine eigene Liste. Ab Montag. Für Lüneburg.\n\nКто болел и выздоровел, попадёт в отдельный список. С понедельника. Для Люнебурга.\n\nОн ставит галочку и закрывает планшет. Молодой у машины смотрит в сторону.', effects: [set19('ap', 'ask'), w19('list', 'keep'), w19('monday_known', true)] },
       { id: 'c19_ap_keep', label: 'Подтвердить список как есть', minutes: 10, terminal: true, outcomes: afterPatrol,
         text: 'Солдат ставит галочку и закрывает планшет.', effects: [set19('ap', 'keep'), w19('list', 'keep')] },
       { id: 'c19_ap_booth', label: 'Сказать, что в будке у насыпи привязана женщина из больницы', when: all(ilseKept, any(own19('ab', 'tell'), own19('ab', 'water'), own19('ab', 'fork'))), minutes: 15, terminal: true, outcomes: afterPatrol,
@@ -219,7 +223,7 @@ export const day19AScenes: Scene[] = [
         text: 'Ты складываешь поленницу заново, ровнее. Работа помогает не смотреть на телефон.', effects: [set19('anc', 'work'), until(19, 14, 30)] },
     ] }),
 
-  A({ id: 'c19_a_girl', title: 'Новенькая', camp: house14,
+  A({ id: 'c19_a_girl', title: 'В сенях', camp: house14,
     text: [
       { when: evaHere, text: 'Эва ждёт тебя в сенях. Рукава закатаны, руки красные от холодной воды.\n\n— Gib mir Arbeit. Richtige Arbeit. Sonst denke ich nach.\n\nДай мне работу. Настоящую. Иначе я начинаю думать.' },
       { when: janaHere, text: 'Яна ждёт тебя в сенях. Рукава закатаны, руки красные от холодной воды.\n\n— Gib mir Arbeit. Richtige Arbeit. Sonst denke ich nach.\n\nДай мне работу. Настоящую. Иначе я начинаю думать.' },
@@ -238,6 +242,7 @@ export const day19AScenes: Scene[] = [
       { when: barnChained, text: 'В длинном сарае Уте с вёдрами. Она моет пол в проходе между стойлами, на коленях. Цепи звякают каждый раз, когда она передвигает ведро.\n\n— Sie riechen die Hühner, — говорит она. — Seit gestern sind sie unruhig.\n\nОни чуют кур. Со вчерашнего дня беспокойные.' },
       { when: all(colonyStands, not(barnChained)), text: 'Уте сидит на крыльце с вязанием. Каждые полчаса она ходит к колонии и возвращается.\n\n— Eine Woche hat Brandt gesagt, — говорит она. — Ich zähle.\n\nБрандт сказал: неделя. Я считаю.' },
       { when: colonyGone, text: 'Уте сидит у окна в комнате за кухней. Вязание лежит на коленях, спицы не двигаются. На подоконнике связка ключей с бирками.\n\n— Ich weiß nicht, was ich mit den Händen machen soll, — говорит она.\n\nНе знаю, куда деть руки.' },
+      { when: warned19, text: 'Уте поднимает на тебя глаза.\n\n— Ihr seid in der Nacht gekommen, um es mir zu sagen. Das vergesse ich nicht.\n\nВы пришли ночью, чтобы мне сказать. Я этого не забуду.' },
     ],
     actions: [
       { id: 'c19_au_help', label: 'Помочь ей с вёдрами', when: barnChained, minutes: 45, activity: 'moderate', terminal: true, goto: 'c19_a_kerem',
@@ -250,6 +255,8 @@ export const day19AScenes: Scene[] = [
         text: 'Уте идёт вдоль ряда и поправляет бирки на проволоке, одну за другой. У одной она стоит дольше. Потом достаёт из кармана ключ с биркой и вешает рядом, на ту же проволоку.\n\n— Jetzt sind alle Schlüssel da, wo sie hingehören.\n\nТеперь все ключи там, где им место.', effects: [set19('au', 'pit'), npc('c14_ute', 3), { body: 'stress', delta: 2 }, until(19, 15, 40)] },
       { id: 'c19_au_task', label: 'Дать ей дело: кухня и хлеб на всех', when: not(barnChained), minutes: 20, terminal: true, goto: 'c19_a_kerem',
         text: 'Уте смотрит на тебя поверх очков. Потом встаёт и снимает с крючка фартук Хенрике.\n\n— Mehl?\n\nМука? Ты показываешь, где. Через час в доме пахнет хлебом.', effects: [set19('au', 'task'), npc('c14_ute', 1), until(19, 15, 20)] },
+      { id: 'c19_au_fuel', label: 'Спросить, не знает ли она, у кого сейчас бензин', when: warned19, minutes: 20, terminal: true, goto: 'c19_a_kerem',
+        text: 'Уте откладывает спицы и думает.\n\n— Benzin hat der Harms. Itzenbüttel, die alte Tankstelle. Er war mein Schüler. Faul, aber nicht dumm.\n\nБензин есть у Хармса. Итценбюттель, старая заправка. Он был моим учеником. Ленивый, но не глупый.\n\nОна вырывает листок из тетради и пишет крупно, по-учительски: «Klaus, die beiden gehören zu mir. Sei anständig. U. Reimers». Клаус, эти двое со мной. Веди себя прилично.\n\n— Er hat einen Hund und eine Flinte. Zeig ihm das hier zuerst.\n\nУ него собака и ружьё. Покажи ему это первым делом.', effects: [set19('au', 'fuel'), w19('ute_harms', true), npc('c14_ute', 1), until(19, 15, 20)] },
       { id: 'c19_au_leave', label: 'Оставить её одну', minutes: 5, terminal: true, goto: 'c19_a_kerem',
         text: 'Ты прикрываешь за собой дверь. Есть вещи, в которые не надо лезть.', effects: [set19('au', 'leave'), until(19, 15, 10)] },
     ] }),

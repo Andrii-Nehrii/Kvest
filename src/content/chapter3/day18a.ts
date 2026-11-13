@@ -142,7 +142,7 @@ export const day18AScenes: Scene[] = [
         text: 'Вы снова сажаете троих на цепи. Уте не говорит ничего. Порожний трактор патруль пропускает: трактор Хенрике тут знают. Дома четверо. У насыпи осталось трое.', effects: [set('m4', 'leave'), w('moved', 4), npc('c14_ute', -2), until(18, 8, 40, true)] },
     ] }),
 
-  A({ id: 'c18_m_morning', title: 'Следы на инее', camp: tense14, ambient: day18,
+  A({ id: 'c18_m_morning', title: 'Следы на инее', camp: tense14, ambient: day18, onEnter: [until(18, 9, 20)],
     text: [
       { text: 'Двадцать минут десятого. У ворот стоят Брандт, офицер и двое солдат. От насыпи до сарая по инею идут две колеи.' },
       { when: { v: 'w.c18_moved', op: '==', value: 4 }, text: 'Час назад у насыпи стреляли. Три раза, с промежутками.' },
@@ -325,14 +325,14 @@ export const day18AScenes: Scene[] = [
     ] }),
 
   // ───────────── общее: день после ─────────────
-  A({ id: 'c18_a_tobias', title: 'Тобиас', camp: yard14, ambient: day18,
+  A({ id: 'c18_a_tobias', title: 'Тобиас', camp: yard14, ambient: day18, onEnter: [until(18, 11, 40)],
     text: [
       { text: 'Без двадцати двенадцать у ворот останавливается армейский «Вольф». Тобиас выходит один и оставляет планшет на сиденье.' },
       { when: margitFarm, text: '— Ich hole sie heute. Nicht morgen, — говорит он. — Ich mache es selbst. Hinter eurem Schuppen, wenn ihr erlaubt.\n\nЗаберу её сегодня, не завтра. Сделаю сам. За вашим сараем, если позволите.' },
       { when: not(margitFarm), text: '— Ich habe es um sechs gemacht. Allein, — говорит он. — Ich wollte, dass es jemand weiß, der nicht Uniform trägt.\n\nЯ сделал это в шесть. Один. Хотел, чтобы знал кто-то не в форме.' },
     ],
     actions: [
-      { id: 'c18_at_with', label: 'Пойти с ним за сарай', when: margitFarm, minutes: 30, terminal: true, goto: 'c18_a_ilse',
+      { id: 'c18_at_with', label: 'Пойти с ним за сарай', when: margitFarm, minutes: 30, terminal: true, goto: 'c18_a_pear',
         text: 'Ты держишь цепь, пока он снимает с матери шлем и приглаживает ей волосы. Потом ты отворачиваешься. Копаете вдвоём, под грушей.', effects: [set('at', 'with'), w('margit', 'pear'), npc('c15_tobias', 3, 'c18_stood_with_me'), { body: 'stress', delta: 3 }] },
       { id: 'c18_at_alone', label: 'Дать ему лопату и оставить одного', when: margitFarm, minutes: 30, terminal: true, goto: 'c18_a_ilse',
         text: 'Ты выносишь лопату и уходишь в дом. Через сорок минут лопата стоит у крыльца, вымытая.', effects: [set('at', 'alone'), w('margit', 'pear'), npc('c15_tobias', 1)] },
@@ -342,9 +342,24 @@ export const day18AScenes: Scene[] = [
         text: '— Kommt um fünf, wenn die Straße frei ist, — говорит он. Придёт в пять, если дорога свободна. Потом садится в машину, так и не сказав того, зачем приехал.', effects: [set('at', 'ask'), { body: 'stress', delta: -1 }] },
     ] }),
 
+  A({ id: 'c18_a_pear', title: 'Под грушей', camp: yard14, ambient: day18,
+    text: [
+      { text: 'Тобиас ровняет холмик лопатой и долго стоит, опершись на черенок. Потом вытирает ладони о брюки.' },
+      { text: 'На заднем сиденье «Вольфа» лежат её вещи: пальто, сумка, дамский велосипед с корзинкой на руле. Утром их отдали ему в пункте в Йестебурге.' },
+      { text: '— Ich schulde euch was, — говорит он. — Ich weiß nicht, wie lange ich hier noch fahre. Aber einmal kann ich etwas tun. Sag mir, was.\n\nЯ вам должен. Не знаю, сколько ещё буду здесь ездить. Но один раз могу что-то сделать. Скажи что.' },
+    ],
+    actions: [
+      { id: 'c18_apr_list', label: 'Попросить: пусть всех, кто живёт на хуторе, впишут в список на паёк', minutes: 15, terminal: true, goto: 'c18_a_ilse',
+        text: '— Alle, die ihr nennt. Heute noch, — говорит Тобиас. — Ich rufe an und sage «geprüft». Dann fragt keiner.\n\nВсех, кого вы назовёте. Сегодня же. Я позвоню и скажу «проверено». Тогда никто не спросит.\n\nОн записывает фамилию Людеманов на ладони шариковой ручкой.', effects: [set('apr', 'list'), w('tobias_favor', 'list'), npc('c15_tobias', 1)] },
+      { id: 'c18_apr_word', label: 'Попросить: пусть говорит вам первым всё, что узнает', minutes: 15, terminal: true, goto: 'c18_a_ilse',
+        text: '— Was ich weiß, wisst ihr. Vor Brandt, — говорит Тобиас. Что знаю я, будете знать вы. Раньше Брандта.\n\nОн протягивает руку. Ладонь у него в земле, как у тебя.', effects: [set('apr', 'word'), w('tobias_favor', 'word'), npc('c15_tobias', 2, 'c18_promised_word')] },
+      { id: 'c18_apr_none', label: 'Сказать, что он ничего не должен', minutes: 15, terminal: true, goto: 'c18_a_ilse',
+        text: '— Nichts, — говоришь ты. — Sie war deine Mutter.\n\nНичего. Она была твоей матерью.\n\nТобиас молчит. Потом снимает с заднего сиденья велосипед и прислоняет к груше.\n\n— Mamas Rad. Auf diesem Weg hat sie es mir beigebracht. Es soll fahren, nicht im Keller stehen.\n\nМамин велосипед. На этой дороге она меня учила. Пусть ездит, а не стоит в подвале.\n\nОн уезжает, не оборачиваясь.', effects: [set('apr', 'none'), w('tobias_favor', 'none'), w('margit_bike', true), { place: 'bicycle', at: 'hof_luedemann', qty: 1 }, npc('c15_tobias', 3, 'c18_owed_nothing')] },
+    ] }),
+
   A({ id: 'c18_a_ilse', title: 'У задней калитки', camp: tense14, ambient: day18,
     text: [
-      { text: 'В полдень куры поднимают крик. У задней калитки стоит женщина в больничной рубашке и вязаной кофте поверх. Босая. На запястье пластиковый браслет.' },
+      { text: 'Вскоре после полудня куры поднимают крик. У задней калитки стоит женщина в больничной рубашке и вязаной кофте поверх. Босая. На запястье пластиковый браслет.' },
       { when: ilseTurned, text: 'Кофту ты узнаёшь раньше, чем лицо. Серая, с перламутровыми пуговицами. Ильзе Брокман, соседка снизу. От твоего подъезда досюда одиннадцать километров. Она шла неделю.' },
       { when: all(ilseTurned, any(flag('A.ignored_ilse'), flag('A.left_ilse'))), text: 'Во вторник, в первый день, ты {m:оставил|оставила} её одну. Теперь она стоит перед калиткой и стучит в неё лбом, ровно, как метроном.' },
       { when: not(ilseTurned), text: 'Ей лет шестьдесят. На браслете: «Klinikum Buchholz, Station 4». Она стучит в калитку лбом, ровно, как метроном.' },
@@ -361,7 +376,7 @@ export const day18AScenes: Scene[] = [
         text: 'Ты берёшь колун у поленницы. Потом долго стоишь над ней. В кармане кофты лежит камертон в замшевом чехле. Ты хоронишь её за курятником, лицом к дороге на Бухгольц.', effects: [set('ai', 'end'), w('ilse', 'ended'), { give: 'c18_fork' }, { body: 'stress', delta: 7 }] },
     ] }),
 
-  A({ id: 'c18_a_noon', title: 'Час дня', camp: kitchen14,
+  A({ id: 'c18_a_noon', title: 'На кухне', camp: kitchen14,
     text: [
       { text: 'На кухне тепло. Ты не помнишь, когда ел.' },
       { when: all(ninaFarm, jens18, v('w.c18_colony', 'cleared')), text: 'Нина сидит за столом перед пустой чашкой. Она слышала выстрелы и ни о чём не спрашивает.' },
