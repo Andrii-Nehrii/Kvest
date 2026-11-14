@@ -17,6 +17,8 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
   const all = useMemo(() => availableActions(ctx).filter((a) => !isServiceAction(a.def.id)), [ctx]);
   const sceneActions = all.filter((a) => !a.universal);
   const daily = all.filter((a) => a.universal);
+  // Опасность в сцене — маленькая точка у заголовка: что риск есть, видно, но не у какого варианта.
+  const danger = sceneActions.some((a) => a.def.risky && a.enabled);
   const byId = new Map(all.map((a) => [a.def.id, a]));
   const check = sel.length ? validatePlan(ctx, sel) : null;
   // Панель плана закреплена внизу: под ней оставляем ровно столько места, сколько она занимает,
@@ -74,7 +76,7 @@ export function Story({ save, ctx, onPlan }: { save: LocalSave; ctx: Ctx; onPlan
           {last.stopped && <div className="stopped">{last.stopped}</div>}
         </div>
       )}
-      {scene.title && <div className="scene-title">{scene.title}</div>}
+      {scene.title && <div className="scene-title">{scene.title}{danger && <span className="danger-dot" role="img" aria-label="здесь есть опасность" />}</div>}
       {stayed && !showScene
         ? <button className="group-toggle" onClick={() => setShowScene(true)}><Icon name="chevron" size={16} />Обстановка</button>
         : <div className="story">{scene.text.filter((b) => evalCond(ctx, b.when)).map((b, i) => <Narrative key={i} text={fmt(ctx, b.text)} />)}</div>}
@@ -129,7 +131,7 @@ function ActionCard({ a, n, ctx, onTap }: { a: AvailableAction; n: number; ctx: 
     <button className={`action ${on ? 'sel' : ''} ${a.enabled ? '' : 'off'}`} onClick={onTap}>
       <span className="num">{on ? n + 1 : a.def.terminal || a.def.goto || !a.def.combinable ? '›' : '+'}</span>
       <span className="label">
-        {fmt(ctx, a.def.label)}{a.def.risky && <span className="risky">риск</span>}
+        {fmt(ctx, a.def.label)}
         {!a.enabled && <span className="why">{a.reason}</span>}
       </span>
       {a.def.minutes > 0 && <span className="meta">~{durationLabel(a.def.minutes)}</span>}
