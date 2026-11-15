@@ -6,6 +6,7 @@ import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './p
 import { point23Available, prepare23 } from './point23';
 import { graveDay, point24Available, prepare24 } from './point24';
 import { point25Available, prepare25 } from './point25';
+import { point26Available, prepare26 } from './point26';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -908,4 +909,18 @@ export const newEntry25: Scene = {
     { id: 'c25_go_a', label: 'Встать и одеться', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c25_a_van', effects: [prepare25, { restUntil: at(24, 6, 15), sleeping: true }] },
     { id: 'c25_go_b', label: 'Проводить его до двери', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c25_b_morning', effects: [prepare25, { restUntil: at(24, 6, 30), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point25Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 26 ─────────────
+export const newEntry26: Scene = {
+  id: 'c26_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true,
+  text: [
+    { when: point26Available, text: 'Ночь проходит тихо. Мороз. Под утро в доме холодно так, что вода в кружке на подоконнике схватилась коркой.' },
+    { when: not(point26Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c26_go_a', label: 'Встать', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c26_a_morning', effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
+    { id: 'c26_go_b', label: 'Встать', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c26_b_morning', effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point26Available, a.when ?? { always: true }) })),
 };
