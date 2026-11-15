@@ -42,6 +42,7 @@ const list: ItemType[] = [
   { id: 'c34_merle_letter', name: 'письмо Мерле к десятому', weight: 10, tags: ['note'], description: 'В конверте из тетрадного листа. Сверху: «Merle H., Ahrensburg».' },
   { id: 'c35_keepsake', name: 'вещь в дорогу от Людеманов', weight: 150, tags: ['note'], description: 'Отданная со словами «если пойдёте». Её надо будет вернуть. Или не надо.' },
   { id: 'c26_rieger_card', name: 'корочка дружинника из Ханштедта и повязка', weight: 20, tags: ['note'], description: '«Freiwillige Feuerwehr Hanstedt. Klaus Rieger». Фотография, печать.' },
+  { id: 'c31_socks', name: 'шерстяные носки двойной вязки', weight: 150, tags: ['clothing'], description: 'Толстые, серые. Связаны матерью для сына, отданы тебе.' },
   { id: 'c31_thermals', name: 'армейское зимнее бельё, комплект', weight: 600, tags: ['clothing'], description: 'Серое, с начёсом, в целлофане. Рубаха и кальсоны. Размер — на крупного солдата.' },
   { id: 'c31_burner', name: 'складная спиртовка', weight: 400, tags: ['tool'], description: 'Армейская, с коробкой сухого спирта. Вскипятить кружку воды там, где нельзя разводить огонь.' },
   { id: 'c31_post_map', name: 'карта района с постами', weight: 40, tags: ['note'], description: 'Landkreis Harburg, 1:50 000. Карандашом: посты, время смены, частоты. Ханштедт, Хольм-Зеппензен, мост у Винзена.' },
