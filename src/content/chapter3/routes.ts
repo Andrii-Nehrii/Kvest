@@ -8,6 +8,7 @@ import { graveDay, point24Available, prepare24 } from './point24';
 import { point25Available, prepare25 } from './point25';
 import { point26Available, prepare26 } from './point26';
 import { point27Available, prepare27 } from './point27';
+import { point28Available, prepare28 } from './point28';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -937,4 +938,18 @@ export const newEntry27: Scene = {
   actions: ([
     { id: 'c27_go', label: 'Проснуться от стука', minutes: 30, terminal: true, goto: 'c27_knock', effects: [prepare27, { restUntil: at(26, 5, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point27Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 28 ─────────────
+export const newEntry28: Scene = {
+  id: 'c28_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true,
+  text: [
+    { when: point28Available, text: 'Ночь на пятницу.' },
+    { when: not(point28Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c28_go_a', label: 'Лечь и ждать утра', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c28_a_dawn', effects: [prepare28, { restUntil: at(27, 5, 30), sleeping: true }] },
+    { id: 'c28_go_b', label: 'Пойти к ним', when: { me: 'B' }, minutes: 10, terminal: true, goto: 'c28_b_night', effects: [prepare28] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point28Available, a.when ?? { always: true }) })),
 };
