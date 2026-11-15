@@ -1,7 +1,7 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { any } from './point18';
+import { any, v } from './point18';
 import { P35 } from './point35';
 
 export const finished35: Cond = all(P35, any(flag('A.c35_finished'), flag('B.c35_finished')));
@@ -17,6 +17,11 @@ export const point35Notes: MergeNote[] = [
   N('c35_silent_a', all(meB, flag('w.c35_tobias_offer'), not(flag('w.c35_told_tobias'))), '{A} весь вечер носит что-то в себе и молчит.'),
   N('c35_told_north', flag('w.c35_told_north'), '{B} рассказала: колонне Красного Креста на север нужна медсестра вместо заболевшей. Две недели, до Аренсбурга и обратно. У Мерле инсулина на десять дней.'),
   N('c35_silent_b', all(meA, flag('w.c35_nurse_offer'), not(flag('w.c35_told_north'))), '{B} вернулась из пункта и долго говорила с Хенрике наедине. Тебе — ничего.'),
+  N('c35_b_will_go', v('w.c35_b_will', 'go'), '{B} сказала: поедет на север медсестрой. Если {A} отпустит.'),
+  N('c35_b_will_unsure', v('w.c35_b_will', 'unsure'), '{B} сказала: не знает, поедет ли на север. Ей страшно.'),
+  N('c35_b_will_stay', v('w.c35_b_will', 'stay'), '{B} сказала: пусть на север поедет кто-то другой. Она нужна здесь.'),
+  N('c35_brandt', v('w.c35_brandt_ask', 'yes'), 'Брандт остаётся держать округ, когда армия уйдёт. {A} пообещал ему: если останетесь — он в дружине.'),
+  N('c35_kasia', v('w.c35_kasia_east', 'promised'), 'Кася хочет на восток, в Польшу, к бабушке. {B} пообещала: если будет место, она поедет первой.'),
   N('c35_jannik', flag('w.c35_jannik'), 'Янник, водитель Красного Креста, — тот парень с A7 у тоннеля, первого дня. Десятого он ведёт вторую машину на север. Возьмёт двоих.'),
   N('c35_henrike', flag('w.c35_henrike_promise'), 'Хенрике просит одного: если уйдёте — сказать до сева. Хутор она записала у пастора: Оле и тому из вас, кто останется.'),
 ];
