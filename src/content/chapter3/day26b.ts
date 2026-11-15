@@ -46,11 +46,11 @@ export const day26BScenes: Scene[] = [
       { when: not(pia), text: 'В задней комнате девочка девяти лет, укушенная в пятницу. Жар выше. У неё на груди тряпичная кукла.' },
     ],
     actions: [
-      { id: 'c26_bp_work', label: 'Работать по списку', minutes: 240, activity: 'moderate', terminal: true, goto: 'c26_b_child',
+      { id: 'c26_bp_work', label: 'Работать по списку', minutes: 130, activity: 'moderate', terminal: true, goto: 'c26_b_child',
         text: 'Перевязка, термометр, вода, следующий. К полудню у тебя болят спина и руки, а в списке не осталось ни одной строчки. Зандер расписывается в твоём листке, как в табеле.', effects: [set26('bp', 'work'), w26('b_shift', true), { body: 'fatigue', delta: 10 }, until26(10, 0)] },
-      { id: 'c26_bp_pia', label: 'Между делами заходить к девочке в заднюю комнату', minutes: 240, activity: 'moderate', terminal: true, goto: 'c26_b_child',
+      { id: 'c26_bp_pia', label: 'Между делами заходить к девочке в заднюю комнату', minutes: 130, activity: 'moderate', terminal: true, goto: 'c26_b_child',
         text: 'Ты заходишь к ней каждые полчаса. Пить, лоб, одеяло. На пятый раз она уже не открывает глаза, только сжимает куклу. Зандер видит тебя в дверях и говорит тихо:\n\n— Morgen kommt sie in den abgeschlossenen Raum. Ich will nicht, dass Sie dann hier sind.\n\nЗавтра её переведут в запертую комнату. Я не хочу, чтобы вы тогда были здесь.', effects: [set26('bp', 'pia'), w26('b_shift', true), w26('pia_worse', true), { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 4 }, until26(10, 0)] },
-      { id: 'c26_bp_lea', label: 'Работать в паре с Леей', when: leaPoint, minutes: 240, activity: 'moderate', terminal: true, goto: 'c26_b_child',
+      { id: 'c26_bp_lea', label: 'Работать в паре с Леей', when: leaPoint, minutes: 130, activity: 'moderate', terminal: true, goto: 'c26_b_child',
         text: 'Вы с Леей работаете в четыре руки. Она шьёт, ты держишь и подаёшь. К полудню вы понимаете друг друга без слов. В перерыв она говорит, грея руки о кружку:\n\n— Ich gehe nicht nach Hannover. Noch nicht. Hier bin ich wenigstens nützlich. Und hier sticht mich keiner.\n\nЯ не пойду в Ганновер. Пока. Здесь от меня хоть есть польза. И здесь меня никто не колет.', effects: [set26('bp', 'lea'), w26('b_shift', true), w26('lea_stays_point', true), npc('c21_lea', 2), { body: 'fatigue', delta: 8 }, until26(10, 0)] },
     ] }),
 
@@ -76,9 +76,9 @@ export const day26BScenes: Scene[] = [
       { text: 'На краю поля, у лесополосы, стоит один. В белом. Лицом к дороге. Не двигается. Ты идёшь дальше, не меняя шага, и не оборачиваешься, пока не доходишь до поворота.' },
     ],
     actions: [
-      { id: 'c26_bw_go', label: 'Дойти до дома и сесть у печи', minutes: 60, terminal: true, goto: 'c26_b_afternoon', ambientDuring: snow26,
+      { id: 'c26_bw_go', label: 'Дойти до дома и сесть у печи', minutes: 60, terminal: true, goto: 'c26_b_sled', ambientDuring: snow26,
         text: 'Дома Нина снимает с тебя куртку, как с ребёнка, и ставит перед тобой тарелку.', effects: [set26('bw', 'go'), meal('eat'), until26(14, 0)] },
-      { id: 'c26_bw_tell', label: 'Дома сразу сказать Нине, что {m:видел|видела}', minutes: 70, terminal: true, goto: 'c26_b_afternoon', ambientDuring: snow26,
+      { id: 'c26_bw_tell', label: 'Дома сразу сказать Нине, что {m:видел|видела}', minutes: 70, terminal: true, goto: 'c26_b_sled', ambientDuring: snow26,
         text: 'Нина слушает и кивает.\n\n— Я тоже видела. Позавчера. Он стоит там каждый день. Я назвала его Почтальоном.\n\nОна не шутит.', effects: [set26('bw', 'tell'), w26('postman', true), until26(14, 10)] },
     ] }),
 
@@ -118,9 +118,9 @@ export const day26BScenes: Scene[] = [
     actions: [
       { id: 'c26_ba_room', label: 'Приготовить Оле место у печи', when: oleNow, minutes: 40, terminal: true, goto: 'c26_b_ole',
         text: 'Лавка у печи, где лежал Мальте. Ты стелешь два одеяла и подушку. Нина приносит грелку и ставит на табурет кружку. Пустую. На случай.', effects: [set26('ba', 'room'), until26(15, 50)] },
-      { id: 'c26_ba_hens', label: 'Почистить курятник с Ниной', when: not(oleNow), minutes: 60, activity: 'light', terminal: true, goto: 'c26_b_eggs',
+      { id: 'c26_ba_hens', label: 'Почистить курятник с Ниной', when: not(oleNow), minutes: 60, activity: 'light', terminal: true, goto: 'c26_b_letter',
         text: 'Вы выгребаете старую подстилку и стелете свежую солому. Куры ходят вокруг и ругаются. Нина ругается в ответ, по-немецки, так же.', effects: [set26('ba', 'hens'), npc('c7_nina', 1), until26(15, 30)] },
-      { id: 'c26_ba_sleep', label: 'Поспать час', minutes: 5, terminal: true, outcomes: [{ id: 'o', when: oleNow, goto: 'c26_b_ole' }, { id: 'e', goto: 'c26_b_eggs' }],
+      { id: 'c26_ba_sleep', label: 'Поспать час', minutes: 5, terminal: true, outcomes: [{ id: 'o', when: oleNow, goto: 'c26_b_ole' }, { id: 'e', goto: 'c26_b_letter' }],
         text: 'Ты засыпаешь сразу. Снится пункт: термометры, бинты, кукла с разными глазами.', effects: [set26('ba', 'sleep'), until26(15, 50, true)] },
     ] }),
 
@@ -130,9 +130,9 @@ export const day26BScenes: Scene[] = [
       { text: 'Нина стоит на крыльце. Она не бежит к нему. Она ждёт, пока он подойдёт сам. Он подходит. Она обнимает его за пояс и долго не отпускает.' },
     ],
     actions: [
-      { id: 'c26_bo_henrike', label: 'Забрать у Хенрике сумки', minutes: 20, terminal: true, goto: 'c26_b_eggs',
+      { id: 'c26_bo_henrike', label: 'Забрать у Хенрике сумки', minutes: 20, terminal: true, goto: 'c26_b_letter',
         text: 'Хенрике отдаёт сумки не сразу. Потом отдаёт обе и, освободив руки, вдруг обнимает тебя. Коротко, крепко, по-людемановски.\n\n— Danke. Für alles. Auch für das, was ich nicht weiß.\n\nСпасибо. За всё. И за то, чего я не знаю.', effects: [set26('bo', 'henrike'), npc('henrike', 3, 'c26_hugged'), until26(16, 30)] },
-      { id: 'c26_bo_ole', label: 'Подставить Оле плечо до лавки', minutes: 25, terminal: true, goto: 'c26_b_eggs',
+      { id: 'c26_bo_ole', label: 'Подставить Оле плечо до лавки', minutes: 25, terminal: true, goto: 'c26_b_letter',
         text: 'Оле опирается на тебя. Он лёгкий, как подросток. На крыльце он останавливается.\n\n— Die Pumpe läuft? — Насос работает?\n\nТы говоришь, что да. Он кивает, будто это главное.', effects: [set26('bo', 'ole'), npc('ole', 2), until26(16, 30)] },
     ] }),
 

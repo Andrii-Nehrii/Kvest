@@ -48,11 +48,11 @@ export const day33AScenes: Scene[] = [
       { when: fixed, text: 'Дениз первым делом идёт к колонке, качает, смотрит на воду и кивает тебе через двор.' },
     ],
     actions: [
-      { id: 'c33_ab_help', label: 'Помочь им устроиться', when: brothersCome, minutes: 150, activity: 'moderate', terminal: true, goto: 'c33_a_eve',
+      { id: 'c33_ab_help', label: 'Помочь им устроиться', when: brothersCome, minutes: 120, activity: 'moderate', terminal: true, goto: 'c33_a_eve',
         text: 'Раскладушки, буржуйка, труба в окно. Керем развешивает над дверью турецкий оберег, синий глаз на нитке. Дениз прибивает полку. К четырём это похоже на жильё.', effects: [set33('ab', 'help'), npc('deniz', 1), npc('kerem', 1), until33(15, 30)] },
-      { id: 'c33_ab_tools', label: 'Разобрать с Денизом ящики с инструментом', when: brothersAlive, minutes: 150, terminal: true, goto: 'c33_a_eve',
+      { id: 'c33_ab_tools', label: 'Разобрать с Денизом ящики с инструментом', when: brothersAlive, minutes: 120, terminal: true, goto: 'c33_a_eve',
         text: 'Головки, ключи, домкрат, сварочный аппарат без тока. Дениз раскладывает и говорит, что чем. Слушать его как слушать музыку на чужом языке: понятно не всё, но красиво.', effects: [set33('ab', 'tools'), w33('tools', true), npc('deniz', 1), until33(15, 30)] },
-      { id: 'c33_ab_wood', label: 'Колоть дрова: их сегодня ушло много', minutes: 150, activity: 'heavy', terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,
+      { id: 'c33_ab_wood', label: 'Колоть дрова: их сегодня ушло много', minutes: 120, activity: 'heavy', terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,
         text: 'Ты колешь, пока не перестаёшь чувствовать плечи. Поленница растёт обратно.', effects: [set33('ab', 'wood'), { body: 'fatigue', delta: 8 }, until33(15, 30)] },
     ] }),
 
@@ -62,11 +62,11 @@ export const day33AScenes: Scene[] = [
       { when: radio, text: 'Частота Красного Креста записана в тетради. Приёмник ловит её только на улице, у забора, если поднять антенну.' },
     ],
     actions: [
-      { id: 'c33_ae_radio', label: 'Слушать сводку Красного Креста', when: radio, minutes: 60, terminal: true, goto: 'c33_a_thief', ambientDuring: frost33,
-        text: 'Сквозь треск — женский голос, медленно, по слогам, как диктовку. Пункты приёма. Номера колонн. «Kolonne nach Ahrensburg: zehnter Dezember, Abfahrt Geesthacht, sieben Uhr. Begleitpersonen mit Passierschein». Колонна на Аренсбург: десятого декабря, отправление из Гестхахта, семь утра. Сопровождающие — с пропуском.\n\nТы записываешь. Ты не знаешь, кому это нужно. Но записываешь.', effects: [set33('ae', 'radio'), w33('heard_column', true), until33(17, 0)] },
-      { id: 'c33_ae_henrike', label: 'Посидеть с Хенрике, пока она считает запасы', when: henrike33, minutes: 60, terminal: true, goto: 'c33_a_thief',
-        text: 'Хенрике пишет в тетради цифры столбиком: картошка, мука, соль, яйца. Подчёркивает. Пересчитывает. Потом закрывает тетрадь и долго держит на ней ладонь.', effects: [set33('ae', 'henrike'), npc('henrike', 1), until33(17, 0)] },
-      { id: 'c33_ae_rest', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c33_a_thief',
-        text: 'Ты ложишься не раздеваясь и просыпаешься от голосов на кухне.', effects: [set33('ae', 'rest'), until33(17, 0, true)] },
+      { id: 'c33_ae_radio', label: 'Слушать сводку Красного Креста', when: radio, minutes: 60, terminal: true, goto: 'c33_a_ole', ambientDuring: frost33,
+        text: 'Сквозь треск — женский голос, медленно, по слогам, как диктовку. Пункты приёма. Номера колонн. «Kolonne nach Ahrensburg: zehnter Dezember, Abfahrt Geesthacht, sieben Uhr. Begleitpersonen mit Passierschein». Колонна на Аренсбург: десятого декабря, отправление из Гестхахта, семь утра. Сопровождающие — с пропуском.\n\nТы записываешь. Ты не знаешь, кому это нужно. Но записываешь.', effects: [set33('ae', 'radio'), w33('heard_column', true), until33(16, 30)] },
+      { id: 'c33_ae_henrike', label: 'Посидеть с Хенрике, пока она считает запасы', when: henrike33, minutes: 60, terminal: true, goto: 'c33_a_ole',
+        text: 'Хенрике пишет в тетради цифры столбиком: картошка, мука, соль, яйца. Подчёркивает. Пересчитывает. Потом закрывает тетрадь и долго держит на ней ладонь.', effects: [set33('ae', 'henrike'), npc('henrike', 1), until33(16, 30)] },
+      { id: 'c33_ae_rest', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c33_a_ole',
+        text: 'Ты ложишься не раздеваясь и просыпаешься от голосов на кухне.', effects: [set33('ae', 'rest'), until33(16, 30, true)] },
     ] }),
 ];

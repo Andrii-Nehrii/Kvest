@@ -73,11 +73,11 @@ export const day26EScenes: Scene[] = [
       { when: v('w.c25_stranger', 'point'), text: 'На раскладушке у окна кашляет вчерашний человек из Харбурга. Он тебя узнаёт и кивает.' },
     ],
     actions: [
-      { id: 'c26_bc_syrup', label: 'Открыть шкаф и дать сироп', minutes: 120, terminal: true, outcomes: afterPoint,
+      { id: 'c26_bc_syrup', label: 'Открыть шкаф и дать сироп', minutes: 90, terminal: true, outcomes: afterPoint,
         text: 'Ты отмеряешь по весу, как написано на этикетке, и ещё раз пересчитываешь. Мальчик глотает и морщится. Через час жар спадает, он засыпает у матери на руках. Мать целует тебе руки, ты их отдёргиваешь.\n\nЗандер возвращается в полдень, смотрит на открытый шкаф, на бутылку, на мальчика. «Richtig», — говорит она. Правильно. И записывает в журнал твоё имя.', effects: [set26('bc', 'syrup'), w26('child', 'syrup'), until26(12, 0)] },
-      { id: 'c26_bc_run', label: 'Бежать в школу за Зандер', minutes: 120, terminal: true, outcomes: afterPoint, ambientDuring: snow26,
+      { id: 'c26_bc_run', label: 'Бежать в школу за Зандер', minutes: 90, terminal: true, outcomes: afterPoint, ambientDuring: snow26,
         text: 'Ты бежишь через площадь, без куртки. В школе ты врываешься в класс, где Брандт что-то чертит на доске. Он поворачивается, лицо каменное. Зандер встаёт без слова и идёт за тобой. Мальчику она даёт сироп сама и полчаса держит его запястье. Брандт потом передаёт через дружинника: в следующий раз стучать.', effects: [set26('bc', 'run'), w26('child', 'zander'), npc('c16_brandt', -1, 'c26_b_burst_in'), until26(12, 0)] },
-      { id: 'c26_bc_cool', label: 'Обтирать прохладной водой и ждать врача', minutes: 120, terminal: true, outcomes: afterPoint,
+      { id: 'c26_bc_cool', label: 'Обтирать прохладной водой и ждать врача', minutes: 90, terminal: true, outcomes: afterPoint,
         text: 'Мокрое полотенце, запястья, шея, подмышки. Снова. Снова. Мальчик хнычет, потом засыпает. Жар держится. В полдень Зандер трогает его лоб, смотрит на тебя и на шкаф с ключом. «Sie hatten den Schlüssel». У вас был ключ. Она не ругает. Она просто даёт сироп сама.', effects: [set26('bc', 'cool'), w26('child', 'waited'), until26(12, 0)] },
     ] }),
 

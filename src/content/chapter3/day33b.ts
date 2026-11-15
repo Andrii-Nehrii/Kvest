@@ -87,11 +87,11 @@ export const day33BScenes: Scene[] = [
       { when: not(okaforComes), text: 'После обеда в доме тихо. Старики спят, кто где. Хенрике чистит картошку на завтра, на всех.' },
     ],
     actions: [
-      { id: 'c33_bl_help', label: 'Ассистировать ему', when: okaforComes, minutes: 90, terminal: true, goto: 'c33_b_ute',
+      { id: 'c33_bl_help', label: 'Ассистировать ему', when: okaforComes, minutes: 90, terminal: true, goto: 'c33_b_kasia',
         text: 'Ты подаёшь, держишь, записываешь. Он не хвалит. Только один раз, когда ты {m:сам|сама}, без слов, надеваешь перчатки, он кивает.', effects: [set33('bl', 'help'), npc('okafor', 2, 'c33_assisted'), until33(14, 30)] },
-      { id: 'c33_bl_talk', label: 'Поговорить с ним о Мерле', when: okaforComes, minutes: 90, terminal: true, goto: 'c33_b_ute',
+      { id: 'c33_bl_talk', label: 'Поговорить с ним о Мерле', when: okaforComes, minutes: 90, terminal: true, goto: 'c33_b_kasia',
         text: '— Десятого из Гестхахта, — говорит он. — Мне нужен пропуск. Зандер обещала написать. Если не напишет — пойду без пропуска. — Он смотрит на свои руки. — Я обещал её матери, когда Мерле было девятнадцать. Что присмотрю.', effects: [set33('bl', 'talk'), w33('okafor_column', true), until33(14, 30)] },
-      { id: 'c33_bl_cook', label: 'Помочь Хенрике с картошкой на всех', minutes: 90, activity: 'light', terminal: true, goto: 'c33_b_ute',
+      { id: 'c33_bl_cook', label: 'Помочь Хенрике с картошкой на всех', minutes: 90, activity: 'light', terminal: true, goto: 'c33_b_kasia',
         text: 'Картошки на всех — это два ведра. Хенрике чистит быстро, тонко, кожура одной лентой. Ты стараешься так же и не можешь.', effects: [set33('bl', 'cook'), npc('henrike', 1), until33(14, 30)] },
     ] }),
 

@@ -5,7 +5,7 @@ import { kitchen14, tense14, yard14 } from './point14';
 import { v } from './point18';
 import { npc } from './point19';
 import {
-  S26, brandtAlly, brandtByA, brandtHostile, carLoss, dayFacts, dutyA, farm26, jest26, oleNow, rationLoss, set26, snow26, until26, w26,
+  S26, brandtAlly, brandtHostile, carLoss, dayFacts, dutyA, farm26, jest26, oleNow, rationLoss, set26, snow26, until26, w26,
 } from './point26';
 
 // Участок 26, линия A: машину отгоняют к пожарной части (потеря-эхо), смена в дружине или день у фрау Тимм (мясо и молоко),
@@ -21,8 +21,8 @@ const cigs: Cond = { has: 'c19_cigs' };
 const meat: Effect[] = [{ give: 'c26_beef', qty: 6 }, { give: 'c26_milk', qty: 5 }, w26('meat_got', true)];
 const afterMorning = [{ id: 'car', when: carLoss, goto: 'c26_a_car' }, { id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
 const afterCar = [{ id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
-const afterTimm = [{ id: 'b', when: brandtByA, goto: 'c26_a_brandt' }, { id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'h', goto: 'c26_a_yardwork' }];
-const afterBrandt = [{ id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'h', goto: 'c26_a_yardwork' }];
+const afterTimm = [{ id: 'd', goto: 'c26_a_ditch' }];
+const afterBrandt = [{ id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'h', goto: 'c26_a_yardwork' }];
 /** Время дня у Тимм: с утра — до полудня, после смены — до темноты. */
 const timmUntil = (morning: [number, number], afternoon: [number, number]): Effect =>
   ({ if: dutyA, then: [until26(afternoon[0], afternoon[1])], else: [until26(morning[0], morning[1])] });
@@ -130,11 +130,11 @@ export const day26AScenes: Scene[] = [
       { text: 'Мяса много. Больше, чем вы съедите за неделю. Меньше, чем хватит на зиму.' },
     ],
     actions: [
-      { id: 'c26_as_all', label: 'Засолить всё: на зиму', minutes: 50, activity: 'light', terminal: true, goto: 'c26_a_yardwork',
+      { id: 'c26_as_all', label: 'Засолить всё: на зиму', minutes: 50, activity: 'light', terminal: true, outcomes: [{ id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'y', goto: 'c26_a_yardwork' }],
         text: 'Соль, перец из пакетика, лавровый лист, который Эва нашла в шкафу Хенрике. Мясо ложится в бочонок слоями. Эва придавливает его камнем.\n\n— Sechs Wochen. Dann ist es gut.\n\nШесть недель. Тогда будет готово.', effects: [set26('as', 'all'), w26('meat', 'salt'), { take: 'c26_beef', qty: 5 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 5 }, { take: 'c26_beef', qty: 1 }, until26(14, 0)] },
-      { id: 'c26_as_share', label: 'Треть — Уте и Кёлер, остальное засолить', minutes: 50, terminal: true, goto: 'c26_a_yardwork',
+      { id: 'c26_as_share', label: 'Треть — Уте и Кёлер, остальное засолить', minutes: 50, terminal: true, outcomes: [{ id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'y', goto: 'c26_a_yardwork' }],
         text: 'Два куска ты заворачиваешь в газету. Нина бегом относит один к Кёлер, второй — к насыпи, Уте. Возвращается раскрасневшаяся.\n\n— Кёлер сказала: завтра хлеб. Уте ничего не сказала. Она плакала.', effects: [set26('as', 'share'), w26('meat', 'share'), { take: 'c26_beef', qty: 6 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 3 }, npc('c3_koehler', 2), npc('c14_ute', 2), until26(14, 0)] },
-      { id: 'c26_as_point', label: 'Половину — в пункт Зандер, для больных', minutes: 40, terminal: true, goto: 'c26_a_yardwork',
+      { id: 'c26_as_point', label: 'Половину — в пункт Зандер, для больных', minutes: 40, terminal: true, outcomes: [{ id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'y', goto: 'c26_a_yardwork' }],
         text: 'Три кило ты заворачиваешь отдельно. Завтра {B} отнесёт в пункт: бульон для тех, кто в жару. Остальное — в бочонок.', effects: [set26('as', 'point'), w26('meat', 'point'), { take: 'c26_beef', qty: 6 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 2 }, w26('broth_for_point', true), until26(13, 50)] },
     ] }),
 

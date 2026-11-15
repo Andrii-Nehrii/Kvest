@@ -34,6 +34,7 @@ export const brothersAlive: Cond = any({ npc: 'deniz', alive: true }, { npc: 'ke
 export const brothersCome: Cond = all(brothersAlive, any(deniz33('farm'), deniz33('near')));
 export const oleHome33: Cond = all({ npc: 'ole', alive: true, at: farm33 }, not(flag('w.c27_ole_last')));
 export const ute33: Cond = { npc: 'c14_ute', alive: true };
+export const kasia33: Cond = { npc: 'kasia', alive: true, at: farm33 };
 export const henrike33: Cond = { npc: 'henrike', alive: true, at: farm33 };
 export const tractor33: Cond = all(flag('w.c16_tractor'), any(not(v('w.c30_tractor', 'ditch')), flag('w.c31_tractor_out')));
 export const pumpFixed: Cond = v('w.c33_pump', 'fixed');
@@ -93,12 +94,15 @@ export const shared33: Scene[] = [
       { when: pumpFixed, text: 'Колонка во дворе снова качает. Хенрике то и дело выглядывает в окно, проверяет.' },
       { when: not(pumpFixed), text: 'Колонка во дворе стоит замёрзшая.' },
       { text: 'Вопрос один: общий котёл на всех, кто живёт на хуторе и рядом? Или каждый двор своё? Или общий, но кто пришёл последним, отрабатывает?' },
+      { when: flag('w.c33_garden_stove'), text: 'Из колонии пришла записка от Петерсенов: буржуйка в домике тянет, как новая. Спасибо тому, кто лазил на крышу.' },
+      { when: v('$.c33_ab', 'wood'), text: 'Поленница у сарая выросла за день на ладонь. Хенрике это заметила и сказала вслух, при всех.' },
+      { when: v('w.c33_mouths_list', 'less'), text: 'Список ртов для Брандта короче, чем людей за столом. Все это знают и никто не говорит.' },
     ],
     actions: [
-      { id: 'c33_co_eat', label: 'Поесть и слушать', minutes: 90, terminal: true, goto: 'c33_checkpoint', ...tableOnly,
-        text: 'Суп. Хлеб. Ты ешь и слушаешь, как спорят. Хенрике почти не говорит, только записывает.', effects: [set33('co', 'eat'), meal('eat'), finish, until33(20, 0)] },
-      { id: 'c33_co_speak', label: 'Сказать, что думаешь', minutes: 90, terminal: true, goto: 'c33_checkpoint',
-        text: 'Ты говоришь коротко. Хенрике записывает и твои слова тоже, не поднимая головы. Потом говорит: «Morgen». Завтра решим.', effects: [set33('co', 'speak'), npc('henrike', 1), finish, until33(20, 0)] },
+      { id: 'c33_co_eat', label: 'Поесть и слушать', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A33, goto: 'c33_a_late' }, { id: 'b', goto: 'c33_b_late' }], ...tableOnly,
+        text: 'Суп. Хлеб. Ты ешь и слушаешь, как спорят. Хенрике почти не говорит, только записывает.', effects: [set33('co', 'eat'), meal('eat'), finish, until33(19, 0)] },
+      { id: 'c33_co_speak', label: 'Сказать, что думаешь', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A33, goto: 'c33_a_late' }, { id: 'b', goto: 'c33_b_late' }],
+        text: 'Ты говоришь коротко. Хенрике записывает и твои слова тоже, не поднимая головы. Потом говорит: «Morgen». Завтра решим.', effects: [set33('co', 'speak'), npc('henrike', 1), finish, until33(19, 0)] },
     ] }),
 
   S33({ id: 'c33_checkpoint', for: 'any', chapter: 'ch3', title: 'Пятница, вечер', checkpoint: 33, universal: false, camp: house14,
