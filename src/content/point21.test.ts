@@ -522,6 +522,44 @@ describe('участок 30: мороз — опасная ночь по трё�
     expect(s31.chars.A.time).toBe(s31.chars.B.time); expect(s31.chars.A.location).toBe('hof_luedemann');
   });
 
+  // ───────────── Участок 32 ─────────────
+  const after31 = (sweep = 'join', after = 'home') => {
+    const b30 = after30(sweep, 'none', after);
+    const s31 = fresh(mergeCp(b30, 31, leg(b30, 'A'), leg(b30, 'B')));
+    return completeCheckpoint(c, s31, { A: { c3_new_trip31a: 'yes' }, B: { c3_new_trip31b: 'sent' } }).state;
+  };
+  it('участок 32: порознь — Бухгольц и Винзен, все пути Герда и Нины, миры сходятся в четверг', () => {
+    const b31 = after31();
+    for (const p of P) expect(b31.chars[p].scene).toBe('c32_start');
+    b31.npcs.gerd.alive = true; b31.npcs.gerd.location = 'a_stairs';
+    const aRoutes: Record<string, string>[] = [{}, { c32_a_house: 'c32_as_lock', c32_a_thu: 'c32_aq_door' }, { c32_a_house: 'c32_as_pass', c32_a_dusk: 'c32_ad_ward', c32_a_ward: 'c32_aw_look' }, { c32_a_town: 'c32_at_cars', c32_a_thu: 'c32_aq_market' }];
+    const bRoutes: Record<string, string>[] = [{}, { c32_b_lena: 'c32_bl_stay' }, { c32_b_lena: 'c32_bl_self', c32_b_sleep: 'c32_bz_write' }, { c32_b_school: 'c32_bs_help', c32_b_thu: 'c32_bq_okafor' }];
+    for (let i = 0; i < 4; i++) {
+      const a = leg(b31, 'A', aRoutes[i]), b = leg(b31, 'B', bRoutes[i]);
+      const s32 = mergeCp(b31, 32, a, b);
+      expect(s32.chars.A.time).toBe(s32.chars.B.time);
+      for (const p of P) { expect(s32.chars[p].location).toBe('hof_luedemann'); expect(canAct(s32.chars[p].body)).toBe(true); }
+      expect(s32.vars['w.c32_generator_point']).toBe(true); expect(s32.vars['w.c32_meds_point']).toBe(true);
+      const out = completeCheckpoint(c, s32, { A: { c3_new_okafor32: 'farm', c3_new_deniz32: 'near' }, B: { c3_new_okafor32: 'away', c3_new_deniz32: 'near' } }).state;
+      expect(out.vars['w.c32_okafor']).toBe('near'); expect(out.vars['w.c32_deniz']).toBe('near');
+      for (const p of P) expect(out.chars[p].scene).toBe('c33_start');
+    }
+    const ended = leg(b31, 'A', { c32_a_house: 'c32_as_end' });
+    expect(ended.npcs.gerd.alive).toBe(false);
+    const stay = leg(b31, 'B', { c32_b_lena: 'c32_bl_stay' });
+    expect(stay.npcs.c7_nina.location).toBe('c15_winsen');
+    const back = leg(b31, 'B', { c32_b_lena: 'c32_bl_back' });
+    expect(back.npcs.c7_nina.location).toBe('hof_luedemann');
+  });
+  it('участок 32: Окафор ушёл на смену в первый день — жильцы без него, записка и ключи', () => {
+    const b31 = after31('guard', 'share');
+    b31.vars['w.okafor_stays'] = false;
+    const b = leg(b31, 'B');
+    expect(b.npcs.okafor.location).not.toBe('c15_winsen');
+    const s32 = mergeCp(b31, 32, leg(b31, 'A'), b);
+    expect(s32.chars.A.time).toBe(s32.chars.B.time);
+  });
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'

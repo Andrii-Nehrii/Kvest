@@ -51,6 +51,7 @@ export function leg(base: GameState, pid: PlayerId, forced: Record<string, strin
     expect(action, scene).toBeTruthy();
     expect(acts(s, pid).some(a => a.enabled && a.def.id === action), scene + ': ' + action).toBe(true);
     records.push({ scene, plan: [action] }); play(c, s, pid, [action]);
+    if (process.env.KVEST_PATH) console.log(`${pid} ${scene} → ${action} @${Math.floor((s.chars[pid].time % 1440) / 60)}:${String(s.chars[pid].time % 60).padStart(2, '0')} d${Math.floor(s.chars[pid].time / 1440) + 10}`);
   }
   expect(stateHash(replaySegment(c, base, pid, records))).toBe(stateHash(s));
   if (!until) expect(segmentFinished(c, s, pid)).toBe('checkpoint');

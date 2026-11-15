@@ -41,7 +41,7 @@ export const day31BScenes: Scene[] = [
       { when: all(lea31, not(leaPoint)), text: 'Лея выходит к ней из сеней. Они говорят быстро, по-немецки, как коллеги.' },
       { when: leaPoint, text: 'С ней Лея, с повязкой Красного Креста на рукаве, со второй сумкой.' },
       { when: boy, text: '— Der Junge vom Rand lässt grüßen. Seine Mutter hat Brot gebacken. Für euch. — Зандер ставит на стол буханку, завёрнутую в полотенце.\n\nМальчишка с края передаёт привет. Мать испекла хлеб. Для вас.' },
-      { when: handsCut, text: 'Она сразу смотрит на твои руки. Повязка, которую ты наложила ночью, промокла.' },
+      { when: handsCut, text: 'Она сразу смотрит на твои руки. Повязка, которую ты {m:наложил|наложила} ночью, промокла.' },
       { when: handsSore, text: 'Она смотрит на твои руки. Красные, в ссадинах, но целые.' },
       { text: '— Mir fehlt alles, — говорит она за чаем. — Verbände, Salbe gegen Erfrierungen, Antibiotika. Das DRK in Winsen hat Medikamente bekommen. Am Mittwoch fährt ein Laster hin. Ich brauche jemanden, der die Liste mitnimmt und zurückbringt, was sie geben.\n\nМне не хватает всего. Бинтов, мази от обморожений, антибиотиков. Красному Кресту в Винзене привезли лекарства. В среду туда идёт грузовик. Мне нужен кто-то, кто отвезёт список и привезёт обратно, что дадут.' },
     ],

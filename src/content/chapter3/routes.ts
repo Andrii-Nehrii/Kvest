@@ -12,6 +12,7 @@ import { point28Available, prepare28 } from './point28';
 import { point29Available, prepare29 } from './point29';
 import { point30Available, prepare30 } from './point30';
 import { point31Available, prepare31, stageN31, stageR31 } from './point31';
+import { point32Available, prepare32 } from './point32';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -997,4 +998,18 @@ export const newEntry31: Scene = {
     { id: 'c31_go', label: 'Сесть у печи', when: stageN31, minutes: 5, terminal: true, goto: 'c31_dawn', effects: [prepare31] },
     { id: 'c31_go_rescue', label: 'Подойти к кровати', when: stageR31, minutes: 1, terminal: true, goto: 'c31_r_bed', effects: [prepare31] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point31Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 32 ─────────────
+export const newEntry32: Scene = {
+  id: 'c32_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true,
+  text: [
+    { when: point32Available, text: 'Ночь на среду. Под утро на дороге слышно, как прогревают мотор.' },
+    { when: not(point32Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c32_go_a', label: 'Встать и одеться', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c32_a_van', effects: [prepare32, { restUntil: at(32, 6, 30), sleeping: true }] },
+    { id: 'c32_go_b', label: 'Встать и одеться', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c32_b_truck', effects: [prepare32, { restUntil: at(32, 6, 45), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point32Available, a.when ?? { always: true }) })),
 };
