@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import { not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { ninaFarm } from './point18';
+import { ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { S29, day29, frost29, set29, until29, w29 } from './point29';
 
@@ -13,6 +13,7 @@ export const day29GScenes: Scene[] = [
     text: [
       { when: ninaFarm, text: 'Нина ждёт тебя у сарая с ножницами Хенрике. Завтра первый адвент. Нужен венок: лапник, четыре свечи, лента. Свечи Хенрике нашла. Лапника нет. Ближайшие ели — на опушке, за полем, у дороги на Гарльсторф.' },
       { when: not(ninaFarm), text: 'Хенрике стоит у сарая с ножницами. Завтра первый адвент, а венка нет. Ближайшие ели — на опушке, за полем, у дороги на Гарльсторф. Туда, говорят, по ночам выходят с впадины.' },
+      { text: 'Опушка в снегу по колено. Ели стоят тяжёлые, с белыми шапками. Топор звенит о мёрзлую ветку.' },
     ],
     actions: [
       { id: 'c29_aw2_forest', label: 'Сходить на опушку за лапником, с топором', minutes: 60, activity: 'moderate', terminal: true, goto: 'c29_a_pump', ambientDuring: frost29,
@@ -26,6 +27,9 @@ export const day29GScenes: Scene[] = [
   X({ id: 'c29_b_pastor', title: 'Свечи', camp: kitchen14,
     text: [
       { text: 'После обеда на хутор приходит жена пастора, фрау Хольм, с корзиной огарков из церкви. Она разносит их старикам на дальних дворах: на адвент у каждого должна гореть свеча. Дворов семь. Она одна, и у неё болят колени.' },
+      { text: 'Корзину фрау Хольм держит обеими руками, огарки укрыты полотенцем. Щёки у неё красные от мороза, а глаза спокойные, как у человека, который уже всё решил.' },
+      { when: v('$.c29_h', 'eat'), text: 'После обеда тепло и сонно. Венок на столе пахнет хвоей.' },
+      { when: v('$.c29_h', 'rest'), text: 'Час сна не помог: ноги тяжёлые, голова ватная.' },
     ],
     actions: [
       { id: 'c29_bp3_go', label: 'Пойти с ней по дворам', minutes: 90, activity: 'light', terminal: true, goto: 'c29_b_hanna', ambientDuring: frost29,
