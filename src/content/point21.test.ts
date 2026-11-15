@@ -560,6 +560,41 @@ describe('участок 30: мороз — опасная ночь по трё�
     expect(s32.chars.A.time).toBe(s32.chars.B.time);
   });
 
+  // ───────────── Участок 33 ─────────────
+  const after32 = (okafor: string, deniz: string, place?: string) => {
+    const b31 = after31();
+    if (place) b31.vars['w.c28_place'] = place;
+    const s32 = fresh(mergeCp(b31, 32, leg(b31, 'A'), leg(b31, 'B')));
+    return completeCheckpoint(c, s32, both({ c3_new_okafor32: okafor, c3_new_deniz32: deniz })).state;
+  };
+  for (const [okafor, deniz, place] of [['farm', 'farm', 'family'], ['farm', 'near', 'hands'], ['near', 'stay', undefined], ['away', 'near', undefined]] as const)
+    it(`участок 33 после ${okafor}/${deniz}/${place ?? '-'}: вода, чемодан, миры сходятся`, () => {
+      const b32 = after32(okafor, deniz, place);
+      for (const p of P) expect(b32.chars[p].scene).toBe('c33_start');
+      const a = leg(b32, 'A'), b = leg(b32, 'B', { c33_b_case: 'c33_bc_red' });
+      expect(qty(b, 'c33_saline', 'char', 'B')).toBe(20);
+      const s33 = mergeCp(b32, 33, a, b);
+      expect(s33.chars.A.time).toBe(s33.chars.B.time);
+      for (const p of P) { expect(s33.chars[p].location).toBe('hof_luedemann'); expect(canAct(s33.chars[p].body)).toBe(true); }
+      if (deniz === 'farm') expect(s33.npcs.deniz.location).toBe('hof_luedemann');
+      if (deniz === 'near') expect(s33.npcs.deniz.location).toBe('c3_neighbor');
+      const out = completeCheckpoint(c, s33, { A: { c3_new_winter33: 'pot' }, B: { c3_new_winter33: 'yards' } }).state;
+      expect(out.vars['w.c33_rule']).toBe('work');
+      for (const p of P) expect(out.chars[p].scene).toBe('c34_start');
+    });
+  it('участок 33: неверный ключ ломается — нож бьёт ампулы; вода — снег или Уте', () => {
+    const b32 = after32('near', 'near');
+    const forced = leg(b32, 'B', { c33_b_case: 'c33_bc_tag', c33_b_broke: 'c33_bb_knife' });
+    expect(qty(forced, 'c33_saline', 'char', 'B')).toBe(9);
+    const left = leg(b32, 'B', { c33_b_case: 'c33_bc_fish', c33_b_broke: 'c33_bb_leave' });
+    expect(qty(left, 'c33_saline', 'char', 'B')).toBe(0);
+    const water = (s: GameState) => qty(s, 'water_l', 'place', 'c3_farm_stock');
+    const snow = leg(b32, 'A', { c33_a_pump: 'c33_ap_snow' in Object.fromEntries(acts(leg(b32, 'A', {}, 'c33_a_pump'), 'A').filter(x => x.enabled).map(x => [x.def.id, 1])) ? 'c33_ap_snow' : 'c33_ap_snow_cold' });
+    expect(water(snow) - water(b32)).toBe(15);
+    const s33 = mergeCp(b32, 33, snow, forced);
+    expect(s33.chars.A.time).toBe(s33.chars.B.time);
+  });
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'

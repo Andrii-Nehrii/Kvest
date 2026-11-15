@@ -736,4 +736,11 @@ npx tsc --noEmit && npx vitest run && npm run e2e:quick
   `w.c32_ward_page|ward_read`, `w.c32_saw`, `w.c32_salt` (соль в склад), предметы `c32_*`. B: Окафор (`okaforHere32` = жив и `w.okafor_stays`;
   иначе жильцы с запиской и ключами) переезжает в Винзен только в линии B; `w.c32_merle_column`, `w.c32_b_promised`, `w.c32_meds_point`;
   Нина — `w.c32_nina` winsen/farm (меняется только в линии B). Подсказка находки B (33): ключ с красной ниткой — от фрау Хаберланд, сверху.
-  КТ32: `c3_new_okafor32` farm/near/away → `w.c32_okafor`, `c3_new_deniz32` farm/near/stay → `w.c32_deniz` (разные → near). Дальше: точка 33.
+  КТ32: `c3_new_okafor32` farm/near/away → `w.c32_okafor`, `c3_new_deniz32` farm/near/stay → `w.c32_deniz` (разные → near).
+* 15.11 — написана точка 33 (`point33.ts`, `day33a.ts`, `day33b.ts`, `finish33.ts`). Приезды по КТ32 одинаково в обеих линиях (`arrivals33`
+  во входе): братья — хутор / `c3_neighbor`; Окафор (если был в Винзене) — хутор при `w.c28_place = family`, иначе домик Уте (`c15_garden`).
+  Старики Петерсены и фрау Кёрнер — только текст (не NPC). Вода — только линия A: `w.c33_pump` fixed/half/ute/snow (+20/10/40/15 л в склад);
+  двор без колонки — `yardDry33`. Находка B: `w.c33_case` open/forced/left, `c33_wool|coffee|saline`. КТ33: `c3_new_winter33` → `w.c33_rule`
+  pot/yards/work (разные → work).
+  **Вход точек 20–33 без кухни:** `prepareN` во входе ничего не делал (у сцены входа не было `camp`), и общий стол открывался только
+  кнопкой «Уточнить свой паёк». Входам 20–33 добавлен `camp: house14` (точки не сыграны). Дальше: точка 34.

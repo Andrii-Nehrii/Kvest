@@ -13,6 +13,7 @@ import { point29Available, prepare29 } from './point29';
 import { point30Available, prepare30 } from './point30';
 import { point31Available, prepare31, stageN31, stageR31 } from './point31';
 import { point32Available, prepare32 } from './point32';
+import { arrivals33, point33Available, prepare33 } from './point33';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -815,7 +816,7 @@ export const newEntry19: Scene = {
 // ───────────── Вход в участок 20 ─────────────
 // Вход в базе КТ19: без onEnter и места (игроки могут быть в Люнебурге или дома).
 export const newEntry20: Scene = {
-  id: 'c20_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true,
+  id: 'c20_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
   text: [
     { when: all(point20Available, inLue), text: 'Казарма на краю Люнебурга ещё в темноте. У шлагбаума горит прожектор. Corsa остывает на обочине и тикает.' },
     { when: all(point20Available, atFarm), text: 'Пятница начинается без поездки. Во дворе темно, у курятника иней.' },
@@ -838,7 +839,7 @@ export const newEntry20: Scene = {
 const up21: Cond = { partner: 'active' };
 const down21: Cond = { partner: 'incapacitated' };
 export const newEntry21: Scene = {
-  id: 'c21_start', for: 'any', chapter: 'ch3', title: 'Пятничный вечер', universal: false, safe: true,
+  id: 'c21_start', for: 'any', chapter: 'ch3', title: 'Пятничный вечер', universal: false, safe: true, camp: house14,
   text: [
     { when: stageC, text: 'Съезд с автобана у Гарльсторфа. Над ним мигает синим. На обочинах стоят брошенные машины с открытыми дверцами.' },
     { when: stageF, text: 'Без четверти пять. Над лесом на востоке небо рыжее, хотя солнце село с другой стороны.' },
@@ -859,7 +860,7 @@ export const newEntry21: Scene = {
 
 // ───────────── Вход в участок 22 ─────────────
 export const newEntry22: Scene = {
-  id: 'c22_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true,
+  id: 'c22_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14,
   text: [
     { when: point22Available, text: 'Половина восьмого. Дверь в сени закрыта. На кухне пахнет кашей. Решение принято, и теперь его надо выполнять.' },
     { when: all(point22Available, hide22), text: 'До девяти, когда патруль дойдёт до ваших ворот, полтора часа.' },
@@ -876,7 +877,7 @@ export const newEntry22: Scene = {
 
 // ───────────── Вход в участок 23 ─────────────
 export const newEntry23: Scene = {
-  id: 'c23_start', for: 'any', chapter: 'ch3', title: 'Ночь на воскресенье', universal: false, safe: true,
+  id: 'c23_start', for: 'any', chapter: 'ch3', title: 'Ночь на воскресенье', universal: false, safe: true, camp: house14,
   text: [
     { when: point23Available, text: 'Девять вечера. Решено. Лампа на столе прикручена до синего огонька. Внизу Мальте ворочается на лавке и что-то бормочет про Целле.' },
     { when: not(point23Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -889,7 +890,7 @@ export const newEntry23: Scene = {
 
 // ───────────── Вход в участок 24 ─────────────
 export const newEntry24: Scene = {
-  id: 'c24_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true,
+  id: 'c24_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14,
   text: [
     { when: point24Available, text: 'Ночь проходит без звуков. Под утро снова идёт снег.' },
     { when: all(point24Available, graveDay), text: 'В половине шестого в окно кухни стучат: Яннес. Пора к насыпи.' },
@@ -904,7 +905,7 @@ export const newEntry24: Scene = {
 
 // ───────────── Вход в участок 25 ─────────────
 export const newEntry25: Scene = {
-  id: 'c25_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true,
+  id: 'c25_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14,
   text: [
     { when: point25Available, text: 'Ночью мороз. Под утро в окна стучит сухой снег.' },
     { when: all(point25Available, { me: 'A' }), text: 'В шесть тебе вставать: в без четверти семь у пекарни Кёлер фургон прачечной.' },
@@ -920,7 +921,7 @@ export const newEntry25: Scene = {
 
 // ───────────── Вход в участок 26 ─────────────
 export const newEntry26: Scene = {
-  id: 'c26_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true,
+  id: 'c26_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14,
   text: [
     { when: point26Available, text: 'Ночь проходит тихо. Мороз. Под утро в доме холодно так, что вода в кружке на подоконнике схватилась коркой.' },
     { when: not(point26Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -934,7 +935,7 @@ export const newEntry26: Scene = {
 
 // ───────────── Вход в участок 27 ─────────────
 export const newEntry27: Scene = {
-  id: 'c27_start', for: 'any', chapter: 'ch3', title: 'Четверг', universal: false, safe: true,
+  id: 'c27_start', for: 'any', chapter: 'ch3', title: 'Четверг', universal: false, safe: true, camp: house14,
   text: [
     { when: point27Available, text: 'Ночью минус шесть. Дом спит. Под утро на дороге со стороны Йестебурга слышен мотор, медленный, без фар.' },
     { when: not(point27Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -947,7 +948,7 @@ export const newEntry27: Scene = {
 
 // ───────────── Вход в участок 28 ─────────────
 export const newEntry28: Scene = {
-  id: 'c28_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true,
+  id: 'c28_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
   text: [
     { when: point28Available, text: 'Ночь на пятницу.' },
     { when: not(point28Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -961,7 +962,7 @@ export const newEntry28: Scene = {
 
 // ───────────── Вход в участок 29 ─────────────
 export const newEntry29: Scene = {
-  id: 'c29_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true,
+  id: 'c29_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14,
   text: [
     { when: point29Available, text: 'Ночь на субботу. Мороз. Под утро снег скрипит под ногами даже в доме, на чердаке, где Хенрике держит яблоки.' },
     { when: not(point29Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -975,7 +976,7 @@ export const newEntry29: Scene = {
 
 // ───────────── Вход в участок 30 ─────────────
 export const newEntry30: Scene = {
-  id: 'c30_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true,
+  id: 'c30_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14,
   text: [
     { when: point30Available, text: 'Ночь на понедельник. Мороз крепчает. Под утро трещат стены.' },
     { when: not(point30Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -988,7 +989,7 @@ export const newEntry30: Scene = {
 
 // ───────────── Вход в участок 31 ─────────────
 export const newEntry31: Scene = {
-  id: 'c31_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true,
+  id: 'c31_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14,
   text: [
     { when: stageN31, text: 'Четыре утра. В доме пахнет мокрой шерстью, гарью и чаем.' },
     { when: stageR31, text: 'Четыре утра. В доме пахнет мокрой шерстью и кровью. Тебя трясут за плечо: {partner} у печи, и {pm:он|она} не просыпается.' },
@@ -1003,7 +1004,7 @@ export const newEntry31: Scene = {
 
 // ───────────── Вход в участок 32 ─────────────
 export const newEntry32: Scene = {
-  id: 'c32_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true,
+  id: 'c32_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14,
   text: [
     { when: point32Available, text: 'Ночь на среду. Под утро на дороге слышно, как прогревают мотор.' },
     { when: not(point32Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -1012,4 +1013,17 @@ export const newEntry32: Scene = {
     { id: 'c32_go_a', label: 'Встать и одеться', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c32_a_van', effects: [prepare32, { restUntil: at(32, 6, 30), sleeping: true }] },
     { id: 'c32_go_b', label: 'Встать и одеться', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c32_b_truck', effects: [prepare32, { restUntil: at(32, 6, 45), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point32Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 33 ─────────────
+export const newEntry33: Scene = {
+  id: 'c33_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
+  text: [
+    { when: point33Available, text: 'Ночь на пятницу. Мороз такой, что трещат брёвна сарая.' },
+    { when: not(point33Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c33_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c33_dawn', effects: [prepare33, ...arrivals33, { restUntil: at(34, 7, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point33Available, a.when ?? { always: true }) })),
 };
