@@ -4,6 +4,7 @@ import { A19, B19, atFarm, byGirl, cold19, evaHere, girlHere, henrikeHome, inLue
 import { indoor16 } from './point16';
 import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './point21';
 import { point23Available, prepare23 } from './point23';
+import { graveDay, point24Available, prepare24 } from './point24';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -875,4 +876,19 @@ export const newEntry23: Scene = {
   actions: ([
     { id: 'c23_go', label: 'Подняться наверх', minutes: 5, terminal: true, goto: 'c23_night', effects: [prepare23] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point23Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 24 ─────────────
+export const newEntry24: Scene = {
+  id: 'c24_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true,
+  text: [
+    { when: point24Available, text: 'Ночь проходит без звуков. Под утро снова идёт снег.' },
+    { when: all(point24Available, graveDay), text: 'В половине шестого в окно кухни стучат: Яннес. Пора к насыпи.' },
+    { when: not(point24Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c24_go_grave', label: 'Одеться и выйти', when: graveDay, minutes: 30, terminal: true, goto: 'c24_grave', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
+    { id: 'c24_go_day', label: 'Встать', when: not(graveDay), minutes: 30, terminal: true, goto: 'c24_morning', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point24Available, a.when ?? { always: true }) })),
 };

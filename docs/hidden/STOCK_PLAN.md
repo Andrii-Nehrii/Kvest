@@ -688,4 +688,9 @@ npx tsc --noEmit && npx vitest run && npm run e2e:quick
   переносят в понедельник в 6:00 (`w.c23_grave_dug`, B обещала петь — `w.c23_sing_promised`); прогулка с Ниной к 12-му участку
   (`w.c23_cap_hung/cap_home`), если обещана в 22-й; тайники: `w.c23_fuel_spot` cellar/field/tank, `w.c23_gun_spot` floor/hand,
   `w.c23_battery_out`, `w.c23_key_tin`; Матс здоров (`w.c23_mats_clean`); фото «Ole, 9, mit Asta» — в ужине 23-й (для находки 24-й);
-  у КТ23 гостей вариант без них — арбитр. Дальше: точка 24.
+  у КТ23 гостей вариант без них — арбитр.
+* 15.11 — написана точка 24 (`point24.ts`, `day24a.ts`, `day24b.ts`, `finish24.ts`). Жребий: только находка A (потери-эха нет):
+  машину не забирают; итоги обхода — прямые следствия КТ23 и тайников 23-й (`fuelTaken`, `gunFound/Handed/Listed/Hidden`,
+  `leaFound` → `w.c24_lea` sander/brandt по поручительству Зандер, `w.c24_marcus` taken/listed, `w.c24_ration = half`). Вещи при обходе
+  меняются только на линии A. КТ24: `c3_new_duty24` (кто со среды идёт в школу/пункт: b/a/none, разные → b) и `c3_new_tuesday24`
+  (come/stay/truth, разные → stay). Дальше: точка 25.

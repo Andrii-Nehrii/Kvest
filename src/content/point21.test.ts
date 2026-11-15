@@ -205,3 +205,45 @@ describe('участок 23: все ответы КТ22, люди из прош�
     expect(a.chars.A.visited.c23_a_cap).toBe(1);
   });
 });
+
+describe('участок 24: обход Брандта по всем ответам КТ23, находка A', () => {
+  const s21 = finish(after20('stay', 'wait'));
+  for (const p of P) Object.assign(s21.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 });
+  const fresh = (s: GameState) => { for (const p of P) Object.assign(s.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 }); return s; };
+  const after23 = (lea: string, guests: string, monday: string, a23: Record<string, string> = {}) => {
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: lea, c3_new_bag21: 'wait' })).state;
+    const s22 = fresh(mergeCp(b21, 22, leg(b21, 'A'), leg(b21, 'B')));
+    const b22 = completeCheckpoint(c, s22, { A: { c3_new_letter22: 'home' }, B: { c3_new_tobias22: 'silent' } }).state;
+    const s23 = fresh(mergeCp(b22, 23, leg(b22, 'A', a23), leg(b22, 'B')));
+    return completeCheckpoint(c, s23, both({ c3_new_guests23: guests, c3_new_monday23: monday })).state;
+  };
+  for (const lea of ['hide', 'brandt'])
+    for (const guests of ['in', 'shed', 'on'])
+      for (const monday of ['open', 'hide', 'shut'])
+        it(`КТ21 ${lea}, гости ${guests}, понедельник ${monday}: обход виден обоим одинаково, миры сходятся`, () => {
+          const b23 = after23(lea, guests, monday);
+          for (const p of P) expect(b23.chars[p].scene).toBe('c24_start');
+          const a = leg(b23, 'A'), b = leg(b23, 'B');
+          expect(a.vars['w.c24_lea']).toBe(b.vars['w.c24_lea']); expect(a.vars['w.c24_marcus']).toBe(b.vars['w.c24_marcus']);
+          if (monday === 'shut') expect(a.vars['w.c24_ration']).toBe('half');
+          if (guests === 'shed' && monday !== 'shut') expect(a.vars['w.c24_marcus']).toBe('taken');
+          const s24 = mergeCp(b23, 24, a, b);
+          expect(s24.chars.A.time).toBe(s24.chars.B.time);
+          for (const p of P) { expect(s24.chars[p].location).toBe('hof_luedemann'); expect(canAct(s24.chars[p].body)).toBe(true); }
+          const out = completeCheckpoint(c, s24, { A: { c3_new_duty24: 'a', c3_new_tuesday24: 'come' }, B: { c3_new_duty24: 'b', c3_new_tuesday24: 'truth' } }).state;
+          expect(out.vars['w.c24_duty']).toBe('b'); expect(out.vars['w.c24_message']).toBe('stay');
+          for (const p of P) expect(out.chars[p].scene).toBe('c25_start');
+        });
+
+  it('шкаф Оле: ASTA открывает; неверное слово — ещё попытка; колун — бинокль разбит', () => {
+    const b23 = after23('hide', 'in', 'hide');
+    const open = leg(b23, 'A', { c24_a_room: 'c24_ar_asta' });
+    expect(qty(open, 'c24_binoculars', 'char', 'A')).toBe(1); expect(open.vars['w.c24_ole_cabinet']).toBe('open');
+    const retry = leg(b23, 'A', { c24_a_room: 'c24_ar_nina', c24_a_lock2: 'c24_al_asta' });
+    expect(qty(retry, 'c24_binoculars', 'char', 'A')).toBe(1);
+    const broke = leg(b23, 'A', { c24_a_room: 'c24_ar_break' });
+    expect(qty(broke, 'c24_binoculars')).toBe(0); expect(qty(broke, 'c24_korn', 'char', 'A')).toBe(1);
+    const left = leg(b23, 'A', { c24_a_room: 'c24_ar_leave' });
+    expect(left.vars['w.c24_ole_cabinet']).toBeUndefined();
+  });
+});

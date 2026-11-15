@@ -1,0 +1,79 @@
+import type { JointDecision, MergeNote } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { all, flag } from './world3';
+import { any, v } from './point18';
+import { P24, fuelTaken, gunFound, gunHanded, gunHidden, gunListed, leaFound, monShut } from './point24';
+
+export const finished24: Cond = all(P24, any(flag('A.c24_finished'), flag('B.c24_finished')));
+const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished24, when), text });
+const w = (key: string): Cond => flag(`w.c24_${key}`);
+
+// Сверка в понедельник в половине восьмого.
+export const point24Notes: MergeNote[] = [
+  N('c24_kai', flag('w.c23_grave_dug'), 'Утром Кая перенесли из ямы за теплицей к насыпи, под ольху.'),
+  N('c24_kai_sung', w('kai_sung'), '{B} пела над Каем. Уте плакала и кивала в такт.'),
+  N('c24_malte', { always: true }, 'В восемь Мальте увезли военные. Адрес жены: Целле, Хоэнвег, 12.'),
+  N('c24_fuel', fuelTaken, 'Овчарка дружины нашла канистру. Бензин забрали «для машин дружины».'),
+  N('c24_gun_listed', gunListed, 'Ружьё записано у Брандта и осталось в доме.'),
+  N('c24_gun_handed', gunHanded, 'Ружьё сдали сами. Брандт выписал расписку.'),
+  N('c24_gun_found', gunFound, 'Ружьё нашли за шкафом и забрали.'),
+  N('c24_gun_hidden', gunHidden, 'Ружьё под половицей не нашли.'),
+  N('c24_half', v('w.c24_ration', 'half'), 'Хутору урезали паёк вдвое на две недели.'),
+  N('c24_refused', monShut, 'Ворота Брандту не открыли. «Кого нет в списке, тот получает половину пайка».'),
+  N('c24_lea_sander', all(leaFound, v('w.c24_lea', 'sander')), 'Лея вышла к дружине сама, с повязкой санитарки. Брандт отправил её к доктору Зандер: та ручается за людей с хутора.'),
+  N('c24_lea_brandt', all(leaFound, v('w.c24_lea', 'brandt')), 'Лея вышла к дружине сама. Брандт увёл её в школу. Кровь у неё пока не берут: ждут, когда у Матса будет жар.'),
+  N('c24_plasma', w('plasma_taken'), 'Сумку из кладовки дружина забрала вместе с Леей.'),
+  N('c24_lea_hidden', all(flag('w.c22_hide'), { not: leaFound }, v('w.c22_hide', 'cellar')), 'Лею в нише подвала не нашли. Собака дважды нюхала у стены.'),
+  N('c24_marcus_taken', v('w.c24_marcus', 'taken'), 'Маркуса нашли в сарае и увели в школу Брандта под наблюдение: не в списке, шрамы от укуса. Лео остался на хуторе.'),
+  N('c24_marcus_days', w('marcus_three_days'), 'Маркусу сказали: три дня без жара — и отпустят.'),
+  N('c24_marcus_listed', v('w.c24_marcus', 'listed'), 'Маркуса и Лео вписали в список как гостей до вторника.'),
+  N('c24_mats', w('brandt_told_mats'), 'Брандту сказали в лицо, что его внук не болел. Он ушёл, не сказав ни слова.'),
+  N('c24_bus', { always: true }, 'У пожарной части стоит автобус в Люнебург для переболевших: добровольно, двойной паёк семье. Со среды школе Брандта нужен человек с каждого двора.'),
+  N('c24_cabinet', v('w.c24_ole_cabinet', 'open'), 'В шкафу Оле на чердаке лежали армейский бинокль, шесть патронов и фляга корна «на крайний случай».'),
+  N('c24_cabinet_broken', v('w.c24_ole_cabinet', 'broken'), 'Шкаф Оле на чердаке взломан: патроны и фляга целы, бинокль разбился.'),
+  N('c24_watcher', w('saw_watcher'), 'В бинокль с чердака видно: у лесополосы стоит больной в белом и смотрит на хутор.'),
+  N('c24_pump', w('pump_fixed'), 'Яннес починил насос.'),
+  N('c24_school', w('school_known'), 'В школе шесть кроватей и стойки для капельниц. Уте записана туда поварихой, Яннес — носильщиком.'),
+  N('c24_nina_drives', w('nina_drives'), 'Нина умеет трогаться и останавливать Corsa: отец учил её на парковке.'),
+  N('c24_battery', w('battery_back'), 'Аккумулятор снова в Corsa.'),
+  N('c24_ration_full', all({ not: v('w.c24_ration', 'half') }, flag('B.c24_bv')), 'Паёк из деревни принесли полный.'),
+  N('c24_bus_woman', w('bus_woman'), 'В автобусе на Люнебург — вдова из деревни: «Дочь получит двойной паёк. Вот и всё».'),
+  N('c24_lea_waits', w('lea_waits'), 'Лея в школе шепнула: Брандт ждёт, когда у Матса будет жар. Жара не будет.'),
+  N('c24_sander', w('sander_wants_b'), 'Доктор Зандер просит: если со двора пойдёт {B}, пусть приходит к ней в пункт, в семь утра, а не в школу.'),
+  N('c24_girl', w('girl_back_room'), 'В задней комнате пункта девочка девяти лет, укушена в пятницу. Задержать болезнь врачу больше нечем.'),
+  N('c24_kirch3', w('kirch_three'), '{B} обещала принести на Кирхвег, 4 три шприц-ручки инсулина.'),
+  N('c24_kirch1', w('kirch_one'), '{B} обещала принести на Кирхвег, 4 одну шприц-ручку инсулина.'),
+  N('c24_leo_drawing', w('leo_drawing'), 'Лео нарисовал дом и пятерых. Подпись: «Маркус вернётся».'),
+];
+
+export const point24Duty: JointDecision = {
+  id: 'c3_new_duty24', checkpoint: 24, canParticipate: P24,
+  prompt: { default: 'Со среды Брандту нужен человек с вашего двора. Можно отправить {B}: доктор Зандер просит её в пункт. Можно пойти {A}: работать с дружиной. Можно не посылать никого: тогда паёк урежут. Разные ответы: пойдёт тот, кого назвали.' },
+  options: [
+    { id: 'b', label: { default: 'Пойдёт {B}, в пункт к доктору Зандер' }, effects: [{ set: 'w.c24_duty', value: 'b' }],
+      text: 'Со среды {B} каждое утро в семь в пункте у доктора Зандер.' },
+    { id: 'a', label: { default: 'Пойдёт {A}, с дружиной' }, effects: [{ set: 'w.c24_duty', value: 'a' }],
+      text: 'Со среды {A} в дружине Брандта: дрова, дороги, ночные объезды.' },
+    { id: 'none', label: { default: 'Никого не посылать' }, effects: [{ set: 'w.c24_duty', value: 'none' }, { set: 'w.c24_ration', value: 'half' }],
+      text: 'Никого. Брандт пометит двор. Паёк урежут.' },
+  ],
+  compromises: [{ pair: ['b', 'a'], result: 'b' }, { pair: ['b', 'none'], result: 'b' }, { pair: ['a', 'none'], result: 'a' }],
+  arbiters: [{ id: 'c24_duty_b', when: P24, winner: 'b', text: 'Вы не сходитесь. Зандер просила {B.acc}: пойдёт она.' }],
+  default: 'b',
+};
+
+export const point24Tuesday: JointDecision = {
+  id: 'c3_new_tuesday24', checkpoint: 24, canParticipate: P24,
+  prompt: { default: 'Завтра {A} увидит Оле. Что сказать ему в лицо? «Поехали домой». Или: «Решай сам, дом ждёт». Или всё, что вы знаете про плазму. Разные ответы — «решай сам».' },
+  options: [
+    { id: 'come', label: { default: '«Поехали домой»' }, effects: [{ set: 'w.c24_message', value: 'come' }],
+      text: '{A} скажет Оле: поехали домой.' },
+    { id: 'stay', label: { default: '«Решай сам. Дом ждёт»' }, effects: [{ set: 'w.c24_message', value: 'stay' }],
+      text: '{A} скажет Оле: решай сам, дом ждёт.' },
+    { id: 'truth', label: { default: 'Всё, что знаем про плазму' }, effects: [{ set: 'w.c24_message', value: 'truth' }],
+      text: '{A} расскажет Оле всё, что вы знаете про плазму.' },
+  ],
+  compromises: [{ pair: ['come', 'stay'], result: 'stay' }, { pair: ['come', 'truth'], result: 'stay' }, { pair: ['stay', 'truth'], result: 'stay' }],
+  arbiters: [{ id: 'c24_msg_stay', when: P24, winner: 'stay', text: 'Вы не сходитесь. {A} скажет: решай сам.' }],
+  default: 'stay',
+};
