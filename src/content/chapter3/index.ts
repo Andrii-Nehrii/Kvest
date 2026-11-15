@@ -1,6 +1,6 @@
 import { withCentralEchoes } from './continuity';
 import type { Scene } from '../../engine/content-types';
-import { entry, newEntry6, newEntry8, newEntry9, newEntry10, newEntry11, newEntry12, newEntry13, newEntry14, newEntry15, newEntry16, newEntry17, newEntry18, newEntry19, newEntry20, newEntry21, newEntry22, newEntry23, newEntry24, road, arrival } from './routes';
+import { entry, newEntry6, newEntry8, newEntry9, newEntry10, newEntry11, newEntry12, newEntry13, newEntry14, newEntry15, newEntry16, newEntry17, newEntry18, newEntry19, newEntry20, newEntry21, newEntry22, newEntry23, newEntry24, newEntry25, road, arrival } from './routes';
 import { morning12Scenes, morning12Events } from './morning12';
 import { farm6bScenes } from './farm6b';
 import { farm6longScenes } from './farm6long';
@@ -58,6 +58,9 @@ import { day23BScenes } from './day23b';
 import { shared24 } from './point24';
 import { day24AScenes } from './day24a';
 import { day24BScenes } from './day24b';
+import { shared25 } from './point25';
+import { day25AScenes } from './day25a';
+import { day25BScenes } from './day25b';
 import { day19AScenes } from './day19a';
 import { day19BScenes } from './day19b';
 import { day19XScenes } from './day19x';
@@ -70,7 +73,7 @@ import { day18xScenes } from './day18x';
 const checkpointScenes: Scene[] = [
   { id: 'c5_cp', for: 'any', chapter: 'ch3', checkpoint: 5, title: 'Полдень', universal: false, calm: true,
     text: [{ text: 'Ты садишься и достаёшь телефон. Палец оставляет на стекле след. Прежде чем говорить, приходится вытереть экран рукавом.' }], actions: [] },
-  { id: 'c25_start', for: 'any', chapter: 'ch3', title: 'Продолжение', universal: false,
+  { id: 'c26_start', for: 'any', chapter: 'ch3', title: 'Продолжение', universal: false,
     text: [{ text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' }], actions: [] },
 ];
 
@@ -80,6 +83,6 @@ export const scenes3: Record<string, Scene> = Object.fromEntries([
   newEntry9, ...entry9Scenes, ...farm9AScenes, ...farm9BScenes, ...common9Scenes,
   newEntry10, ...night10SScenes, ...night10FScenes, ...night10Scenes,
   newEntry11, ...dawn11Scenes, ...day11Scenes, ...noon11Scenes,
-  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, newEntry16, ...day16Scenes, ...day16xScenes, newEntry17, ...day17Scenes, ...day17xScenes, newEntry18, ...day18AScenes, ...day18BScenes, ...day18xScenes, ...day18yScenes, evening18, checkpoint18, newEntry19, ...shared19, ...day19AScenes, ...day19BScenes, ...day19XScenes, newEntry20, ...day20GScenes, ...day20FScenes, ...day20DScenes, ...day20XScenes, ...checkpoint20, newEntry21, ...shared21, ...day21CScenes, ...day21FScenes, ...day21RScenes, ...day21LScenes, newEntry22, ...shared22, ...day22AScenes, ...day22BScenes, newEntry23, ...shared23, ...day23AScenes, ...day23BScenes, newEntry24, ...shared24, ...day24AScenes, ...day24BScenes, ...checkpointScenes,
+  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, newEntry16, ...day16Scenes, ...day16xScenes, newEntry17, ...day17Scenes, ...day17xScenes, newEntry18, ...day18AScenes, ...day18BScenes, ...day18xScenes, ...day18yScenes, evening18, checkpoint18, newEntry19, ...shared19, ...day19AScenes, ...day19BScenes, ...day19XScenes, newEntry20, ...day20GScenes, ...day20FScenes, ...day20DScenes, ...day20XScenes, ...checkpoint20, newEntry21, ...shared21, ...day21CScenes, ...day21FScenes, ...day21RScenes, ...day21LScenes, newEntry22, ...shared22, ...day22AScenes, ...day22BScenes, newEntry23, ...shared23, ...day23AScenes, ...day23BScenes, newEntry24, ...shared24, ...day24AScenes, ...day24BScenes, newEntry25, ...shared25, ...day25AScenes, ...day25BScenes, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(withFarmCare(s))]));
 export const incidentEvents3 = [...morning12Events];

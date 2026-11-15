@@ -27,6 +27,7 @@ import { point21Bag, point21Lea, point21Notes } from './finish21';
 import { point22Letter, point22Notes, point22Tobias } from './finish22';
 import { point23Guests, point23Monday, point23Notes } from './finish23';
 import { point24Duty, point24Notes, point24Tuesday } from './finish24';
+import { point25Notes, point25Ole, point25Truth } from './finish25';
 
 const groups = [
   ['a_flat', 'a_stairs', 'a_yard'],
@@ -595,6 +596,8 @@ export const jointChapter3: Record<string, JointDecision> = {
   c3_new_monday23: point23Monday,
   c3_new_duty24: point24Duty,
   c3_new_tuesday24: point24Tuesday,
+  c3_new_ole25: point25Ole,
+  c3_new_truth25: point25Truth,
   c3_new_report11: point11Report,
   c3_new_home11: point11Home,
   c3_new_ole10: point10Ole,
@@ -613,12 +616,12 @@ export const jointChapter3: Record<string, JointDecision> = {
   c3_lastnight: lastNight8(),
 };
 /** До какой точки глава написана: после неё игроки видят экран «продолжение» (`c{N+1}_start` в chapter3/index.ts). */
-export const WRITTEN_TO = 24;
-export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
+export const WRITTEN_TO = 25;
+export const checkpoints3: CheckpointDef[] = ([5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25] as const).filter((n) => n <= WRITTEN_TO).map((n) => ({
   index: n,
-  title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Рассвет', 8: 'После поездки', 9: 'Перед ночью', 10: 'До рассвета', 11: 'Полдень', 12: 'Ночь с чужими', 13: 'Кто поведёт Лео', 14: 'Тачка в одиннадцать', 15: 'Парцелла девять', 16: 'Среда', 17: 'Колония', 18: 'После среды', 19: 'Перед пятницей', 20: 'Пятница', 21: 'Суббота', 22: 'Суббота, вечер', 23: 'Воскресенье', 24: 'Понедельник' }[n],
-  syncNotBefore: n === 24 ? at(23, 19, 30) : n === 23 ? at(22, 20, 0) : n === 22 ? at(21, 21, 0) : n === 21 ? at(21, 7, 30) : n === 20 ? at(20, 15, 30) : n === 19 ? at(20, 5) : n === 18 ? at(18, 19, 30) : n === 17 ? at(17, 13) : n === 16 ? at(16, 21, 30) : n === 15 ? at(16, 13) : n === 14 ? at(15, 20, 30) : n === 13 ? at(15, 11, 30) : n === 12 ? at(14, 20, 30) : n === 11 ? at(14, 12) : n === 10 ? at(14, 1, 30) : n === 9 ? at(13, 19, 30) : n === 8 ? at(13, 11) : n === 7 ? at(13, 7, 45) : segmentEnd(n),
-  joint: n === 24 ? ['c3_new_duty24', 'c3_new_tuesday24'] : n === 23 ? ['c3_new_guests23', 'c3_new_monday23'] : n === 22 ? ['c3_new_tobias22', 'c3_new_letter22'] : n === 21 ? ['c3_new_lea21', 'c3_new_bag21'] : n === 20 ? ['c3_new_convoy20', 'c3_new_ole20'] : n === 19 ? ['c3_new_trip19', 'c3_new_gun19'] : n === 18 ? ['c3_new_friday18', 'c3_new_house18'] : n === 17 ? ['c3_new_colony17', 'c3_new_nina17'] : n === 16 ? ['c3_new_albers16', 'c3_new_sweep16'] : n === 15 ? ['c3_new_nina15', 'c3_new_garden15'] : n === 14 ? ['c3_new_jens14', 'c3_new_nina14'] : n === 13 ? ['c3_new_leo13', 'c3_new_road13'] : n === 12 ? ['c3_new_guests12', 'c3_new_promise12a', 'c3_new_promise12b'] : n === 11 ? ['c3_new_report11', 'c3_new_home11'] : n === 10 ? ['c3_new_ole10', 'c3_new_nina10'] : n === 9 ? ['c3_new_jens9', 'c3_new_search9a', 'c3_new_search9b'] : n === 8 ? ['c3_new_route8'] : n === 7 ? ['c3_new_van7', 'c3_new_depart7'] : n === 6 ? ['c3_l_road6', 'c3_new_night6'] : ['c3_midday5'],
-  onMerge: n === 24 ? point24Notes : n === 23 ? point23Notes : n === 22 ? point22Notes : n === 21 ? point21Notes : n === 20 ? point20Notes : n === 19 ? point19Notes : n === 18 ? point18Notes : n === 17 ? point17Notes : n === 16 ? point16Notes : n === 15 ? point15Notes : n === 14 ? point14Notes : n === 13 ? point13Notes : n === 12 ? point12Notes : n === 11 ? point11Notes : n === 10 ? point10Notes : n === 9 ? point9Notes : n === 8 ? point8Notes : n === 7 ? point7Notes : n === 6 ? [...farm6bNotes, ...farm6longNotes] : notes(n),
+  title: { 5: 'Третий полдень', 6: 'Третья ночь', 7: 'Рассвет', 8: 'После поездки', 9: 'Перед ночью', 10: 'До рассвета', 11: 'Полдень', 12: 'Ночь с чужими', 13: 'Кто поведёт Лео', 14: 'Тачка в одиннадцать', 15: 'Парцелла девять', 16: 'Среда', 17: 'Колония', 18: 'После среды', 19: 'Перед пятницей', 20: 'Пятница', 21: 'Суббота', 22: 'Суббота, вечер', 23: 'Воскресенье', 24: 'Понедельник', 25: 'Вторник' }[n],
+  syncNotBefore: n === 25 ? at(24, 21, 0) : n === 24 ? at(23, 19, 30) : n === 23 ? at(22, 20, 0) : n === 22 ? at(21, 21, 0) : n === 21 ? at(21, 7, 30) : n === 20 ? at(20, 15, 30) : n === 19 ? at(20, 5) : n === 18 ? at(18, 19, 30) : n === 17 ? at(17, 13) : n === 16 ? at(16, 21, 30) : n === 15 ? at(16, 13) : n === 14 ? at(15, 20, 30) : n === 13 ? at(15, 11, 30) : n === 12 ? at(14, 20, 30) : n === 11 ? at(14, 12) : n === 10 ? at(14, 1, 30) : n === 9 ? at(13, 19, 30) : n === 8 ? at(13, 11) : n === 7 ? at(13, 7, 45) : segmentEnd(n),
+  joint: n === 25 ? ['c3_new_ole25', 'c3_new_truth25'] : n === 24 ? ['c3_new_duty24', 'c3_new_tuesday24'] : n === 23 ? ['c3_new_guests23', 'c3_new_monday23'] : n === 22 ? ['c3_new_tobias22', 'c3_new_letter22'] : n === 21 ? ['c3_new_lea21', 'c3_new_bag21'] : n === 20 ? ['c3_new_convoy20', 'c3_new_ole20'] : n === 19 ? ['c3_new_trip19', 'c3_new_gun19'] : n === 18 ? ['c3_new_friday18', 'c3_new_house18'] : n === 17 ? ['c3_new_colony17', 'c3_new_nina17'] : n === 16 ? ['c3_new_albers16', 'c3_new_sweep16'] : n === 15 ? ['c3_new_nina15', 'c3_new_garden15'] : n === 14 ? ['c3_new_jens14', 'c3_new_nina14'] : n === 13 ? ['c3_new_leo13', 'c3_new_road13'] : n === 12 ? ['c3_new_guests12', 'c3_new_promise12a', 'c3_new_promise12b'] : n === 11 ? ['c3_new_report11', 'c3_new_home11'] : n === 10 ? ['c3_new_ole10', 'c3_new_nina10'] : n === 9 ? ['c3_new_jens9', 'c3_new_search9a', 'c3_new_search9b'] : n === 8 ? ['c3_new_route8'] : n === 7 ? ['c3_new_van7', 'c3_new_depart7'] : n === 6 ? ['c3_l_road6', 'c3_new_night6'] : ['c3_midday5'],
+  onMerge: n === 25 ? point25Notes : n === 24 ? point24Notes : n === 23 ? point23Notes : n === 22 ? point22Notes : n === 21 ? point21Notes : n === 20 ? point20Notes : n === 19 ? point19Notes : n === 18 ? point18Notes : n === 17 ? point17Notes : n === 16 ? point16Notes : n === 15 ? point15Notes : n === 14 ? point14Notes : n === 13 ? point13Notes : n === 12 ? point12Notes : n === 11 ? point11Notes : n === 10 ? point10Notes : n === 9 ? point9Notes : n === 8 ? point8Notes : n === 7 ? point7Notes : n === 6 ? [...farm6bNotes, ...farm6longNotes] : notes(n),
   next: { A: [{ scene: `c${n + 1}_start` }], B: [{ scene: `c${n + 1}_start` }] },
 }));

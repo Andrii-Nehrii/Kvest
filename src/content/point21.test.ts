@@ -247,3 +247,32 @@ describe('участок 24: обход Брандта по всем ответ�
     expect(left.vars['w.c24_ole_cabinet']).toBeUndefined();
   });
 });
+
+describe('участок 25: порознь — Люнебург и хутор, по ответам КТ22–24', () => {
+  const s21 = finish(after20('stay', 'wait'));
+  const fresh = (s: GameState) => { for (const p of P) Object.assign(s.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 }); return s; };
+  fresh(s21);
+  const after24 = (lea: string, letter: string, message: string, guests = 'in', monday = 'hide') => {
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: lea, c3_new_bag21: 'keep' })).state;
+    const s22 = fresh(mergeCp(b21, 22, leg(b21, 'A'), leg(b21, 'B')));
+    const b22 = completeCheckpoint(c, s22, { A: { c3_new_letter22: letter }, B: { c3_new_tobias22: 'silent' } }).state;
+    const s23 = fresh(mergeCp(b22, 23, leg(b22, 'A'), leg(b22, 'B')));
+    const b23 = completeCheckpoint(c, s23, both({ c3_new_guests23: guests, c3_new_monday23: monday })).state;
+    const s24 = fresh(mergeCp(b23, 24, leg(b23, 'A'), leg(b23, 'B')));
+    return completeCheckpoint(c, s24, both({ c3_new_duty24: 'b', c3_new_tuesday24: message })).state;
+  };
+  for (const [lea, letter, message, state] of [['hide', 'truth', 'come', 'stopped'], ['tobias', 'home', 'truth', 'relieved'], ['brandt', 'hold', 'stay', 'collapsed'], ['hide', 'home', 'come', 'collapsed']] as const)
+    it(`КТ21 ${lea}, письмо ${letter}, Оле — ${message}: A в Люнебурге, B дома, оба к вечеру на хуторе`, () => {
+      const b24 = after24(lea, letter, message);
+      for (const p of P) expect(b24.chars[p].scene).toBe('c25_start');
+      const a = leg(b24, 'A'), b = leg(b24, 'B');
+      expect(a.vars['w.c25_ole_state']).toBe(state); expect(b.vars['w.c25_ole_state']).toBe(state);
+      expect(a.chars.A.visited.c25_a_ole).toBe(1); expect(b.chars.B.visited.c25_a_ole).toBeUndefined();
+      const s25 = mergeCp(b24, 25, a, b);
+      expect(s25.chars.A.time).toBe(s25.chars.B.time);
+      for (const p of P) { expect(s25.chars[p].location).toBe('hof_luedemann'); expect(canAct(s25.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s25, { A: { c3_new_ole25: 'now', c3_new_truth25: 'brandt' }, B: { c3_new_ole25: 'his', c3_new_truth25: 'brandt' } }).state;
+      expect(out.vars['w.c25_ole']).toBe('fetch'); expect(out.vars['w.c25_truth']).toBe('brandt');
+      for (const p of P) expect(out.chars[p].scene).toBe('c26_start');
+    });
+});

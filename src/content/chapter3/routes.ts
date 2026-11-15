@@ -5,6 +5,7 @@ import { indoor16 } from './point16';
 import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './point21';
 import { point23Available, prepare23 } from './point23';
 import { graveDay, point24Available, prepare24 } from './point24';
+import { point25Available, prepare25 } from './point25';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -891,4 +892,20 @@ export const newEntry24: Scene = {
     { id: 'c24_go_grave', label: 'Одеться и выйти', when: graveDay, minutes: 30, terminal: true, goto: 'c24_grave', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
     { id: 'c24_go_day', label: 'Встать', when: not(graveDay), minutes: 30, terminal: true, goto: 'c24_morning', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point24Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 25 ─────────────
+export const newEntry25: Scene = {
+  id: 'c25_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true,
+  text: [
+    { when: point25Available, text: 'Ночью мороз. Под утро в окна стучит сухой снег.' },
+    { when: all(point25Available, { me: 'A' }), text: 'В шесть тебе вставать: в без четверти семь у пекарни Кёлер фургон прачечной.' },
+    { when: all(point25Available, { me: 'B' }), text: 'В шесть {A} встанет и уйдёт к фургону. Ты останешься.' },
+    { when: not(point25Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c25_go_a', label: 'Встать и одеться', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c25_a_van', effects: [prepare25, { restUntil: at(24, 6, 15), sleeping: true }] },
+    { id: 'c25_go_b', label: 'Проводить его до двери', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c25_b_morning', effects: [prepare25, { restUntil: at(24, 6, 30), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point25Available, a.when ?? { always: true }) })),
 };

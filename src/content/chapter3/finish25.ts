@@ -1,0 +1,69 @@
+import type { JointDecision, MergeNote } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { all, flag } from './world3';
+import { any, v } from './point18';
+import { P25, oleCollapsed, oleRelieved, oleStopped } from './point25';
+
+export const finished25: Cond = all(P25, any(flag('A.c25_finished'), flag('B.c25_finished')));
+const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished25, when), text });
+const w = (key: string): Cond => flag(`w.c25_${key}`);
+
+// Сверка во вторник в девять вечера.
+export const point25Notes: MergeNote[] = [
+  N('c25_ole_col', oleCollapsed, 'Оле упал утром на заборе крови. Алерс запретила брать у него дальше. Ещё один забор его убьёт.'),
+  N('c25_ole_stop', oleStopped, 'Оле перестал сдавать кровь в понедельник, когда прочитал письмо. Сидит на койке одетый и ждёт пятницы.'),
+  N('c25_ole_rel', oleRelieved, 'Оле отдыхает: с субботы вместо него сдаёт Лея. В пятницу его отпустят.'),
+  N('c25_ole_agrees', w('ole_agrees'), 'Оле согласен ехать домой.'),
+  N('c25_ole_guilt', w('ole_guilt'), 'Оле не хочет ехать домой, пока Лея лежит на его койке «ни за что».'),
+  N('c25_ole_torn', w('ole_torn'), 'Оле не может решить: малышка у окна каждый день спрашивает, будет ли он завтра.'),
+  N('c25_ole_zero', w('ole_knows_zero'), 'Оле знает про двести двенадцать и ноль.'),
+  N('c25_ole_banned', w('ole_banned'), 'Алерс сама запретила брать у Оле кровь и обещала откормить его к пятнице.'),
+  N('c25_ahlers_wait', v('w.c25_ahlers_thursday', 'wait'), 'Алерс знает правду про плазму с Бухгольца. Плазмы у неё до четверга. {A} обещал молчать до четверга.'),
+  N('c25_ahlers_help', v('w.c25_ahlers_thursday', 'help'), 'Алерс знает правду про плазму с Бухгольца. Плазмы у неё до четверга. В четверг в полдень она скажет матерям, {A} обещал быть рядом.'),
+  N('c25_lea_nurse', w('lea_point'), 'Лея теперь санитарка в пункте у доктора Зандер. {B} за неё поручилась.'),
+  N('c25_lea_family', w('lea_stays_for_family'), 'Лея в Люнебурге сдаёт кровь каждый день: за это у её матери и брата кровать в Ганновере.'),
+  N('c25_east', w('east_convoy'), 'Шофёр прачечной говорит: поляки в Винзене собирают колонну на восток около десятого декабря.'),
+  N('c25_army', w('army_leaves'), 'В Люнебурге говорят: пятнадцатого декабря армия уходит.'),
+  N('c25_kasia', w('kasia_tim'), 'Кася Новак работает на кухне казармы. Её сын Тим в детской: ему давали плазму, жар вернулся.'),
+  N('c25_merle', w('merle_listed_20'), 'В зале списков Люнебурга: «Weber, Merle — Arensburg — versorgt», двадцатое ноября.'),
+  N('c25_wessel', w('wessel_wife'), 'Жена шофёра прачечной была донором в Бухгольце. Двенадцатого отделение вывезли автобусами. Куда — никто не сказал.'),
+  N('c25_henrike', { has: 'c25_henrike_letter' }, 'Хенрике передала письмо: «Приезжайте за ним. В пятницу. Или я привезу его сама».'),
+  N('c25_book', { has: 'c25_ole_book' }, 'Хенрике отдала тетрадь Оле: «Не хочу больше видеть эти цифры».'),
+  N('c25_pia', w('pia'), 'В задней комнате пункта девочка Пия, девять лет. {B} сидела с ней.'),
+  N('c25_kirch', w('kirch_given'), '{B} отнесла инсулин на Кирхвег, 4. Женщину зовут Грета.'),
+  N('c25_cross', w('eva_cross_done'), 'У старого колодца за сараем стоит берёзовый крест. Эва вязала его сама.'),
+  N('c25_guests', w('guests_left'), 'Маркус и Лео ушли в Винзен, к брату Маркуса.'),
+  N('c25_address', w('winsen_address'), 'Брат Маркуса живёт в Винзене: Гербергассе, 7. Юрген.'),
+];
+
+export const point25Ole: JointDecision = {
+  id: 'c3_new_ole25', checkpoint: 25, canParticipate: P25,
+  prompt: { default: 'Хенрике пишет: забирайте его в пятницу. Можно забрать Оле в пятницу, как она просит. Можно оставить решать ему самому. Можно просить Тобиаса привезти его завтра же. Разные ответы — пятница.' },
+  options: [
+    { id: 'fetch', label: { default: 'Забрать его в пятницу' }, effects: [{ set: 'w.c25_ole', value: 'fetch' }],
+      text: 'В пятницу за Оле поедут. С Тобиасом или с фургоном прачечной.' },
+    { id: 'his', label: { default: 'Пусть решает сам' }, effects: [{ set: 'w.c25_ole', value: 'his' }],
+      text: 'Решать будет Оле. Он взрослый. Он Людеман.' },
+    { id: 'now', label: { default: 'Просить Тобиаса привезти его завтра' }, effects: [{ set: 'w.c25_ole', value: 'now' }],
+      text: 'Завтра утром кто-то из вас пойдёт к Тобиасу и попросит привезти Оле. Не дожидаясь пятницы.' },
+  ],
+  compromises: [{ pair: ['fetch', 'his'], result: 'fetch' }, { pair: ['fetch', 'now'], result: 'fetch' }, { pair: ['his', 'now'], result: 'fetch' }],
+  arbiters: [{ id: 'c25_ole_fetch', when: P25, winner: 'fetch', text: 'Вы не сходитесь. Будет пятница, как просит Хенрике.' }],
+  default: 'fetch',
+};
+
+export const point25Truth: JointDecision = {
+  id: 'c3_new_truth25', checkpoint: 25, canParticipate: P25,
+  prompt: { default: 'Вы знаете: плазма не лечит, Матс не болел, Брандт собирает кровь зря. Можно сказать Брандту с глазу на глаз. Можно сказать при всех на раздаче пайков. Можно молчать. Разные ответы — молчать.' },
+  options: [
+    { id: 'brandt', label: { default: 'Сказать Брандту с глазу на глаз' }, effects: [{ set: 'w.c25_truth', value: 'brandt' }],
+      text: 'Вы скажете Брандту наедине. Как мужчине, который смотрел, как болеет его жена.' },
+    { id: 'all', label: { default: 'Сказать при всех на раздаче' }, effects: [{ set: 'w.c25_truth', value: 'all' }],
+      text: 'Вы скажете это вслух, при деревне. Пусть слышат все, кто стоит в очереди и кто сидит в автобусе.' },
+    { id: 'none', label: { default: 'Молчать' }, effects: [{ set: 'w.c25_truth', value: 'none' }],
+      text: 'Вы промолчите. Пока.' },
+  ],
+  compromises: [{ pair: ['brandt', 'all'], result: 'none' }, { pair: ['brandt', 'none'], result: 'none' }, { pair: ['all', 'none'], result: 'none' }],
+  arbiters: [{ id: 'c25_truth_none', when: P25, winner: 'none', text: 'Вы не сходитесь. Пока молчите.' }],
+  default: 'none',
+};

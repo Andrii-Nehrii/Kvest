@@ -693,4 +693,8 @@ npx tsc --noEmit && npx vitest run && npm run e2e:quick
   машину не забирают; итоги обхода — прямые следствия КТ23 и тайников 23-й (`fuelTaken`, `gunFound/Handed/Listed/Hidden`,
   `leaFound` → `w.c24_lea` sander/brandt по поручительству Зандер, `w.c24_marcus` taken/listed, `w.c24_ration = half`). Вещи при обходе
   меняются только на линии A. КТ24: `c3_new_duty24` (кто со среды идёт в школу/пункт: b/a/none, разные → b) и `c3_new_tuesday24`
-  (come/stay/truth, разные → stay). Дальше: точка 25.
+  (come/stay/truth, разные → stay).
+* 15.11 — написана точка 25 (`point25.ts`, `day25a.ts`, `day25b.ts`, `finish25.ts`). Оле во вторник: `w.c25_ole_state` stopped (письмо
+  truth) / relieved (Лея в Люнебурге и не разоблачена) / collapsed; шофёр прачечной — Вессель (не Павел); Алерс: `w.c25_ahlers_thursday`
+  wait/help; Лея при `hide` без находки — санитарка у Зандер (`w.c25_lea_point`); Маркус и Лео уходят в Винзен (адрес — Гербергассе, 7).
+  КТ25 как в плане. Дальше: точка 26.
