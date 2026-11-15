@@ -3,6 +3,7 @@ import { any as any18, ninaFarm as ninaFarm18, v as v18 } from './point18';
 import { A19, B19, atFarm, byGirl, cold19, evaHere, girlHere, henrikeHome, inLue, janaHere, point19Available, point20Available, set19, until, uteHere, volkerHere, npc as npc19 } from './point19';
 import { indoor16 } from './point16';
 import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './point21';
+import { point23Available, prepare23 } from './point23';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -861,4 +862,17 @@ export const newEntry22: Scene = {
     { id: 'c22_go_a', label: 'Выйти во двор', when: { me: 'A' }, minutes: 2, terminal: true, goto: 'c22_a_yard', effects: [prepare22] },
     { id: 'c22_go_b', label: 'Сесть рядом с ней', when: { me: 'B' }, minutes: 2, terminal: true, goto: 'c22_b_morning', effects: [prepare22] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point22Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 23 ─────────────
+export const newEntry23: Scene = {
+  id: 'c23_start', for: 'any', chapter: 'ch3', title: 'Ночь на воскресенье', universal: false, safe: true,
+  text: [
+    { when: point23Available, text: 'Девять вечера. Решено. Лампа на столе прикручена до синего огонька. Внизу Мальте ворочается на лавке и что-то бормочет про Целле.' },
+    { when: not(point23Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c23_go', label: 'Подняться наверх', minutes: 5, terminal: true, goto: 'c23_night', effects: [prepare23] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point23Available, a.when ?? { always: true }) })),
 };

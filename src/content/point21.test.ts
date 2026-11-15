@@ -169,3 +169,39 @@ describe('участок 22: все ответы КТ21, каждый решае
     expect(seen('B')).toMatch(/Выздоровели: 0/); expect(seen('A')).not.toMatch(/лептоспироз/); expect(seen('A')).toMatch(/сегодня что-то узнала и молчит/);
   });
 });
+
+describe('участок 23: все ответы КТ22, люди из прошлого', () => {
+  const s21 = finish(after20('stay', 'wait'));
+  for (const p of P) Object.assign(s21.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 });
+  const after22 = (lea: string, tobias: string, letter: string, a22: Record<string, string> = {}) => {
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: lea, c3_new_bag21: 'wait' })).state;
+    const s22 = mergeCp(b21, 22, leg(b21, 'A', a22), leg(b21, 'B'));
+    for (const p of P) Object.assign(s22.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined });
+    return completeCheckpoint(c, s22, { A: { c3_new_letter22: letter }, B: { c3_new_tobias22: tobias } }).state;
+  };
+  for (const lea of ['hide', 'tobias', 'brandt'])
+    for (const tobias of ['truth', 'silent', 'release'])
+      it(`КТ21 ${lea}, Тобиасу ${tobias}: точка 23 проходится, гости приходят, миры сходятся`, () => {
+        const b22 = after22(lea, tobias, 'home');
+        for (const p of P) expect(b22.chars[p].scene).toBe('c23_start');
+        const a = leg(b22, 'A'), b = leg(b22, 'B');
+        expect(a.vars['w.c23_tobias_told']).toBe(tobias);
+        if (lea === 'tobias' && tobias === 'truth') expect(a.vars['w.c23_lea_exposed']).toBe(true);
+        for (const s of [a, b]) for (const id of ['c12_marcus', 'c12_leo']) if (s.npcs[id]?.alive) expect(s.npcs[id].location).toBe('hof_luedemann');
+        const s23 = mergeCp(b22, 23, a, b);
+        expect(s23.chars.A.time).toBe(s23.chars.B.time);
+        for (const p of P) { expect(s23.chars[p].location).toBe('hof_luedemann'); expect(canAct(s23.chars[p].body)).toBe(true); }
+        const guests = s23.npcs.c12_marcus?.alive ? 'shed' : 'on';
+        const out = completeCheckpoint(c, s23, both({ c3_new_guests23: guests, c3_new_monday23: 'hide' })).state;
+        expect(out.vars['w.c23_guests']).toBe(guests); expect(out.vars['w.c23_monday']).toBe('hide');
+        if (guests === 'shed') expect(out.npcs.c12_marcus.location).toBe('c3_farm_shed');
+        for (const p of P) expect(out.chars[p].scene).toBe('c24_start');
+      });
+
+  it('обещанная прогулка с Ниной: A идёт к двенадцатому участку', () => {
+    const b22 = after22('hide', 'silent', 'home', { c22_a_nina: 'c22_an_sunday' });
+    if (b22.vars['w.c22_cap_walk'] !== 'sunday') return; // кепки нет на этой линии
+    const a = leg(b22, 'A');
+    expect(a.chars.A.visited.c23_a_cap).toBe(1);
+  });
+});
