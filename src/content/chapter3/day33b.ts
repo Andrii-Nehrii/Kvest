@@ -46,7 +46,7 @@ export const day33BScenes: Scene[] = [
         text: 'Плоский ключ входит, но не поворачивается. Ты поворачиваешь сильнее. Хруст: бородка ломается и остаётся в замке.', effects: [set33('bc', 'flat')] },
       { id: 'c33_bc_fish', label: 'Ключ с брелоком-рыбкой', minutes: 10, terminal: true, goto: 'c33_b_broke',
         text: 'Ключ с рыбкой входит туго. Ты нажимаешь. Хруст: бородка ломается и остаётся в замке.', effects: [set33('bc', 'fish')] },
-      { id: 'c33_bc_leave', label: 'Не открывать: это чужое', minutes: 10, terminal: true, goto: 'c33_b_ole',
+      { id: 'c33_bc_leave', label: 'Не открывать: это чужое', minutes: 10, terminal: true, goto: 'c33_b_korner',
         text: 'Ты ставишь чемодан в угол сеней. Может, кто-то из них захочет открыть сам.', effects: [set33('bc', 'leave'), w33('case', 'left'), until33(11, 0)] },
     ] }),
 
@@ -55,7 +55,7 @@ export const day33BScenes: Scene[] = [
     actions: [
       { id: 'c33_bb_knife', label: 'Вскрыть ножом', minutes: 30, terminal: true, goto: 'c33_b_forced',
         text: 'Ты поддеваешь замок ножом Хенрике, раскачиваешь, пока латунь не отходит от кожи. Крышка отскакивает. Внутри что-то звякает, тонко, стеклом.', effects: [set33('bb', 'knife'), ...opened('forced'), until33(11, 30)] },
-      { id: 'c33_bb_leave', label: 'Оставить как есть', minutes: 10, terminal: true, goto: 'c33_b_ole',
+      { id: 'c33_bb_leave', label: 'Оставить как есть', minutes: 10, terminal: true, goto: 'c33_b_korner',
         text: 'Ты ставишь чемодан в угол. Обломок ключа так и торчит из замка.', effects: [set33('bb', 'leave'), w33('case', 'left'), until33(11, 0)] },
     ] }),
 
@@ -64,9 +64,9 @@ export const day33BScenes: Scene[] = [
       { text: 'Сверху аккуратно сложенные клубки шерсти, серой, бордовой, белой, и спицы в футляре. Под ними банка кофе, настоящего, в зёрнах, нераспечатанная. На дне, в вате, картонная коробка: ампулы с физраствором, двадцать штук. Аптечная наклейка: «Haberland, Margarete. Dialyse».' },
     ],
     actions: [
-      { id: 'c33_bo_all', label: 'Забрать всё', minutes: 15, terminal: true, goto: 'c33_b_ole',
+      { id: 'c33_bo_all', label: 'Забрать всё', minutes: 15, terminal: true, goto: 'c33_b_korner',
         text: 'Шерсть, кофе, ампулы. Банку кофе ты открываешь и нюхаешь, не удержавшись. Пахнет городом.', effects: [set33('bo', 'all'), { give: 'c33_wool' }, { give: 'c33_coffee' }, { give: 'c33_saline', qty: 20 }, until33(11, 30)] },
-      { id: 'c33_bo_point', label: 'Ампулы — сразу для пункта, остальное забрать', minutes: 15, terminal: true, goto: 'c33_b_ole',
+      { id: 'c33_bo_point', label: 'Ампулы — сразу для пункта, остальное забрать', minutes: 15, terminal: true, goto: 'c33_b_korner',
         text: 'Коробку с ампулами ты откладываешь отдельно и пишешь на крышке: «Dr. Zander». Шерсть и кофе берёшь себе.', effects: [set33('bo', 'point'), w33('saline_point', true), { give: 'c33_wool' }, { give: 'c33_coffee' }, until33(11, 30)] },
     ] }),
 
@@ -75,7 +75,7 @@ export const day33BScenes: Scene[] = [
       { text: 'Сверху клубки шерсти и спицы в футляре. Под ними банка кофе в зёрнах. На дне коробка с ампулами физраствора. Половина разбита: нож прошёл сквозь картон. По вате расползается мокрое пятно, пахнет солью.' },
     ],
     actions: [
-      { id: 'c33_bf_take', label: 'Собрать уцелевшее', minutes: 20, terminal: true, goto: 'c33_b_ole',
+      { id: 'c33_bf_take', label: 'Собрать уцелевшее', minutes: 20, terminal: true, goto: 'c33_b_korner',
         text: 'Ты выбираешь целые ампулы по одной, осторожно, из осколков. Девять штук. Шерсть и кофе не пострадали.', effects: [set33('bf', 'take'), { give: 'c33_wool' }, { give: 'c33_coffee' }, { give: 'c33_saline', qty: 9 }, until33(11, 50)] },
     ] }),
 
@@ -102,11 +102,11 @@ export const day33BScenes: Scene[] = [
       { when: not(ute33), text: 'В три на хуторе тихо. Ты выходишь во двор и смотришь на колонию у насыпи: из трубы домика Уте идёт дым.' },
     ],
     actions: [
-      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 60, terminal: true, goto: 'c33_council',
-        text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(18, 0)] },
-      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 60, terminal: true, goto: 'c33_council', ambientDuring: frost33,
-        text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(18, 0)] },
-      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 60, terminal: true, goto: 'c33_council',
-        text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(18, 0, true)] },
+      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 60, terminal: true, goto: 'c33_b_nina',
+        text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(16, 30)] },
+      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 60, terminal: true, goto: 'c33_b_nina', ambientDuring: frost33,
+        text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(16, 30)] },
+      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 60, terminal: true, goto: 'c33_b_nina',
+        text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(16, 30, true)] },
     ] }),
 ];
