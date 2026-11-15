@@ -154,6 +154,9 @@ export const day32BScenes: Scene[] = [
       { when: flag('w.c32_meds_extra'), text: 'Женщина из Красного Креста подмигивает: в одной коробке на упаковку больше, чем в списке.' },
       { when: own32('nina', 'stays'), text: 'Нина провожает тебя до грузовика. Лена стоит рядом и держит её за руку.' },
       { when: own32('nina', 'back'), text: 'Нина уже сидит в кузове с рюкзаком. Лена машет ей из окна второго этажа.' },
+      { when: v('w.c32_hall', 'calmed'), text: 'Гамбургская женщина, которую ты вчера {m:разнял|разняла} с местной, кивает тебе из дальнего угла. Местная, говорят, утром тоже пришла и принесла дров.' },
+      { when: v('w.c32_hall', 'torn'), text: 'Две половины порванного одеяла висят на канате, как флаги. Никто их не берёт.' },
+      { when: v('$.c32_bo', 'farm'), text: 'Фрау Петерсен вчера весь вечер спрашивала про хутор: есть ли ванна, есть ли куры. Сегодня утром снова спрашивает про ванну.' },
     ],
     actions: [
       { id: 'c32_bq_boxes', label: 'Погрузить коробки и ехать', minutes: 60, terminal: true, goto: 'c32_b_back',
@@ -163,10 +166,14 @@ export const day32BScenes: Scene[] = [
     ] }),
 
   B({ id: 'c32_b_back', title: 'Обратно', location: winsen32, camp: trip(winsen32), ambient: truck32, onEnter: [until32(33, 11, 0)],
-    text: [{ text: 'Обратно через Паттензен. На проверке те же лица, что вчера, машут рукой, не глядя в бумаги.' }],
+    text: [{ text: 'Половина одиннадцатого. Грузовик заводится у школы. Обратно через Паттензен: там проверка. В кузове ты, коробки с крестом и пятеро попутчиков.' }],
     actions: [
-      { id: 'c32_bk_go', label: 'Ехать', minutes: 120, terminal: true, goto: 'c32_b_check', ambientDuring: truck32,
-        text: 'Грузовик высаживает тебя у пожарной части в Йестебурге. Коробки ты несёшь в пункт {m:сам|сама}, одну за другой.', effects: [set32('bk', 'go'), { move: jest32 }, until32(33, 12, 30)] },
+      { id: 'c32_bk_elder', label: 'Сесть к старику в шляпе в углу кузова', minutes: 60, terminal: true, goto: 'c32_b_check', ambientDuring: truck32,
+        text: 'Старика зовут Ганс, ему восемьдесят один, он едет к сестре в Йестебург. Бумаг у него нет: всё осталось в Харбурге, в квартире, которой больше нет. Он рассказывает про сестру всю дорогу, до самого Паттензена.', effects: [set32('bk', 'elder'), set32('knows_hans', true), until32(33, 12, 30)] },
+      { id: 'c32_bk_soldiers', label: 'Сесть к солдатам и спросить про колонны на север', minutes: 60, terminal: true, goto: 'c32_b_check', ambientDuring: truck32,
+        text: '— Nach Norden? — Солдат пожимает плечами. — Das DRK fährt um den Zehnten. Mit Begleitung. Wer einen Ausweis hat. — Он смотрит на твою бумагу с печатью пункта. — Mit so was vielleicht.\n\nНа север? Красный Крест едет около десятого. С сопровождающими. У кого пропуск есть. С таким, может быть.', effects: [set32('bk', 'soldiers'), w32('b_column_info', true), until32(33, 12, 30)] },
+      { id: 'c32_bk_go', label: 'Ехать', minutes: 60, terminal: true, goto: 'c32_b_check', ambientDuring: truck32,
+        text: 'Ты сидишь на лавке, коробки зажаты коленями. Поля, лес, снова поля. Через час впереди церковь Паттензена и шлагбаум.', effects: [set32('bk', 'go'), { move: jest32 }, until32(33, 12, 30)] },
     ] }),
 
   B({ id: 'c32_b_point', title: 'Пункт', location: jest32, camp: trip(jest32), ambient: { tempC: 14, outdoor: false, wet: false },

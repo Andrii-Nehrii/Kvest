@@ -1,6 +1,6 @@
 import type { Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
-import { not } from './world3';
+import { flag, not } from './world3';
 import { v } from './point18';
 import { npc } from './point19';
 import {
@@ -83,11 +83,11 @@ export const day32EScenes: Scene[] = [
       { when: not(okaforHere32), text: 'В записке Окафора: Мерле в Аренсбурге, у родителей.' },
     ],
     actions: [
-      { id: 'c32_br2_merle', label: 'Передать в Аренсбург, для Мерле: где ты и что жива', minutes: 60, terminal: true, goto: 'c32_b_thu',
-        text: 'Ты считаешь слова на пальцах. «An Merle H., Ahrensburg, über DRK: Ich lebe. Hof Lüdemann bei Jesteburg. Halte durch. Komme». Я {m:жив|жива}. Хутор Людеманов у Йестебурга. Держись. Приду. Радист читает вслух, кивает, отстукивает. Двадцать слов. Ты не {m:уверен|уверена}, правильно ли {m:написал|написала} «приду».', effects: [set32('br2', 'merle'), w32('merle_msg', true), until32(33, 7, 30)] },
-      { id: 'c32_br2_farm', label: 'Передать по своей линии: хутор Людеманов ищет родных тех, кто у него живёт', minutes: 60, terminal: true, goto: 'c32_b_thu',
-        text: 'Ты передаёшь общее сообщение: на хуторе у Йестебурга живут люди из Бармбека, из Харбурга, из Люнебурга, родные могут писать через Красный Крест. Радист улыбается: такого ещё никто не передавал, все про себя. Отстукивает.', effects: [set32('br2', 'farm'), w32('farm_msg', true), until32(33, 7, 30)] },
-      { id: 'c32_br2_skip', label: 'Уступить очередь женщине с ребёнком', minutes: 30, terminal: true, goto: 'c32_b_thu',
+      { id: 'c32_br2_merle', label: 'Передать в Аренсбург, для Мерле: где ты и что жива', minutes: 60, terminal: true, goto: 'c32_b_lena_mom',
+        text: 'Ты считаешь слова на пальцах. «An Merle H., Ahrensburg, über DRK: Ich lebe. Hof Lüdemann bei Jesteburg. Halte durch. Komme». Я {m:жив|жива}. Хутор Людеманов у Йестебурга. Держись. Приду. Радист читает вслух, кивает, отстукивает. Двадцать слов. Ты не {m:уверен|уверена}, правильно ли {m:написал|написала} «приду».', effects: [set32('br2', 'merle'), w32('merle_msg', true), until32(33, 7, 15)] },
+      { id: 'c32_br2_farm', label: 'Передать по своей линии: хутор Людеманов ищет родных тех, кто у него живёт', minutes: 60, terminal: true, goto: 'c32_b_lena_mom',
+        text: 'Ты передаёшь общее сообщение: на хуторе у Йестебурга живут люди из Бармбека, из Харбурга, из Люнебурга, родные могут писать через Красный Крест. Радист улыбается: такого ещё никто не передавал, все про себя. Отстукивает.', effects: [set32('br2', 'farm'), w32('farm_msg', true), until32(33, 7, 15)] },
+      { id: 'c32_br2_skip', label: 'Уступить очередь женщине с ребёнком', minutes: 30, terminal: true, goto: 'c32_b_lena_mom',
         text: 'За тобой стоит женщина с младенцем на руках и бумажкой, исписанной до краёв. Ты отходишь. Она передаёт своё сообщение, пятьдесят слов вместо двадцати, и радист не возражает.', effects: [set32('br2', 'skip'), until32(33, 7, 0)] },
     ] }),
 
@@ -96,6 +96,7 @@ export const day32EScenes: Scene[] = [
       { text: 'На проверке в Паттензене сегодня другой солдат. Он идёт вдоль кузова и сверяет каждого со списком. У старика в углу, в шляпе, бумаг нет совсем. Он из Харбурга, едет к сестре в Йестебург.' },
       { text: '— Ohne Papiere kein Weiterfahren. Absteigen.\n\nБез бумаг дальше нельзя. Слезайте.' },
       { text: 'Старик начинает слезать, держась за борт. До Йестебурга двенадцать километров. Минус семь.' },
+      { when: flag('$.c32_knows_hans'), text: 'Это Ганс. Ты знаешь про его сестру, её адрес и даже как зовут её кошку.' },
     ],
     actions: [
       { id: 'c32_bc_vouch', label: 'Сказать: он со мной, я из пункта доктора Зандер', minutes: 60, terminal: true, goto: 'c32_b_point',

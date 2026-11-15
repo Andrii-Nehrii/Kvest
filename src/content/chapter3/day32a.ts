@@ -50,6 +50,8 @@ export const day32AScenes: Scene[] = [
       { when: not(flag('$.c32_avoided_post')), text: 'У Холм-Зеппензена шлагбаум из бревна и двое в форме. Один светит фонарём в кабину и сверяет лица со списком на планшете.' },
       { when: all(not(flag('$.c32_avoided_post')), listed), text: '— Aydın, Deniz. Genesen, — читает он вслух и смотрит на Дениза дольше, чем на остальных. Выздоровевший. — Wohin?\n\nКуда?' },
       { when: all(not(flag('$.c32_avoided_post')), not(listed)), text: '— Wohin? — спрашивает он. Куда?' },
+      { when: v('$.c32_av', 'window'), text: 'Хутор в зеркале давно исчез. Ты всё ещё смотришь назад.' },
+      { when: v('$.c32_av', 'sleep'), text: 'Ты просыпаешься на мешках от того, что фургон тормозит.' },
     ],
     actions: [
       { id: 'c32_ar_quiet', label: 'Молчать и смотреть вперёд', minutes: 60, terminal: true, goto: 'c32_a_town',
@@ -178,11 +180,11 @@ export const day32AScenes: Scene[] = [
       { when: keremOnly, text: 'Керем спрашивает: на хуторе есть место для одного, который хромает?' },
     ],
     actions: [
-      { id: 'c32_an_farm', label: 'Сказать: на хуторе вам будут рады', minutes: 60, terminal: true, goto: 'c32_a_sleep',
+      { id: 'c32_an_farm', label: 'Сказать: на хуторе вам будут рады', minutes: 60, terminal: true, goto: 'c32_a_letters',
         text: 'Дениз долго молчит, переворачивая колбасу.\n\n— Henrike hat genug Mäuler.\n\nУ Хенрике и так ртов хватает.\n\nНо Керем смотрит на брата так, будто ты сказал{m:|а} то, что он сам хотел.', effects: [set32('an', 'farm'), npc('kerem', 1), ...fed32(30), until32(32, 19, 30)] },
-      { id: 'c32_an_near', label: 'Сказать: у насыпи пустой двор, рядом, но своё', minutes: 60, terminal: true, goto: 'c32_a_sleep',
+      { id: 'c32_an_near', label: 'Сказать: у насыпи пустой двор, рядом, но своё', minutes: 60, terminal: true, goto: 'c32_a_letters',
         text: '— Ein eigener Hof, — повторяет Дениз. Свой двор. — Mit einem Tor, das man zumachen kann.\n\nС воротами, которые можно закрыть.\n\nОн впервые за вечер улыбается.', effects: [set32('an', 'near'), npc('deniz', 1), ...fed32(30), until32(32, 19, 30)] },
-      { id: 'c32_an_listen', label: 'Только слушать', minutes: 60, terminal: true, goto: 'c32_a_sleep',
+      { id: 'c32_an_listen', label: 'Только слушать', minutes: 60, terminal: true, goto: 'c32_a_letters',
         text: 'Ты ешь и слушаешь. Это их решение. Но они смотрят на тебя каждый раз, когда упоминают хутор.', effects: [set32('an', 'listen'), ...fed32(30), until32(32, 19, 30)] },
     ] }),
 
@@ -216,6 +218,10 @@ export const day32AScenes: Scene[] = [
       { text: 'Половина одиннадцатого. Дениз в последний раз обходит мастерскую, трогает верстак, подъёмник. Вешает замок на ворота, хотя внутри больше ничего нет.' },
     ],
     actions: [
+      { id: 'c32_ak_pharm', label: 'Попросить Дениза заехать к аптеке на Брёмер-штрассе', minutes: 20, terminal: true, goto: 'c32_a_pharmacy', ambientDuring: truck32,
+        text: 'Дениз морщится, но сворачивает. «Fünf Minuten. Nicht mehr». Пять минут. Не больше.', effects: [set32('ak', 'pharm'), until32(33, 10, 50)] },
+      { id: 'c32_ak_drive', label: 'Сесть за руль самому: Дениз не спал полночи', minutes: 120, terminal: true, goto: 'c32_a_point', ambientDuring: truck32,
+        text: 'Дениз отдаёт ключи без спора и засыпает, едва фургон трогается. Ты ведёшь медленно: гружёный «Транзит» тянет в кюветы на каждом повороте. На посту ты показываешь бумагу пункта, и вас пропускают. Дениз просыпается у Йестебурга и говорит: «Gut gefahren». Хорошо доехали.', effects: [set32('ak', 'drive'), npc('deniz', 2, 'c32_drove_van'), { move: jest32 }, until32(33, 13, 0)] },
       { id: 'c32_ak_go', label: 'Ехать', minutes: 120, terminal: true, goto: 'c32_a_point', ambientDuring: truck32,
         text: 'Дорога обратно медленнее: фургон гружёный. На повороте к Йестебургу Дениз сбавляет ход и долго смотрит в зеркало, на Бухгольц.', effects: [set32('ak', 'go'), { move: jest32 }, until32(33, 13, 0)] },
     ] }),
@@ -228,6 +234,10 @@ export const day32AScenes: Scene[] = [
       { when: all(flag('w.c32_diesel_found'), not(v('w.c32_night_thieves', 'drained'))), text: 'Солярку из Бухгольца Дениз ставит рядом с генератором: без неё он железо.' },
       { when: all(flag('w.c32_diesel_found'), v('w.c32_night_thieves', 'drained')), text: 'Солярки для генератора нет: всё, что слили в Бухгольце, ушло в бак фургона после ночных гостей. Яннес чешет затылок: без топлива генератор железо.' },
       { when: v('w.c32_vogt', 'took'), text: 'Герр Фогт с кошкой в корзине выходит из кабины, оглядывается и говорит Зандер: «Ich bin nicht krank. Ich bin nur alt». Я не болен. Я просто старый. Зандер даёт ему раскладушку у печки.' },
+      { when: v('w.c32_pharmacy', 'taken'), text: 'Сумку из аптеки ты отдаёшь Зандер прямо в руки. Она перебирает пакеты молча, потом говорит: «Das reicht für einen Monat». Этого хватит на месяц.' },
+      { when: v('w.c32_pharmacy', 'noted'), text: 'Ты говоришь Яннесу про аптеку на Брёмер-штрассе: нижние полки полные. Он записывает. Когда-нибудь кто-нибудь туда съездит.' },
+      { when: v('$.c32_ab', 'leave'), text: 'Квартиру Брокманов ты оставил{m:|а}, как была. Часы с маятником так и стоят на без десяти восемь.' },
+      { when: v('$.c32_aw', 'leave'), text: 'Журнал четвёртого отделения ты так и не прочитал{m:|а}. Иногда кажется, что это было правильно.' },
     ],
     actions: [
       { id: 'c32_ap_wire', label: 'Помочь Яннесу подключить', minutes: 180, activity: 'moderate', terminal: true, goto: 'c32_a_home',
