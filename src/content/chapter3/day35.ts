@@ -22,6 +22,7 @@ export const day35Scenes: Scene[] = [
       { when: tobias35, text: '— Was ich dir jetzt sage, sagst du keinem. Keinem. Sonst rennen morgen alle. Am Fünfzehnten zieht die Armee aus Lüneburg ab. Über die Elbe. Der Kreis bleibt allein.\n\nТо, что я сейчас скажу, ты никому не скажешь. Никому. Иначе завтра побегут все. Пятнадцатого армия уходит из Люнебурга. За Эльбу. Округ остаётся один.' },
       { when: tobias35, text: '— Ich darf meine Leute mitnehmen. Zwei Plätze. Ich hab an euch gedacht.\n\nМне разрешили взять своих. Два места. Я подумал о вас.' },
       { when: not(tobias35), text: 'У пожарной части грузят армейские машины. Тобиаса нет. Лукас, сын пожарного, отводит тебя за угол и шепчет, что армия уходит пятнадцатого за Эльбу. Отец сказал. И что у Тобиаса для вас было два места в грузовике. Теперь их нет.' },
+      { text: 'Тобиас не брит, под глазами тени. На рукаве его куртки свежая нашивка, которой вчера не было. Он говорит тихо, отвернувшись к машинам.' },
     ],
     actions: [
       { id: 'c35_at_why', label: 'Спросить: почему мы?', when: tobias35, minutes: 45, terminal: true, goto: 'c35_a_jannik',
@@ -41,6 +42,7 @@ export const day35Scenes: Scene[] = [
       { when: all(jannik35, jannikTaken), text: 'Один из них, молодой, в куртке Красного Креста не по размеру, бросает сигарету и идёт к тебе с раскрытыми руками.\n\n— Sie! A7, der Tunnel! Sie haben mich mitgenommen!\n\nВы! A7, тоннель! Вы меня подвезли!\n\nЯнник. Он обнимает тебя так, что хрустят рёбра.' },
       { when: all(jannik35, not(any(jannikRefused, jannikTaken))), text: 'Один из водителей, молодой, в куртке не по размеру, просит прикурить. Его зовут Янник, он студент из Харбурга, теперь возит колонны на север. Он спрашивает, правда ли тут, на хуторе, живут люди из Бармбека.' },
       { when: not(jannik35), text: 'Водители курят молча. Старший говорит, что десятого колонна пойдёт на Аренсбург и что места в кабинах считаны: по одному сопровождающему на машину.' },
+      { text: 'Площадь перед пунктом истоптана колёсами грузовиков в грязную кашу. Пахнет дизелем и хлоркой. Кто-то из водителей греет руки над выхлопной трубой.' },
     ],
     actions: [
       { id: 'c35_aj_sorry', label: 'Сказать: прости. Я тогда испугался', when: all(jannik35, jannikRefused), minutes: 60, terminal: true, goto: 'c35_a_brandt',
@@ -64,6 +66,7 @@ export const day35Scenes: Scene[] = [
       { text: 'Дома обед уже съеден. Хенрике оставила тебе миску на плите, под крышкой.' },
       { when: brothersCome, text: 'Дениз ковыряется в тракторе. Увидев тебя, вытирает руки о ветошь:\n\n— Und? Was hat der Soldat gewollt? — Он видел вас за поленницей. Что хотел солдат?' },
       { when: oleHome33, text: 'Оле сидит на крыльце в тулупе. Он смотрит на тебя так, будто уже всё знает.' },
+      { text: 'Двор встречает тебя запахом дыма и мокрого белья. Дениз возится у «Транзита», Керем подаёт ему ключи, и оба замолкают, увидев тебя.' },
     ],
     actions: [
       { id: 'c35_ah_deniz', label: 'Сказать Денизу: ничего. Про машины', when: brothersCome, minutes: 120, terminal: true, goto: 'c35_a_dusk',
@@ -78,6 +81,7 @@ export const day35Scenes: Scene[] = [
     text: [
       { text: 'Сумерки. На кухне Хенрике чистит картошку. {partner} весь день {pm:был|была} в пункте, а потом о чём-то долго {pm:говорил|говорила} с Хенрике наедине.' },
       { when: own35('at', 'promise'), text: 'Ты обещал{m:|а} Тобиасу молчать.' },
+      { text: 'Солнце садится за лес, красное, морозное. Тени от изгороди лежат через весь двор. Колонка в соломенной шубе похожа на чучело.' },
     ],
     actions: [
       { id: 'c35_ad_tell', label: 'Рассказать {partner.dat} про Тобиаса', when: flag('w.c35_tobias_offer'), minutes: 60, terminal: true, goto: 'c35_a_gift',
@@ -101,6 +105,8 @@ export const day35Scenes: Scene[] = [
       { when: okaforComes, text: '— Ich gehe als Begleiter, — говорит Окафор. Я иду сопровождающим. — Aber eine Schwester nehmen sie nur mit Ausweis vom DRK. Den kann Frau Doktor ausstellen. Für Sie.\n\nНо медсестру берут только с удостоверением Красного Креста. Его может выписать доктор. Для вас.' },
       { when: flag('w.c32_merle_msg'), text: 'Сообщение, которое ты {m:передал|передала} из Винзена, дошло: на него ответили.' },
       { text: '— Und noch etwas, — говорит Зандер тише. И ещё. — Über das DRK kam heute eine Nachricht aus Ahrensburg. Von einer Frau, die nach Ihnen fragt. Merles Mutter. Insulin für zehn Tage. Dann nichts.\n\nЧерез Красный Крест сегодня пришло сообщение из Аренсбурга. От женщины, которая спрашивает о вас. Мама Мерле. Инсулина на десять дней. Потом ничего.' },
+      { text: 'В пункте шумно: носят коробки, считают одеяла, кто-то плачет в задней комнате, и никто не останавливается, чтобы спросить почему.' },
+      { when: v('$.c35_bs3', 'okafor'), text: 'Про Окафора ты сказал{m:|а} медику честно. Тот записал фамилию на ладони шариковой ручкой.' },
     ],
     actions: [
       { id: 'c35_bp_what', label: 'Спросить, что именно нужно будет делать', minutes: 60, terminal: true, goto: 'c35_b_okafor2',
@@ -122,6 +128,7 @@ export const day35Scenes: Scene[] = [
       { when: all(henrike35, v('w.c34_a_spring', 'yes')), text: '— Er hat gesagt, er kann pflügen. — Она смотрит в окно, на поле. — Ich habe es aufgeschrieben. Aber ich glaube es erst im März.\n\nОн сказал, что сможет пахать. Я записала. Но поверю только в марте.' },
       { when: all(henrike35, v('w.c34_a_spring', 'honest')), text: '— Er hat gesagt, er weiß nicht, ob ihr im März hier seid. — Она кивает сама себе. — Das war ehrlich. Deshalb frage ich dich jetzt.\n\nОн сказал, что не знает, будете ли вы здесь в марте. Это было честно. Поэтому я спрашиваю тебя сейчас.' },
       { when: not(henrike35), text: 'Дома тихо. Хенрике уехала в Йестебург к пастору и до вечера не вернётся. На столе записка её почерком: «Vor dem Säen. Nicht danach». До сева. Не после.' },
+      { text: 'Хенрике стоит у окна в кухне, держит в руках полотенце и не вытирает им ничего. За окном Нина кормит кур.' },
     ],
     actions: [
       { id: 'c35_bh_promise', label: 'Пообещать: до сева скажем', when: henrike35, minutes: 60, terminal: true, goto: 'c35_b_dusk',
@@ -140,6 +147,7 @@ export const day35Scenes: Scene[] = [
       { when: ninaFarm, text: 'Нина ходит за тобой хвостом, но ничего не спрашивает.' },
       { when: lea35, text: 'Лея колет лучину у сарая, ровно, как хирург.' },
       { when: ute35, text: 'Из колонии пришла Уте с носками для стариков, первыми двумя парами.' },
+      { text: 'В доме зажигают лучину вместо лампы: керосин берегут на дорогу, для тех, кто поедет. Пахнет смолой. Тени на стенах дрожат.' },
     ],
     actions: [
       { id: 'c35_bd_tell', label: 'Рассказать {partner.dat} про колонну на север', minutes: 60, terminal: true, goto: 'c35_b_kasia',
