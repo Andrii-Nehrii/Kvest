@@ -952,7 +952,7 @@ export const newEntry27: Scene = {
 export const newEntry28: Scene = {
   id: 'c28_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
   text: [
-    { when: point28Available, text: 'Ночь на пятницу.' },
+    { when: point28Available, text: 'Ночь на пятницу.\n\nВ доме никто не спит по-настоящему. Скрипят половицы, кто-то ходит на кухню за водой и возвращается. Свеча за дверью маленькой комнаты горит всю ночь, и полоска света под дверью не гаснет ни на минуту.' },
     { when: not(point28Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([

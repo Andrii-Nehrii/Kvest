@@ -5,6 +5,7 @@ import { npc } from './point19';
 import { v } from './point18';
 import {
   S28, hostile28, nightFacts, offList, oleDead, patrolNone, patrolTobias, patrolTruth, set28, snow28, timDied, timWard, until28, vanHidden, w28, wesselFired,
+  timFarm,
 } from './point28';
 
 // Участок 28, линия A: рассвет, патруль в шесть (A говорит то, что решила B), Вессель, Оле на кухне, двор после всего.
@@ -19,6 +20,7 @@ export const day28AScenes: Scene[] = [
       { when: timDied, text: 'В половине шестого {B} выходит на крыльцо. Садится на ступеньку. Ты садишься рядом. Она говорит одно слово: «Всё». Ты не спрашиваешь, как. Она скажет сама. Или не скажет.' },
       { when: timWard, text: 'Вечером, в десять, приезжал Тобиас. Кася вынесла Тима к «Вольфу» сама, завёрнутого в одеяло, и села рядом с ним. В Люнебург. Обратно, за стекло. Тим её ещё узнавал.' },
       { text: 'Через полчаса — патруль.' },
+      { text: 'Мороз за ночь отпустил, и с крыши капает. Снег у крыльца серый, истоптанный. Изо рта идёт пар, и в тишине слышно, как {B} дышит рядом.' },
     ],
     actions: [
       { id: 'c28_ad_sit', label: 'Посидеть с ней молча, пока не рассветёт', minutes: 25, terminal: true, goto: 'c28_a_patrol', ambientDuring: snow28,
@@ -35,6 +37,8 @@ export const day28AScenes: Scene[] = [
       { when: patrolTruth, text: 'Правду.' },
       { when: patrolNone, text: '«Никого нет».' },
       { when: patrolTobias, text: 'Только Тобиасу.' },
+      { text: 'Лейтенант в очках протирает стёкла перчаткой и всё время смотрит в планшет, будто там написано, что ему делать. Тобиас стоит на шаг позади и смотрит на тебя.' },
+      { text: 'Джип стоит с включёнными фарами, и в их свете видно, как с груши падает иней, мелкий, как мука.' },
     ],
     actions: [
       { id: 'c28_ap_say', label: 'Сказать, как решили', minutes: 40, terminal: true,
@@ -54,22 +58,25 @@ export const day28AScenes: Scene[] = [
       { when: all(vanHidden, not(wesselFired)), text: 'Фургон за сеновалом не нашли. Вессель снимает брезент и заводит мотор.\n\n— Ich fahre nach Lüneburg. Frühschicht. Als wäre nichts. — Он смотрит на дом. — Es war nichts. Oder?\n\nЕду в Люнебург. Утренняя смена. Как будто ничего. Ничего ведь не было?' },
       { when: not(vanHidden), text: 'Вессель уехал ещё вчера, до света. На снегу у ворот остались следы шин, уже припорошённые.' },
       { when: v('$.c28_ad', 'sit'), text: 'Утром, на рассвете, ты сидел{m:|а} с Касей молча, пока не пришли. Она это помнит: держится ближе к тебе, чем к остальным.' },
+      { text: 'У сеновала пахнет соляркой и прелым сеном. Следы на снегу, твои и чужие, перемешались так, что уже не разобрать, кто где ходил ночью.' },
     ],
     actions: [
-      { id: 'c28_aw_stay', label: 'Предложить Весселю остаться до колонны на восток', when: wesselFired, minutes: 30, terminal: true, goto: 'c28_henrike',
-        text: 'Вессель думает долго.\n\n— Bis zum Zehnten. Dann gehe ich mit den Polen. Zu Fuß, wenn es sein muss. — Он надевает ушанку. — Ich kann Wäsche waschen. Und fahren. Wenn ihr mal wieder einen Wagen habt.\n\nДо десятого. Потом уйду с поляками. Пешком, если придётся. Я умею стирать. И водить. Если у вас снова будет машина.', effects: [set28('aw', 'stay'), w28('wessel', 'stays'), npc('c27_wessel', 3), until28(11, 50)] },
-      { id: 'c28_aw_go', label: 'Пожать руку и отпустить', when: wesselFired, minutes: 20, terminal: true, goto: 'c28_henrike',
-        text: 'Вессель уходит к дороге пешком, с рюкзаком. Ушанку он надевает у ворот. На повороте оборачивается и машет.', effects: [set28('aw', 'go'), { npc: 'c27_wessel', moveTo: 'c15_winsen' }, until28(11, 50)] },
-      { id: 'c28_aw_thanks', label: 'Сказать ему: ничего не было. Спасибо', when: all(vanHidden, not(wesselFired)), minutes: 20, terminal: true, goto: 'c28_henrike',
-        text: '— Nichts, — повторяет Вессель. Ничего. — Gut.\n\nФургон уезжает. В зеркале он не смотрит на дом.', effects: [set28('aw', 'thanks'), { npc: 'c27_wessel', moveTo: 'c18_lueneburg' }, until28(11, 50)] },
-      { id: 'c28_aw_yard', label: 'Взяться за двор: дела не ждут', when: not(vanHidden), minutes: 60, activity: 'moderate', terminal: true, goto: 'c28_henrike', ambientDuring: snow28,
-        text: 'Дрова, вода, куры. Руки делают сами. До полудня ты не думаешь ни о чём. Почти.', effects: [set28('aw', 'yard'), until28(11, 50)] },
+      { id: 'c28_aw_stay', label: 'Предложить Весселю остаться до колонны на восток', when: wesselFired, minutes: 30, terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }],
+        text: 'Вессель думает долго.\n\n— Bis zum Zehnten. Dann gehe ich mit den Polen. Zu Fuß, wenn es sein muss. — Он надевает ушанку. — Ich kann Wäsche waschen. Und fahren. Wenn ihr mal wieder einen Wagen habt.\n\nДо десятого. Потом уйду с поляками. Пешком, если придётся. Я умею стирать. И водить. Если у вас снова будет машина.', effects: [set28('aw', 'stay'), w28('wessel', 'stays'), npc('c27_wessel', 3), until28(10, 50)] },
+      { id: 'c28_aw_go', label: 'Пожать руку и отпустить', when: wesselFired, minutes: 20, terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }],
+        text: 'Вессель уходит к дороге пешком, с рюкзаком. Ушанку он надевает у ворот. На повороте оборачивается и машет.', effects: [set28('aw', 'go'), { npc: 'c27_wessel', moveTo: 'c15_winsen' }, until28(10, 50)] },
+      { id: 'c28_aw_thanks', label: 'Сказать ему: ничего не было. Спасибо', when: all(vanHidden, not(wesselFired)), minutes: 20, terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }],
+        text: '— Nichts, — повторяет Вессель. Ничего. — Gut.\n\nФургон уезжает. В зеркале он не смотрит на дом.', effects: [set28('aw', 'thanks'), { npc: 'c27_wessel', moveTo: 'c18_lueneburg' }, until28(10, 50)] },
+      { id: 'c28_aw_yard', label: 'Взяться за двор: дела не ждут', when: not(vanHidden), minutes: 60, activity: 'moderate', terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }], ambientDuring: snow28,
+        text: 'Дрова, вода, куры. Руки делают сами. До полудня ты не думаешь ни о чём. Почти.', effects: [set28('aw', 'yard'), until28(10, 50)] },
     ] }),
 
   A({ id: 'c28_a_ole', title: 'Оле на кухне', camp: kitchen14,
     text: [
       { when: not(oleDead), text: 'Оле сидит у печи, в одеяле, с кружкой. Он смотрит на тебя, когда ты входишь, и кивает на табурет.\n\n— Hast du die Flinte gefunden? Mit dem Zettel?\n\nРужьё нашёл? По листку?' },
       { when: oleDead, text: 'На кухне Хенрике. Она сидит за столом и листает тетрадь Оле. Ты садишься напротив.' },
+      { text: 'Кружка у Оле с отбитой ручкой, Нинина, самая большая. Он держит её обеими руками, как держат грелку, и пар поднимается ему в лицо.' },
+      { text: 'На плите булькает суп. Хенрике поставила его с утра и не подходит: пусть варится сам, как варился при Вернере.' },
     ],
     actions: [
       { id: 'c28_ao_gun', label: 'Рассказать, что стало с ружьём', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_tell',
@@ -87,6 +94,7 @@ export const day28AScenes: Scene[] = [
       { text: 'День короткий. К трём уже сумерки.' },
       { when: offList, text: 'В два звонит велосипед. Лукас. Бумага: «Lüdemann-Hof — von der Liste gestrichen. Brandt». Вычеркнуты из списка. Он уезжает, не дожидаясь.' },
       { when: all(not(offList), flag('w.c28_list')), text: 'В два звонит велосипед. Лукас. Бумага: «Lüdemann-Hof — halbe Ration bis 15.12. Zweiter Verstoß». Половина пайка до пятнадцатого. Второе нарушение.' },
+      { text: 'Свет уходит быстро. Под грушей остаётся тёмный прямоугольник свежей земли, а вокруг него следы, много, и все ведут к дому.' },
     ],
     actions: [
       { id: 'c28_aa_cross', label: 'Сделать крест для могилы', when: timDied, minutes: 60, activity: 'light', terminal: true, goto: 'c28_a_roof',

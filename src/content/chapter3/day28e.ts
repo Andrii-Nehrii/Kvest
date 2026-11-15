@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { ninaFarm } from './point18';
+import { ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { S28, set28, snow28, until28, w28 } from './point28';
 
@@ -33,6 +33,7 @@ export const day28EScenes: Scene[] = [
       { text: 'Клетка стоит на подоконнике, там, где её поставил Тим. Пан Кулька, рыжий хомяк с белым пятном, грызёт корку и не знает ничего.' },
       { text: 'Кася смотрит на клетку и не подходит к ней. Потом говорит, не тебе, а стеклу:\n\n— Я не могу его кормить. Каждый раз я вижу Тима.' },
       { when: ninaFarm, text: 'Нина стоит рядом. Она ничего не просит. Но смотрит на клетку так, будто давно хотела кого-то, о ком можно заботиться.' },
+      { text: 'Хомяк сидит в углу клетки, надув щёки, и смотрит на всех чёрными бусинами. Опилки в клетке свежие: кто-то поменял их вчера вечером, и никто не говорит кто.' },
     ],
     actions: [
       { id: 'c28_bk2_nina', label: 'Отдать клетку Нине', when: ninaFarm, minutes: 30, terminal: true, goto: 'c28_henrike',
@@ -48,6 +49,8 @@ export const day28EScenes: Scene[] = [
       { when: leaHome, text: 'В сенях Лея складывает свой рюкзак. Аккуратно, по-армейски: свитер, носки, бинты, флакон с йодом. Сверху — карта, где карандашом обведён Ганновер.' },
       { when: leaHome, text: '— Ich gehe morgen. Zu Fuß. Hundertzwanzig Kilometer. Meine Mutter und Finn sind irgendwo da. Hier bin ich keine Ärztin. Hier bin ich ein Mund mehr.\n\nЯ ухожу завтра. Пешком. Сто двадцать километров. Мама и Финн где-то там. Здесь я не врач. Здесь я ещё один рот.' },
       { when: not(leaHome), text: 'Эва разбирает вещи Тима на кухонном столе: свитер, штаны, носки с дыркой на пятке. Аккуратно, без слёз, как разбирают бельё после стирки. Она спрашивает тебя, что с ними делать.' },
+      { text: 'Носки с дыркой на пятке маленькие, детские, тридцать второго размера. Кася держит их в ладони, как держат птенца.' },
+      { when: v('$.c28_ba', 'rest'), text: 'После двух часов сна голова тяжёлая, но руки снова слушаются.' },
     ],
     actions: [
       { id: 'c28_bl_lists', label: 'Попросить подождать: Красный Крест читает списки по воскресеньям', when: leaHome, minutes: 60, terminal: true, goto: 'c28_supper',
