@@ -24,6 +24,7 @@ export const day25AScenes: Scene[] = [
     text: [
       { text: 'Без четверти семь у пекарни Кёлер стоит белый фургон с выцветшей надписью «Wäscherei Lüneburg». Шофёр, полный мужчина в ушанке, курит у капота и не торопит.' },
       { text: '— Wessel, — говорит он и протягивает руку в перчатке без пальцев. — Vorne ist warm. Hinten sind die Säcke. Such dir was aus.\n\nВессель. Впереди тепло. Сзади мешки. Выбирай.' },
+      { text: 'Фургон старый, «Ивеко» с ржавыми арками. В кабине пахнет табаком и мятными леденцами: банка с ними приклеена скотчем к приборной панели.' },
     ],
     actions: [
       { id: 'c25_av_front', label: 'Сесть впереди и разговаривать', minutes: 60, terminal: true, goto: 'c25_a_post', ambientDuring: van,
@@ -40,6 +41,7 @@ export const day25AScenes: Scene[] = [
       { text: '— Lüdemann? Der Ole? — Сержант кивает на донорский блок. — Er wartet seit sechs. Er hat gesagt, einer kommt.\n\nЛюдеман? Оле? Ждёт с шести. Сказал, что кто-то приедет.' },
       { when: v('$.c25_av', 'front'), text: 'Вессель всю дорогу говорил. Теперь ты знаешь про него больше, чем про многих соседей.' },
       { when: v('$.c25_av', 'back'), text: 'Ты проспал{m:|а} на мешках почти всю дорогу и теперь не можешь размять шею.' },
+      { text: 'За шлагбаумом казарма: красный кирпич, белые рамы, на плацу ни души. Над донорским блоком из трубы идёт дым: там топят лучше, чем везде.' },
     ],
     actions: [
       { id: 'c25_ag_go', label: 'Сдать телефон и идти сразу', minutes: 10, terminal: true, goto: 'c25_a_ole',
@@ -57,6 +59,7 @@ export const day25AScenes: Scene[] = [
       { when: oleCollapsed, text: 'Оле лежит на койке под двумя одеялами. Лицо серое, губы синеватые. На сгибе локтя пластырь поверх пластыря, синяк до запястья. Он поворачивает голову, узнаёт тебя и улыбается одной половиной рта.\n\n— Du. Gut. Ich hab schon gedacht, Mutter hat dich erfunden.\n\nТы. Хорошо. Я уже думал, мать тебя выдумала.' },
       { when: oleStopped, text: 'Оле сидит на койке одетый, в куртке, ботинки зашнурованы. На тумбочке лежит письмо {B.gen}, разглаженное ладонью.\n\n— Ich hab es dreimal gelesen. Dann hab ich der Schwester gesagt: nicht mehr. Sie hat geweint. Ich nicht.\n\nЯ перечитал три раза. Потом сказал сестре: больше нет. Она плакала. Я — нет.' },
       { when: oleRelieved, text: 'Оле сидит на койке у окна и смотрит во двор. Цвет лица у него лучше, чем ты помнишь. На соседней койке аккуратно сложено одеяло.\n\n— Sie ist im Abnahmeraum. Lea. Seit Samstag jeden Tag. — Он не оборачивается. — Ich darf Freitag gehen. Und ich weiß nicht, ob ich will.\n\nОна в процедурной. Лея. С субботы каждый день. В пятницу мне можно уйти. И я не знаю, хочу ли.' },
+      { text: 'Палата на четверых, но три койки пустые, матрасы свёрнуты. На подоконнике кружка с засохшим чаем и нетронутая пачка печенья. Скулы у Оле торчат, как у старика.' },
     ],
     actions: [
       { id: 'c25_ao_come', label: 'Сказать, как решили: поехали домой', when: msgCome, minutes: 30, terminal: true, goto: 'c25_a_henrike',
@@ -86,6 +89,7 @@ export const day25AScenes: Scene[] = [
       { when: reported, text: '— Ihr habt ihn gemeldet. Am vierzehnten. Ohne euch wäre er nie hier.\n\nВы его сдали. Четырнадцатого. Без вас он бы здесь не оказался.\n\nОна говорит это первый раз. Без злости. Как констатацию.' },
       { when: not(reported), text: '— Er hat es selbst entschieden. Wie sein Vater. Die Lüdemanns entscheiden immer selbst und sterben dann daran.\n\nОн решил это сам. Как его отец. Людеманы всегда решают сами, а потом от этого умирают.' },
       { when: not(henrikeLue25), text: 'Хенрике здесь нет. На стуле у стены лежит только её вязание.' },
+      { text: 'Пальто на ней застёгнуто не на те пуговицы. Она этого не замечает. Ты делаешь вид, что тоже не замечаешь.' },
     ],
     actions: [
       { id: 'c25_ah_yes', label: 'Сказать: да. Мы его сдали', when: all(reported, henrikeLue25), minutes: 20, terminal: true, goto: 'c25_a_ahlers',
@@ -105,6 +109,7 @@ export const day25AScenes: Scene[] = [
       { when: not(hasPage), text: 'Ты пересказываешь ей приписку Ройтера: двести двенадцать, ноль, новых поставок не будет.' },
       { text: 'Она читает. Или слушает. Снимает очки.\n\n— Ich weiß es seit Buchholz. Station vier. Wir haben es dort angefangen, als der Strom noch da war.\n\nЯ знаю это с Бухгольца. Четвёртое отделение. Мы начали это там, пока был ток.' },
       { text: '— Plasma habe ich bis Donnerstag. Dann ist nichts mehr. Dann muss ich es den Müttern sagen.\n\nПлазмы у меня до четверга. Потом ничего. Потом придётся сказать матерям.' },
+      { text: 'В кабинете холодно: батарея ледяная, обогреватель на полу выключен. На стене детские рисунки на кнопках: солнце, дом, человек с красным крестом на груди.' },
     ],
     actions: [
       { id: 'c25_aa_wait', label: 'Обещать молчать до четверга', minutes: 20, terminal: true, outcomes: afterAhlers,
@@ -135,6 +140,7 @@ export const day25AScenes: Scene[] = [
       { when: kasiaHere25, text: 'Женщина на раздаче смотрит на тебя дольше, чем на других. Светлые волосы под косынкой, польский акцент.\n\n— Pan jest od niej? Z Barmbeku? — И сразу по-немецки: — Sie sind doch von ihr. Aus Barmbek. Sie hat mir von Ihnen erzählt. Kasia. Nowak.\n\nВы ведь от неё? Из Бармбека? Она мне про вас рассказывала. Кася. Новак.' },
       { when: not(kasiaHere25), text: 'За соседним столом двое солдат обсуждают пятнадцатое декабря: «Abzug». Отход. Один говорит — на Шверин, другой — на Ганновер. Оба не верят ни в то, ни в другое.' },
       { when: gerd, text: 'Ты вспоминаешь зал списков. «Brockmann, Gerd» и твою приписку рядом: «10.11, лестница. Болен».' },
+      { text: 'Столовая устроена в бывшем спортзале, на полу ещё видна баскетбольная разметка. Солдаты едят быстро, не снимая курток, ложки стучат в одном ритме.' },
     ],
     actions: [
       { id: 'c25_ak_kasia', label: 'Поговорить с Касей', when: kasiaHere25, minutes: 30, terminal: true, goto: 'c25_a_kids',
@@ -149,6 +155,7 @@ export const day25AScenes: Scene[] = [
     text: [
       { text: 'Сестра детской палаты ловит тебя в коридоре и ведёт за собой, не спрашивая. Восемь кроватей. Над каждой лист с температурой. Столбики после плазмы вниз, потом вверх, выше прежнего.' },
       { text: 'Девочка у окна приподнимается на локте.\n\n— Bist du von Ole? Er hat gesagt, einer kommt. Kommt er morgen wieder?\n\nТы от Оле? Он сказал, что кто-то приедет. Он завтра придёт?' },
+      { text: 'У каждой кровати лист с номером, и рядом с номером имя, написанное детской рукой. Игрушек на тумбочках больше, чем детей: их приносят сёстры из дома.' },
     ],
     actions: [
       { id: 'c25_ak2_yes', label: 'Сказать: придёт', minutes: 25, terminal: true, goto: 'c25_a_ole2',
@@ -163,6 +170,7 @@ export const day25AScenes: Scene[] = [
     text: [
       { text: 'После обеда Оле разрешают выйти во двор. Он идёт медленно, держась за стену, потом за тебя. Снег скрипит. Оле щурится на белое.' },
       { text: '— Wie geht es dem Hof? Der Pumpe? Den Hühnern? Nina?\n\nКак хутор? Насос? Куры? Нина?' },
+      { text: 'Двор расчищен лопатами до асфальта. Оле останавливается каждые десять шагов и делает вид, что разглядывает ворон на крыше.' },
     ],
     actions: [
       { id: 'c25_ao2_all', label: 'Рассказать всё по порядку: дом, люди, Брандт', minutes: 60, terminal: true, goto: 'c25_a_yard', ambientDuring: yard,
@@ -178,6 +186,7 @@ export const day25AScenes: Scene[] = [
       { text: 'В три Вессель сигналит у шлагбаума. Мешки с чистым бельём уже в фургоне.' },
       { when: henrikeLue25, text: 'Хенрике выходит к шлагбауму без пальто, с листком в руке. Сложенным вчетверо.\n\n— Für zu Hause. Lies es da. Nicht hier.\n\nДля дома. Прочитаешь там. Не здесь.' },
       { when: oleAliveVisible, text: 'В окне донорского блока стоит Оле. Поднимает руку. Не машет. Просто держит ладонь на стекле.' },
+      { text: 'Небо низкое, серое, и уже темнеет, хотя только три. Вессель курит у кабины и стряхивает пепел в ладонь, чтобы не мусорить у шлагбаума.' },
     ],
     actions: [
       { id: 'c25_ay_go', label: 'Сесть в фургон', minutes: 10, terminal: true, goto: 'c25_a_back',
@@ -190,6 +199,7 @@ export const day25AScenes: Scene[] = [
     text: [
       { text: 'Обратно Вессель едет молча. Снег идёт крупный, мокрый, дворники не справляются.' },
       { text: 'У Винзена он останавливается без причины, глушит мотор и сидит минуту, положив руки на руль.\n\n— Meine Frau war Donorin. In Buchholz. Station vier. — Он заводит мотор. — Erzähl das keinem.\n\nМоя жена была донором. В Бухгольце. Четвёртое отделение. Никому не рассказывай.' },
+      { text: 'Дворники скрипят. Печка в кабине гонит тёплый воздух только в ноги: колени горят, уши мёрзнут.' },
     ],
     actions: [
       { id: 'c25_ab_ask', label: 'Спросить, где она сейчас', minutes: 120, terminal: true, goto: 'c25_a_road',

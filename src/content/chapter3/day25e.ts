@@ -1,6 +1,6 @@
 import type { Scene } from '../../engine/content-types';
 import { yard14 } from './point14';
-import { ninaFarm } from './point18';
+import { ninaFarm, v } from './point18';
 import { S25, set25, until25 } from './point25';
 
 // Участок 25, дополнение (проверка объёма 15.11): дорога обратно у A и человек у ворот у B. Оба выбора откликаются в 26-й.
@@ -13,6 +13,8 @@ export const day25EScenes: Scene[] = [
     text: [
       { text: 'За Паттензеном, в поле у поворота, стоит красный «Поло», задом в канаве. Рядом женщина в светлой куртке машет обеими руками. На заднем сиденье сквозь мокрое стекло видно детскую шапку.' },
       { text: '— Nicht anhalten, — говорит Вессель, не сбавляя хода. Не останавливаемся. — Fremde im Wagen, und ich bin den Wagen los. Kontrolle in Hanstedt.\n\nЧужие в машине — и я без машины. В Ханштедте проверка.' },
+      { text: 'Снег валит так, что свет фар упирается в белую стену в десяти метрах.' },
+      { when: v('$.c25_ab', 'quiet'), text: 'После его слов про жену ты молчишь до самого Паттензена. Он тоже.' },
     ],
     actions: [
       { id: 'c25_ar_stop', label: 'Заставить его остановиться и взять их до Йестебурга', minutes: 30, terminal: true, goto: 'c25_supper', ambientDuring: snow,
@@ -28,6 +30,7 @@ export const day25EScenes: Scene[] = [
       { text: 'В половине пятого у ворот стоит мужчина лет пятидесяти, в городском пальто, с портфелем. Пальто мокрое по колено. Он кашляет в кулак, долго, и только потом говорит.' },
       { text: '— Entschuldigung. Ich komme aus Harburg. Nur eine Nacht. Im Stall, egal wo. Ich bin nicht krank. Das ist nur die Kälte.\n\nИзвините. Я из Харбурга. Только одну ночь. В хлеву, где угодно. Я не болен. Это просто холод.' },
       { when: ninaFarm, text: 'Нина стоит за твоей спиной в дверях и держится за косяк.' },
+      { text: 'Портфель у него кожаный, хороший, с монограммой. Он держит его обеими руками, как щит.' },
     ],
     actions: [
       { id: 'c25_bx_shed', label: 'Пустить в сарай, дать поесть и одеяло', minutes: 40, terminal: true, goto: 'c25_b_dusk',
