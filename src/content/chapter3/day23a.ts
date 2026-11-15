@@ -34,6 +34,7 @@ export const day23AScenes: Scene[] = [
       { text: 'Утром двор белый. Не иней: снег, тонкий, сухой, крупой. Он лежит на крыше сарая, на поленнице, на холмике под грушей.' },
       { text: 'На снегу видно всё. Кошачьи следы к курятнику. Нинины — от крыльца к колодцу и обратно. И цепочка вдоль задней изгороди: босые, длинные, с вывернутыми пальцами. Свежие.' },
       { when: flag('w.c22_bell'), text: 'Колокольчик на калитке ночью не звенел. Тот, кто ходил, калитку не трогал.' },
+      { text: 'Снег лёг за ночь на ладонь, мягкий, пушистый. Двор стал чужим и чистым, как простыня. Первые следы на нём — кошачьи, от сарая к крыльцу.' },
     ],
     actions: [
       { id: 'c23_as_follow', label: 'Пройти по следам, пока их не замело', minutes: 30, activity: 'moderate', terminal: true, goto: 'c23_a_tobias', ambientDuring: snow23,
@@ -55,6 +56,7 @@ export const day23AScenes: Scene[] = [
       { when: tob('truth'), text: 'Сказать надо правду: Лея не болела. Её кровь никого не лечит.' },
       { when: tob('silent'), text: 'Сказать надо то же, что вчера. Ни слова сверх.' },
       { when: tob('release'), text: 'Сказать надо для Оле: замены не будет. Пусть решает сам.' },
+      { text: 'Тобиас стоит у «Вольфа», не заходя во двор. На капоте снег, нетронутый: машина стояла всю ночь. Он ждал утра.' },
     ],
     actions: [
       { id: 'c23_at_plain', label: 'Сказать прямо, как решили', minutes: 20, terminal: true,
@@ -94,6 +96,7 @@ export const day23AScenes: Scene[] = [
       { text: '— Kai liegt in der Grube mit Kalk. Wie ein Tier. — Уте говорит ровно, как говорят о погоде. — Ich will ihn am Bahndamm begraben. Wo er Drachen steigen ließ. Bevor der Boden friert.\n\nКай лежит в яме с известью. Как скотина. Я хочу похоронить его у насыпи. Там, где он запускал змея. Пока земля не замёрзла.' },
       { when: flag('w.c22_grave_promised'), text: 'Вчера ты {m:обещал|обещала} Яннесу прийти в понедельник с лопатами. Уте не хочет ждать понедельника. В понедельник Брандт.' },
       { text: '— Heute nur das Grab, — говорит Яннес. Сегодня только могила. — Morgen früh holen wir ihn. Mutter sagt, so ist es richtig.\n\nЗавтра рано утром перенесём. Мать говорит, так правильно.' },
+      { text: 'Уте в двух платках, на валенках снег до колен. Она пришла через поле, напрямик, не по дороге.' },
     ],
     actions: [
       { id: 'c23_au_dig', label: 'Взять лопату и пойти копать', minutes: 15, terminal: true, goto: 'c23_a_dig', ambientDuring: snow23,
@@ -108,6 +111,7 @@ export const day23AScenes: Scene[] = [
     text: [
       { text: 'Место Уте выбирает сама: у насыпи, под старой ольхой, откуда видно рельсы в обе стороны. Снег здесь неглубокий. Земля под ним промёрзла на палец, дальше мягкая, песчаная.' },
       { text: 'Вы копаете по очереди. Яннес молчит. Уте стоит рядом и держит в руках шапку Кая, вязаную, с помпоном.' },
+      { text: 'Земля под снегом ещё не промёрзла, но тяжёлая, глинистая, липнет к лопате. Яннес копает рядом молча, не поднимая головы.' },
     ],
     actions: [
       { id: 'c23_ad_deep', label: 'Копать как следует, в рост человека', minutes: 150, activity: 'heavy', terminal: true, goto: 'c23_a_marcus0', ambientDuring: snow23,
@@ -127,6 +131,7 @@ export const day23AScenes: Scene[] = [
       { when: guestsCome, text: '— Celle hat zu. Seit Donnerstag. Keiner kommt rein, auch nicht mit Ausweis. — Маркус говорит коротко, как отчитывается. — Und Hannover ist offen. Keiner mehr an den Toren. Weil keiner mehr da ist, der sie bewacht.\n\nЦелле закрыт. С четверга. Никого не пускают, даже с документами. А Ганновер открыт. На воротах никого. Потому что охранять больше некому.' },
       { when: guestsCome, text: '— Bis Dienstag. Dann gehen wir nach Winsen, zu meinem Bruder. Wenn ihr uns lasst.\n\nДо вторника. Потом пойдём в Винзен, к моему брату. Если пустите.' },
       { when: not(guestsCome), text: 'В половине первого у ворот никого. На столбе ворот, под камнем, — записка, мокрая от снега. Почерк детский, печатными буквами: «WIR SIND IN WINSEN. LEO». Мы в Винзене.' },
+      { text: 'У ворот стоят двое: мужчина в городском пальто, мокром по подолу, и мальчик. Мальчик держится за его руку и смотрит на дом.' },
     ],
     actions: [
       { id: 'c23_am_in', label: 'Открыть ворота: заходите, пока на кухню', when: guestsCome, minutes: 15, terminal: true, goto: 'c23_a_lunch',
@@ -160,6 +165,9 @@ export const day23AScenes: Scene[] = [
       { text: 'В баке Corsa — сколько есть. Солярка в бочке у сарая, для трактора.' },
       { when: canHere, text: 'Канистра Керема, пять литров, стоит в сенях за дверью.' },
       { when: guestsCome, text: 'Маркус стоит рядом и смотрит, куда ты смотришь.\n\n— Bei uns in Buchholz haben sie den Leuten die Tanks leer gesaugt. Mit Schlauch. Vor den Augen.\n\nУ нас в Бухгольце людям выкачали баки. Шлангом. На глазах.' },
+      { text: 'Канистра тяжёлая, полная. Пахнет бензином на весь сарай. Кто увидит, тот поймёт сразу.' },
+      { when: v('$.c23_al', 'nap'), text: 'После часа сна голова ясная, но вставать не хотелось.' },
+      { when: v('$.c23_al', 'tea'), text: 'Чай согрел, но есть хочется.' },
     ],
     actions: [
       { id: 'c23_af_cellar', label: 'Спрятать канистру в подвале, за ящиками с картошкой', when: canHere, minutes: 20, terminal: true, goto: 'c23_a_gun',
@@ -179,6 +187,7 @@ export const day23AScenes: Scene[] = [
       { when: not(gunHere), text: 'Ружья в доме нет. Есть топор, вилы и кочерга. Их Брандт не пишет.' },
       { when: all(gunHere, flag('w.c19_gun_declared')), text: 'Ружьё уже записано: ты сам{m:|а} сказал{m:|а} про него патрулю в четверг.' },
       { when: all(gunHere, flag('w.c19_gun_lie')), text: 'В четверг патрулю сказали, что ружья нет. Если его найдут, это будет не ружьё. Это будет ложь.' },
+      { text: 'Ружьё в доме — первое, о чём спросят. Ты это знаешь, и Хенрике знает.' },
     ],
     actions: [
       { id: 'c23_ag_floor', label: 'Спрятать под половицу в швейной комнате', when: gunHere, minutes: 30, terminal: true, goto: 'c23_a_corsa',
@@ -196,6 +205,7 @@ export const day23AScenes: Scene[] = [
       { text: 'Corsa стоит под навесом, на крыше снег. Ты сметаешь его рукавом.' },
       { when: heldA, text: 'В среду тебя держали на скамье у пожарной части. В бумаге у Брандта ты записан. «Verwarnt». Предупреждён.' },
       { text: 'Без машины до Йестебурга час пешком. До Люнебурга — день.' },
+      { text: 'Corsa под навесом, в снегу по стёкла. Ключи от неё одни. Кто найдёт, тот и уедет.' },
     ],
     actions: [
       { id: 'c23_ac_keys', label: 'Снять с машины аккумулятор и спрятать', minutes: 30, activity: 'moderate', terminal: true, goto: 'c23_a_malte',
@@ -211,6 +221,8 @@ export const day23AScenes: Scene[] = [
       { text: 'Мальте сидит у печи, костыль между колен. Завтра за ним придут: Крузе так и записал, «Lüdemann-Hof, Montag».' },
       { text: '— Weißt du, was ich Montag sage? — спрашивает он. Знаешь, что я скажу в понедельник? — Dass ich die Spenderin nie gesehen habe. Dass die Sanitäterin Meier hieß. Dass ich Fieber hatte und nichts weiß.\n\nЧто донора я никогда не видел. Что санитарку звали Майер. Что у меня был жар и я ничего не знаю.' },
       { when: v('w.c22_page', 'malte'), text: 'Лист с припиской Ройтера у него в нагрудном кармане. Он похлопывает по нему ладонью.' },
+      { text: 'Мальте лежит на лавке у печи, укрытый двумя одеялами. Костыль из ясеня стоит рядом. Он смотрит в потолок и улыбается, как будто вспоминает что-то хорошее.' },
+      { when: v('$.c23_ac', 'leave'), text: 'Ключи от Corsa так и висят на гвозде. Пусть висят.' },
     ],
     actions: [
       { id: 'c23_ml_wife', label: 'Пообещать: если что, жена в Целле узнает, где он', minutes: 20, terminal: true, goto: 'c23_a_sms',
@@ -225,6 +237,7 @@ export const day23AScenes: Scene[] = [
     text: [
       { text: 'В пятом часу телефон находит сеть. Одна полоска, у сарая, если держать руку повыше.' },
       { text: 'Сообщение от Дениза, отправленное вчера: «Transit läuft. Diesel haben wir nicht. Wenn ihr Diesel habt, fahre ich euren Fahrer nach Celle. Oder wohin auch immer».\n\n«Транзит» на ходу. Солярки нет. Если у вас есть солярка, отвезу вашего шофёра в Целле. Или куда угодно.' },
+      { text: 'Телефон дрожит в кармане: одна полоска сети. Экран светится в полутьме сеней.' },
     ],
     actions: [
       { id: 'c23_az_yes', label: 'Ответить: солярка есть, приезжай во вторник', when: flag('w.c19_diesel'), minutes: 10, terminal: true, goto: 'c23_supper', enabled: { phoneUsable: true }, disabledReason: 'Телефон сел',
