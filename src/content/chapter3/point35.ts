@@ -48,7 +48,7 @@ export const w35 = (key: string, value: string | boolean | number): Effect => ({
 export const until35 = (h: number, m = 0, sleeping = false): Effect => ({ restUntil: at(37, h, m), ...(sleeping ? { sleeping: true } : {}) });
 export const prepare35: Effect = { camp: { kind: 'prepare', quiet: true } };
 const finish: Effect = { set: '$.c35_finished', value: true };
-const split = [{ id: 'a', when: A35, goto: 'c35_a_tobias' }, { id: 'b', goto: 'c35_b_point' }];
+const split = [{ id: 'a', when: A35, goto: 'c35_a_soldier' }, { id: 'b', goto: 'c35_b_soldier' }];
 
 export const shared35: Scene[] = [
   S35({ id: 'c35_dawn', for: 'any', chapter: 'ch3', title: 'Понедельник', camp: kitchen14,
@@ -106,6 +106,12 @@ export const shared35: Scene[] = [
       { when: v('w.c25_truth', 'all'), text: 'Про плазму и списки теперь знает вся округа. Кто-то из-за этого с вами не здоровается. Кто-то, наоборот, приносит яйца.' },
       { when: v('$.c34_ba', 'letter'), text: 'Фрау Кёрнер держит под подушкой письмо мужу, которое ты записывал{m:|а} с её слов. Ты видишь край конверта.' },
       { when: flag('w.c34_sugar_merle'), text: 'Сахарные кубики в укладке Окафора лежат отдельно, в целлофане. Для неё.' },
+      { when: v('$.c35_li', 'all'), text: 'Хаазе утром записал профессии всех за этим столом. Окафор говорит, что в таких списках он уже бывал. Ничего хорошего из них не выходило.' },
+      { when: v('$.c35_li', 'why'), text: 'Утром ты {m:спросил|спросила} Хаазе, зачем учёт. Он не ответил. Это тоже ответ, говорит Хенрике.' },
+      { when: v('$.c35_ah', 'alone'), text: 'Суп, который Хенрике оставила тебе на плите, ты {m:съел|съела} холодным, думая о двух местах за Эльбой.' },
+      { when: v('$.c35_ad', 'keep'), text: 'Ты держишь слово, данное Тобиасу. Оно тяжелее, чем казалось утром.' },
+      { when: flag('w.c35_b_listed_med'), text: 'В списке Хаазе твоё имя теперь в отдельной графе: медицинские навыки.' },
+      { when: v('w.c35_b_bag', 'packed'), text: 'У двери стоит маленькая тяжёлая сумка. Все видят её и никто не спрашивает.' },
     ],
     actions: [
       { id: 'c35_su_eat', label: 'Есть и слушать всех', minutes: 90, terminal: true, outcomes: [{ id: 'a', when: A35, goto: 'c35_a_late' }, { id: 'b', goto: 'c35_b_late' }], ...tableOnly,
