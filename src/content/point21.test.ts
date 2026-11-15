@@ -309,3 +309,39 @@ describe('участок 26: среда — еда, машина, Брандт',
       for (const p of P) expect(out.chars[p].scene).toBe('c27_start');
     });
 });
+
+describe('участок 27: Кася и Тим, каждый решает за другого', () => {
+  const s21 = finish(after20('stay', 'wait'));
+  const fresh = (s: GameState) => { for (const p of P) Object.assign(s.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 }); return s; };
+  fresh(s21);
+  const after26 = (plan: string, truth: string) => {
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: 'hide', c3_new_bag21: 'keep' })).state;
+    const s22 = fresh(mergeCp(b21, 22, leg(b21, 'A'), leg(b21, 'B')));
+    const b22 = completeCheckpoint(c, s22, { A: { c3_new_letter22: 'home' }, B: { c3_new_tobias22: 'silent' } }).state;
+    const s23 = fresh(mergeCp(b22, 23, leg(b22, 'A'), leg(b22, 'B')));
+    const b23 = completeCheckpoint(c, s23, both({ c3_new_guests23: 'in', c3_new_monday23: 'hide' })).state;
+    const s24 = fresh(mergeCp(b23, 24, leg(b23, 'A'), leg(b23, 'B')));
+    const b24 = completeCheckpoint(c, s24, both({ c3_new_duty24: 'b', c3_new_tuesday24: 'stay' })).state;
+    const s25 = fresh(mergeCp(b24, 25, leg(b24, 'A'), leg(b24, 'B')));
+    const b25 = completeCheckpoint(c, s25, both({ c3_new_ole25: 'his', c3_new_truth25: truth })).state;
+    const s26 = fresh(mergeCp(b25, 26, leg(b25, 'A'), leg(b25, 'B')));
+    const b26 = completeCheckpoint(c, s26, both({ c3_new_meet26: plan, c3_new_seed26: 'keep' })).state;
+    // Новаки уехали на восток в первые дни — как у настоящей пары.
+    b26.vars['w.nowaks_gone'] = true; if (b26.npcs.kasia) b26.npcs.kasia.alive = true;
+    return b26;
+  };
+  for (const [plan, truth] of [['ready', 'none'], ['door', 'brandt'], ['go', 'all']] as const)
+    it(`план ${plan}, правда ${truth}: обе линии, находка, ответы друг за друга`, () => {
+      const b26 = after26(plan, truth);
+      for (const p of P) expect(b26.chars[p].scene).toBe('c27_start');
+      const a = leg(b26, 'A'), b = leg(b26, 'B', { c27_b_box: 'c27_bx_kulka' });
+      expect(a.vars['w.c27_bed']).toBe(b.vars['w.c27_bed']); expect(b.vars['w.c27_box']).toBe('open');
+      expect(qty(b, 'c27_photo', 'char', 'B')).toBe(1);
+      const s27 = mergeCp(b26, 27, a, b);
+      expect(s27.chars.A.time).toBe(s27.chars.B.time);
+      for (const p of P) { expect(s27.chars[p].location).toBe('hof_luedemann'); expect(canAct(s27.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s27, { A: { c3_new_tim27: 'colony', c3_new_patrol27: 'none' }, B: { c3_new_tim27: 'ward', c3_new_patrol27: 'tobias' } }).state;
+      expect(out.vars['w.c27_tim']).toBe('colony'); expect(out.vars['w.c27_patrol']).toBe('tobias');
+      for (const p of P) expect(out.chars[p].scene).toBe('c28_start');
+    });
+});

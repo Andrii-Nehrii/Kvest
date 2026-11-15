@@ -7,6 +7,7 @@ import { point23Available, prepare23 } from './point23';
 import { graveDay, point24Available, prepare24 } from './point24';
 import { point25Available, prepare25 } from './point25';
 import { point26Available, prepare26 } from './point26';
+import { point27Available, prepare27 } from './point27';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -923,4 +924,17 @@ export const newEntry26: Scene = {
     { id: 'c26_go_a', label: 'Встать', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c26_a_morning', effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
     { id: 'c26_go_b', label: 'Встать', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c26_b_morning', effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point26Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 27 ─────────────
+export const newEntry27: Scene = {
+  id: 'c27_start', for: 'any', chapter: 'ch3', title: 'Четверг', universal: false, safe: true,
+  text: [
+    { when: point27Available, text: 'Ночью минус шесть. Дом спит. Под утро на дороге со стороны Йестебурга слышен мотор, медленный, без фар.' },
+    { when: not(point27Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c27_go', label: 'Проснуться от стука', minutes: 30, terminal: true, goto: 'c27_knock', effects: [prepare27, { restUntil: at(26, 5, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point27Available, a.when ?? { always: true }) })),
 };
