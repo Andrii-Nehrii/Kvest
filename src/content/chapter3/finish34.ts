@@ -2,13 +2,15 @@ import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag } from './world3';
 import { any, v } from './point18';
-import { P34, pawel34, thomas34 } from './point34';
+import { P34, lea34, pawel34, thomas34 } from './point34';
 
 export const finished34: Cond = all(P34, any(flag('A.c34_finished'), flag('B.c34_finished')));
 const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished34, when), text });
 
 // Сверка в воскресенье, восемь вечера. Желания из часа вдвоём (`$.c34_wish`) в сверку не попадают: каждый знает только своё.
 export const point34Notes: MergeNote[] = [
+  N('c34_tobias_words', v('A.c34_al2', 'write'), '{A} записал слово в слово всё, что сказал Тобиас. Листок лежит в тетради Хенрике.'),
+  N('c34_b_slept', all(v('B.c34_bl5', 'go'), lea34), 'После списков Лея весь вечер просидела на крыльце одна. Её не стали трогать.'),
   N('c34_heard_rumor', flag('w.c34_heard_rumor'), 'У церкви говорят: армия третий день что-то грузит в Люнебурге. Одни говорят — уходят. Другие — ерунда.'),
   N('c34_henrike_ready', flag('w.c34_henrike_ready'), 'Хенрике знает, что в понедельник приедет кто-то со списком. Она сама будет говорить.'),
   N('c34_lea_spring', flag('w.c34_lea_spring'), 'Лея решила остаться при пункте у Зандер до весны.'),
