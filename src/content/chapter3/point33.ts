@@ -74,6 +74,7 @@ export const shared33: Scene[] = [
       { when: v('w.c32_nina', 'winsen'), text: 'Раскладушка Нины сложена у стены. Хенрике по привычке ставит на стол лишнюю кружку и убирает обратно.' },
       { when: eldersCome, text: 'Сегодня приедут старики из Бармбека. Грузовик Красного Креста обещали к девяти.' },
       { when: brothersCome, text: 'Сегодня приедут братья Айдын, с фургоном и инструментом.' },
+      { text: 'Хенрике пробует ещё раз, двумя руками, всем весом. Рычаг стоит.\n\n— Fünfzig Jahre, — говорит она. — Fünfzig Jahre ist die nicht eingefroren.\n\nПятьдесят лет она не замерзала.\n\nОна говорит это так, будто колонка её предала.' },
     ],
     actions: [
       { id: 'c33_da_a', label: 'Взяться за колонку', when: A33, minutes: 30, terminal: true, goto: 'c33_a_pump',
@@ -97,6 +98,8 @@ export const shared33: Scene[] = [
       { when: flag('w.c33_garden_stove'), text: 'Из колонии пришла записка от Петерсенов: буржуйка в домике тянет, как новая. Спасибо тому, кто лазил на крышу.' },
       { when: v('$.c33_ab', 'wood'), text: 'Поленница у сарая выросла за день на ладонь. Хенрике это заметила и сказала вслух, при всех.' },
       { when: v('w.c33_mouths_list', 'less'), text: 'Список ртов для Брандта короче, чем людей за столом. Все это знают и никто не говорит.' },
+      { when: all(brothersCome, { npc: 'kerem', alive: true }), text: 'Керем поднимает руку, как в школе, и тут же опускает, смутившись.\n\n— Wir haben Werkzeug. Und den Transit. Wir können fahren, holen, reparieren. Aber essen müssen wir auch.\n\nУ нас инструмент. И «Транзит». Мы можем ездить, возить, чинить. Но есть нам тоже надо.' },
+      { when: all(eldersCome, not(eldersInHouse)), text: 'Петерсен, которого привели из колонии под руку, говорит, что в войну у его матери был общий котёл на три семьи, и никто не умер. Фрау Петерсен поправляет: умер дядя Курт. Но не от голода.' },
     ],
     actions: [
       { id: 'c33_co_eat', label: 'Поесть и слушать', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A33, goto: 'c33_a_late' }, { id: 'b', goto: 'c33_b_late' }], ...tableOnly,
