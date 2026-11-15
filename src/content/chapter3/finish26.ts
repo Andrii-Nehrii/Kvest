@@ -1,6 +1,6 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
-import { all, flag } from './world3';
+import { all, flag, not } from './world3';
 import { any, v } from './point18';
 import { P26, brandtAlly, brandtBroken, brandtHostile, carLoss, oleNow, rationLoss } from './point26';
 
@@ -10,6 +10,12 @@ const w = (key: string): Cond => flag(`w.c26_${key}`);
 
 // Сверка в среду в половине девятого.
 export const point26Notes: MergeNote[] = [
+  N('c26_light_candles', v('w.c26_light', 'candles'), 'Керосин кончается. Из огарков отлили пять свечей, на неделю.'),
+  N('c26_light_koehler', v('w.c26_light', 'koehler'), 'Керосин кончался: Кёлер дала полбутылки в долг.'),
+  N('c26_light_dark', v('w.c26_light', 'dark'), 'Керосин кончается. Решили: зимой ложиться с темнотой и вставать со светом.'),
+  N('c26_brandt_paper', flag('w.c26_brandt_paper'), 'Брандту на стол положили лист: «212 — 0». Он его не убрал.'),
+  N('c26_tracks_colony', all(v('A.c26_al', 'look'), not(oleNow)), 'Ночью кто-то тащил что-то волоком от насыпи в колонию: борозда, как от санок, и тяжёлые следы.'),
+  N('c26_shed_bolted', all(v('A.c26_al', 'bolt'), not(oleNow)), 'Ночью от насыпи доносился шорох, будто волокли мешок. Сарай заперли на засов и проверять не пошли.'),
   N('c26_rieger', v('w.c26_rieger', 'taken'), 'По дороге из Люллау {A} нашёл в канаве мёртвого дружинника из Ханштедта, Клауса Ригера, и забрал его корочку для Брандта.'),
   N('c26_lea_letter', flag('w.c26_lea_letter'), 'Лея с {B.ins} написала в Красный Крест Ганновера: про мать и брата.'),
   N('c26_portions', flag('w.c26_portions_cut'), 'Нина посчитала: картошки при нынешних порциях хватит ненадолго. Хенрике урезала порции всем.'),
