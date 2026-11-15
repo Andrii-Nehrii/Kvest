@@ -35,14 +35,14 @@ export const day30Scenes: Scene[] = [
       { when: not(mittens), text: 'Пальцы в одной паре рукавиц уже не чувствуют древка.' },
     ],
     actions: [
-      { id: 'c30_ja1_hold', label: 'Стоять в цепи, держать факел', minutes: 60, terminal: true, goto: 'c30_j_a2', ambientDuring: frost30,
+      { id: 'c30_ja1_hold', label: 'Стоять в цепи, держать факел', minutes: 60, terminal: true, goto: 'c30_j_ad', ambientDuring: frost30,
         text: 'Ты стоишь. Час. Факел догорает, тебе дают новый. Внизу они медленно идут к огню и останавливаются у края. Мороз тянет из них остатки тепла. Ничего не происходит. Это и есть работа.', effects: [set30('ja1', 'hold'), { body: 'fatigue', delta: 4 }, until30(31, 0, 20)] },
-      { id: 'c30_ja1_step', label: 'Спуститься на шаг и поджечь солому у края', minutes: 40, risky: true, terminal: true, goto: 'c30_j_a2', ambientDuring: frost30,
+      { id: 'c30_ja1_step', label: 'Спуститься на шаг и поджечь солому у края', minutes: 40, risky: true, terminal: true, goto: 'c30_j_ad', ambientDuring: frost30,
         outcomes: [
           { id: 'ok', check: { traits: ['agility'], difficulty: 3, uses: ['mobility'] }, text: 'Ты спускаешься боком, по-лыжному. Солома вспыхивает. Ты карабкаешься обратно. Уве молча хватает тебя за воротник и вытягивает последний метр.', effects: [set30('ja1', 'step')] },
           { id: 'slip', text: 'Нога уходит. Ты съезжаешь на два метра вниз по ледяному склону, ударяешься коленом о камень. Уве и мальчишка вытягивают тебя за верёвку. Штанина мокрая до бедра, колено горит.', effects: [set30('ja1', 'step'), ...hurt1('bruise')] },
         ], effects: [until30(31, 0, 0)] },
-      { id: 'c30_ja1_back', label: 'Отойти к костру: руки не держат факел', when: not(mittens), minutes: 60, terminal: true, goto: 'c30_j_a2',
+      { id: 'c30_ja1_back', label: 'Отойти к костру: руки не держат факел', when: not(mittens), minutes: 60, terminal: true, goto: 'c30_j_ad',
         text: 'Ты отдаёшь факел и уходишь к костру. Кто-то смотрит тебе вслед с презрением. Пальцы отходят с болью. Через час ты возвращаешься в цепь.', effects: [set30('ja1', 'back'), { body: 'stress', delta: 2 }, until30(31, 0, 20)] },
     ] }),
 
@@ -90,14 +90,14 @@ export const day30Scenes: Scene[] = [
       { text: 'Первым приводят пожарного с белыми пальцами: снял рукавицы, чтобы зажечь факел. Зандер:\n\n— Nicht reiben. Warmes Wasser. Nicht heißes. Und Sie — die Handschuhe an, sonst sind Sie die Nächste.\n\nНе растирать. Тёплая вода. Не горячая. А вы — рукавицы надеть, иначе следующей будете вы.' },
     ],
     actions: [
-      { id: 'c30_jb1_water', label: 'Греть ему руки в тёплой воде, в рукавицах', minutes: 60, terminal: true, goto: 'c30_j_b2',
+      { id: 'c30_jb1_water', label: 'Греть ему руки в тёплой воде, в рукавицах', minutes: 60, terminal: true, goto: 'c30_j_bd',
         text: 'Ты держишь его руки в котелке с тёплой водой. {m:Сам|Сама} в рукавицах, неудобно, медленно. Пальцы у него розовеют. Он плачет от боли, как ребёнок, и извиняется.', effects: [set30('jb1', 'water'), until30(31, 0, 20)] },
-      { id: 'c30_jb1_bare', label: 'Снять рукавицы: так быстрее', minutes: 50, risky: true, terminal: true, goto: 'c30_j_b2',
+      { id: 'c30_jb1_bare', label: 'Снять рукавицы: так быстрее', minutes: 50, risky: true, terminal: true, goto: 'c30_j_bd',
         outcomes: [
           { id: 'ok', check: { traits: ['endurance'], difficulty: 3, uses: ['focus'] }, text: 'Быстрее. Его пальцы розовеют. Твои — белеют. Ты успеваешь натянуть рукавицы, пока не поздно.', effects: [set30('jb1', 'bare')] },
           { id: 'cold', text: 'Быстрее. Его пальцы розовеют. Твои — уже нет. Когда ты натягиваешь рукавицы, пальцы не гнутся. Мокрые руки на морозе.', effects: [set30('jb1', 'bare'), ...hurt1('glove')] },
         ], effects: [until30(31, 0, 10)] },
-      { id: 'c30_jb1_tea', label: 'Разносить чай цепи', minutes: 60, terminal: true, goto: 'c30_j_b2', ambientDuring: frost30,
+      { id: 'c30_jb1_tea', label: 'Разносить чай цепи', minutes: 60, terminal: true, goto: 'c30_j_bd', ambientDuring: frost30,
         text: 'Бидон, кружки, туда и обратно вдоль цепи. Люди пьют, не снимая рукавиц, обжигаясь. Ты возвращаешься к костру, когда бидон пустеет.', effects: [set30('jb1', 'tea'), { body: 'fatigue', delta: 4 }, until30(31, 0, 20)] },
     ] }),
 
@@ -160,9 +160,9 @@ export const day30Scenes: Scene[] = [
       { when: worse1, text: 'Руки ещё дрожат после канавы.' },
     ],
     actions: [
-      { id: 'c30_fa1_can', label: 'Сливать медленно, в канистры, ничего не пролить', minutes: 60, terminal: true, goto: 'c30_f_a2',
+      { id: 'c30_fa1_can', label: 'Сливать медленно, в канистры, ничего не пролить', minutes: 60, terminal: true, goto: 'c30_f_ad',
         text: 'Шланг, канистры, руки в солярке. Сорок литров. Медленно, тихо. Солярка на морозе густая, как мёд.', effects: [set30('fa1', 'can'), w30('diesel_taken', 40), until30(31, 1, 0)] },
-      { id: 'c30_fa1_roll', label: 'Скатить целую бочку на прицеп по доскам', minutes: 40, risky: true, terminal: true, goto: 'c30_f_a2',
+      { id: 'c30_fa1_roll', label: 'Скатить целую бочку на прицеп по доскам', minutes: 40, risky: true, terminal: true, goto: 'c30_f_ad',
         outcomes: [
           { id: 'ok', check: { traits: ['strength'], difficulty: 4, uses: ['strength'] }, text: 'Бочка катится по доскам, тяжело, со скрипом. Ты удерживаешь. На прицепе. Двести литров.', effects: [set30('fa1', 'roll'), w30('diesel_taken', 200)] },
           { id: 'slip', text: 'Бочка срывается с досок, катится мимо прицепа, бьётся о колесо. Пробка выскакивает. Ты затыкаешь её телом, пока не находишь тряпку. Солярка на тебе, на руках, в рукавах. {m:Мокрый|Мокрая}. На морозе.', effects: [set30('fa1', 'roll'), w30('diesel_taken', 120), ...hurt1('wet')] },
@@ -207,9 +207,9 @@ export const day30Scenes: Scene[] = [
       { text: 'У забора пожарной части стоит один. В белом. Лицом к вам. Почтальон? Нет. Другой.' },
     ],
     actions: [
-      { id: 'c30_fb1_watch', label: 'Держать его в луче и предупредить {A.acc}', minutes: 40, terminal: true, goto: 'c30_f_b2', ambientDuring: frost30,
+      { id: 'c30_fb1_watch', label: 'Держать его в луче и предупредить {A.acc}', minutes: 40, terminal: true, goto: 'c30_f_bd', ambientDuring: frost30,
         text: 'Ты светишь на него. Он не двигается. Мороз сделал его медленным. Ты не сводишь луч, пока {A} не заканчивает.', effects: [set30('fb1', 'watch'), until30(31, 0, 50)] },
-      { id: 'c30_fb1_noise', label: 'Отвести его подальше, стуча по забору', minutes: 40, risky: true, terminal: true, goto: 'c30_f_b2', ambientDuring: frost30,
+      { id: 'c30_fb1_noise', label: 'Отвести его подальше, стуча по забору', minutes: 40, risky: true, terminal: true, goto: 'c30_f_bd', ambientDuring: frost30,
         outcomes: [
           { id: 'ok', check: { traits: ['stealth'], difficulty: 3, uses: ['focus'] }, text: 'Ты стучишь палкой по прутьям и идёшь вдоль забора. Он идёт за звуком. Ты уводишь его за угол и возвращаешься бегом.', effects: [set30('fb1', 'noise')] },
           { id: 'slip', text: 'Ты стучишь и идёшь, и на углу поскальзываешься, падаешь на бок, фонарь катится в сугроб. Он идёт на звук, медленно. Ты находишь фонарь и отбегаешь, хромая.', effects: [set30('fb1', 'noise'), ...hurt1('bruise')] },
@@ -264,14 +264,14 @@ export const day30Scenes: Scene[] = [
       { text: 'Яннес рядом с багром: — Nicht aufs Eis. Am Ufer bleiben.\n\nНе на лёд. Оставаться на берегу.' },
     ],
     actions: [
-      { id: 'c30_ha1_bank', label: 'Ждать на берегу с вилами', minutes: 40, terminal: true, goto: 'c30_h_a2', ambientDuring: frost30,
+      { id: 'c30_ha1_bank', label: 'Ждать на берегу с вилами', minutes: 40, terminal: true, goto: 'c30_h_ad', ambientDuring: frost30,
         text: 'Ты стоишь на берегу. Они подходят. Яннес и ты отталкиваете первого обратно на лёд. Он падает и не встаёт. Мороз.', effects: [set30('ha1', 'bank'), until30(31, 0, 40)] },
-      { id: 'c30_ha1_ice', label: 'Выйти на лёд навстречу, пока они далеко', minutes: 30, risky: true, terminal: true, goto: 'c30_h_a2', ambientDuring: frostWet30,
+      { id: 'c30_ha1_ice', label: 'Выйти на лёд навстречу, пока они далеко', minutes: 30, risky: true, terminal: true, goto: 'c30_h_ad', ambientDuring: frostWet30,
         outcomes: [
           { id: 'ok', check: { traits: ['agility'], difficulty: 3, uses: ['mobility'] }, text: 'Лёд держит. Ты встречаешь первого вилами на середине ручья и возвращаешься, пока двое других далеко.', effects: [set30('ha1', 'ice')] },
           { id: 'wet', text: 'Лёд трещит у берега. Ты проваливаешься по колено. Выдёргиваешь ногу, мокрую, тяжёлую. Возвращаешься на берег. Через минуту штанина звенит, как жесть.', effects: [set30('ha1', 'ice'), ...hurt1('wet')] },
         ], effects: [until30(31, 0, 30)] },
-      { id: 'c30_ha1_dry', label: 'Переобуться в сухое, пока есть минута', when: dry, minutes: 20, terminal: true, goto: 'c30_h_a2',
+      { id: 'c30_ha1_dry', label: 'Переобуться в сухое, пока есть минута', when: dry, minutes: 20, terminal: true, goto: 'c30_h_ad',
         text: 'Ты меняешь носки у костра. Ноги снова чувствуют землю. Яннес смотрит и кивает: правильно.', effects: [set30('ha1', 'dry'), until30(31, 0, 20)] },
     ] }),
 
@@ -315,9 +315,9 @@ export const day30Scenes: Scene[] = [
       { text: 'Уте: — Die Kerze aus. Licht ruft sie.\n\nСвечу погасить. Свет их зовёт.' },
     ],
     actions: [
-      { id: 'c30_hb1_dark', label: 'Погасить свет и ждать в темноте', minutes: 60, terminal: true, goto: 'c30_h_b2',
+      { id: 'c30_hb1_dark', label: 'Погасить свет и ждать в темноте', minutes: 60, terminal: true, goto: 'c30_h_bd',
         text: 'Темнота. Холод. Ты слышишь, как по льду ручья шаркают шаги. Мимо. Ещё мимо.', effects: [set30('hb1', 'dark'), until30(31, 0, 40)] },
-      { id: 'c30_hb1_out', label: 'Выйти на крыльцо посмотреть', minutes: 40, risky: true, terminal: true, goto: 'c30_h_b2', ambientDuring: frost30,
+      { id: 'c30_hb1_out', label: 'Выйти на крыльцо посмотреть', minutes: 40, risky: true, terminal: true, goto: 'c30_h_bd', ambientDuring: frost30,
         outcomes: [
           { id: 'ok', check: { traits: ['stealth'], difficulty: 3, uses: ['focus'] }, text: 'Ты стоишь на крыльце, в тени. Видно лёд ручья и троих на нём. Они идут не сюда.', effects: [set30('hb1', 'out')] },
           { id: 'slip', text: 'Крыльцо обледенело. Ты поскальзываешься и падаешь со ступеней в снег. Бок, бедро. Встаёшь, хромая.', effects: [set30('hb1', 'out'), ...hurt1('bruise')] },

@@ -984,7 +984,7 @@ export const newEntry30: Scene = {
     { when: not(point30Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
-    { id: 'c30_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c30_monday', effects: [prepare30, { restUntil: at(30, 13, 0), sleeping: true }] },
+    { id: 'c30_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c30_morning', effects: [prepare30, { restUntil: at(30, 8, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point30Available, a.when ?? { always: true }) })),
 };
 
