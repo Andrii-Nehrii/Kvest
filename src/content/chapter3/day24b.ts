@@ -25,6 +25,7 @@ export const day24BScenes: Scene[] = [
       { when: all(leaHome, monShut), text: 'Лея стоит у окна и смотрит на запертые ворота.\n\n— Ihr macht nicht auf? Wegen mir?\n\nВы не откроете? Из-за меня?' },
       { when: all(not(leaHome), guestsShed), text: 'В отдельном сарае Маркус и Лео сидят на сене под одеялами. Лео рисует на дощатой стене угольком: дом, трубу, дым.' },
       { when: all(not(leaHome), not(guestsShed)), text: 'На кухне Эва чистит картошку, Нина считает чашки. Обычное утро. Только все говорят тише.' },
+      { text: 'Лея сидит в швейной с книгой, которую не читает. Нина ходит из угла в угол и всё время поправляет занавески.' },
     ],
     actions: [
       { id: 'c24_bp_stay', label: 'Сказать Лее: сиди тихо, пока не позовём', when: leaHome, minutes: 30, terminal: true, goto: 'c24_b_kitchen',
@@ -42,6 +43,7 @@ export const day24BScenes: Scene[] = [
       { text: 'Нина садится напротив, Эва у плиты.' },
       { text: '— Если меня спросят, кто я, — говорит Нина, — я скажу правду. Дочь Йенса. Сирота. Живу здесь. Это ведь правда?\n\nЭто правда.' },
       { when: { npc: 'c8_eva', alive: true }, text: 'Эва вытирает руки.\n\n— Ich stehe auf der Liste. Ich habe nichts zu verstecken. Außer meinem Mann im Brunnen.\n\nЯ в списке. Мне нечего прятать. Кроме мужа в колодце.' },
+      { text: 'На кухне все говорят одновременно и тихо, как в больнице. Хенрике режет хлеб, хотя никто не просил.' },
     ],
     actions: [
       { id: 'c24_bk_nina', label: 'Сказать Нине: говори правду, коротко', minutes: 20, terminal: true, goto: 'c24_gate',
@@ -59,6 +61,9 @@ export const day24BScenes: Scene[] = [
       { text: 'У пожарной части очередь. Дружинник с папкой выкликает дворы. Рядом стоит автобус с запотевшими окнами. В нём сидят трое из деревни. Одна женщина держит на коленях сумку и смотрит прямо перед собой.' },
       { when: halfRation, text: '— Lüdemann-Hof. Halbe Ration. Zwei Wochen.\n\nХутор Людеманов. Половина пайка. Две недели.\n\nДружинник отсчитывает буханку, полкило крупы, банку тушёнки. Кёлер молча кладёт в твою корзину свою половину буханки.' },
       { when: not(halfRation), text: '— Lüdemann-Hof. Volle Ration.\n\nХутор Людеманов. Полный паёк.\n\nДве буханки, кило крупы, две банки тушёнки, пакет сухого молока.' },
+      { text: 'Очередь за пайком длинная, люди стоят молча, переминаясь. Женщина впереди держит за руку мальчика, и он считает вслух снежинки на её рукаве.' },
+      { when: v('$.c24_bs', 'ask'), text: 'Солдат у автобуса так и не ответил тебе, что делают в Люнебурге. Только посмотрел и отвернулся.' },
+      { when: v('$.c24_bs', 'none'), text: '«У нас никто не болел», — сказал{m:|а} ты. Солдат записал это, не поднимая глаз.' },
     ],
     actions: [
       { id: 'c24_bv_take', label: 'Забрать паёк и идти дальше', minutes: 30, terminal: true, outcomes: [{ id: 's', when: any(leaJestNow, marcusTaken), goto: 'c24_b_school' }, { id: 'p', goto: 'c24_b_point' }],
@@ -88,6 +93,7 @@ export const day24BScenes: Scene[] = [
       { text: 'В пункте у пожарной части доктор Зандер перевязывает старика с обмороженными пальцами.' },
       { when: leaPoint, text: 'У второго стола работает Лея. Без халата, в свитере, рукава закатаны. Видит тебя и улыбается. Здесь она улыбается.' },
       { text: 'Зандер, не оборачиваясь:\n\n— Sie. Die mit den Händen. Ab Mittwoch braucht Brandt von jedem Hof einen Menschen. Wenn das Ihrer ist — kommen Sie zu mir. Nicht in die Schule.\n\nВы. Та, что с руками. Со среды Брандту нужен человек с каждого двора. Если от вас пойдёте вы — приходите ко мне. Не в школу.' },
+      { when: v('$.c24_bs', 'look'), text: 'В школу ты так и не {m:вошёл|вошла}. Постоял{m:|а} у двери и {m:ушёл|ушла}, и теперь это идёт за тобой.' },
     ],
     actions: [
       { id: 'c24_bpo_yes', label: 'Сказать: если от нас пойду я — приду к вам', minutes: 15, terminal: true, outcomes: [{ id: 'k', when: insulinHome, goto: 'c24_b_kirch' }, { id: 'b', goto: 'c24_b_back' }],
@@ -118,6 +124,7 @@ export const day24BScenes: Scene[] = [
       { text: 'Обратно вы с Кёлер идёте медленнее. Корзина тяжелее. Снег снова пошёл.' },
       { text: '— Weißt du, — говорит Кёлер, — mein Werner hat immer gesagt: auf dem Land überlebt man nicht allein. Man überlebt zusammen oder gar nicht.\n\nЗнаешь, мой Вернер всегда говорил: в деревне в одиночку не выживешь. Выживают вместе или никак.' },
       { when: v('w.c24_marcus', 'taken'), text: 'Дома тебя ждёт Лео. Он стоит у ворот в валенках Хенрике, с рисунком в руке.' },
+      { text: 'Дорога домой кажется длиннее утренней. Мешок с пайком оттягивает плечо. Снег пошёл гуще.' },
     ],
     actions: [
       { id: 'c24_bb_koehler', label: 'Отдать Кёлер половину буханки обратно', when: halfRation, minutes: 15, terminal: true, goto: 'c24_b_ute',
