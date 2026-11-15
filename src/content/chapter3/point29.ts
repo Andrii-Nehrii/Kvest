@@ -59,6 +59,10 @@ export const shared29: Scene[] = [
       { text: 'Воскресенье. Первый адвент. Хенрике ставит на стол венок из еловых веток с четырьмя свечами. Одну зажигает. Спичку держит, пока не обожжёт пальцы.' },
       { text: 'Колонка во дворе замёрзла. Ручка не ходит. Воду придётся носить из колодца, растапливать снег.' },
       { when: roofLoss, text: 'Крыша курятника просела под снегом. Три курицы под досками, мёртвые, окоченевшие. Рубероид, который Фолькер оставил у столба, так и стоит свёрнутым: прибить его было некому.' },
+      { when: v('w.c29_wreath', 'forest'), text: 'На столе венок из еловых лап, кривой, с четырьмя свечами. Одна горит.' },
+      { when: v('w.c29_wreath', 'yew'), text: 'На столе венок из тиса, тёмный, с четырьмя свечами. Одна горит. Хенрике трогает ветку и улыбается.' },
+      { when: v('$.c29_ap', 'wrap'), text: 'Колонка у сарая укутана соломой и мешковиной, как ты {m:сделал|сделала} вчера. Пока качает.' },
+      { when: v('$.c29_as', 'wood'), text: 'Поленница у стены высокая, на неделю. Субботняя работа видна.' },
     ],
     actions: [
       { id: 'c29_c_church', label: 'Собираться в церковь: в десять собрание', minutes: 60, terminal: true, outcomes: toChurch, ambientDuring: day29,
@@ -106,9 +110,9 @@ export const shared29: Scene[] = [
       { when: not(oleAlive29), text: 'На лавке у печи лежит шапка Оле. Хенрике её не убирает.' },
     ],
     actions: [
-      { id: 'c29_h_eat', label: 'Пообедать со всеми', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_hanna' }], ...tableOnly,
+      { id: 'c29_h_eat', label: 'Пообедать со всеми', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_pastor' }], ...tableOnly,
         text: 'Суп из кур, если они погибли ночью, или картошка с солониной. Хенрике режет хлеб толсто, по-воскресному.', effects: [set29('h', 'eat'), meal('eat'), until29(29, 14, 0)] },
-      { id: 'c29_h_rest', label: 'Лечь на час: ноги не держат', minutes: 5, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_hanna' }],
+      { id: 'c29_h_rest', label: 'Лечь на час: ноги не держат', minutes: 5, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_pastor' }],
         text: 'Ты засыпаешь, едва коснувшись подушки.', effects: [set29('h', 'rest'), until29(29, 14, 30, true)] },
     ] }),
 
@@ -116,6 +120,9 @@ export const shared29: Scene[] = [
     text: [
       { text: 'Вечером на кухне собираются все. Свеча на венке горит. Тобиас заходит в шесть, без шапки, и садится к печи, не спрашивая.' },
       { text: '— Die Nacht auf Dienstag. Minus zehn, sagt das Radio. Die Senke. Wer mitkommt, ist um zehn am Feuerwehrhaus. — Он смотрит на вас. — Und wer nicht mitkommt, hält die Höfe am Bahndamm. Wenn wir sie aufscheuchen, laufen sie dahin.\n\nВ ночь на вторник. Минус десять, говорит радио. Впадина. Кто идёт — в десять у пожарной части. А кто не идёт — держит дворы у насыпи. Если мы их спугнём, они побегут туда.' },
+      { when: flag('w.c29_tracks_north'), text: 'Ты рассказываешь про следы у опушки: много, в одну сторону, на север. Тобиас слушает и кивает: он знает.' },
+      { when: v('$.c29_au', 'how'), text: 'Ты уже знаешь от Уве, как всё будет устроено: факелы, солома, край. Опасен только край.' },
+      { when: flag('w.c29_candles_round'), text: 'Сегодня на семи дальних дворах горят свечи. Ты {m:разносил|разносила} их сам{m:|а}.' },
     ],
     actions: [
       { id: 'c29_ev_ask', label: 'Спросить Тобиаса, сколько их там', minutes: 30, terminal: true, goto: 'c29_checkpoint',

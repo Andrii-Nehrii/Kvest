@@ -37,13 +37,13 @@ export const day29Scenes: Scene[] = [
       { when: not(oleAlive29), text: 'После обеда Хенрике зовёт тебя в комнату Оле. Она держит в руках его вязаную шапку.\n\n— Nimm sie. Er hätte gewollt, dass jemand sie trägt, der draußen arbeitet. Nicht dass sie im Schrank liegt.\n\nВозьми. Он бы хотел, чтобы её носил кто-то, кто работает на улице. А не чтобы она лежала в шкафу.' },
     ],
     actions: [
-      { id: 'c29_ag_learn', label: 'Учиться внимательно', when: oleAlive29, minutes: 90, terminal: true, goto: 'c29_a_pump',
+      { id: 'c29_ag_learn', label: 'Учиться внимательно', when: oleAlive29, minutes: 90, terminal: true, goto: 'c29_a_wreath',
         text: 'Ты слушаешь и повторяешь. Оле объясняет медленно, отдыхая между фразами. К третьему разу у тебя получается без подсказки. Он кивает.\n\n— Gut. Jetzt bist du ein Lüdemann. Fast.\n\nХорошо. Теперь ты Людеман. Почти.', effects: [set29('ag', 'learn'), w29('ole_taught', true), npc('ole', 2), until29(28, 14, 0)] },
-      { id: 'c29_ag_talk', label: 'Слушать и спрашивать про отца', when: oleAlive29, minutes: 90, terminal: true, goto: 'c29_a_pump',
+      { id: 'c29_ag_talk', label: 'Слушать и спрашивать про отца', when: oleAlive29, minutes: 90, terminal: true, goto: 'c29_a_wreath',
         text: 'Оле рассказывает про Вернера. Как он стрелял лис, которые таскали кур. Как держал хутор в семьдесят девятом, когда снег лёг на шесть недель. Как плакал, когда продал последнюю корову. Хенрике у плиты слушает и не перебивает.', effects: [set29('ag', 'talk'), npc('ole', 2), npc('henrike', 1), until29(28, 14, 0)] },
-      { id: 'c29_ag_cap', label: 'Взять шапку и надеть', when: not(oleAlive29), minutes: 30, terminal: true, goto: 'c29_a_pump',
+      { id: 'c29_ag_cap', label: 'Взять шапку и надеть', when: not(oleAlive29), minutes: 30, terminal: true, goto: 'c29_a_wreath',
         text: 'Шапка чуть мала и пахнет чужими волосами. Хенрике смотрит на тебя в ней и отворачивается к окну. Плечи у неё вздрагивают один раз.', effects: [set29('ag', 'cap'), { give: 'c29_ole_cap' }, w29('ole_cap', true), npc('henrike', 2), until29(28, 13, 0)] },
-      { id: 'c29_ag_no', label: 'Сказать: оставьте её себе', when: not(oleAlive29), minutes: 20, terminal: true, goto: 'c29_a_pump',
+      { id: 'c29_ag_no', label: 'Сказать: оставьте её себе', when: not(oleAlive29), minutes: 20, terminal: true, goto: 'c29_a_wreath',
         text: 'Хенрике кивает и кладёт шапку обратно, на подушку Оле.\n\n— Vielleicht hast du recht. Noch nicht.\n\nМожет, ты и прав{m:|а}. Ещё рано.', effects: [set29('ag', 'no'), until29(28, 12, 50)] },
     ] }),
 
