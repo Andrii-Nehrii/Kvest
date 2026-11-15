@@ -131,11 +131,11 @@ export const day26AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c26_as_all', label: 'Засолить всё: на зиму', minutes: 50, activity: 'light', terminal: true, goto: 'c26_a_yardwork',
-        text: 'Соль, перец из пакетика, лавровый лист, который Эва нашла в шкафу Хенрике. Мясо ложится в бочонок слоями. Эва придавливает его камнем.\n\n— Sechs Wochen. Dann ist es gut.\n\nШесть недель. Тогда будет готово.', effects: [set26('as', 'all'), w26('meat', 'salt'), { take: 'c26_beef', qty: 5 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 5 }, { take: 'c26_beef', qty: 1 }, until26(17, 30)] },
+        text: 'Соль, перец из пакетика, лавровый лист, который Эва нашла в шкафу Хенрике. Мясо ложится в бочонок слоями. Эва придавливает его камнем.\n\n— Sechs Wochen. Dann ist es gut.\n\nШесть недель. Тогда будет готово.', effects: [set26('as', 'all'), w26('meat', 'salt'), { take: 'c26_beef', qty: 5 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 5 }, { take: 'c26_beef', qty: 1 }, until26(14, 0)] },
       { id: 'c26_as_share', label: 'Треть — Уте и Кёлер, остальное засолить', minutes: 50, terminal: true, goto: 'c26_a_yardwork',
-        text: 'Два куска ты заворачиваешь в газету. Нина бегом относит один к Кёлер, второй — к насыпи, Уте. Возвращается раскрасневшаяся.\n\n— Кёлер сказала: завтра хлеб. Уте ничего не сказала. Она плакала.', effects: [set26('as', 'share'), w26('meat', 'share'), { take: 'c26_beef', qty: 6 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 3 }, npc('c3_koehler', 2), npc('c14_ute', 2), until26(17, 30)] },
+        text: 'Два куска ты заворачиваешь в газету. Нина бегом относит один к Кёлер, второй — к насыпи, Уте. Возвращается раскрасневшаяся.\n\n— Кёлер сказала: завтра хлеб. Уте ничего не сказала. Она плакала.', effects: [set26('as', 'share'), w26('meat', 'share'), { take: 'c26_beef', qty: 6 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 3 }, npc('c3_koehler', 2), npc('c14_ute', 2), until26(14, 0)] },
       { id: 'c26_as_point', label: 'Половину — в пункт Зандер, для больных', minutes: 40, terminal: true, goto: 'c26_a_yardwork',
-        text: 'Три кило ты заворачиваешь отдельно. Завтра {B} отнесёт в пункт: бульон для тех, кто в жару. Остальное — в бочонок.', effects: [set26('as', 'point'), w26('meat', 'point'), { take: 'c26_beef', qty: 6 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 2 }, w26('broth_for_point', true), until26(17, 20)] },
+        text: 'Три кило ты заворачиваешь отдельно. Завтра {B} отнесёт в пункт: бульон для тех, кто в жару. Остальное — в бочонок.', effects: [set26('as', 'point'), w26('meat', 'point'), { take: 'c26_beef', qty: 6 }, { place: 'c26_salt_beef', at: 'c3_farm_stock', qty: 2 }, w26('broth_for_point', true), until26(13, 50)] },
     ] }),
 
   A({ id: 'c26_a_yardwork', title: 'Двор', camp: yard14, ambient: snow26,

@@ -100,12 +100,12 @@ export const shared35: Scene[] = [
       { when: v('w.c25_truth', 'all'), text: 'Про плазму и списки теперь знает вся округа. Кто-то из-за этого с вами не здоровается. Кто-то, наоборот, приносит яйца.' },
     ],
     actions: [
-      { id: 'c35_su_eat', label: 'Есть и слушать всех', minutes: 120, terminal: true, goto: 'c35_checkpoint', ...tableOnly,
-        text: 'Ты ешь и слушаешь. Каждый говорит своё. Никто не говорит «останьтесь». Никто не говорит «уходите». Хенрике в конце встаёт, собирает тарелки и говорит одно слово: «Morgen». Завтра.', effects: [set35('su', 'eat'), meal('eat'), finish, until35(21, 0)] },
-      { id: 'c35_su_speak', label: 'Сказать всем, что думаешь', minutes: 120, terminal: true, goto: 'c35_checkpoint',
-        text: 'Ты встаёшь. Говоришь недолго. За столом тихо. Когда садишься, Хенрике кладёт руку тебе на плечо, и это всё.', effects: [set35('su', 'speak'), npc('henrike', 1), finish, until35(21, 0)] },
-      { id: 'c35_su_partner', label: 'Выйти с {partner.ins} на крыльцо', minutes: 120, terminal: true, goto: 'c35_checkpoint', ambientDuring: frost35,
-        text: 'Мороз. Звёзды. Пар изо рта. Вы стоите рядом и долго молчите. Потом каждый рассказывает то, что узнал сегодня. Или то, что может рассказать.', effects: [set35('su', 'partner'), set35('porch', true), finish, until35(21, 0)] },
+      { id: 'c35_su_eat', label: 'Есть и слушать всех', minutes: 90, terminal: true, outcomes: [{ id: 'a', when: A35, goto: 'c35_a_late' }, { id: 'b', goto: 'c35_b_late' }], ...tableOnly,
+        text: 'Ты ешь и слушаешь. Каждый говорит своё. Никто не говорит «останьтесь». Никто не говорит «уходите». Хенрике в конце встаёт, собирает тарелки и говорит одно слово: «Morgen». Завтра.', effects: [set35('su', 'eat'), meal('eat'), finish, until35(20, 0)] },
+      { id: 'c35_su_speak', label: 'Сказать всем, что думаешь', minutes: 90, terminal: true, outcomes: [{ id: 'a', when: A35, goto: 'c35_a_late' }, { id: 'b', goto: 'c35_b_late' }],
+        text: 'Ты встаёшь. Говоришь недолго. За столом тихо. Когда садишься, Хенрике кладёт руку тебе на плечо, и это всё.', effects: [set35('su', 'speak'), npc('henrike', 1), finish, until35(20, 0)] },
+      { id: 'c35_su_partner', label: 'Выйти с {partner.ins} на крыльцо', minutes: 90, terminal: true, outcomes: [{ id: 'a', when: A35, goto: 'c35_a_late' }, { id: 'b', goto: 'c35_b_late' }], ambientDuring: frost35,
+        text: 'Мороз. Звёзды. Пар изо рта. Вы стоите рядом и долго молчите. Потом каждый рассказывает то, что узнал сегодня. Или то, что может рассказать.', effects: [set35('su', 'partner'), set35('porch', true), finish, until35(20, 0)] },
     ] }),
 
   S35({ id: 'c35_checkpoint', for: 'any', chapter: 'ch3', title: 'Понедельник, девять вечера', checkpoint: 35, universal: false, camp: house14,

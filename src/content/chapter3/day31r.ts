@@ -1,8 +1,8 @@
 import type { Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
-import { all, not } from './world3';
+import { all, flag, not } from './world3';
 import { house14, kitchen14, tense14, yard14 } from './point14';
-import { ninaFarm } from './point18';
+import { any, ninaFarm } from './point18';
 import { evaHere, npc, tableOnly } from './point19';
 import { meal } from './point12';
 import {
@@ -26,6 +26,7 @@ export const day31RScenes: Scene[] = [
       { text: '{partner} лежит на кровати Хенрике, в мокрой одежде, которую никто не успел снять. Повязка на голове тёмная. Лицо белое, губы синие. Дрожи нет, и это хуже, чем если бы {pm:он трясся|она тряслась}.' },
       { when: henrike31, text: 'Хенрике режет ножницами рукав куртки, потому что расстегнуть молнию не получается: пальцы не слушаются ни у кого.' },
       { when: lea31, text: 'Лея держит запястье {partner.gen} и считает про себя, шевеля губами.' },
+      { when: any(all(B31, flag('A.c30_note')), all(A31, flag('B.c30_note'))), text: 'Когда режут мокрую куртку, из внутреннего кармана выпадает листок, сложенный вчетверо. Твоё имя сверху. Ты кладёшь его к себе, не читая. Не сейчас.' },
       { when: evaHere, text: 'Эва несёт из кладовки бутылку шнапса и миску со снегом.\n\n— Mit Schnee abreiben, und einen Schluck. So hat man das immer gemacht.\n\nРастереть снегом и глоток. Так всегда делали.' },
       { when: not(evaHere), text: 'Кто-то из соседей, кто принёс {partner.acc}, говорит от двери: растереть бы снегом, да водки глоток.' },
     ],

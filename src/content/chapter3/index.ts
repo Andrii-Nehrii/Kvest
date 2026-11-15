@@ -81,11 +81,12 @@ import { day27EScenes } from './day27e';
 import { day28EScenes } from './day28e';
 import { day29EScenes } from './day29e';
 import { day30EScenes } from './day30e';
+import { day30FScenes } from './day30f';
 import { day31EScenes } from './day31e';
 import { day32EScenes } from './day32e';
-import { day33EScenes } from './day33e';
+import { day33EScenes, day33LateScenes } from './day33e';
 import { day34EScenes } from './day34e';
-import { day35EScenes } from './day35e';
+import { day35EScenes, day35LateScenes } from './day35e';
 import { day31AScenes } from './day31a';
 import { day31BScenes } from './day31b';
 import { day31RScenes } from './day31r';
@@ -121,6 +122,6 @@ export const scenes3: Record<string, Scene> = Object.fromEntries([
   newEntry9, ...entry9Scenes, ...farm9AScenes, ...farm9BScenes, ...common9Scenes,
   newEntry10, ...night10SScenes, ...night10FScenes, ...night10Scenes,
   newEntry11, ...dawn11Scenes, ...day11Scenes, ...noon11Scenes,
-  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, newEntry16, ...day16Scenes, ...day16xScenes, newEntry17, ...day17Scenes, ...day17xScenes, newEntry18, ...day18AScenes, ...day18BScenes, ...day18xScenes, ...day18yScenes, evening18, checkpoint18, newEntry19, ...shared19, ...day19AScenes, ...day19BScenes, ...day19XScenes, newEntry20, ...day20GScenes, ...day20FScenes, ...day20DScenes, ...day20XScenes, ...checkpoint20, newEntry21, ...shared21, ...day21CScenes, ...day21FScenes, ...day21RScenes, ...day21LScenes, newEntry22, ...shared22, ...day22AScenes, ...day22BScenes, newEntry23, ...shared23, ...day23AScenes, ...day23BScenes, newEntry24, ...shared24, ...day24AScenes, ...day24BScenes, newEntry25, ...shared25, ...day25AScenes, ...day25BScenes, newEntry26, ...shared26, ...day26AScenes, ...day26BScenes, newEntry27, ...shared27, ...day27AScenes, ...day27BScenes, newEntry28, ...shared28, ...day28AScenes, ...day28BScenes, newEntry29, ...shared29, ...day29Scenes, newEntry30, ...shared30, ...day30Scenes, newEntry31, ...shared31, ...day31AScenes, ...day31BScenes, ...day31RScenes, ...day25EScenes, ...day26EScenes, ...day27EScenes, ...day28EScenes, ...day29EScenes, ...day30EScenes, ...day31EScenes, ...day32EScenes, ...day33EScenes, ...day34EScenes, ...day35EScenes, newEntry32, ...shared32, ...day32AScenes, ...day32BScenes, newEntry33, ...shared33, ...day33AScenes, ...day33BScenes, newEntry34, ...shared34, ...day34Scenes, newEntry35, ...shared35, ...day35Scenes, ...checkpointScenes,
+  newEntry12, ...day12Scenes, newEntry13, ...day13Scenes, ...day13xScenes, newEntry14, ...day14Scenes, ...day14xScenes, newEntry15, ...day15Scenes, ...day15xScenes, newEntry16, ...day16Scenes, ...day16xScenes, newEntry17, ...day17Scenes, ...day17xScenes, newEntry18, ...day18AScenes, ...day18BScenes, ...day18xScenes, ...day18yScenes, evening18, checkpoint18, newEntry19, ...shared19, ...day19AScenes, ...day19BScenes, ...day19XScenes, newEntry20, ...day20GScenes, ...day20FScenes, ...day20DScenes, ...day20XScenes, ...checkpoint20, newEntry21, ...shared21, ...day21CScenes, ...day21FScenes, ...day21RScenes, ...day21LScenes, newEntry22, ...shared22, ...day22AScenes, ...day22BScenes, newEntry23, ...shared23, ...day23AScenes, ...day23BScenes, newEntry24, ...shared24, ...day24AScenes, ...day24BScenes, newEntry25, ...shared25, ...day25AScenes, ...day25BScenes, newEntry26, ...shared26, ...day26AScenes, ...day26BScenes, newEntry27, ...shared27, ...day27AScenes, ...day27BScenes, newEntry28, ...shared28, ...day28AScenes, ...day28BScenes, newEntry29, ...shared29, ...day29Scenes, newEntry30, ...shared30, ...day30Scenes, newEntry31, ...shared31, ...day31AScenes, ...day31BScenes, ...day31RScenes, ...day25EScenes, ...day26EScenes, ...day27EScenes, ...day28EScenes, ...day29EScenes, ...day30EScenes, ...day30FScenes, ...day31EScenes, ...day32EScenes, ...day33EScenes, ...day33LateScenes, ...day34EScenes, ...day35EScenes, ...day35LateScenes, newEntry32, ...shared32, ...day32AScenes, ...day32BScenes, newEntry33, ...shared33, ...day33AScenes, ...day33BScenes, newEntry34, ...shared34, ...day34Scenes, newEntry35, ...shared35, ...day35Scenes, ...checkpointScenes,
 ].map(s => [s.id, withCentralEchoes(withFarmCare(s))]));
 export const incidentEvents3 = [...morning12Events];

@@ -72,15 +72,15 @@ export const day30Scenes: Scene[] = [
       { text: 'Справа кто-то кричит: мальчишка в цепи поскользнулся у самого края и висит, держась за куст.' },
     ],
     actions: [
-      { id: 'c30_ja3_rope', label: 'Бросить ему верёвку', when: rope, minutes: 20, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_ja3_rope', label: 'Бросить ему верёвку', when: rope, minutes: 20, terminal: true, goto: 'c30_a_after',
         text: 'Верёвка ложится рядом с ним. Он хватает. Вы с Уве тянете вдвоём. Мальчишка выползает на край, белый, трясущийся, и говорит «Danke» три раза подряд.', effects: [set30('ja3', 'rope'), w30('boy_saved', true), { move: 'hof_luedemann' }, until30(31, 3, 50)] },
-      { id: 'c30_ja3_go', label: 'Бежать к нему по краю', minutes: 20, risky: true, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_ja3_go', label: 'Бежать к нему по краю', minutes: 20, risky: true, terminal: true, goto: 'c30_a_after',
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты бежишь. Раненая рука не держит равновесия. Нога уходит на льду. Ты падаешь лицом вниз, на склон, головой о камень, и катишься в темноту, к теплу и движению внизу.\n\nПоследнее, что ты слышишь, — Уве кричит твоё имя и чей-то выстрел.', effects: [set30('ja3', 'go'), ...down30] },
           { id: 'ok', check: { traits: ['agility'], difficulty: 4, uses: ['mobility'] }, text: 'Ты падаешь на живот у края и хватаешь его за запястье. Уве хватает тебя за ноги. Втроём вы откатываетесь от края.', effects: [set30('ja3', 'go'), w30('boy_saved', true), { move: 'hof_luedemann' }] },
           { id: 'slip', text: 'Ты падаешь на живот у края и тянешься, но не достаёшь. Солдат с багром успевает раньше. Ты лежишь на снегу и не можешь встать минуту.', effects: [set30('ja3', 'go'), { body: 'fatigue', delta: 6 }, { move: 'hof_luedemann' }] },
         ], effects: [until30(31, 3, 50)] },
-      { id: 'c30_ja3_shout', label: 'Звать солдат с баграми и стоять на месте', minutes: 20, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_ja3_shout', label: 'Звать солдат с баграми и стоять на месте', minutes: 20, terminal: true, goto: 'c30_a_after',
         text: 'Ты кричишь. Двое солдат с баграми подбегают раньше, чем мальчишка разжимает пальцы. Его вытягивают. Ты стоишь, где стоял{m:|а}. Никто тебя не упрекает. Никто не хвалит.', effects: [set30('ja3', 'shout'), { move: 'hof_luedemann' }, until30(31, 3, 50)] },
     ] }),
 
@@ -128,15 +128,15 @@ export const day30Scenes: Scene[] = [
       { text: 'Со стороны впадины по склону, мимо цепи, ползёт один. К теплу. К саням.' },
     ],
     actions: [
-      { id: 'c30_jb3_shout', label: 'Кричать солдатам и отводить раненых от саней', minutes: 20, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_jb3_shout', label: 'Кричать солдатам и отводить раненых от саней', minutes: 20, terminal: true, goto: 'c30_b_after',
         text: 'Солдат с багром успевает. Ты отводишь двоих раненых к костру. Зандер кивает тебе: правильно.', effects: [set30('jb3', 'shout'), { move: 'hof_luedemann' }, until30(31, 3, 50)] },
-      { id: 'c30_jb3_cover', label: 'Встать между ним и ранеными', minutes: 20, risky: true, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_jb3_cover', label: 'Встать между ним и ранеными', minutes: 20, risky: true, terminal: true, goto: 'c30_b_after',
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты встаёшь. Ноги не держат. Он хватает тебя за щиколотку, и ты падаешь назад, на полозья саней, затылком о железо. Мир становится белым, потом чёрным.\n\nПоследнее, что ты слышишь, — Лея кричит по-немецки, и кто-то стреляет.', effects: [set30('jb3', 'cover'), ...down30] },
           { id: 'ok', check: { traits: ['endurance'], difficulty: 3, uses: ['strength'] }, text: 'Ты встаёшь и не отходишь. Солдат успевает раньше, чем он доползает. Ты садишься прямо в снег, потому что ноги не держат.', effects: [set30('jb3', 'cover'), { move: 'hof_luedemann' }] },
           { id: 'fall', text: 'Ты встаёшь и падаешь на колени. Солдат успевает. Тебя поднимают под руки.', effects: [set30('jb3', 'cover'), { body: 'fatigue', delta: 6 }, { move: 'hof_luedemann' }] },
         ], effects: [until30(31, 3, 50)] },
-      { id: 'c30_jb3_fire', label: 'Остаться у костра и греть руки', minutes: 20, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_jb3_fire', label: 'Остаться у костра и греть руки', minutes: 20, terminal: true, goto: 'c30_b_after',
         text: 'Ты сидишь у костра. Кто-то другой отводит раненых. Ты смотришь, как горят покрышки. Руки отходят. Это всё, что ты можешь сейчас.', effects: [set30('jb3', 'fire'), { move: 'hof_luedemann' }, until30(31, 3, 50)] },
     ] }),
 
@@ -191,9 +191,9 @@ export const day30Scenes: Scene[] = [
       { when: worse2, text: 'Руки на руле не держат. Ноги не чувствуют педалей.' },
     ],
     actions: [
-      { id: 'c30_fa3_long', label: 'Длинной дорогой, медленно', minutes: 60, terminal: true, goto: 'c30_night_end', ambientDuring: frost30,
+      { id: 'c30_fa3_long', label: 'Длинной дорогой, медленно', minutes: 60, terminal: true, goto: 'c30_a_after', ambientDuring: frost30,
         text: 'Час по морозу. Дома Хенрике открывает ворота, не спрашивая. Солярку снимают на руках, в сарай.', effects: [set30('fa3', 'long'), w30('fuel_got', true), { give: 'can_diesel_20', fuel: 20 }, { move: 'hof_luedemann' }, until30(31, 3, 40)] },
-      { id: 'c30_fa3_short', label: 'Короткой, через канаву: быстрее в тепло', minutes: 30, risky: true, terminal: true, goto: 'c30_night_end', ambientDuring: frost30,
+      { id: 'c30_fa3_short', label: 'Короткой, через канаву: быстрее в тепло', minutes: 30, risky: true, terminal: true, goto: 'c30_a_after', ambientDuring: frost30,
         outcomes: [
           { id: 'down', when: worse2, text: 'Канава. Трактор кренится. Руки не удерживают руль. Колесо уходит в лёд, прицеп ложится набок, тянет за собой. Ты вылетаешь из кабины лицом в лёд канавы. Чёрная вода, холод, потом ничего.', effects: [set30('fa3', 'short'), w30('tractor', 'ditch'), ...down30] },
           { id: 'ok', check: { traits: ['driving'], difficulty: 4, uses: ['focus'] }, text: 'Трактор переваливает канаву, кренится, выравнивается. Ты дома за двадцать минут.', effects: [set30('fa3', 'short'), w30('fuel_got', true), { give: 'can_diesel_20', fuel: 20 }, { move: 'hof_luedemann' }] },
@@ -237,9 +237,9 @@ export const day30Scenes: Scene[] = [
       { when: worse2, text: 'Рука в крови. Перед глазами плывёт.' },
     ],
     actions: [
-      { id: 'c30_fb3_hold', label: 'Держаться и держать канистры', minutes: 60, terminal: true, goto: 'c30_night_end', ambientDuring: frost30,
+      { id: 'c30_fb3_hold', label: 'Держаться и держать канистры', minutes: 60, terminal: true, goto: 'c30_b_after', ambientDuring: frost30,
         text: 'Ты держишься. Канистры бьются о борт. Дома Хенрике снимает тебя с прицепа, как ребёнка.', effects: [set30('fb3', 'hold'), { move: 'hof_luedemann' }, until30(31, 3, 40)] },
-      { id: 'c30_fb3_stand', label: 'Встать в прицепе и светить дорогу', minutes: 60, risky: true, terminal: true, goto: 'c30_night_end', ambientDuring: frost30,
+      { id: 'c30_fb3_stand', label: 'Встать в прицепе и светить дорогу', minutes: 60, risky: true, terminal: true, goto: 'c30_b_after', ambientDuring: frost30,
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты встаёшь. На повороте прицеп кренится. Ноги не держат. Ты вылетаешь через борт, головой о мёрзлую землю. Потом тишина.', effects: [set30('fb3', 'stand'), ...down30] },
           { id: 'ok', text: 'Ты стоишь, держась за борт, и светишь. Дорога видна. Дома через сорок минут.', effects: [set30('fb3', 'stand'), { move: 'hof_luedemann' }] },
@@ -297,15 +297,15 @@ export const day30Scenes: Scene[] = [
       { when: worse2, text: 'Рука в крови, замёрзшей коркой. Голова плывёт. Тебя трясёт.' },
     ],
     actions: [
-      { id: 'c30_ha3_stay', label: 'Остаться у костра: он идёт не сюда', minutes: 60, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_ha3_stay', label: 'Остаться у костра: он идёт не сюда', minutes: 60, terminal: true, goto: 'c30_a_after',
         text: 'Ты сидишь у костра. Он уходит по льду к мосту, к тем дворам. Что там — не твоё. Яннес не смотрит на тебя.', effects: [set30('ha3', 'stay'), until30(31, 3, 40)] },
-      { id: 'c30_ha3_ice', label: 'Пойти за ним по льду к мосту', minutes: 40, risky: true, terminal: true, goto: 'c30_night_end', ambientDuring: frostWet30,
+      { id: 'c30_ha3_ice', label: 'Пойти за ним по льду к мосту', minutes: 40, risky: true, terminal: true, goto: 'c30_a_after', ambientDuring: frostWet30,
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты идёшь по льду. Раненая рука, мокрые ноги. На середине лёд проламывается. Ты уходишь в чёрную воду по грудь, бьёшься головой о кромку. Холод. Потом ничего.', effects: [set30('ha3', 'ice'), ...down30] },
           { id: 'ok', check: { traits: ['endurance'], difficulty: 4, uses: ['mobility'] }, text: 'Ты догоняешь его у моста. Вилы. Он падает. Ты возвращаешься по берегу, не по льду.', effects: [set30('ha3', 'ice')] },
           { id: 'wet', text: 'Лёд трещит. Ты отступаешь к берегу, {m:мокрый|мокрая} по колено. Он уходит. Ты возвращаешься к костру.', effects: [set30('ha3', 'ice'), { body: 'fatigue', delta: 8 }] },
         ], effects: [until30(31, 3, 40)] },
-      { id: 'c30_ha3_flare', label: 'Выпустить ракету: пусть на той стороне знают', when: { has: 'c20_flare' }, minutes: 20, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_ha3_flare', label: 'Выпустить ракету: пусть на той стороне знают', when: { has: 'c20_flare' }, minutes: 20, terminal: true, goto: 'c30_a_after',
         text: 'Красный свет над ручьём. На той стороне зажигаются окна. Кто-то выходит с фонарём. Его встретят.', effects: [set30('ha3', 'flare'), { take: 'c20_flare' }, w30('flare_used', true), until30(31, 3, 40)] },
     ] }),
 
@@ -345,9 +345,9 @@ export const day30Scenes: Scene[] = [
       { when: worse2, text: 'Рука в крови. Голова плывёт.' },
     ],
     actions: [
-      { id: 'c30_hb3_wait', label: 'Остаться внутри с Ниной и Уте', minutes: 60, terminal: true, goto: 'c30_night_end',
+      { id: 'c30_hb3_wait', label: 'Остаться внутри с Ниной и Уте', minutes: 60, terminal: true, goto: 'c30_b_after',
         text: 'Ты остаёшься. Нина держит тебя за руку. Через полчаса стучат, но по-человечески: три раза, пауза. Свои.', effects: [set30('hb3', 'wait'), until30(31, 3, 40)] },
-      { id: 'c30_hb3_run', label: 'Бежать на крик через двор', minutes: 30, risky: true, terminal: true, goto: 'c30_night_end', ambientDuring: frost30,
+      { id: 'c30_hb3_run', label: 'Бежать на крик через двор', minutes: 30, risky: true, terminal: true, goto: 'c30_b_after', ambientDuring: frost30,
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты бежишь через двор в темноте. Нога уходит на льду. Ты падаешь головой на край колодезного сруба. Всё белое. Потом чёрное.', effects: [set30('hb3', 'run'), ...down30] },
           { id: 'ok', text: 'Ты добегаешь до насыпи. Там всё уже кончилось. Яннес сидит в снегу и смеётся, задыхаясь.', effects: [set30('hb3', 'run')] },

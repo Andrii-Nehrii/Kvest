@@ -87,10 +87,10 @@ export const shared30: Scene[] = [
       { text: 'Нина сидит молча. Потом спрашивает: «Вы вернётесь?» Как спрашивают дети, которые уже знают, что ответ может быть разным.' },
     ],
     actions: [
-      { id: 'c30_du_eat', label: 'Поесть плотно', minutes: 30, terminal: true, outcomes: [{ id: 'j', when: entryJoin, goto: 'c30_j_road' }, { id: 'f', when: entryFuel, goto: 'c30_f_road' }, { id: 'h', goto: 'c30_h_post' }], ...tableOnly,
-        text: 'Ты ешь, пока не становится тяжело. Холод любит пустой живот. Хенрике подкладывает ещё.', effects: [set30('du', 'eat'), meal('eat'), { body: 'hunger', delta: -15 }, until30(30, 21, 0)] },
-      { id: 'c30_du_nina', label: 'Ответить Нине: вернёмся', minutes: 20, terminal: true, outcomes: [{ id: 'j', when: entryJoin, goto: 'c30_j_road' }, { id: 'f', when: entryFuel, goto: 'c30_f_road' }, { id: 'h', goto: 'c30_h_post' }],
-        text: 'Нина кивает. Не верит. Но кивает. Потом приносит тебе термос с чаем и ставит у двери.', effects: [set30('du', 'nina'), npc('c7_nina', 1), until30(30, 21, 0)] },
+      { id: 'c30_du_eat', label: 'Поесть плотно', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_eve' }, { id: 'b', goto: 'c30_b_eve' }], ...tableOnly,
+        text: 'Ты ешь, пока не становится тяжело. Холод любит пустой живот. Хенрике подкладывает ещё.', effects: [set30('du', 'eat'), meal('eat'), { body: 'hunger', delta: -15 }, until30(30, 19, 0)] },
+      { id: 'c30_du_nina', label: 'Ответить Нине: вернёмся', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_eve' }, { id: 'b', goto: 'c30_b_eve' }],
+        text: 'Нина кивает. Не верит. Но кивает. Потом приносит тебе термос с чаем и ставит у двери.', effects: [set30('du', 'nina'), npc('c7_nina', 1), until30(30, 19, 0)] },
     ] }),
 
   S30({ id: 'c30_night_end', for: 'any', chapter: 'ch3', title: 'Четыре утра', camp: house14,

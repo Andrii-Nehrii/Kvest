@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
+import { ninaFarm, any } from './point18';
 import { npc } from './point19';
 import { okaforComes, oleHome33 } from './point33';
 import { S35, frost35, jest35, kasia35, set35, until35, w35 } from './point35';
@@ -77,5 +78,37 @@ export const day35EScenes: Scene[] = [
         text: 'Тебе кивают. «Hauptsache, ihr sagt es vorher». Главное — скажите заранее. Ты киваешь в ответ.', effects: [set35('bk2', 'truth'), until35(16, 30)] },
       { id: 'c35_bk2_no', label: 'Сказать: нет. Никуда', when: not(kasia35), minutes: 45, terminal: true, goto: 'c35_supper',
         text: 'Тебя обнимают, неловко, через куртку. Ты не знаешь, сказал{m:|а} ли ты правду.', effects: [set35('bk2', 'no'), until35(16, 30)] },
+    ] }),
+];
+
+// Второй проход (15.11): поздний вечер после ужина, у каждого своё — до девяти, до решений друг за друга.
+export const day35LateScenes: Scene[] = [
+  X({ id: 'c35_a_late', title: 'Поздно вечером', camp: kitchen14, onEnter: [until35(20, 0)],
+    text: [
+      { text: 'После ужина Хенрике моет посуду одна. Остальные разошлись. На кухне только ты, она и тиканье часов.' },
+      { when: flag('w.c35_tobias_offer'), text: 'Ты знаешь то, чего не знает она: пятнадцатого армия уходит. Тобиас просил молчать.' },
+      { when: flag('w.c35_army_known'), text: 'Ты знаешь то, чего не знает она: пятнадцатого армия уходит.' },
+    ],
+    actions: [
+      { id: 'c35_al_tell', label: 'Сказать Хенрике про пятнадцатое', when: any(flag('w.c35_tobias_offer'), flag('w.c35_army_known')), minutes: 40, terminal: true, goto: 'c35_checkpoint',
+        text: 'Хенрике дослушивает, не оборачиваясь от раковины. Ставит последнюю тарелку на сушилку. Вытирает руки.\n\n— Dann bleibt der Brandt allein mit dem Kreis. Und wir mit dem Hof. — Она поворачивается. — Danke, dass du es mir gesagt hast. Nicht erst am Vierzehnten.\n\nТогда Брандт останется с округом один. А мы — с хутором. Спасибо, что сказал{m:|а}. Не четырнадцатого.', effects: [set35('al', 'tell'), w35('told_henrike', true), npc('henrike', 2, 'c35_told_army'), until35(21, 0)] },
+      { id: 'c35_al_dry', label: 'Взять полотенце и вытирать посуду молча', minutes: 40, terminal: true, goto: 'c35_checkpoint',
+        text: 'Вы стоите рядом. Она моет, ты вытираешь. Ни слова. Когда последняя кружка на полке, Хенрике кладёт ладонь тебе на щёку, на секунду, и уходит спать.', effects: [set35('al', 'dry'), npc('henrike', 1), until35(21, 0)] },
+      { id: 'c35_al_out', label: 'Выйти во двор, к колонке, подышать', minutes: 40, terminal: true, goto: 'c35_checkpoint', ambientDuring: frost35,
+        text: 'Звёзды. Мороз. Колонка, укутанная или нет. Окна дома светятся одно за другим и гаснут. Ты стоишь, пока не гаснет последнее.', effects: [set35('al', 'out'), until35(21, 0)] },
+    ] }),
+
+  X({ id: 'c35_b_late', title: 'Поздно вечером', camp: kitchen14, onEnter: [until35(20, 0)],
+    text: [
+      { text: 'После ужина ты садишься за кухонный стол с тетрадью. Если уезжать на две недели, кто-то должен знать то, что знаешь ты: кому какие таблетки, кто кашляет по ночам, где лежат бинты.' },
+      { when: ninaFarm, text: 'Нина садится напротив, подперев щёку, и смотрит, как ты пишешь.' },
+    ],
+    actions: [
+      { id: 'c35_bl_list', label: 'Записать всё для Хенрике: люди, лекарства, что делать', minutes: 40, terminal: true, goto: 'c35_checkpoint',
+        text: 'Фрау Кёрнер — половина таблетки утром. Петерсену — бинт на ногу через день. Оле — печень и покой. Две страницы мелким почерком. Ты кладёшь тетрадь на полку над плитой, где Хенрике держит свою.', effects: [set35('bl', 'list'), w35('b_handover', true), until35(21, 0)] },
+      { id: 'c35_bl_nina', label: 'Учить Нину: перевязка, температура, когда звать Зандер', when: ninaFarm, minutes: 40, terminal: true, goto: 'c35_checkpoint',
+        text: 'Ты показываешь на её руке, как бинтовать, как трогать лоб тыльной стороной ладони, как считать пульс по часам. Нина повторяет всё с первого раза. В конце спрашивает: «Это на случай, если ты уедешь?» Ты не отвечаешь. Она кивает: поняла.', effects: [set35('bl', 'nina'), w35('b_handover', 'nina'), npc('c7_nina', 2, 'c35_learned_care'), until35(21, 0)] },
+      { id: 'c35_bl_close', label: 'Закрыть тетрадь: ещё ничего не решено', minutes: 30, terminal: true, goto: 'c35_checkpoint',
+        text: 'Ты закрываешь тетрадь. Писать «на случай» — значит уже решить. Ты ещё не {m:решил|решила}.', effects: [set35('bl', 'close'), until35(21, 0)] },
     ] }),
 ];

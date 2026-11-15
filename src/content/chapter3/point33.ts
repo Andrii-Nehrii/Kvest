@@ -77,7 +77,7 @@ export const shared33: Scene[] = [
     actions: [
       { id: 'c33_da_a', label: 'Взяться за колонку', when: A33, minutes: 30, terminal: true, goto: 'c33_a_pump',
         text: 'Ты обходишь колонку, трогаешь трубу. Холодная, как рельс. Хенрике смотрит на тебя и ждёт.', effects: [set33('da', 'pump'), until33(8, 0)] },
-      { id: 'c33_da_b', label: 'Помочь Хенрике готовить комнаты к приезду', when: B33, minutes: 30, terminal: true, goto: 'c33_b_arrive',
+      { id: 'c33_da_b', label: 'Помочь Хенрике готовить комнаты к приезду', when: B33, minutes: 30, terminal: true, goto: 'c33_b_rooms',
         text: 'Ты выносишь из комнаты наверху лишнее, сдвигаешь кровати. Хенрике считает вслух, загибая пальцы: одеяла, подушки, тарелки.', effects: [set33('da', 'rooms'), until33(8, 0)] },
     ] }),
 
