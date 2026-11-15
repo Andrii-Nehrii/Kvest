@@ -1,5 +1,5 @@
 import { baseOf, drive, fillCan, refuel, workOnProject } from './base';
-import { checkThresholds, fallAsleep, holdOnToLife, kill, wakeUp } from './body';
+import { checkThresholds, fallAsleep, holdOnToLife, isDead, kill, wakeUp } from './body';
 import { performCamp } from './camp';
 import { carryPartner, journey } from './journey';
 import { introduceNpc, npcTransfer, takeFromNpc } from './introduced';
@@ -74,6 +74,12 @@ function applyEffect(ctx: Ctx, e: Effect, out: EffectResult) {
   if ('carryPartner' in e) {
     const problem = carryPartner(ctx, e.carryPartner);
     if (problem) { out.interrupted = true; out.notes.push(problem); log(ctx, 'item', problem); }
+    return;
+  }
+  if ('takeFromPartner' in e) {
+    const pid = other(ctx.pid), p = ctx.s.chars[pid];
+    if (ctx.s.checkpoint < 20 || isDead(p.body) || p.controlledBy !== ctx.pid || p.location !== ch.location) return;
+    moveItems(ctx, (i) => i.type === e.takeFromPartner, e.qty ?? Infinity, { kind: 'char', id: pid }, { kind: 'char', id: ctx.pid });
     return;
   }
   if ('journey' in e) {

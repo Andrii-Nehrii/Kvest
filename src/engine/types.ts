@@ -262,6 +262,8 @@ export type Cond =
   | { flag: string }
   | { v: string; op: CmpOp; value: Scalar }
   | { has: string; qty?: number }
+  /** Вещь есть у тебя или у партнёра, которого ты ведёшь (он рядом и без сил). */
+  | { pairHas: string }
   | { hasTag: string; qty?: number }
   | { npcHas: string; type: string; qty?: number }
   | { body: keyof Pick<Body, 'hunger' | 'thirst' | 'fatigue' | 'sleepDebt' | 'bloodLoss' | 'coreTemp' | 'stress'>; op: CmpOp; value: number }
@@ -339,6 +341,8 @@ export type Effect =
   | { handOver: string; toNpc: string; qty?: number }
   /** С участка 19: донести или довезти недееспособного партнёра, который рядом (его ведёт эта линия). */
   | { carryPartner: { to: string; km: number; minutes: number; vehicle?: string; helped?: boolean } }
+  /** С участка 21: взять вещь у партнёра без сознания, который рядом и ведётся этой линией (ключи от машины из его кармана). */
+  | { takeFromPartner: string; qty?: number }
   | { introduceNpc: string }
   | { takeFromNpc: string; type: string; qty?: number }
   | { npcTransfer: { from: string; to: string; type: string; qty?: number; allowDeadRecipient?: boolean } }

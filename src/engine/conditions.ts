@@ -47,6 +47,11 @@ export function evalCond(ctx: Ctx, c: Cond | undefined): boolean {
   if ('flag' in c) return !!getVar(ctx, c.flag);
   if ('v' in c) return cmp(getVar(ctx, c.v), c.op, c.value);
   if ('has' in c) return countItem(ctx, c.has) >= (c.qty ?? 1);
+  if ('pairHas' in c) {
+    const pid = other(ctx.pid), p = ctx.s.chars[pid];
+    const led = p.controlledBy === ctx.pid && p.location === ch.location;
+    return countItem(ctx, c.pairHas) + (led ? countItem({ ...ctx, pid }, c.pairHas) : 0) >= 1;
+  }
   if ('hasTag' in c) return countTag(ctx, c.hasTag) >= (c.qty ?? 1);
   if ('npcHas' in c) return npcQuantity(ctx, c.npcHas, c.type) >= (c.qty ?? 1);
   if ('body' in c) return cmp(ch.body[c.body], c.op, c.value);

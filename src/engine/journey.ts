@@ -45,7 +45,9 @@ export function carryPartner(ctx: Ctx, trip: { to: string; km: number; minutes: 
     return 'Маршрут не задан.';
   const ch = me(ctx), pid = other(ctx.pid), p = ctx.s.chars[pid];
   if (!canAct(ch.body)) return 'Сначала нужно самому стоять на ногах.';
-  if (isDead(p.body) || canAct(p.body) || p.body.consciousness === 'asleep' || p.controlledBy !== ctx.pid || p.location !== ch.location)
+  // С участка 21: партнёр, который очнулся по дороге, едет или идёт дальше с тем, кто его вёл (слаб, но в сознании).
+  const awake = ctx.s.checkpoint >= 20 && canAct(p.body);
+  if (isDead(p.body) || (canAct(p.body) && !awake) || p.body.consciousness === 'asleep' || p.controlledBy !== ctx.pid || p.location !== ch.location)
     return 'Рядом нет того, кого нужно нести.';
   if (!trip.vehicle && trip.km > 3 && !trip.helped) return 'Так далеко на себе не донести.';
   if (trip.vehicle && (!heldItems(ctx).some(i => i.type === 'car_keys') || !canDrive(ctx, trip.vehicle, trip.km)))
@@ -60,7 +62,8 @@ export function carryPartner(ctx: Ctx, trip: { to: string; km: number; minutes: 
   ch.location = trip.to;
   p.location = trip.to;
   advanceTime({ ...ctx, ambientOverride: trip.vehicle ? { tempC: 12, outdoor: false, wet: false } : { outdoor: true } }, duration, trip.vehicle ? 'light' : 'heavy');
-  log(ctx, 'item', trip.vehicle ? `Дорога с {partner.ins} без сознания: ${trip.km} км, ${duration} мин; потрачено ${fuel} л топлива.`
+  log(ctx, 'item', awake ? (trip.vehicle ? `Дорога с {partner.ins}: ${trip.km} км, ${duration} мин; потрачено ${fuel} л топлива.` : `{partner} идёт, держась за тебя: ${trip.km} км, ${duration} мин.`)
+    : trip.vehicle ? `Дорога с {partner.ins} без сознания: ${trip.km} км, ${duration} мин; потрачено ${fuel} л топлива.`
     : `{partner} на руках: ${trip.km} км, ${duration} мин.`);
   return undefined;
 }

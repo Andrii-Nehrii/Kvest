@@ -119,3 +119,31 @@ describe('донести или довезти партнёра', () => {
 
 // completeCheckpoint с тестовым контентом точек 18–19 нет; разведение по сценам проверяется в engine.test.ts.
 void completeCheckpoint;
+
+describe('взять вещь у партнёра без сознания', () => {
+  const withKeys = (checkpoint: number) => {
+    const s = down(checkpoint);
+    applyEffects(ctxOf(s, 'A'), [{ give: 'car_keys' }]);
+    return s;
+  };
+  const keysOf = (s: GameState, pid: PlayerId) => Object.values(s.items).filter((i) => i.type === 'car_keys' && i.qty > 0 && i.at.kind === 'char' && i.at.id === pid).length;
+
+  it('с участка 21 ключи переходят к тому, кто спасает', () => {
+    const s = withKeys(20);
+    applyEffects(ctxOf(s, 'B'), [{ takeFromPartner: 'car_keys' }]);
+    expect([keysOf(s, 'A'), keysOf(s, 'B')]).toEqual([0, 1]);
+  });
+
+  it('нельзя: раньше участка 21, у партнёра в сознании, издалека', () => {
+    const early = withKeys(19);
+    applyEffects(ctxOf(early, 'B'), [{ takeFromPartner: 'car_keys' }]);
+    expect(keysOf(early, 'B')).toBe(0);
+    const fine = newGame(c, testSetup); fine.checkpoint = 20;
+    applyEffects(ctxOf(fine, 'A'), [{ give: 'car_keys' }]);
+    applyEffects(ctxOf(fine, 'B'), [{ takeFromPartner: 'car_keys' }]);
+    expect(keysOf(fine, 'B')).toBe(0);
+    const far = withKeys(20); far.chars.B.location = 'flatB';
+    applyEffects(ctxOf(far, 'B'), [{ takeFromPartner: 'car_keys' }]);
+    expect(keysOf(far, 'B')).toBe(0);
+  });
+});
