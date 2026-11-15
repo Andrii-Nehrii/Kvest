@@ -476,4 +476,84 @@ describe('участок 30: мороз — опасная ночь по трё�
     const out = completeCheckpoint(c, s30, { B: { c3_new_after30: 'home' } }).state;
     expect(out.chars.A.controlledBy).toBe('B'); expect(out.chars.B.scene).toBe('c31_start');
   });
+
+  // ───────────── Участок 31 ─────────────
+  const after30 = (sweep: string, diesel: string, after: string) => {
+    const b29 = after29(sweep, diesel);
+    const s30 = fresh(mergeCp(b29, 30, leg(b29, 'A'), leg(b29, 'B')));
+    return completeCheckpoint(c, s30, both({ c3_new_after30: after })).state;
+  };
+  for (const [sweep, diesel, after] of [['join', 'none', 'home'], ['guard', 'none', 'share'], ['leave', 'later', 'leave'], ['leave', 'none', 'home']] as const)
+    it(`участок 31 после ${sweep}/${diesel}/${after}: оба на ногах, день сходится к вечеру`, () => {
+      const b30 = after30(sweep, diesel, after);
+      for (const p of P) expect(b30.chars[p].scene).toBe('c31_start');
+      const a = leg(b30, 'A'), b = leg(b30, 'B');
+      const s31 = mergeCp(b30, 31, a, b);
+      expect(s31.chars.A.time).toBe(s31.chars.B.time);
+      for (const p of P) { expect(s31.chars[p].location).toBe('hof_luedemann'); expect(canAct(s31.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s31, { A: { c3_new_trip31a: 'yes' }, B: { c3_new_trip31b: 'sent' } }).state;
+      expect(out.vars['w.c31_a']).toBe('yes'); expect(out.vars['w.c31_b']).toBe('sent');
+      for (const p of P) expect(out.chars[p].scene).toBe('c32_start');
+    });
+
+  it('участок 31: ящик A — верный код, неверный код, лом', () => {
+    const b30 = after30('join', 'none', 'home');
+    const open = leg(b30, 'A', { c31_a_box: 'c31_ab_719' });
+    expect(qty(open, 'c31_burner', 'char', 'A')).toBe(1); expect(qty(open, 'c31_thermals', 'char', 'A')).toBe(2); expect(open.vars['w.c31_box']).toBe('open');
+    const wrong = leg(b30, 'A', { c31_a_box: 'c31_ab_911', c31_a_box2: 'c31_a2_leave' });
+    expect(qty(wrong, 'c31_burner', 'char', 'A')).toBe(0); expect(wrong.vars['w.c31_box']).toBe('left');
+    const broke = leg(b30, 'A', { c31_a_box: 'c31_ab_197', c31_a_box2: 'c31_a2_break' });
+    expect(qty(broke, 'c31_burner', 'char', 'A')).toBe(0); expect(qty(broke, 'c31_post_map', 'char', 'A')).toBe(1);
+    const s31 = mergeCp(b30, 31, open, leg(b30, 'B'));
+    expect(s31.chars.A.time).toBe(s31.chars.B.time);
+  });
+
+  it('участок 31: Corsa возвращается, если её забрали, а пара была на впадине', () => {
+    const b29 = after29('join', 'none');
+    const corsa = Object.values(b29.items).find(i => i.type === 'opel_corsa')!;
+    corsa.at = { kind: 'place', id: 'c16_jesteburg' }; corsa.fuel = 0.2; b29.vars['w.c26_car'] = 'taken';
+    for (const it of Object.values(b29.items)) if (it.type === 'car_keys') it.at = { kind: 'gone' } as never;
+    const s30 = fresh(mergeCp(b29, 30, leg(b29, 'A'), leg(b29, 'B')));
+    const b30 = completeCheckpoint(c, s30, both({ c3_new_after30: 'home' })).state;
+    const a = leg(b30, 'A');
+    expect(a.vars['w.c31_car_back']).toBe(true);
+    expect(Object.values(a.items).find(i => i.type === 'opel_corsa')!.at).toEqual({ kind: 'place', id: 'hof_luedemann' });
+    const s31 = mergeCp(b30, 31, a, leg(b30, 'B'));
+    expect(s31.chars.A.time).toBe(s31.chars.B.time); expect(s31.chars.A.location).toBe('hof_luedemann');
+  });
+
+  const downIn30 = (pid: PlayerId) => {
+    const b29 = after29('join', 'none');
+    const forced: Record<string, string> = pid === 'A'
+      ? { c30_monday: 'c30_mo_work', c30_j_a1: 'c30_ja1_step', c30_j_a2: 'c30_ja2_fight', c30_j_a3: 'c30_ja3_go' }
+      : { c30_monday: 'c30_mo_work', c30_j_b1: 'c30_jb1_bare', c30_j_b2: 'c30_jb2_run', c30_j_b3: 'c30_jb3_cover' };
+    for (let i = 0; i < 8; i++) {
+      const base = structuredClone(b29) as GameState; base.seed = `${base.seed}-down${i}`;
+      const d = leg(base, pid, forced, 'c30_night_end');
+      if (segmentFinished(c, d, pid) !== 'incapacitated') continue;
+      const rescuer = pid === 'A' ? 'B' : 'A';
+      const s30 = mergeSegments(c, base, { [pid]: d, [rescuer]: leg(base, rescuer) });
+      syncClocks(c, s30, c.checkpoints.find(x => x.index === 30)!.syncNotBefore); mergeNotes(c, s30, 30);
+      return completeCheckpoint(c, s30, { [rescuer]: { c3_new_after30: 'home' } }).state;
+    }
+    return undefined;
+  };
+  for (const pid of P)
+    it(`участок 31: выбыл ${pid} — второй выхаживает, к вечеру оба на ногах`, () => {
+      const b30 = downIn30(pid);
+      if (!b30) return; // проверки в 30-й могли пройти — законно
+      const rescuer = pid === 'A' ? 'B' : 'A';
+      expect(b30.chars[pid].controlledBy).toBe(rescuer);
+      expect(b30.chars[pid].location).toBe('hof_luedemann');
+      for (const forced of [{}, { c31_r_bed: 'c31_rb_rub', c31_r_doc: 'c31_rd_out', c31_r_noon: 'c31_rn_sit', c31_r_visit: 'c31_rv_out' }, { c31_r_bed: 'c31_rb_schnaps' }] as Record<string, string>[]) {
+        const r = leg(b30, rescuer, forced);
+        expect(r.chars[pid].body.consciousness).not.toBe('dead');
+        const s31 = mergeSegments(c, b30, { [rescuer]: r });
+        syncClocks(c, s31, c.checkpoints.find(x => x.index === 31)!.syncNotBefore); mergeNotes(c, s31, 31);
+        if (process.env.KVEST_DEBUG) console.log(pid, JSON.stringify(forced), s31.chars[pid].body.bloodLoss, s31.chars[pid].body.consciousness);
+        expect(canAct(s31.chars[pid].body), `${JSON.stringify(forced)} blood=${s31.chars[pid].body.bloodLoss}`).toBe(true);
+        const out = completeCheckpoint(c, s31, { A: { c3_new_trip31a: 'sent' }, B: { c3_new_trip31b: 'yes' } }).state;
+        for (const p of P) { expect(out.chars[p].controlledBy).toBe(p); expect(out.chars[p].scene).toBe('c32_start'); }
+      }
+    });
 });

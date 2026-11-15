@@ -29,6 +29,7 @@ import { point27Available } from './chapter3/point27';
 import { point28Available } from './chapter3/point28';
 import { point29Available } from './chapter3/point29';
 import { point30Available } from './chapter3/point30';
+import { point31Available } from './chapter3/point31';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -382,7 +383,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 27 || P.every(pid => evalCond({ s: out.state, c, pid }, point27Available)))
       && (n + 1 !== 28 || P.every(pid => evalCond({ s: out.state, c, pid }, point28Available)))
       && (n + 1 !== 29 || P.every(pid => evalCond({ s: out.state, c, pid }, point29Available)))
-      && (n + 1 !== 30 || P.every(pid => evalCond({ s: out.state, c, pid }, point30Available)))) {
+      && (n + 1 !== 30 || P.every(pid => evalCond({ s: out.state, c, pid }, point30Available)))
+      && (n + 1 !== 31 || P.every(pid => evalCond({ s: out.state, c, pid }, point31Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

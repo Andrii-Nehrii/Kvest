@@ -11,6 +11,7 @@ import { point27Available, prepare27 } from './point27';
 import { point28Available, prepare28 } from './point28';
 import { point29Available, prepare29 } from './point29';
 import { point30Available, prepare30 } from './point30';
+import { point31Available, prepare31, stageN31, stageR31 } from './point31';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -981,4 +982,19 @@ export const newEntry30: Scene = {
   actions: ([
     { id: 'c30_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c30_monday', effects: [prepare30, { restUntil: at(30, 13, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point30Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 31 ─────────────
+export const newEntry31: Scene = {
+  id: 'c31_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true,
+  text: [
+    { when: stageN31, text: 'Четыре утра. В доме пахнет мокрой шерстью, гарью и чаем.' },
+    { when: stageR31, text: 'Четыре утра. В доме пахнет мокрой шерстью и кровью. Тебя трясут за плечо: {partner} у печи, и {pm:он|она} не просыпается.' },
+    { when: not(point31Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c31_go', label: 'Сесть у печи', when: stageN31, minutes: 5, terminal: true, goto: 'c31_dawn', effects: [prepare31] },
+    { id: 'c31_go_rescue', label: 'Подойти к кровати', when: stageR31, minutes: 1, terminal: true, goto: 'c31_r_bed', effects: [prepare31] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point31Available, a.when ?? { always: true }) })),
 };
