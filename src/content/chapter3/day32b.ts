@@ -113,13 +113,13 @@ export const day32BScenes: Scene[] = [
       { when: not(any(ninaWith, ninaWinsen32)), text: 'После обеда ты помогаешь женщине из Красного Креста паковать коробки для пункта. Нины с тобой нет. Ты думаешь о ней всё равно.' },
     ],
     actions: [
-      { id: 'c32_bl_stay', label: 'Сказать: оставайся, здесь школа', when: any(ninaWith, ninaWinsen32), minutes: 60, terminal: true, goto: 'c32_b_night',
+      { id: 'c32_bl_stay', label: 'Сказать: оставайся, здесь школа', when: any(ninaWith, ninaWinsen32), minutes: 60, terminal: true, goto: 'c32_b_hall',
         text: 'Нина кивает. Потом утыкается тебе в плечо, ненадолго, как будто проверяет, на месте ли ты.\n\n— Ты приедешь на Рождество?\n\n— Приеду.', effects: [...ninaStays, npc('c7_nina', 1, 'c32_told_stay'), until32(32, 15, 0)] },
-      { id: 'c32_bl_back', label: 'Сказать: поехали домой', when: any(ninaWith, ninaWinsen32), minutes: 60, terminal: true, goto: 'c32_b_night',
+      { id: 'c32_bl_back', label: 'Сказать: поехали домой', when: any(ninaWith, ninaWinsen32), minutes: 60, terminal: true, goto: 'c32_b_hall',
         text: 'Нина выдыхает, будто ждала именно этого и боялась, что ты скажешь другое. Лена обнимает её у дверей и уходит, не оборачиваясь.', effects: [...ninaBack, npc('c7_nina', 2, 'c32_told_home'), until32(32, 15, 0)] },
-      { id: 'c32_bl_self', label: 'Сказать: решай сама, я пойму любое', when: any(ninaWith, ninaWinsen32), minutes: 60, terminal: true, goto: 'c32_b_night',
+      { id: 'c32_bl_self', label: 'Сказать: решай сама, я пойму любое', when: any(ninaWith, ninaWinsen32), minutes: 60, terminal: true, goto: 'c32_b_hall',
         text: 'Нина думает долго, глядя в окно на школьный двор.\n\n— Тогда… — говорит она, и решение у неё на лице раньше, чем в словах.', effects: [set32('bl', 'self'), { if: nina15stay, then: ninaBack, else: ninaStays }, npc('c7_nina', 2, 'c32_let_decide'), until32(32, 15, 0)] },
-      { id: 'c32_bl_pack', label: 'Паковать коробки для пункта', when: not(any(ninaWith, ninaWinsen32)), minutes: 60, activity: 'light', terminal: true, goto: 'c32_b_night',
+      { id: 'c32_bl_pack', label: 'Паковать коробки для пункта', when: not(any(ninaWith, ninaWinsen32)), minutes: 60, activity: 'light', terminal: true, goto: 'c32_b_hall',
         text: 'Бинты, марля, перчатки. Ты пишешь на каждой коробке: «Jesteburg, Dr. Sander». Женщина из Красного Креста исправляет: Zander, через «Z».', effects: [set32('bl', 'pack'), until32(32, 15, 0)] },
     ] }),
 
@@ -141,9 +141,9 @@ export const day32BScenes: Scene[] = [
   B({ id: 'c32_b_sleep', title: 'Ночь', location: winsen32, camp: trip(winsen32, 'sleep'), ambient: { tempC: 16, outdoor: false, wet: false },
     text: [{ text: 'Чистая простыня. Тиканье часов. Где-то за стеной фрау Витхён молится вполголоса. Первая ночь за три недели, когда не надо прислушиваться.' }],
     actions: [
-      { id: 'c32_bz_sleep', label: 'Спать', minutes: 30, terminal: true, goto: 'c32_b_thu',
+      { id: 'c32_bz_sleep', label: 'Спать', minutes: 30, terminal: true, goto: 'c32_b_radio',
         text: 'Ты засыпаешь сразу и спишь без снов, до самого утра.', effects: [set32('bz', 'sleep'), { body: 'stress', delta: -6 }, until32(33, 6, 30, true)] },
-      { id: 'c32_bz_write', label: 'Написать письмо Мерле, на случай колонны', minutes: 60, terminal: true, goto: 'c32_b_thu',
+      { id: 'c32_bz_write', label: 'Написать письмо Мерле, на случай колонны', minutes: 60, terminal: true, goto: 'c32_b_radio',
         text: 'Ты пишешь на листке из тетради фрау Витхён. Про хутор, про кур, про то, что всё будет. Не пишешь ни про что страшное. Складываешь вчетверо и пишешь сверху: «Merle, Ahrensburg».', effects: [set32('bz', 'write'), { give: 'c32_merle_letter' }, until32(32, 21, 30), until32(33, 6, 30, true)] },
     ] }),
 
@@ -165,8 +165,8 @@ export const day32BScenes: Scene[] = [
   B({ id: 'c32_b_back', title: 'Обратно', location: winsen32, camp: trip(winsen32), ambient: truck32, onEnter: [until32(33, 11, 0)],
     text: [{ text: 'Обратно через Паттензен. На проверке те же лица, что вчера, машут рукой, не глядя в бумаги.' }],
     actions: [
-      { id: 'c32_bk_go', label: 'Ехать', minutes: 120, terminal: true, goto: 'c32_b_point', ambientDuring: truck32,
-        text: 'Грузовик высаживает тебя у пожарной части в Йестебурге. Коробки ты несёшь в пункт {m:сам|сама}, одну за другой.', effects: [set32('bk', 'go'), { move: jest32 }, until32(33, 14, 0)] },
+      { id: 'c32_bk_go', label: 'Ехать', minutes: 120, terminal: true, goto: 'c32_b_check', ambientDuring: truck32,
+        text: 'Грузовик высаживает тебя у пожарной части в Йестебурге. Коробки ты несёшь в пункт {m:сам|сама}, одну за другой.', effects: [set32('bk', 'go'), { move: jest32 }, until32(33, 12, 30)] },
     ] }),
 
   B({ id: 'c32_b_point', title: 'Пункт', location: jest32, camp: trip(jest32), ambient: { tempC: 14, outdoor: false, wet: false },

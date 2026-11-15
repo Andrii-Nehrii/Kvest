@@ -69,12 +69,12 @@ export const day32AScenes: Scene[] = [
     actions: [
       { id: 'c32_at_gen', label: 'Грузить генератор', minutes: 150, activity: 'heavy', terminal: true, ambientDuring: cold32,
         outcomes: [
-          { id: 'ok', check: { traits: ['strength'], difficulty: 4 }, text: 'Генератор на сто сорок килограммов. Доски, ремни, трое мужчин. На последнем рывке ты держишь угол один, пока братья подкладывают брус. Он встаёт в кузов ровно.', goto: 'c32_a_house', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { body: 'fatigue', delta: 10 }, until32(32, 12, 30)] },
-          { id: 'hurt', text: 'Генератор на сто сорок килограммов. На последнем рывке ремень соскальзывает, угол бьёт тебя по пальцам. Генератор всё-таки встаёт в кузов. Пальцы распухают, но шевелятся.', goto: 'c32_a_house', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { injure: 'bruise', site: 'hands', severity: 2 }, { body: 'fatigue', delta: 12 }, until32(32, 12, 30)] },
+          { id: 'ok', check: { traits: ['strength'], difficulty: 4 }, text: 'Генератор на сто сорок килограммов. Доски, ремни, трое мужчин. На последнем рывке ты держишь угол один, пока братья подкладывают брус. Он встаёт в кузов ровно.', goto: 'c32_a_street', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { body: 'fatigue', delta: 10 }, until32(32, 12, 30)] },
+          { id: 'hurt', text: 'Генератор на сто сорок килограммов. На последнем рывке ремень соскальзывает, угол бьёт тебя по пальцам. Генератор всё-таки встаёт в кузов. Пальцы распухают, но шевелятся.', goto: 'c32_a_street', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { injure: 'bruise', site: 'hands', severity: 2 }, { body: 'fatigue', delta: 12 }, until32(32, 12, 30)] },
         ] },
-      { id: 'c32_at_tools', label: 'Разбирать инструмент, пока братья грузят генератор', minutes: 150, activity: 'moderate', terminal: true, goto: 'c32_a_house',
+      { id: 'c32_at_tools', label: 'Разбирать инструмент, пока братья грузят генератор', minutes: 150, activity: 'moderate', terminal: true, goto: 'c32_a_street',
         text: 'Ключи, головки, домкраты, сварка, болгарка, коробки с крепежом. Ты раскладываешь по ящикам и подписываешь мелом. Дениз проходит мимо и одобрительно хлопает по ящику: у тебя порядок, как у немца.\n\nГенератор братья поднимают сами, ругаясь в три голоса.', effects: [...fed32(15), set32('at', 'tools'), w32('generator', true), w32('tools_sorted', true), npc('deniz', 1), until32(32, 12, 30)] },
-      { id: 'c32_at_cars', label: 'Обойти машины во дворе: слить солярку', minutes: 150, activity: 'moderate', terminal: true, goto: 'c32_a_house', ambientDuring: frost32,
+      { id: 'c32_at_cars', label: 'Обойти машины во дворе: слить солярку', minutes: 150, activity: 'moderate', terminal: true, goto: 'c32_a_street', ambientDuring: frost32,
         text: 'Шланг, канистра, вкус солярки во рту. Из шести машин во дворе у двух баки уже пустые: кто-то был здесь до вас. Из остальных набирается двадцать литров, а с твоим шлангом и канистрами — тридцать. Генератор тем временем стоит в кузове.', effects: [...fed32(15), set32('at', 'cars'), w32('generator', true), { if: flag('A.c31_hose'), then: [w32('diesel_found', 30)], else: [w32('diesel_found', 20)] }, until32(32, 12, 30)] },
     ] }),
 
@@ -189,10 +189,10 @@ export const day32AScenes: Scene[] = [
   A({ id: 'c32_a_sleep', title: 'Ночь', location: ws32, camp: trip(ws32, 'sleep'), ambient: cold32,
     text: [{ text: 'Спят по очереди: кто-то должен подкидывать в буржуйку и слушать улицу. Ночью по шоссе проходит что-то тяжёлое, с лязгом. Потом снова тихо.' }],
     actions: [
-      { id: 'c32_az_first', label: 'Дежурить первым', minutes: 30, terminal: true, goto: 'c32_a_thu',
-        text: 'Ты сидишь у буржуйки до часу. Подкидываешь доски от поддонов. Слушаешь, как дышат братья. В час будишь Керема и проваливаешься в сон.', effects: [set32('az', 'first'), until32(32, 23, 0), until32(33, 6, 0, true)] },
-      { id: 'c32_az_last', label: 'Спать сразу, дежурить под утро', minutes: 30, terminal: true, goto: 'c32_a_thu',
-        text: 'Ты засыпаешь сразу. В четыре Дениз трясёт тебя за плечо. До рассвета ты сидишь у огня и смотришь, как светлеет окно.', effects: [set32('az', 'last'), until32(33, 4, 0, true), until32(33, 6, 0)] },
+      { id: 'c32_az_first', label: 'Дежурить первым', minutes: 30, terminal: true, goto: 'c32_a_noise',
+        text: 'Ты сидишь у буржуйки до часу. Подкидываешь доски от поддонов. Слушаешь, как дышат братья. В час будишь Керема и проваливаешься в сон.', effects: [set32('az', 'first'), until32(32, 23, 0)] },
+      { id: 'c32_az_last', label: 'Спать сразу, дежурить под утро', minutes: 30, terminal: true, goto: 'c32_a_noise',
+        text: 'Ты засыпаешь сразу. В четыре Дениз трясёт тебя за плечо. До рассвета ты сидишь у огня и смотришь, как светлеет окно.', effects: [set32('az', 'last'), until32(33, 4, 30, true)] },
     ] }),
 
   // ═════════════ Четверг ═════════════
@@ -225,7 +225,9 @@ export const day32AScenes: Scene[] = [
       { text: 'У пожарной части фургон разгружают в четыре руки. Яннес, электрик, ходит вокруг генератора, как вокруг коня на ярмарке.' },
       { when: v('w.c26_brandt', 'ally'), text: 'Брандт выходит из караулки с забинтованной рукой и жмёт тебе руку левой.' },
       { when: v('w.c26_brandt', 'hostile'), text: 'Брандт смотрит из окна караулки и не выходит.' },
-      { when: flag('w.c32_diesel_found'), text: 'Двадцать литров солярки из Бухгольца Дениз ставит рядом с генератором: без них он железо.' },
+      { when: all(flag('w.c32_diesel_found'), not(v('w.c32_night_thieves', 'drained'))), text: 'Солярку из Бухгольца Дениз ставит рядом с генератором: без неё он железо.' },
+      { when: all(flag('w.c32_diesel_found'), v('w.c32_night_thieves', 'drained')), text: 'Солярки для генератора нет: всё, что слили в Бухгольце, ушло в бак фургона после ночных гостей. Яннес чешет затылок: без топлива генератор железо.' },
+      { when: v('w.c32_vogt', 'took'), text: 'Герр Фогт с кошкой в корзине выходит из кабины, оглядывается и говорит Зандер: «Ich bin nicht krank. Ich bin nur alt». Я не болен. Я просто старый. Зандер даёт ему раскладушку у печки.' },
     ],
     actions: [
       { id: 'c32_ap_wire', label: 'Помочь Яннесу подключить', minutes: 180, activity: 'moderate', terminal: true, goto: 'c32_a_home',

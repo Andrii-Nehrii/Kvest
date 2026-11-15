@@ -99,6 +99,7 @@ export const day35Scenes: Scene[] = [
       { when: okaforComes, text: 'Окафор уже там, на табурете, шапка в руках.' },
       { text: '— Die Kolonne nach Norden hat eine Schwester verloren. Krank. Sie brauchen Ersatz. Jemand, der Verbände wechseln und Fieber messen kann und nicht in Ohnmacht fällt. Zwei Wochen. Bis Ahrensburg und zurück.\n\nКолонна на север потеряла медсестру. Заболела. Нужна замена. Кто-то, кто умеет менять повязки, мерить температуру и не падает в обморок. Две недели. До Аренсбурга и обратно.' },
       { when: okaforComes, text: '— Ich gehe als Begleiter, — говорит Окафор. Я иду сопровождающим. — Aber eine Schwester nehmen sie nur mit Ausweis vom DRK. Den kann Frau Doktor ausstellen. Für Sie.\n\nНо медсестру берут только с удостоверением Красного Креста. Его может выписать доктор. Для вас.' },
+      { when: flag('w.c32_merle_msg'), text: 'Сообщение, которое ты {m:передал|передала} из Винзена, дошло: на него ответили.' },
       { text: '— Und noch etwas, — говорит Зандер тише. И ещё. — Über das DRK kam heute eine Nachricht aus Ahrensburg. Von einer Frau, die nach Ihnen fragt. Merles Mutter. Insulin für zehn Tage. Dann nichts.\n\nЧерез Красный Крест сегодня пришло сообщение из Аренсбурга. От женщины, которая спрашивает о вас. Мама Мерле. Инсулина на десять дней. Потом ничего.' },
     ],
     actions: [

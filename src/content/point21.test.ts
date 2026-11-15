@@ -532,8 +532,8 @@ describe('участок 30: мороз — опасная ночь по трё�
     const b31 = after31();
     for (const p of P) expect(b31.chars[p].scene).toBe('c32_start');
     b31.npcs.gerd.alive = true; b31.npcs.gerd.location = 'a_stairs';
-    const aRoutes: Record<string, string>[] = [{}, { c32_a_house: 'c32_as_lock', c32_a_thu: 'c32_aq_door' }, { c32_a_house: 'c32_as_pass', c32_a_dusk: 'c32_ad_ward', c32_a_ward: 'c32_aw_look' }, { c32_a_town: 'c32_at_cars', c32_a_thu: 'c32_aq_market' }];
-    const bRoutes: Record<string, string>[] = [{}, { c32_b_lena: 'c32_bl_stay' }, { c32_b_lena: 'c32_bl_self', c32_b_sleep: 'c32_bz_write' }, { c32_b_school: 'c32_bs_help', c32_b_thu: 'c32_bq_okafor' }];
+    const aRoutes: Record<string, string>[] = [{}, { c32_a_house: 'c32_as_lock', c32_a_thu: 'c32_aq_door', c32_a_street: 'c32_as2_later', c32_a_noise: 'c32_an2_quiet' }, { c32_a_house: 'c32_as_pass', c32_a_dusk: 'c32_ad_ward', c32_a_ward: 'c32_aw_look' }, { c32_a_town: 'c32_at_cars', c32_a_thu: 'c32_aq_market' }];
+    const bRoutes: Record<string, string>[] = [{}, { c32_b_lena: 'c32_bl_stay', c32_b_check: 'c32_bc_quiet', c32_b_hall: 'c32_bh2_out' }, { c32_b_lena: 'c32_bl_self', c32_b_sleep: 'c32_bz_write' }, { c32_b_school: 'c32_bs_help', c32_b_thu: 'c32_bq_okafor' }];
     for (let i = 0; i < 4; i++) {
       const a = leg(b31, 'A', aRoutes[i]), b = leg(b31, 'B', bRoutes[i]);
       const s32 = mergeCp(b31, 32, a, b);
