@@ -1,0 +1,37 @@
+import type { Scene } from '../../engine/content-types';
+import { yard14 } from './point14';
+import { npc } from './point19';
+import { S30, entryHome, entryJoin, frost30, set30, until30, w30 } from './point30';
+
+// Участок 30, третий проход (до уровня 19–20): вторая половина дня у каждого — лёд ручья с Яннесом (A), сани и носилки с Лукасом (B).
+const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S30({ ...scene, for: 'any', chapter: 'ch3' });
+
+export const day30GScenes: Scene[] = [
+  X({ id: 'c30_a_aft', title: 'Лёд', camp: yard14, ambient: frost30, onEnter: [until30(30, 15, 0)],
+    text: [
+      { text: 'В три к воротам приходит Яннес с пешнёй на плече. Он идёт проверять лёд на ручье у насыпи: если ночью кого-то погонят с впадины, они пойдут по ручью. Надо знать, где он держит, а где нет.' },
+      { when: entryJoin, text: 'Вы ночью будете на впадине. Но ручей — это и ваш двор тоже.' },
+      { when: entryHome, text: 'Ночью это будет ваш край. Каждый метр.' },
+    ],
+    actions: [
+      { id: 'c30_aa2_ice', label: 'Пойти с ним и проверить лёд пешнёй, метр за метром', minutes: 80, activity: 'moderate', terminal: true, goto: 'c30_dusk', ambientDuring: frost30,
+        text: 'Пешня бьёт в лёд глухо, потом звонко, потом уходит по самую рукоять. Там, где ручей поворачивает к мосту, лёд тонкий: под ним течёт. Яннес втыкает в снег вешки из лозы: здесь можно, здесь нельзя. Ты запоминаешь каждую.', effects: [set30('aa2', 'ice'), set30('icepath', true), w30('ice_marked', true), until30(30, 16, 30)] },
+      { id: 'c30_aa2_torch', label: 'Остаться и наделать факелов из старых тряпок', minutes: 80, terminal: true, goto: 'c30_dusk',
+        text: 'Палки, тряпки, проволока, ведро с отработкой из-под трактора. Двадцать факелов, сложенных у сарая, как дрова. Яннес уходит один и машет тебе с поля.', effects: [set30('aa2', 'torch'), w30('torches', 20), until30(30, 16, 30)] },
+      { id: 'c30_aa2_rest', label: 'Отказаться: перед ночью надо беречь ноги', minutes: 30, terminal: true, goto: 'c30_dusk',
+        text: 'Яннес пожимает плечами: тоже правильно. Ты сидишь у печи и смотришь, как он уходит по полю с пешнёй, маленький на белом.', effects: [set30('aa2', 'rest'), { body: 'fatigue', delta: -5 }, until30(30, 16, 0)] },
+    ] }),
+
+  X({ id: 'c30_b_aft', title: 'Сани', camp: yard14, ambient: frost30, onEnter: [until30(30, 15, 0)],
+    text: [
+      { text: 'В три приезжает Лукас на велосипеде: доктор Зандер просит помочь с санями. Двое саней для раненых, полозья не смазаны, носилки без ремней. К десяти вечера всё должно ехать.' },
+    ],
+    actions: [
+      { id: 'c30_ba2_sled', label: 'Ехать с ним в Йестебург и готовить сани', minutes: 80, activity: 'moderate', terminal: true, goto: 'c30_dusk', ambientDuring: frost30,
+        text: 'Свечной огарок по полозьям, ремни из старых вожжей, одеяла в мешках. Лукас работает молча и быстро, как отец. В конце он говорит: «Wenn mein Vater heute nicht zurückkommt…» Если отец сегодня не вернётся… И не договаривает. Ты тоже не договариваешь.', effects: [set30('ba2', 'sled'), set30('sled_ready', true), w30('sleds_ready', true), npc('c15_tobias', 1, 'c30_b_sleds'), until30(30, 16, 30)] },
+      { id: 'c30_ba2_lukas', label: 'Дать ему свои ремни и одеяло и остаться дома', minutes: 30, terminal: true, goto: 'c30_dusk',
+        text: 'Ты выносишь Лукасу ремень от рюкзака и старое шерстяное одеяло. Он привязывает всё к велосипеду и уезжает, виляя на снегу.', effects: [set30('ba2', 'lukas'), until30(30, 16, 0)] },
+      { id: 'c30_ba2_no', label: 'Сказать: не могу, нужно здесь', minutes: 15, terminal: true, goto: 'c30_dusk',
+        text: 'Лукас кивает и уезжает к следующему двору. Тебе почему-то стыдно, хотя дел дома правда много.', effects: [set30('ba2', 'no'), { body: 'stress', delta: 2 }, until30(30, 15, 30)] },
+    ] }),
+];
