@@ -175,11 +175,11 @@ export const day23BScenes: Scene[] = [
       { when: not(guestsCome), text: 'Эва перебирает в сенях обувь: чья, сколько пар, у кого нет зимней.' },
     ],
     actions: [
-      { id: 'c23_bp_leo', label: 'Сказать Маркусу: Лео останется у нас, если что', when: guestsCome, minutes: 15, terminal: true, goto: 'c23_b_sms',
+      { id: 'c23_bp_leo', label: 'Сказать Маркусу: Лео останется у нас, если что', when: guestsCome, minutes: 15, terminal: true, goto: 'c23_b_leo',
         text: 'Маркус кивает и сразу отворачивается к окну. Лео в углу рисует курицу и не слышит.', effects: [set23('bp', 'leo'), w23('leo_promise', true), npc('c12_marcus', 3), until23(15, 30)] },
-      { id: 'c23_bp_why', label: 'Спросить, почему его должны найти', when: guestsCome, minutes: 20, terminal: true, goto: 'c23_b_sms',
+      { id: 'c23_bp_why', label: 'Спросить, почему его должны найти', when: guestsCome, minutes: 20, terminal: true, goto: 'c23_b_leo',
         text: '— Weil ich auf keiner Liste stehe. Und Leo auch nicht. Und wer auf keiner Liste steht, ist verdächtig. — Он смотрит на свою руку. — Und weil ich gebissen wurde. Von einem Kind. Das glaubt mir keiner, der die Narben sieht.\n\nПотому что я ни в одном списке. И Лео тоже. А кто ни в одном списке, тот подозрителен. И потому что меня укусили. Ребёнок. Мне никто не поверит, кто увидит шрамы.', effects: [set23('bp', 'why'), w23('marcus_scars', true), until23(15, 30)] },
-      { id: 'c23_bp_shoes', label: 'Помочь Эве с обувью', minutes: 40, terminal: true, goto: 'c23_b_sms',
+      { id: 'c23_bp_shoes', label: 'Помочь Эве с обувью', minutes: 40, terminal: true, goto: 'c23_b_leo',
         text: 'Сапоги Нины малы. У Мальте один ботинок. У Лео кеды. Эва вздыхает и достаёт из шкафа Хенрике пару старых валенок, с войлоком, огромных.\n\n— Für den Kleinen. Mit drei Socken passt das.\n\nДля малыша. С тремя носками подойдут.', effects: [set23('bp', 'shoes'), npc('c8_eva', 1), until23(15, 40)] },
     ] }),
 
