@@ -14,6 +14,7 @@ import { point30Available, prepare30 } from './point30';
 import { point31Available, prepare31, stageN31, stageR31 } from './point31';
 import { point32Available, prepare32 } from './point32';
 import { arrivals33, point33Available, prepare33 } from './point33';
+import { point34Available, prepare34 } from './point34';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1026,4 +1027,17 @@ export const newEntry33: Scene = {
   actions: ([
     { id: 'c33_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c33_dawn', effects: [prepare33, ...arrivals33, { restUntil: at(34, 7, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point33Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 34 ─────────────
+export const newEntry34: Scene = {
+  id: 'c34_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14,
+  text: [
+    { when: point34Available, text: 'Ночь на субботу. Тихо. Впервые за неделю никто не стучит в ворота.' },
+    { when: not(point34Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c34_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c34_sat', effects: [prepare34, { restUntil: at(35, 8, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point34Available, a.when ?? { always: true }) })),
 };

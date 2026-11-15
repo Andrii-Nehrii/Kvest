@@ -595,6 +595,28 @@ describe('участок 30: мороз — опасная ночь по трё�
     expect(s33.chars.A.time).toBe(s33.chars.B.time);
   });
 
+  // ───────────── Участок 34 ─────────────
+  it('участок 34: Николаус и списки — Томас, машина, час вдвоём; миры сходятся', () => {
+    const b32 = after32('farm', 'farm', 'family');
+    b32.vars['w.c19_brockmann_answer'] = true;
+    const corsa = Object.values(b32.items).find(i => i.type === 'opel_corsa')!;
+    corsa.at = { kind: 'place', id: 'c16_jesteburg' }; corsa.fuel = 0.2; b32.vars['w.c26_car'] = 'taken';
+    const s33 = fresh(mergeCp(b32, 33, leg(b32, 'A'), leg(b32, 'B')));
+    const b33 = completeCheckpoint(c, s33, both({ c3_new_winter33: 'work' })).state;
+    for (const p of P) expect(b33.chars[p].scene).toBe('c34_start');
+    for (const [aw, bw, th] of [['c34_tw_stay', 'c34_tw_north', 'c34_at_truth'], ['c34_tw_east', 'c34_tw_none', 'c34_at_gentle'], ['c34_tw_north', 'c34_tw_east', 'c34_at_none']]) {
+      const a = leg(b33, 'A', { c34_two: aw, c34_a_thomas: th }), b = leg(b33, 'B', { c34_two: bw });
+      expect(a.vars['w.c34_car_back']).toBe(true);
+      expect(a.vars['w.c34_thomas']).toBeDefined();
+      const s34 = mergeCp(b33, 34, a, b);
+      expect(s34.chars.A.time).toBe(s34.chars.B.time);
+      for (const p of P) { expect(s34.chars[p].location).toBe('hof_luedemann'); expect(canAct(s34.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s34, { A: { c3_new_lean34: 'east' }, B: { c3_new_lean34: 'north' } }).state;
+      expect(out.vars['w.c34_lean']).toBe('stay');
+      for (const p of P) expect(out.chars[p].scene).toBe('c35_start');
+    }
+  });
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'
