@@ -637,3 +637,8 @@ B ждёт КТ15; участки 16–18 никто не играл, участ
 * Системное, добавлено при запасе (только с КТ20): еда хутора пополняется в сверках (`chapter3/supply.ts`: бурт Хенрике, паёк по списку
   Брандта `c24_epa`); у входов точек 20–35 есть `camp: house14`, чтобы общий стол открывался сам; выбывший в 30-й переносится на хутор.
   Движок: `takeFromPartner`, `pairHas`, `carryPartner` для очнувшегося партнёра (всё с КТ20).
+* Проверка объёма 15.11: в 25–35 добавлены сцены `dayNNe.ts` / `day30f.ts` с откликами между точками (список — `STOCK_PLAN.md` §12, последняя
+  запись). Новые переменные мира, которые стоит читать в 36+: `w.c25_road`, `w.c25_stranger`, `w.c26_nina_gun`, `w.c26_child`, `w.c27_hen`,
+  `w.c27_tim_letter`, `w.c28_hollow_reported`, `w.c28_kulka`, `w.c29_kids_list`, `w.c29_boy_listed`, `w.c30_boy_mitts`, `w.c30_family`,
+  `w.c30_medbag` → `w.c31_medbag`, `w.c32_vogt`, `w.c32_merle_msg`, `w.c32_old_man`, `w.c33_room`, `w.c33_korner_pills`, `w.c33_paul`,
+  `w.c34_a_spring`, `w.c34_merle_letter`, `w.c35_brandt_ask`, `w.c35_b_will`, `w.c35_kasia_east`, `w.c35_told_henrike`, `w.c35_gift`.

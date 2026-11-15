@@ -1,5 +1,5 @@
 // Ход времени для одной временной линии: тело, батареи, события мира, планы NPC, бытовые правила.
-import { baseTicksDuring } from './base';
+import { baseOf, baseTicksDuring } from './base';
 import { canAct, symptoms, tickBody } from './body';
 import { campConfig, campWater, consumeCampFood, performCamp } from './camp';
 import { evalCond } from './conditions';
@@ -23,6 +23,14 @@ const STEP = 15;
  * Продвинуть время. Событие с прерыванием (стук в дверь, крик) обрывает отдых, сон и ожидание,
  * а начатое дело (поездка, очередь, работа) доводится до конца — прерывается только план после него.
  */
+/** Свой колодец на базе (только с участка 21): в сцене с бытом базы, где вода бесплатна. День замёрзшей колонки (участок 33, пока воду не добыли) — исключение. */
+function homeWell(ctx: Ctx): boolean {
+  if (ctx.s.checkpoint < 20 || !campConfig(ctx)) return false;
+  if (ctx.s.checkpoint === 32 && !ctx.s.vars['w.c33_pump']) return false;
+  const b = baseOf(ctx, me(ctx).location);
+  return !!b?.freeWater && evalCond(ctx, b.freeWater);
+}
+
 export function advanceTime(ctx: Ctx, minutes: number, activity: Activity, opts: { finishOnEvent?: boolean; away?: boolean } = {}): AdvanceResult {
   const ch = me(ctx);
   const res: AdvanceResult = { interrupted: false, notes: [] };
@@ -190,6 +198,10 @@ export function applyStandingRules(ctx: Ctx) {
     && ctx.s.vars[`${ctx.pid}.camp.manualMeals`] && campWater(ctx) >= 0.5) {
     const notes = performCamp(ctx, { kind: 'drink', liters: 0.5 });
     for (const note of notes) log(ctx, 'item', `По привычке: ${note}`);
+  } else if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45 && homeWell(ctx)) {
+    // С участка 21: дома, где есть свой колодец, пьют из общего ведра, не отмеряя литры себе вручную.
+    ch.body.thirst = clamp(ch.body.thirst - 35, 0, 100);
+    log(ctx, 'item', 'По привычке: {m:попил|попила} воды из ведра на кухне.');
   } else if (ch.rules.drinkWhenThirsty && ch.body.thirst >= 45 && loc?.water && ctx.s.vars[`w.water.${loc.region}`] !== 'off') {
     // Есть водопровод — пьют из-под крана, а не из запасов в рюкзаке.
     ch.body.thirst = clamp(ch.body.thirst - 35, 0, 100);
