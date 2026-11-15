@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import { flag, not } from './world3';
 import { house14, kitchen14, yard14 } from './point14';
-import { ninaFarm } from './point18';
+import { ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { entryJoin } from './point30';
 import { S31, brothers31, frost31, henrike31, partnerUp31, set31, until31, w31 } from './point31';
@@ -16,6 +16,8 @@ export const day31GScenes: Scene[] = [
       { text: 'К воротам подъезжает пожарная машина дружины, старая, красная, с облупленной лестницей. За рулём Уве. Насос у машины замёрз ночью, и шланг лопнул по шву. Без насоса в следующий раз, если загорится сарай, будут носить вёдрами.' },
       { when: entryJoin, text: '— Du warst gestern in der Kette, — говорит Уве. Ты вчера был в цепи. — Hilf uns mit dem Schlauch. Deniz sagt, du hast Hände.\n\nПомоги со шлангом. Дениз говорит, у тебя руки.' },
       { when: not(entryJoin), text: '— Ihr habt den Rand gehalten, — говорит Уве. Вы держали край. — Hilf uns mit dem Schlauch, wenn du kannst.\n\nПомоги со шлангом, если можешь.' },
+      { text: 'У Уве руки в саже по локоть, на щеке ожог, свежий, блестящий от мази. Он смотрит на рваный шланг, как на раненую собаку.' },
+      { when: v('$.c31_ag', 'no'), text: 'Лукаса ты {m:отправил|отправила} ни с чем. Он уехал на велосипеде, оглядываясь, и тебе это не нравится.' },
     ],
     actions: [
       { id: 'c31_au2_fix', label: 'Чинить шланг: проволока, резина, хомуты', minutes: 40, activity: 'moderate', terminal: true, goto: 'c31_a_deniz',
@@ -31,6 +33,7 @@ export const day31GScenes: Scene[] = [
       { text: 'В полдень к калитке подходит женщина в чёрном пальто, без шапки. Гизела Мёллер, жена Хиннерка. Она обходит дворы тех, кто был ночью у впадины или рядом.' },
       { when: entryJoin, text: '— Waren Sie dabei? Am Rand? Haben Sie ihn gesehen? Ich will nur wissen, wie.\n\nВы были там? На краю? Вы его видели? Я хочу только знать, как.' },
       { when: not(entryJoin), text: '— Sie waren nicht am Rand, ich weiß. Aber morgen ist die Beerdigung. Ich brauche Hände für das Essen danach. Wir sind so wenige.\n\nВы не были на краю, я знаю. Но завтра похороны. Мне нужны руки для поминок. Нас так мало.' },
+      { text: 'Вдова пожарного держится прямо, в чёрном платке, завязанном туго, под подбородком. Руки у неё красные от холода, перчаток нет.' },
     ],
     actions: [
       { id: 'c31_bw2_truth', label: 'Рассказать, что знаешь: он оттащил Брандта и поскользнулся сам', when: entryJoin, minutes: 30, terminal: true, goto: 'c31_b_doc',
@@ -50,6 +53,7 @@ export const day31GScenes: Scene[] = [
       { when: boy, text: 'Когда ты выходишь из пункта, у крыльца тебя ждёт женщина. Мать мальчишки из цепи. Она держит в руках вязаные носки, толстые, серые, двойной вязки.' },
       { when: not(boy), text: 'Когда ты выходишь из пункта, у крыльца тебя ждёт женщина. Жена дружинника, которому сегодня сняли пальцы. Она держит в руках вязаные носки, толстые, серые, двойной вязки.' },
       { text: '— Ich habe sie für ihn gestrickt. Er braucht sie jetzt nicht mehr so viele. Nehmen Sie. Bitte.\n\nЯ вязала их для него. Ему теперь столько не нужно. Возьмите. Пожалуйста.' },
+      { text: 'Мать держит в руках вязаные варежки, ещё мокрые от снега. Она не знает, куда их деть, и мнёт их, мнёт.' },
     ],
     actions: [
       { id: 'c31_bm2_take', label: 'Взять и поблагодарить', minutes: 20, terminal: true, goto: 'c31_b_dusk',
@@ -65,6 +69,9 @@ export const day31GScenes: Scene[] = [
       { text: 'После ужина дом затихает рано: все ещё спят после ночи. Ты сидишь у печи {m:один|одна}. Завтра в семь Бухгольц.' },
       { when: brothers31, text: 'Во дворе мигает фонарь: Керем пришёл договориться про утро. Стоит у калитки и не заходит.' },
       { when: henrike31, text: 'Хенрике домывает посуду и поглядывает на тебя.' },
+      { text: 'Звёзды над насыпью крупные и колючие. Изо рта пар. Где-то далеко, за лесом, гудит мотор и стихает.' },
+      { when: v('$.c31_ev', 'partner'), text: 'За ужином вы просидели рядом, плечом к плечу, почти не разговаривая. Этого хватило.' },
+      { when: v('$.c31_ev', 'eat'), text: 'После ужина клонит в сон: картошка и чай до краёв сделали своё.' },
     ],
     actions: [
       { id: 'c31_al_kerem', label: 'Выйти к Керему и договориться', when: brothers31, minutes: 20, terminal: true, goto: 'c31_checkpoint', ambientDuring: frost31,
@@ -80,6 +87,9 @@ export const day31GScenes: Scene[] = [
       { text: 'После ужина ты собираешь на подоконнике то, что возьмёшь в Винзен. Немного. Тетрадь, список, носки.' },
       { when: partnerUp31, text: '{partner} сидит рядом и смотрит, как ты складываешь.' },
       { when: ninaFarm, text: 'Нина приносит свою шапку и кладёт рядом: «Возьми мою. Она теплее».' },
+      { text: 'Нина спит наверху, свернувшись в шапке, которую не сняла. Дом затихает медленно, по комнатам, как гаснут окна в городе.' },
+      { when: v('$.c31_ev', 'partner'), text: 'За ужином вы просидели рядом, плечом к плечу, почти не разговаривая. Этого хватило.' },
+      { when: v('$.c31_ev', 'eat'), text: 'После ужина клонит в сон: картошка и чай до краёв сделали своё.' },
     ],
     actions: [
       { id: 'c31_bl3_hat', label: 'Взять шапку Нины', when: ninaFarm, minutes: 20, terminal: true, goto: 'c31_checkpoint',
