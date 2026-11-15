@@ -642,3 +642,12 @@ B ждёт КТ15; участки 16–18 никто не играл, участ
   `w.c27_tim_letter`, `w.c28_hollow_reported`, `w.c28_kulka`, `w.c29_kids_list`, `w.c29_boy_listed`, `w.c30_boy_mitts`, `w.c30_family`,
   `w.c30_medbag` → `w.c31_medbag`, `w.c32_vogt`, `w.c32_merle_msg`, `w.c32_old_man`, `w.c33_room`, `w.c33_korner_pills`, `w.c33_paul`,
   `w.c34_a_spring`, `w.c34_merle_letter`, `w.c35_brandt_ask`, `w.c35_b_will`, `w.c35_kasia_east`, `w.c35_told_henrike`, `w.c35_gift`.
+
+### Дотяжка 21–35 (15.11, четвёртый проход) — новые переменные мира
+- 22: `w.c22_lea_hair` dyed/scarf/no, `w.c22_lea_sleep` nina/door/both (эхо в 23), `w.c22_lea_things` drawer/nina/letter.
+- 25: `w.c25_guests_way` fields/road/lena, `w.c25_pantry_rule` even/work/kids, `w.c25_b_sms` short/truth/none.
+- 26: `w.c26_light` candles/koehler/dark, `w.c26_b_clean`, `w.c26_brandt_paper`.
+- 28: `w.c28_tim_cross` birch/stone/wait. 30: `$.c30_jr` tobias/last (около 400 во впадине).
+- 33: `w.c33_torch` deal/save/koehler, `w.c33_sheet` b/nina/henrike/no, `w.c33_nina_box` teach/run/later.
+Все — только заметки КТ и тексты следующих сцен; на расчёт мира не влияют.
+

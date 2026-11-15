@@ -33,7 +33,7 @@ const toJest: Effect = { move: jest };
 const toFarm: Effect = { move: farm22 };
 const afterCard = [{ id: 'j', when: wayJest, goto: 'c22_b_point' }, { id: 'h', when: wayHide, goto: 'c22_b_hair' }, { id: 'f', goto: 'c22_b_nina' }];
 /** После Уте: ночлег для Леи или её забытые вещи. */
-const afterUte = [{ id: 'b', when: wayHide, goto: 'c22_b_beds' }, { id: 'r', when: all(wayTobias, not(v('B.c22_bw', 'burn'))), goto: 'c22_b_room' }, { id: 'l', goto: 'c22_b_letter' }];
+const afterUte = [{ id: 'b', when: wayHide, goto: 'c22_b_beds' }, { id: 'r', when: all(wayTobias, not(v('B.c22_bw', 'burn'))), goto: 'c22_b_things' }, { id: 'l', goto: 'c22_b_letter' }];
 const afterLunch = [{ id: 'c', when: bagPoint, goto: 'c22_b_carry' }, { id: 'v', when: leaHere, goto: 'c22_b_vet' }, { id: 'm', goto: 'c22_b_malte' }];
 const toLetter = [{ id: 's', when: wayJest, goto: 'c22_b_school' }, { id: 'j', goto: 'c22_b_letter_j' }];
 const afterPoint = [{ id: 'r', when: wayJest, goto: 'c22_b_room' }, { id: 's', goto: 'c22_b_soup' }];

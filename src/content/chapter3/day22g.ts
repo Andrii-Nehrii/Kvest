@@ -52,7 +52,7 @@ export const day22GScenes: Scene[] = [
         effects: [set22('bb', 'both'), w22('lea_sleep', 'both'), npc('c7_nina', 1), lea22(1), until22(16, 15)] },
     ] }),
 
-  B({ id: 'c22_b_room', title: 'Её вещи', camp: house14,
+  B({ id: 'c22_b_things', title: 'Её вещи', camp: house14,
     text: [
       { text: 'К четырём ты идёшь убрать за ночной гостьей. Там, где Лея ночевала, всё сложено аккуратно, как в гостинице: одеяло вчетверо, подушка сверху.' },
       { text: 'Рядом с одеялом остались три вещи. Резинка для волос со светлой волосинкой. Тюбик гигиенической помады. Шариковая ручка с надписью «Tierarztpraxis Dr. Hartmann, Hannover».' },
