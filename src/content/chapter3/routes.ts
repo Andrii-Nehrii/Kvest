@@ -3,6 +3,7 @@ import { any as any18, ninaFarm as ninaFarm18, v as v18 } from './point18';
 import { A19, B19, atFarm, byGirl, cold19, evaHere, girlHere, henrikeHome, inLue, janaHere, point19Available, point20Available, set19, until, uteHere, volkerHere, npc as npc19 } from './point19';
 import { indoor16 } from './point16';
 import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './point21';
+import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import { farm6bAvailable } from './farm6b';
@@ -843,4 +844,21 @@ export const newEntry21: Scene = {
     { id: 'c21_go_lue', label: 'Выйти во двор казармы', when: all(stageL, up21), minutes: 2, terminal: true, goto: 'c21_l_dusk', effects: [prepare21] },
     { id: 'c21_go_ahlers', label: 'Подойти к столу', when: all(stageL, down21), minutes: 1, terminal: true, goto: 'c21_l_n_table', effects: [prepare21] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point21Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 22 ─────────────
+export const newEntry22: Scene = {
+  id: 'c22_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true,
+  text: [
+    { when: point22Available, text: 'Половина восьмого. Дверь в сени закрыта. На кухне пахнет кашей. Решение принято, и теперь его надо выполнять.' },
+    { when: all(point22Available, hide22), text: 'До девяти, когда патруль дойдёт до ваших ворот, полтора часа.' },
+    { when: all(point22Available, tobias22), text: 'В девять за ней приедет «Вольф».' },
+    { when: all(point22Available, jest22), text: 'До Йестебурга четыре километра.' },
+    { when: not(point22Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c22_go_a', label: 'Выйти во двор', when: { me: 'A' }, minutes: 2, terminal: true, goto: 'c22_a_yard', effects: [prepare22] },
+    { id: 'c22_go_b', label: 'Сесть рядом с ней', when: { me: 'B' }, minutes: 2, terminal: true, goto: 'c22_b_morning', effects: [prepare22] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point22Available, a.when ?? { always: true }) })),
 };

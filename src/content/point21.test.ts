@@ -130,3 +130,42 @@ describe('участок 21: все исходы КТ20 на линии пары
     expect(car(r).at).toEqual({ kind: 'place', id: 'hof_luedemann' });
   });
 });
+
+describe('участок 22: все ответы КТ21, каждый решает за другого', () => {
+  // Синтетические участки выбирают только сюжетные действия и не пьют: перед точкой даём телам обычное состояние.
+  const s21 = finish(after20('stay', 'wait'));
+  for (const p of P) Object.assign(s21.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 });
+  const leaAt = { tobias: 'c18_lueneburg', brandt: 'c16_jesteburg', hide: 'hof_luedemann' } as Record<string, string>;
+  for (const lea of ['hide', 'tobias', 'brandt', 'ask'])
+    for (const bag of ['lueneburg', 'point', 'keep', 'wait'])
+      it(`КТ21 ${lea}/${bag}: обе линии проходятся, миры сходятся, ответы — за партнёра`, () => {
+        const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: lea, c3_new_bag21: bag })).state;
+        for (const p of P) expect(b21.chars[p].scene).toBe('c22_start');
+        const plasma = qty(b21, 'c21_plasma', 'place', 'c3_farm_stock');
+        const a = leg(b21, 'A'), b = leg(b21, 'B');
+        for (const s of [a, b]) {
+          if (lea !== 'ask') expect(s.npcs.c21_lea.location).toBe(leaAt[lea]);
+        }
+        expect(a.npcs.c21_lea.location).toBe(b.npcs.c21_lea.location);
+        const s22 = mergeCp(b21, 22, a, b);
+        expect(s22.chars.A.time).toBe(s22.chars.B.time);
+        for (const p of P) { expect(s22.chars[p].location).toBe('hof_luedemann'); expect(canAct(s22.chars[p].body)).toBe(true); }
+        const left = qty(s22, 'c21_plasma', 'place', 'c3_farm_stock');
+        expect(left).toBe(bag === 'wait' ? plasma : 0);
+        expect(qty(s22, 'c21_insulin', 'place', 'c3_farm_stock')).toBe(bag === 'keep' || bag === 'wait' ? 10 : 0);
+        // A не участвует в вопросе про Тобиаса, B — в письме: ответы друг за друга.
+        const out = completeCheckpoint(c, s22, { A: { c3_new_letter22: 'truth', c3_new_tobias22: 'release' }, B: { c3_new_tobias22: 'truth', c3_new_letter22: 'hold' } }).state;
+        expect(out.vars['w.c22_tobias']).toBe('truth'); expect(out.vars['w.c22_letter']).toBe('truth');
+        for (const p of P) expect(out.chars[p].scene).toBe('c23_start');
+      });
+
+  it('половины правды: A узнаёт про ноль, B — что она не болела; партнёр видит столько, сколько рассказали', () => {
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: 'hide', c3_new_bag21: 'wait' })).state;
+    const a = leg(b21, 'A', { c22_evening: 'c22_ev_all' }), b = leg(b21, 'B', { c22_evening: 'c22_ev_keep' });
+    expect(a.vars['A.c22_a_truth']).toBe(true); expect(b.vars['B.c22_b_truth']).toBe(true);
+    expect(a.vars['B.c22_b_truth']).toBeUndefined(); expect(b.vars['A.c22_a_truth']).toBeUndefined();
+    const s22 = mergeCp(b21, 22, a, b);
+    const seen = (pid: PlayerId) => s22.log.filter(e => e.pid === pid && e.kind === 'checkpoint').map(e => e.text).join('\n');
+    expect(seen('B')).toMatch(/Выздоровели: 0/); expect(seen('A')).not.toMatch(/лептоспироз/); expect(seen('A')).toMatch(/сегодня что-то узнала и молчит/);
+  });
+});
