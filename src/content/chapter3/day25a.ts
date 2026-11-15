@@ -26,18 +26,20 @@ export const day25AScenes: Scene[] = [
       { text: '— Wessel, — говорит он и протягивает руку в перчатке без пальцев. — Vorne ist warm. Hinten sind die Säcke. Such dir was aus.\n\nВессель. Впереди тепло. Сзади мешки. Выбирай.' },
     ],
     actions: [
-      { id: 'c25_av_front', label: 'Сесть впереди и разговаривать', minutes: 80, terminal: true, goto: 'c25_a_gate', ambientDuring: van,
-        text: 'Вессель едет через Винзен, медленно, по снегу. Говорит всю дорогу. Про то, что в Винзене поляки с консервного завода собирают колонну домой, на восток: «um den zehnten Dezember», около десятого декабря. Про то, что Эльбу у Лауэнбурга держат военные. Про то, что пятнадцатого армия уходит из Люнебурга, «so heißt es», так говорят.\n\n— Und dann? — спрашиваешь ты.\n\n— Dann sind wir dran. Wir alle.\n\nА потом? — Потом наша очередь. Всех.', effects: [set25('av', 'front'), w25('east_convoy', true), w25('army_leaves', true), until25(8, 10)] },
-      { id: 'c25_av_back', label: 'Сесть сзади, на мешки, и поспать', minutes: 80, activity: 'rest', terminal: true, goto: 'c25_a_gate', ambientDuring: van,
+      { id: 'c25_av_front', label: 'Сесть впереди и разговаривать', minutes: 60, terminal: true, goto: 'c25_a_post', ambientDuring: van,
+        text: 'Вессель едет через Винзен, медленно, по снегу. Говорит всю дорогу. Про то, что в Винзене поляки с консервного завода собирают колонну домой, на восток: «um den zehnten Dezember», около десятого декабря. Про то, что Эльбу у Лауэнбурга держат военные. Про то, что пятнадцатого армия уходит из Люнебурга, «so heißt es», так говорят.\n\n— Und dann? — спрашиваешь ты.\n\n— Dann sind wir dran. Wir alle.\n\nА потом? — Потом наша очередь. Всех.', effects: [set25('av', 'front'), w25('east_convoy', true), w25('army_leaves', true), until25(7, 30)] },
+      { id: 'c25_av_back', label: 'Сесть сзади, на мешки, и поспать', minutes: 60, activity: 'rest', terminal: true, goto: 'c25_a_post', ambientDuring: van,
         text: 'Мешки с бельём мягкие и пахнут хлоркой. Ты засыпаешь на первом повороте и просыпаешься от того, что фургон стоит. Шлагбаум. Люнебург.', effects: [set25('av', 'back'), { body: 'fatigue', delta: -8 }, until25(8, 10, true)] },
-      { id: 'c25_av_window', label: 'Сесть впереди и смотреть в окно', minutes: 80, terminal: true, goto: 'c25_a_gate', ambientDuring: van,
-        text: 'Поля белые. У Винзена на обочине стоят брошенные машины под снегом, как грибы. У одной открыта дверь, и в салон намело. На мосту через Ильменау двое солдат проверяют документы и машут: прачечная, проезжай.', effects: [set25('av', 'window'), until25(8, 10)] },
+      { id: 'c25_av_window', label: 'Сесть впереди и смотреть в окно', minutes: 60, terminal: true, goto: 'c25_a_post', ambientDuring: van,
+        text: 'Поля белые. У Винзена на обочине стоят брошенные машины под снегом, как грибы. У одной открыта дверь, и в салон намело. На мосту через Ильменау двое солдат проверяют документы и машут: прачечная, проезжай.', effects: [set25('av', 'window'), until25(7, 30)] },
     ] }),
 
   A({ id: 'c25_a_gate', title: 'Шлагбаум', ambient: yard,
     text: [
       { text: 'Тот же сержант у шлагбаума. Тот же ящик с ячейками для телефонов. Только снег на нём новый.' },
       { text: '— Lüdemann? Der Ole? — Сержант кивает на донорский блок. — Er wartet seit sechs. Er hat gesagt, einer kommt.\n\nЛюдеман? Оле? Ждёт с шести. Сказал, что кто-то приедет.' },
+      { when: v('$.c25_av', 'front'), text: 'Вессель всю дорогу говорил. Теперь ты знаешь про него больше, чем про многих соседей.' },
+      { when: v('$.c25_av', 'back'), text: 'Ты проспал{m:|а} на мешках почти всю дорогу и теперь не можешь размять шею.' },
     ],
     actions: [
       { id: 'c25_ag_go', label: 'Сдать телефон и идти сразу', minutes: 10, terminal: true, goto: 'c25_a_ole',

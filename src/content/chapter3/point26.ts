@@ -24,7 +24,7 @@ export const heldA: Cond = flag('w.c18_a_held');
 export const carHome26: Cond = { itemAt: 'opel_corsa', place: farm26 };
 /** Потеря-эхо: машину забирают у того, кого держали у колонии; иначе урезают паёк за давний отказ или ложь. */
 export const carLoss: Cond = all(heldA, carHome26);
-export const rationLoss: Cond = all(not(carLoss), not(v('w.c24_ration', 'half')), any(v('w.c19_cart', 'refused'), v('w.c20_list', 'lie2')));
+export const rationLoss: Cond = all(not(carLoss), not(v('w.c24_ration', 'half')), not(v('w.c25_appeal', 'won')), any(v('w.c19_cart', 'refused'), v('w.c20_list', 'lie2')));
 export const oleNow: Cond = all(v('w.c25_ole', 'now'), { npc: 'ole', alive: true });
 const truth = (x: string): Cond => v('w.c25_truth', x);
 export const truthTold: Cond = any(truth('brandt'), truth('all'));

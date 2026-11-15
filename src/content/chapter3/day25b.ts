@@ -23,8 +23,8 @@ const insulinHome: Cond = { stocked: 'c21_insulin', qty: 1, at: 'c3_farm_stock' 
 const evaCross: Cond = all(flag('w.c22_eva_cross'), { npc: 'c8_eva', alive: true });
 const toJest = { move: jest };
 const toFarm = { move: 'hof_luedemann' };
-const afterPoint = [{ id: 'k', when: all(any(pens3, pens1), insulinHome), goto: 'c25_b_kirch' }, { id: 's', when: any(marcusTaken, leaSchool), goto: 'c25_b_school' }, { id: 'h', goto: 'c25_b_lunch' }];
-const afterKirch = [{ id: 's', when: any(marcusTaken, leaSchool), goto: 'c25_b_school' }, { id: 'h', goto: 'c25_b_lunch' }];
+const afterPoint = [{ id: 'k', when: all(any(pens3, pens1), insulinHome), goto: 'c25_b_kirch' }, { id: 's', when: any(marcusTaken, leaSchool), goto: 'c25_b_school' }, { id: 'h', goto: 'c25_b_board' }];
+const afterKirch = [{ id: 's', when: any(marcusTaken, leaSchool), goto: 'c25_b_school' }, { id: 'h', goto: 'c25_b_board' }];
 
 export const day25BScenes: Scene[] = [
   B({ id: 'c25_b_morning', title: 'Без него', camp: kitchen14, onEnter: [oleState],
@@ -81,11 +81,11 @@ export const day25BScenes: Scene[] = [
       { when: leaSchool, text: 'Лея в белом халате ставит капельницу женщине из автобуса. Она видит тебя и коротко кивает: всё так же.' },
     ],
     actions: [
-      { id: 'c25_bs_marcus', label: 'Передать Маркусу рисунок Лео', when: marcusTaken, minutes: 20, terminal: true, goto: 'c25_b_lunch',
+      { id: 'c25_bs_marcus', label: 'Передать Маркусу рисунок Лео', when: marcusTaken, minutes: 20, terminal: true, goto: 'c25_b_board',
         text: 'Маркус разворачивает листок. Дом, пятеро, подпись: «Marcus kommt wieder». Он смотрит долго, потом складывает и убирает в нагрудный карман.\n\n— Donnerstag, — говорит он. Четверг. — Wenn das Thermometer so bleibt.\n\nЕсли градусник останется таким.', effects: [set25('bs', 'marcus'), npc('c12_marcus', 2), until25(11, 0)] },
-      { id: 'c25_bs_lea', label: 'Подождать Лею в коридоре', when: leaSchool, minutes: 30, terminal: true, goto: 'c25_b_lunch',
+      { id: 'c25_bs_lea', label: 'Подождать Лею в коридоре', when: leaSchool, minutes: 30, terminal: true, goto: 'c25_b_board',
         text: 'Лея выходит на минуту, вытирая руки.\n\n— Mats hat immer noch kein Fieber. Brandt kommt jeden Morgen und schaut ihn an wie einen kaputten Motor. — Она понижает голос. — Wenn er merkt, dass ich nichts nütze, lässt er mich gehen. Oder nicht.\n\nУ Матса всё ещё нет жара. Брандт каждое утро приходит и смотрит на него, как на сломанный мотор. Когда он поймёт, что от меня никакого толку, он меня отпустит. Или нет.', effects: [set25('bs', 'lea'), npc('c21_lea', 1), until25(11, 10)] },
-      { id: 'c25_bs_go', label: 'Постоять у двери и уйти', minutes: 10, terminal: true, goto: 'c25_b_lunch',
+      { id: 'c25_bs_go', label: 'Постоять у двери и уйти', minutes: 10, terminal: true, goto: 'c25_b_board',
         text: 'Ты стоишь у двери. Капельницы капают. Ты уходишь.', effects: [set25('bs', 'go'), until25(10, 50)] },
     ] }),
 
