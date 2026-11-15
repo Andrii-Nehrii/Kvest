@@ -617,6 +617,32 @@ describe('участок 30: мороз — опасная ночь по трё�
     }
   });
 
+  // ───────────── Участок 35 ─────────────
+  it('участок 35: знают разное, решают друг за друга — Тобиас, Янник, медсестра; миры сходятся', () => {
+    const b32 = after32('farm', 'farm', 'family');
+    const s33 = fresh(mergeCp(b32, 33, leg(b32, 'A'), leg(b32, 'B')));
+    const b33 = completeCheckpoint(c, s33, both({ c3_new_winter33: 'work' })).state;
+    const s34 = fresh(mergeCp(b33, 34, leg(b33, 'A'), leg(b33, 'B')));
+    const b34 = completeCheckpoint(c, s34, both({ c3_new_lean34: 'north' })).state;
+    for (const p of P) expect(b34.chars[p].scene).toBe('c35_start');
+    b34.vars['A.met_jannik'] = 'refused';
+    const routes: [Record<string, string>, Record<string, string>, Record<string, string>][] = [
+      [{ c35_a_jannik: 'c35_aj_sorry', c35_a_dusk: 'c35_ad_tell' }, { c35_b_dusk: 'c35_bd_tell' }, { c3_new_north35: 'together', c3_new_east35: 'give', c3_new_way35: 'north' }],
+      [{ c35_a_jannik: 'c35_aj_excuse', c35_a_dusk: 'c35_ad_keep' }, {}, { c3_new_north35: 'go', c3_new_east35: 'yes', c3_new_way35: 'stay' }],
+      [{ c35_a_jannik: 'c35_aj_silent' }, { c35_b_point: 'c35_bp_yes' }, { c3_new_north35: 'no', c3_new_east35: 'no', c3_new_way35: 'east' }],
+    ];
+    for (const [ar, br, ans] of routes) {
+      const a = leg(b34, 'A', ar), b = leg(b34, 'B', br);
+      const s35 = mergeCp(b34, 35, a, b);
+      expect(s35.chars.A.time).toBe(s35.chars.B.time);
+      for (const p of P) { expect(s35.chars[p].location).toBe('hof_luedemann'); expect(canAct(s35.chars[p].body)).toBe(true); }
+      const want = ans.c3_new_north35 === 'together' && !s35.vars['w.c35_jannik'] ? 'go' : ans.c3_new_north35;
+      const out = completeCheckpoint(c, s35, { A: { c3_new_north35: want, c3_new_way35: ans.c3_new_way35 }, B: { c3_new_east35: ans.c3_new_east35, c3_new_way35: ans.c3_new_way35 } }).state;
+      expect(out.vars['w.c35_north']).toBe(want); expect(out.vars['w.c35_east']).toBe(ans.c3_new_east35); expect(out.vars['w.c35_way']).toBe(ans.c3_new_way35);
+      for (const p of P) expect(out.chars[p].scene).toBe('c36_start');
+    }
+  });
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'

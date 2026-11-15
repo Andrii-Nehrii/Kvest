@@ -749,4 +749,10 @@ npx tsc --noEmit && npx vitest run && npm run e2e:quick
   списком» (`w.c34_heard_new`, `w.c34_tobias_warned`) — задел 35-й. Час вдвоём: личное `$.c34_wish` stay/east/north/none (в сверку не идёт).
   Воскресенье: списки Красного Креста в Йестебурге — Томас (`w.c19_brockmann_answer`) → ответ A `w.c34_thomas` truth/gentle/none;
   Павел (`pawel34`) — восток 10-го, место на двоих; Лея — матери и Финна нет в списках Целле; колонна на Аренсбург 10-го.
-  КТ34: `c3_new_lean34` → `w.c34_lean` stay/east/north (разные → stay). Дальше: точка 35 (ключевая, финал запаса).
+  КТ34: `c3_new_lean34` → `w.c34_lean` stay/east/north (разные → stay).
+* 15.11 — написана точка 35 (`point35.ts`, `day35.ts`, `finish35.ts`) — финал запаса. Утром оберлейтенант Хаазе с учётом (обе линии;
+  `w.c35_list_full`). A: Тобиас — `w.c35_tobias_offer` (без Тобиаса — Лукас, `w.c35_army_known`), Янник — `w.c35_jannik` (согласен взять
+  двоих: извинился / спросил про девушку / подвёз в первый день); рассказал ли B — `w.c35_told_tobias`. B: Зандер и Окафор — `w.c35_nurse_offer`,
+  Хенрике наедине — `w.c35_henrike_promise`; рассказала ли A — `w.c35_told_north`. КТ35: `c3_new_north35` (отвечает A) go/together(при
+  `w.c35_jannik`)/no → `w.c35_north`; `c3_new_east35` (отвечает B) yes/no/give → `w.c35_east`; `c3_new_way35` stay/north/east (разные →
+  stay) → `w.c35_way`. Дальше — `c36_start` (заглушка).
