@@ -714,4 +714,8 @@ npx tsc --noEmit && npx vitest run && npm run e2e:quick
 * 15.11 — написана точка 28 (`point28.ts`, `day28a.ts`, `day28b.ts`, `finish28.ts`). Тим: `w.c28_tim` dead/ward; кто сделал
   последнее — выбор B в первой сцене (`w.c28_tim_end` kasia/morphine/tobias/ute); список: `w.c28_list` off (ложь при враждебном
   Брандте) / half; Вессель `w.c28_wessel` fired/stays; Кася `w.c28_kasia` stays/east; Оле `w.c28_ole` home/dead (NPC `ole` мёртв
-  при `w.c27_ole_last`); Хенрике дома. КТ28 как в плане (`w.c28_place`, `w.c28_house`). Дальше: точка 29.
+  при `w.c27_ole_last`); Хенрике дома. КТ28 как в плане (`w.c28_place`, `w.c28_house`).
+* 15.11 — написана точка 29 (`point29.ts`, `day29x.ts`, `finish29.ts`). Суббота+воскресенье; потеря-эхо: `w.c29_coop_roof = fallen`,
+  `w.c29_hens_lost = 3` (если в 18-й Фолькеру только вода и он не жилец); колонка `w.c29_pump_frozen` (`w.c29_pump_saved`); собрание —
+  правда вслух всегда (`w.c29_truth_public`); Фолькер уходит в Тоштедт. КТ29 как в плане (`w.c29_sweep` join/guard/leave → guard,
+  `w.c29_diesel` trade/none/later → none). Дальше: точка 30 (ключевая, большая опасность).

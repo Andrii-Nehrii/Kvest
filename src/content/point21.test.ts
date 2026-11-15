@@ -380,3 +380,41 @@ describe('участок 28: пятница — ночь, патруль, Хен
       for (const p of P) expect(out.chars[p].scene).toBe('c29_start');
     });
 });
+
+describe('участок 29: первый адвент, собрание', () => {
+  const s21 = finish(after20('stay', 'wait'));
+  const fresh = (s: GameState) => { for (const p of P) Object.assign(s.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 }); return s; };
+  fresh(s21);
+  const after28 = (truth: string, duty: string) => {
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: 'hide', c3_new_bag21: 'keep' })).state;
+    const s22 = fresh(mergeCp(b21, 22, leg(b21, 'A'), leg(b21, 'B')));
+    const b22 = completeCheckpoint(c, s22, { A: { c3_new_letter22: 'home' }, B: { c3_new_tobias22: 'silent' } }).state;
+    const s23 = fresh(mergeCp(b22, 23, leg(b22, 'A'), leg(b22, 'B')));
+    const b23 = completeCheckpoint(c, s23, both({ c3_new_guests23: 'in', c3_new_monday23: 'hide' })).state;
+    const s24 = fresh(mergeCp(b23, 24, leg(b23, 'A'), leg(b23, 'B')));
+    const b24 = completeCheckpoint(c, s24, both({ c3_new_duty24: duty, c3_new_tuesday24: 'stay' })).state;
+    const s25 = fresh(mergeCp(b24, 25, leg(b24, 'A'), leg(b24, 'B')));
+    const b25 = completeCheckpoint(c, s25, both({ c3_new_ole25: 'fetch', c3_new_truth25: truth })).state;
+    const s26 = fresh(mergeCp(b25, 26, leg(b25, 'A'), leg(b25, 'B')));
+    const b26 = completeCheckpoint(c, s26, both({ c3_new_meet26: 'ready', c3_new_seed26: 'keep' })).state;
+    b26.vars['w.nowaks_gone'] = true; if (b26.npcs.kasia) b26.npcs.kasia.alive = true;
+    const s27 = fresh(mergeCp(b26, 27, leg(b26, 'A'), leg(b26, 'B')));
+    const b27 = completeCheckpoint(c, s27, { A: { c3_new_tim27: 'stay' }, B: { c3_new_patrol27: 'tobias' } }).state;
+    const s28 = fresh(mergeCp(b27, 28, leg(b27, 'A'), leg(b27, 'B')));
+    return completeCheckpoint(c, s28, both({ c3_new_place28: 'hands', c3_new_house28: 'eva' })).state;
+  };
+  for (const [truth, duty] of [['brandt', 'b'], ['none', 'a']] as const)
+    it(`правда ${truth}, смена ${duty}: два дня проходятся, миры сходятся`, () => {
+      const b28 = after28(truth, duty);
+      b28.vars['A.c18_kn'] = 'water'; b28.vars['A.met.c18_volker'] = true; delete b28.vars['w.c18_lodger'];
+      for (const p of P) expect(b28.chars[p].scene).toBe('c29_start');
+      const a = leg(b28, 'A', { c29_a_church: 'c29_ac_speak' }), b = leg(b28, 'B');
+      expect(a.vars['w.c29_coop_roof']).toBe('fallen'); expect(b.vars['w.c29_coop_roof']).toBe('fallen');
+      const s29 = mergeCp(b28, 29, a, b);
+      expect(s29.chars.A.time).toBe(s29.chars.B.time);
+      for (const p of P) { expect(s29.chars[p].location).toBe('hof_luedemann'); expect(canAct(s29.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s29, { A: { c3_new_sweep29: 'join', c3_new_diesel29: 'trade' }, B: { c3_new_sweep29: 'leave', c3_new_diesel29: 'trade' } }).state;
+      expect(out.vars['w.c29_sweep']).toBe('guard'); expect(out.vars['w.c29_diesel']).toBe('trade');
+      for (const p of P) expect(out.chars[p].scene).toBe('c30_start');
+    });
+});

@@ -18,6 +18,8 @@ const list: ItemType[] = [
   { id: 'c16_bread', name: 'хлеб с хутора, буханка', weight: 700, tags: ['food'], food: { hunger: 30, kcal: 1300, minutes: 10 }, spoilsAfter: 5 * 1440 },
   { id: 'c18_fork', name: 'камертон в замшевом чехле', weight: 60, tags: [] },
   { id: 'c18_insulin', name: 'инсулин, две шприц-ручки', weight: 60, tags: ['medicine'] },
+  { id: 'c29_ole_cap', name: 'вязаная шапка Оле', weight: 120, tags: ['clothing'], description: 'Серая, с помпоном, чуть мала. Хенрике отдала её тебе.' },
+  { id: 'c29_hen', name: 'курица, ощипанная', weight: 1200, tags: ['food', 'needs_cooking'], food: { kcal: 1400 }, spoilsAfter: 4 * 1440 },
   { id: 'c27_photo', name: 'фотография дома в Бармбеке', weight: 5, tags: ['note'], description: 'Лестница у подъезда, на ступеньках все: Новаки, Окафор с котом, Мерле в огромном шарфе. И ты, сбоку, с пакетом из магазина.' },
   { id: 'c27_photo_torn', name: 'надорванная фотография дома в Бармбеке', weight: 5, tags: ['note'], description: 'Половины лестницы нет. Остались Новаки и угол подъезда.' },
   { id: 'c27_tobias_note', name: 'записка Тобиаса', weight: 5, tags: ['note'], description: '«Patrouille geht die Höfe ab. Bei euch morgen um sechs. Ich komme heute um vier. Verbrennt das. T.»' },
