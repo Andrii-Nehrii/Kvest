@@ -1,6 +1,6 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
-import { all, flag } from './world3';
+import { all, flag, not } from './world3';
 import { any, v } from './point18';
 import { P28, oleDead, timDied, timWard } from './point28';
 
@@ -10,6 +10,10 @@ const w = (key: string): Cond => flag(`w.c28_${key}`);
 
 // Сверка в пятницу в восемь вечера.
 export const point28Notes: MergeNote[] = [
+  N('c28_tim_listed', all(flag('w.c28_tim_listed'), not(v('w.c28_tim_listed', 'none'))), 'Тима вписали в список Брандта: Тим Новак, восемь лет, Бармбек. Умер 27 ноября.'),
+  N('c28_told_all', flag('w.c28_told_all'), '{A} рассказал Хенрике всё, что было без неё, по порядку.'),
+  N('c28_wessel_stays', flag('w.c28_wessel_stays'), 'Вессель живёт на сеновале до десятого: латает мешки и ждёт колонну на восток.'),
+  N('c28_wake', v('w.c28_wake', 'all'), 'После похорон приходили соседи: Кёлер, Уте, колония. Девять человек.'),
   N('c28_hollow_rep', flag('w.c28_hollow_reported'), 'С крыши сарая {A} увидел: масса во впадине у Гарльсторфа сдвинулась к старому мосту, на километр ближе. Он сразу сходил к Брандту.'),
   N('c28_hollow_seen', any(flag('w.c28_hollow_seen'), flag('w.c28_hollow_marks')), 'С крыши сарая {A} видел: тёмное пятно у Гарльсторфа стало ближе, у старого моста.'),
   N('c28_kulka', v('w.c28_kulka', 'nina'), 'Пан Кулька, хомяк Тима, теперь живёт у Нины.'),

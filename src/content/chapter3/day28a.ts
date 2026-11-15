@@ -2,6 +2,7 @@ import type { Outcome, Scene } from '../../engine/content-types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { npc } from './point19';
+import { v } from './point18';
 import {
   S28, hostile28, nightFacts, offList, oleDead, patrolNone, patrolTobias, patrolTruth, set28, snow28, timDied, timWard, until28, vanHidden, w28, wesselFired,
 } from './point28';
@@ -52,6 +53,7 @@ export const day28AScenes: Scene[] = [
       { when: wesselFired, text: 'Солдаты нашли фургон за сеновалом. Лейтенант записал номер. Вессель стоит у фургона без ушанки.\n\n— Das war es. Kein Wagen mehr. Den holen sie heute Nachmittag.\n\nВсё. Фургона больше нет. Его заберут днём.' },
       { when: all(vanHidden, not(wesselFired)), text: 'Фургон за сеновалом не нашли. Вессель снимает брезент и заводит мотор.\n\n— Ich fahre nach Lüneburg. Frühschicht. Als wäre nichts. — Он смотрит на дом. — Es war nichts. Oder?\n\nЕду в Люнебург. Утренняя смена. Как будто ничего. Ничего ведь не было?' },
       { when: not(vanHidden), text: 'Вессель уехал ещё вчера, до света. На снегу у ворот остались следы шин, уже припорошённые.' },
+      { when: v('$.c28_ad', 'sit'), text: 'Утром, на рассвете, ты сидел{m:|а} с Касей молча, пока не пришли. Она это помнит: держится ближе к тебе, чем к остальным.' },
     ],
     actions: [
       { id: 'c28_aw_stay', label: 'Предложить Весселю остаться до колонны на восток', when: wesselFired, minutes: 30, terminal: true, goto: 'c28_henrike',
@@ -70,13 +72,13 @@ export const day28AScenes: Scene[] = [
       { when: oleDead, text: 'На кухне Хенрике. Она сидит за столом и листает тетрадь Оле. Ты садишься напротив.' },
     ],
     actions: [
-      { id: 'c28_ao_gun', label: 'Рассказать, что стало с ружьём', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_afternoon',
+      { id: 'c28_ao_gun', label: 'Рассказать, что стало с ружьём', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_tell',
         text: 'Ты рассказываешь. Оле слушает, кивает.\n\n— Vater hätte es auch so gemacht. Oder schlimmer. — Он улыбается углом рта. — Und der Schrank oben? Hast du das Wort?\n\nОтец бы сделал так же. Или хуже. А шкаф наверху? Слово угадал?', effects: [set28('ao', 'gun'), npc('ole', 2), until28(13, 40)] },
-      { id: 'c28_ao_mia', label: 'Спросить про малышку у окна', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_afternoon',
+      { id: 'c28_ao_mia', label: 'Спросить про малышку у окна', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_tell',
         text: '— Mia. — Оле смотрит в кружку. — Sie hat am Dienstag gefragt, ob ich morgen komme. Ich hab ja gesagt. Und dann bin ich umgefallen. Ich weiß nicht, was mit ihr ist.\n\nМия. Во вторник спросила, приду ли я завтра. Я сказал: да. А потом упал. Не знаю, что с ней.', effects: [set28('ao', 'mia'), npc('ole', 1), { body: 'stress', delta: 2 }, until28(13, 40)] },
-      { id: 'c28_ao_book', label: 'Спросить Хенрике про тетрадь', when: oleDead, minutes: 30, terminal: true, goto: 'c28_a_afternoon',
+      { id: 'c28_ao_book', label: 'Спросить Хенрике про тетрадь', when: oleDead, minutes: 30, terminal: true, goto: 'c28_a_tell',
         text: 'Хенрике показывает последнюю страницу. Почерк Оле, неровный: «Do. Letztes Mal. Für Mia». Четверг. Последний раз. Для Мии.\n\n— Er hat es selbst entschieden. — Хенрике закрывает тетрадь. — Ihr habt ihm gesagt, er soll selbst entscheiden. Er hat.\n\nОн решил сам. Вы сказали ему решать самому. Он решил.', effects: [set28('ao', 'book'), { body: 'stress', delta: 4 }, until28(13, 40)] },
-      { id: 'c28_ao_sit', label: 'Просто сесть рядом', minutes: 30, terminal: true, goto: 'c28_a_afternoon',
+      { id: 'c28_ao_sit', label: 'Просто сесть рядом', minutes: 30, terminal: true, goto: 'c28_a_tell',
         text: 'Ты садишься. Печь гудит. Часы отстают на четыре минуты. Никто не встаёт их поправить.', effects: [set28('ao', 'sit'), until28(13, 40)] },
     ] }),
 
@@ -87,11 +89,11 @@ export const day28AScenes: Scene[] = [
       { when: all(not(offList), flag('w.c28_list')), text: 'В два звонит велосипед. Лукас. Бумага: «Lüdemann-Hof — halbe Ration bis 15.12. Zweiter Verstoß». Половина пайка до пятнадцатого. Второе нарушение.' },
     ],
     actions: [
-      { id: 'c28_aa_cross', label: 'Сделать крест для могилы', when: timDied, minutes: 90, activity: 'light', terminal: true, goto: 'c28_a_roof',
+      { id: 'c28_aa_cross', label: 'Сделать крест для могилы', when: timDied, minutes: 60, activity: 'light', terminal: true, goto: 'c28_a_roof',
         text: 'Две берёзовые жерди, проволока, гвоздь. Ты выжигаешь раскалённым гвоздём на перекладине: «TIM». Кася смотрит, как ты работаешь, и не уходит, пока ты не заканчиваешь.', effects: [set28('aa', 'cross'), w28('tim_cross', true), npc('kasia', 2), until28(15, 30)] },
-      { id: 'c28_aa_ole_room', label: 'Помочь Хенрике разобрать вещи Оле', when: oleDead, minutes: 90, terminal: true, goto: 'c28_a_roof',
+      { id: 'c28_aa_ole_room', label: 'Помочь Хенрике разобрать вещи Оле', when: oleDead, minutes: 60, terminal: true, goto: 'c28_a_roof',
         text: 'Хенрике складывает рубашки Оле стопкой. Кубки за футбол оставляет на полке. Плакат с трактором — на стене. Шкаф наверху она закрывает и долго держит руку на дверце.', effects: [set28('aa', 'ole_room'), npc('henrike', 2), until28(15, 30)] },
-      { id: 'c28_aa_wood', label: 'Колоть дрова', minutes: 120, activity: 'heavy', terminal: true, goto: 'c28_a_roof', ambientDuring: snow28,
+      { id: 'c28_aa_wood', label: 'Колоть дрова', minutes: 80, activity: 'heavy', terminal: true, goto: 'c28_a_roof', ambientDuring: snow28,
         text: 'Колун поднимается и падает. Поленница растёт. К сумеркам у тебя болят плечи, и это хорошо: болит что-то, что можно назвать.', effects: [set28('aa', 'wood'), { body: 'fatigue', delta: 10 }, { body: 'stress', delta: -3 }, until28(15, 30)] },
       { id: 'c28_aa_brandt', label: 'Сходить к Брандту поговорить про список', when: hostile28, minutes: 150, terminal: true, goto: 'c28_supper', ambientDuring: snow28,
         text: 'Брандт принимает тебя в караулке, стоя. Слушает, не перебивая.\n\n— Ich habe gesagt: wer lügt, fliegt. Ihr habt gelogen oder nicht?\n\nЯ сказал: кто врёт, вылетает. Вы врали или нет?\n\nОн отворачивается к окну. Разговор окончен. Домой ты идёшь в темноте.', effects: [set28('aa', 'brandt'), { body: 'fatigue', delta: 4 }, until28(17, 55)] },

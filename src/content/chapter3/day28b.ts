@@ -82,11 +82,11 @@ export const day28BScenes: Scene[] = [
       { when: oleDead, text: 'Она спрашивает ровно. Как будто, если не спросить, придётся думать об Оле.' },
     ],
     actions: [
-      { id: 'c28_bh_all', label: 'Рассказать про всех по порядку', minutes: 50, terminal: true, goto: 'c28_b_afternoon',
+      { id: 'c28_bh_all', label: 'Рассказать про всех по порядку', minutes: 50, terminal: true, goto: 'c28_b_eva',
         text: 'Ты рассказываешь. Эва и колодец. Лея и её кровь, которая никого не лечит. Кася и Тим. Маркус и Лео. Хенрике слушает и чистит картошку. На Лее она останавливает нож.\n\n— Die ist nicht krank gewesen? Und Ole hat für sie… — Она не договаривает. Чистит дальше.\n\nОна не болела? А Оле за неё…', effects: [set28('bh', 'all'), npc('henrike', 2), until28(14, 0)] },
-      { id: 'c28_bh_eva', label: 'Начать с Эвы: она здесь дольше всех', minutes: 40, terminal: true, goto: 'c28_b_afternoon',
+      { id: 'c28_bh_eva', label: 'Начать с Эвы: она здесь дольше всех', minutes: 40, terminal: true, goto: 'c28_b_eva',
         text: 'Хенрике слушает про Эву, про Хельмута в колодце, про берёзовый крест. Потом идёт к Эве сама, без тебя. Через полчаса из кухни слышно, как они спорят о том, сколько соли класть в картошку. Хорошо спорят.', effects: [set28('bh', 'eva'), npc('henrike', 1), npc('c8_eva', 2), until28(14, 0)] },
-      { id: 'c28_bh_book', label: 'Показать тетрадь, куда Нина записывала всё, что ели', minutes: 40, terminal: true, goto: 'c28_b_afternoon',
+      { id: 'c28_bh_book', label: 'Показать тетрадь, куда Нина записывала всё, что ели', minutes: 40, terminal: true, goto: 'c28_b_eva',
         text: 'Хенрике листает Нинину тетрадь. Яйца по дням, картошка, хлеб Кёлер, паёк. Она водит пальцем по строчкам.\n\n— Das Kind hat Buch geführt. Wie Werner.\n\nРебёнок вёл учёт. Как Вернер.\n\nОна закрывает тетрадь и прижимает к груди.', effects: [set28('bh', 'book'), npc('henrike', 2), npc('c7_nina', 1), until28(14, 0)] },
     ] }),
 

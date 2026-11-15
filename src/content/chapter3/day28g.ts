@@ -1,0 +1,87 @@
+import type { Scene } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { all, not } from './world3';
+import { house14, kitchen14, yard14 } from './point14';
+import { npc } from './point19';
+import { S28, set28, snow28, timDied, until28, w28 } from './point28';
+
+// Участок 28, третий проход (до уровня 19–20): Тобиас после похорон и список (A), Хенрике спрашивает, что было (A),
+// поминки с Эвой (B), ночь у обоих.
+const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S28({ ...scene, for: 'any', chapter: 'ch3' });
+const tobias: Cond = { npc: 'c15_tobias', alive: true };
+const wessel: Cond = { npc: 'c27_wessel', alive: true, at: 'hof_luedemann' };
+const henrike: Cond = { npc: 'henrike', alive: true };
+
+export const day28GScenes: Scene[] = [
+  X({ id: 'c28_a_list', title: 'Список', camp: yard14, ambient: snow28,
+    text: [
+      { when: all(tobias, timDied), text: 'После похорон Тобиас не уезжает. Стоит у «Вольфа», курит, смотрит на свежую землю. Потом подзывает тебя.\n\n— Brandt führt eine Liste. Wer lebt, wer tot ist, wer krank war. Der Junge stand nirgends. Wenn ihr ihn meldet, steht er drin. Mit Datum. Wenn nicht — hat es ihn nie gegeben.\n\nБрандт ведёт список. Кто жив, кто умер, кто болел. Мальчика нигде не было. Если сообщите — он там будет. С датой. Если нет — его никогда не было.' },
+      { when: not(all(tobias, timDied)), text: 'После утра у ворот останавливается дружинник с планшетом. Брандт переписывает дворы: кто живёт, кто болел, кто умер с прошлой недели. Он ждёт, что ты скажешь.' },
+    ],
+    actions: [
+      { id: 'c28_al3_report', label: 'Сказать: впишите его. Тим Новак, восемь лет, Гамбург', minutes: 30, terminal: true, goto: 'c28_a_wessel',
+        text: 'Карандаш выводит буквы медленно. «Nowak, Tim. 8. Hamburg-Barmbek. † 27.11.» Ты смотришь, как это становится правдой на бумаге. Кася стоит у окна и видит всё.', effects: [set28('al3', 'report'), w28('tim_listed', true), npc('kasia', 1, 'c28_tim_listed'), until28(10, 20)] },
+      { id: 'c28_al3_none', label: 'Промолчать: пусть его в списках не будет', minutes: 20, terminal: true, goto: 'c28_a_wessel',
+        text: 'Тобиас кивает и убирает планшет. «Gut. Dann war er nie hier». Ладно. Тогда его здесь никогда не было. Под грушей свежая земля говорит другое.', effects: [set28('al3', 'none'), w28('tim_listed', 'none'), until28(10, 10)] },
+      { id: 'c28_al3_kasia', label: 'Спросить Касю: как она хочет', minutes: 30, terminal: true, goto: 'c28_a_wessel',
+        text: 'Кася выходит на крыльцо босиком. Слушает. Потом говорит одно слово: «Wpisz». Впиши. И уходит обратно в дом. Тобиас пишет.', effects: [set28('al3', 'kasia'), w28('tim_listed', true), npc('kasia', 2, 'c28_asked_her'), until28(10, 20)] },
+    ] }),
+
+  X({ id: 'c28_a_tell', title: 'Что было', camp: kitchen14,
+    text: [
+      { when: henrike, text: 'Хенрике обходит дом, как обходят после пожара: трогает стены, считает тарелки. Потом садится напротив тебя и говорит: «Erzähl. Alles. Von Anfang an». Рассказывай. Всё. С начала.' },
+      { when: not(henrike), text: 'Эва садится напротив тебя и говорит: Хенрике будет спрашивать. Лучше сказать первым. Что ты скажешь?' },
+    ],
+    actions: [
+      { id: 'c28_at3_all', label: 'Рассказать всё по порядку, ничего не смягчая', minutes: 60, terminal: true, goto: 'c28_a_afternoon',
+        text: 'Ты рассказываешь: колонна, Лея, ночь у колонии, фургон Весселя, мальчик, патруль. Она перебивает только раз, на курице: «Die Rote?» Потом слушает до конца, не шевелясь. В конце говорит: «Ihr habt mehr getragen, als ich euch gegeben habe». Вы несли больше, чем я вам оставила.', effects: [set28('at3', 'all'), w28('told_all', true), npc('henrike', 2, 'c28_told_all'), until28(14, 40)] },
+      { id: 'c28_at3_short', label: 'Сказать главное: все живы, кроме мальчика', minutes: 30, terminal: true, goto: 'c28_a_afternoon',
+        text: 'Хенрике кивает. «Der Rest kommt später. Er kommt immer». Остальное потом. Оно всегда приходит. И идёт к курятнику пересчитывать.', effects: [set28('at3', 'short'), until28(14, 10)] },
+      { id: 'c28_at3_hens', label: 'Начать с хорошего: дом цел, куры несутся, дрова есть', minutes: 40, terminal: true, goto: 'c28_a_afternoon',
+        text: 'Хенрике слушает про дрова и кур и смотрит на тебя всё внимательнее. Потом говорит: «Und jetzt das andere». А теперь другое. Ты рассказываешь другое.', effects: [set28('at3', 'hens'), npc('henrike', 1), until28(14, 20)] },
+    ] }),
+
+  X({ id: 'c28_a_night', title: 'Ночь', camp: yard14, ambient: snow28, onEnter: [until28(19, 30)],
+    text: [
+      { when: wessel, text: 'Ночью Вессель стоит у сеновала, где под брезентом его фургон. Курит. Он хочет уехать до света, на восток, к колонне. Бензина на сто километров. Колонна уходит десятого. До десятого надо где-то жить.' },
+      { when: not(wessel), text: 'Ночью ты выходишь к груше. Свежая земля под снегом. У края — следы лисы, круг за кругом. Она ходила здесь, пока все были на поминках.' },
+    ],
+    actions: [
+      { id: 'c28_an3_stay', label: 'Сказать Весселю: живи у нас до десятого, сеновал твой', when: wessel, minutes: 30, terminal: true, goto: 'c28_checkpoint',
+        text: 'Вессель долго молчит. «Ich kann Säcke flicken. Und fahren. Mehr nicht». Могу латать мешки. И водить. Больше ничего. Это значит «да».', effects: [set28('an3', 'stay'), w28('wessel_stays', true), npc('c27_wessel', 2), until28(20, 0)] },
+      { id: 'c28_an3_fuel', label: 'Отдать ему пять литров солярки: пусть едет', when: wessel, minutes: 30, terminal: true, goto: 'c28_checkpoint',
+        text: 'Ты сливаешь пять литров из канистры в его бак. Он не благодарит: мужчины его поколения так не делают. На рассвете фургон уходит, и на снегу остаются следы шин, ведущие на восток.', effects: [set28('an3', 'fuel'), w28('wessel_left', true), npc('c27_wessel', 2, 'c28_gave_fuel'), until28(20, 0)] },
+      { id: 'c28_an3_none', label: 'Не вмешиваться: решит сам', when: wessel, minutes: 15, terminal: true, goto: 'c28_checkpoint',
+        text: 'Ты киваешь ему и уходишь в дом. Утром фургон на месте. Вессель решил подождать. Или не решил ничего.', effects: [set28('an3', 'none'), until28(19, 45)] },
+      { id: 'c28_an3_stones', label: 'Обложить могилу камнями от лисы', when: not(wessel), minutes: 40, activity: 'moderate', terminal: true, goto: 'c28_checkpoint',
+        text: 'Камни из старой кладки у сарая, по одному, в темноте. Ты обкладываешь холмик кругом, плотно, как Кая у насыпи. Утром Кася видит камни и ничего не говорит. Но приносит туда ещё один, белый, с ручья.', effects: [set28('an3', 'stones'), w28('grave_stones', true), npc('kasia', 2, 'c28_stones'), until28(20, 0)] },
+      { id: 'c28_an3_back', label: 'Вернуться в дом', when: not(wessel), minutes: 10, terminal: true, goto: 'c28_checkpoint',
+        text: 'Ты возвращаешься. Лиса придёт снова. Или не придёт.', effects: [set28('an3', 'back'), until28(19, 40)] },
+    ] }),
+
+  X({ id: 'c28_b_eva', title: 'Поминки', camp: kitchen14,
+    text: [
+      { text: 'Эва повязывает передник и говорит: после похорон люди придут, так положено. Кто-то принесёт хлеб, кто-то шнапс. Надо, чтобы был стол. Кого звать, решать тебе: она здесь не хозяйка, а Хенрике только что вернулась.' },
+    ],
+    actions: [
+      { id: 'c28_be2_all', label: 'Звать всех соседей: Кёлер, Уте, колонию', minutes: 40, terminal: true, goto: 'c28_b_afternoon',
+        text: 'К трём приходят девять человек. Кёлер приносит пирог, Уте — банку мёда, Яннес — бутылку, которую никто не открывает. Сидят недолго, говорят мало. Перед уходом каждый жмёт Касе руку. Кася держится до последнего гостя, потом уходит в сарай.', effects: [set28('be2', 'all'), w28('wake', 'all'), npc('c3_koehler', 1), npc('c14_ute', 1), until28(15, 30)] },
+      { id: 'c28_be2_close', label: 'Только своих: дом и Уте', minutes: 30, terminal: true, goto: 'c28_b_afternoon',
+        text: 'Стол небольшой. Уте приносит мёд и садится рядом с Касей. Говорят по-польски, по-немецки, по-русски, кто как может. Кася впервые за два дня ест.', effects: [set28('be2', 'close'), w28('wake', 'close'), npc('kasia', 1), until28(15, 15)] },
+      { id: 'c28_be2_none', label: 'Сказать Эве: не надо стола, Касе не до гостей', minutes: 20, terminal: true, goto: 'c28_b_afternoon',
+        text: 'Эва снимает передник. «Vielleicht hast du recht. Vielleicht nicht». Может, ты {m:прав|права}. Может, нет. Вечером Кёлер всё равно приходит с пирогом, стоит у калитки и не заходит.', effects: [set28('be2', 'none'), w28('wake', 'none'), until28(14, 30)] },
+    ] }),
+
+  X({ id: 'c28_b_late', title: 'Ночь', camp: house14, onEnter: [until28(19, 30)],
+    text: [
+      { text: 'Ночью Кася приходит к тебе, садится на край кровати и долго молчит. Потом спрашивает, можно ли спать здесь, на полу, рядом. Одна она не может: каждый раз, когда закрывает глаза, Тим зовёт её с соседней кровати.' },
+    ],
+    actions: [
+      { id: 'c28_bl6_floor', label: 'Постелить ей рядом', minutes: 20, terminal: true, goto: 'c28_checkpoint',
+        text: 'Ты стелешь одеяло на полу у своей кровати. Кася ложится, свернувшись. Ты держишь руку свесившейся с кровати, она держит её до утра.', effects: [set28('bl6', 'floor'), npc('kasia', 2, 'c28_slept_near'), until28(20, 0)] },
+      { id: 'c28_bl6_sit', label: 'Пойти к ней и сидеть, пока не уснёт', minutes: 40, terminal: true, goto: 'c28_checkpoint',
+        text: 'Ты сидишь у её раскладушки, пока она не засыпает. Это долго. Ты считаешь её вдохи, как {m:считал|считала} у Тима.', effects: [set28('bl6', 'sit'), npc('kasia', 1), { body: 'fatigue', delta: 3 }, until28(20, 0)] },
+      { id: 'c28_bl6_eva', label: 'Попросить Эву взять её к себе', minutes: 20, terminal: true, goto: 'c28_checkpoint',
+        text: 'Эва без слов поднимает одеяло на своей кровати. Кася ложится к ней, как к бабушке. Ты слышишь, как Эва шепчет молитву по-польски, которую, оказывается, знает.', effects: [set28('bl6', 'eva'), npc('c8_eva', 1), until28(20, 0)] },
+    ] }),
+];

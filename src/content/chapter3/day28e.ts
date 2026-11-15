@@ -20,11 +20,11 @@ export const day28EScenes: Scene[] = [
       { when: not(binoculars), text: 'На юге, у Гарльсторфа, тёмное пятно у леса, которого не было неделю назад. Оно больше. Или ближе. Без бинокля не понять.' },
     ],
     actions: [
-      { id: 'c28_ar_brandt', label: 'Слезть и сразу идти к Брандту', minutes: 120, activity: 'moderate', terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+      { id: 'c28_ar_brandt', label: 'Слезть и сразу идти к Брандту', minutes: 90, activity: 'moderate', terminal: true, goto: 'c28_supper', ambientDuring: snow28,
         text: 'Брандт выслушивает тебя стоя, в дверях караулки. Потом молча ведёт тебя к карте на стене и показывает: синий карандаш уже обвёл впадину, красный — мост. «Seit gestern, — говорит он. — Danke, dass du gekommen bist». Со вчерашнего дня. Спасибо, что пришёл. Это первое «спасибо» от него.', effects: [set28('ar', 'brandt'), w28('hollow_reported', true), npc('c16_brandt', 1, 'c28_reported_hollow'), until28(17, 50)] },
-      { id: 'c28_ar_house', label: 'Сбросить снег и рассказать дома за ужином', minutes: 90, activity: 'heavy', terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+      { id: 'c28_ar_house', label: 'Сбросить снег и рассказать дома за ужином', minutes: 70, activity: 'heavy', terminal: true, goto: 'c28_supper', ambientDuring: snow28,
         text: 'Ты сбрасываешь снег пластами, пока не начинает темнеть. Внизу Нина отгребает его от стены. Про пятно у Гарльсторфа ты молчишь до ужина. А за ужином всё равно не находишь, как начать.', effects: [set28('ar', 'house'), w28('hollow_seen', true), { body: 'fatigue', delta: 8 }, until28(17, 50)] },
-      { id: 'c28_ar_watch', label: 'Остаться на крыше и смотреть, пока светло', minutes: 90, terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+      { id: 'c28_ar_watch', label: 'Остаться на крыше и смотреть, пока светло', minutes: 70, terminal: true, goto: 'c28_supper', ambientDuring: snow28,
         text: 'Ты сидишь на коньке до сумерек. Пальцы немеют. Масса у моста не двигается, пока ты смотришь. Но когда ты отводишь глаза на минуту и смотришь снова, край уже другой. Ты запоминаешь ориентиры: столб, ель с обломанной верхушкой, крыша сарая у моста.', effects: [set28('ar', 'watch'), w28('hollow_marks', true), until28(17, 50)] },
     ] }),
 

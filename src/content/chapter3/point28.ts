@@ -73,11 +73,11 @@ export const shared28: Scene[] = [
       { when: { has: 'c27_photo' }, text: 'Фотография дома в Бармбеке у {B.gen} в кармане. На ней Тим, маленький, на нижней ступеньке.' },
     ],
     actions: [
-      { id: 'c28_bu_say', label: 'Сказать несколько слов', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_wessel' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
+      { id: 'c28_bu_say', label: 'Сказать несколько слов', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
         text: 'Ты говоришь коротко. Что не знал{m:|а} его долго. Что он смеялся над ежом, который нашёл шапку на голове у совы. Что он спрашивал, тепло ли Пану Кульке. Кася стоит рядом и держит тебя за рукав.', effects: [set28('bu', 'say'), npc('kasia', 2), until28(9, 40)] },
-      { id: 'c28_bu_harm', label: 'Положить ему гармошку', when: flag('w.c27_box'), minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_wessel' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
+      { id: 'c28_bu_harm', label: 'Положить ему гармошку', when: flag('w.c27_box'), minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
         text: 'Кася кивает. Гармошка ложится ему на грудь, синяя, облезлая. Земля падает на неё с глухим звуком. Ты будешь помнить этот звук.', effects: [set28('bu', 'harm'), until28(9, 30)] },
-      { id: 'c28_bu_quiet', label: 'Стоять молча', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_wessel' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
+      { id: 'c28_bu_quiet', label: 'Стоять молча', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
         text: 'Никто ничего не говорит. Только лопаты, только снег. Уте в конце крестит холмик, по-старому, три раза.', effects: [set28('bu', 'quiet'), until28(9, 30)] },
     ] }),
 
@@ -88,6 +88,7 @@ export const shared28: Scene[] = [
       { when: henrikeWasHome, text: 'Хенрике дома с среды. Сегодня, после похорон, она в первый раз обходит дом целиком. Медленно. Молча.' },
       { text: 'Она идёт по дому, как по чужому. Чужие куртки на гвоздях в сенях. Валенки не по размеру. Пустые насесты: кур меньше. Коптильня. Подвал, ящики «Saat». Половица в швейной. Её кухонные часы, которые отстают на четыре минуты.' },
       { when: all(v('w.c27_hen', 'killed')), text: 'Первым делом, ещё до чая, Хенрике идёт в курятник. Выходит, вытирает руки о пальто. «Die Rote?» Рыжая? Ты киваешь: для бульона мальчику. Она молчит, потом говорит: «Die hat sowieso nicht mehr gelegt». Всё равно уже не неслась. И больше об этом не вспоминает.' },
+      { when: v('$.c28_aw', 'yard'), text: 'Двор вычищен, дрова сложены, снег отброшен от крыльца. Хенрике видит это первым, ещё из кабины грузовика.' },
     ],
     actions: [
       { id: 'c28_he_follow', label: 'Идти за ней и отвечать на каждый взгляд', minutes: 50, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_ole' }, { id: 'b', goto: 'c28_b_henrike' }],
@@ -103,6 +104,11 @@ export const shared28: Scene[] = [
       { when: not(oleDead), text: 'Рядом с ней Оле. Ест мало, медленно. Каждый раз, когда он берёт ложку, Хенрике перестаёт есть сама.' },
       { when: timDied, text: 'Кася сидит в конце стола. Ест, потому что Эва поставила перед ней тарелку и не уходит, пока она не возьмёт ложку.' },
       { text: 'Хенрике поднимает рюмку с корном. Одну на всех, по кругу.\n\n— Für die, die nicht mehr da sind. Und für die, die noch da sind. Das ist schwerer.\n\nЗа тех, кого больше нет. И за тех, кто ещё есть. Это труднее.' },
+      { when: v('$.c28_bu', 'harm'), text: 'Губной гармошки Тима больше нет: она с ним, под грушей. Кася иногда трогает пустой карман.' },
+      { when: v('$.c28_bu', 'quiet'), text: 'У могилы ты молчал{m:|а}. Кася потом сказала: так было правильно. Слова там лишние.' },
+      { when: v('$.c28_aa', 'wood'), text: 'Дров наколото на три дня вперёд. Хенрике кивает на поленницу, а не тебе.' },
+      { when: v('$.c28_bw', 'door'), text: 'Утром, пока обмывали Тима, ты стоял{m:|а} у двери и никого не пустил{m:|а}. Даже Нину. Она до сих пор на тебя не смотрит.' },
+      { when: v('w.c28_wake', 'all'), text: 'Пирог Кёлер стоит на столе, начатый с одного края. Соседи ушли, но тарелки ещё здесь.' },
     ],
     actions: [
       { id: 'c28_su_eat', label: 'Выпить, когда до тебя дойдёт рюмка, и поесть', minutes: 40, terminal: true, goto: 'c28_evening', ...tableOnly,
@@ -119,10 +125,10 @@ export const shared28: Scene[] = [
       { text: '— Ihr habt den Hof gehalten. Das sage ich einmal. — Она смотрит на свои руки. — Jetzt bin ich wieder da. Und ich frage euch: wie soll es weitergehen? Ich entscheide. Aber ich frage.\n\nВы удержали хутор. Говорю это один раз. Теперь я снова здесь. И я спрашиваю вас: как будет дальше? Решать буду я. Но я спрашиваю.' },
     ],
     actions: [
-      { id: 'c28_ev_think', label: 'Попросить ночь подумать', minutes: 20, terminal: true, goto: 'c28_checkpoint',
-        text: '— Bis morgen früh, — говорит Хенрике. До утра. — Länger warte ich nicht. Ich bin alt.\n\nДольше не жду. Я старая.', effects: [set28('ev', 'think'), finish, until28(20, 0)] },
-      { id: 'c28_ev_thank', label: 'Сказать: спасибо, что спрашиваете', minutes: 20, terminal: true, goto: 'c28_checkpoint',
-        text: 'Хенрике смотрит на тебя поверх очков.\n\n— Ich habe es von Werner gelernt. Er hat immer gefragt. Und dann hat er gemacht, was er wollte.\n\nЯ научилась у Вернера. Он всегда спрашивал. А потом делал, как хотел.\n\nОна почти улыбается.', effects: [set28('ev', 'thank'), npc('henrike', 1), finish, until28(20, 0)] },
+      { id: 'c28_ev_think', label: 'Попросить ночь подумать', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_night' }, { id: 'b', goto: 'c28_b_late' }],
+        text: '— Bis morgen früh, — говорит Хенрике. До утра. — Länger warte ich nicht. Ich bin alt.\n\nДольше не жду. Я старая.', effects: [set28('ev', 'think'), finish, until28(19, 30)] },
+      { id: 'c28_ev_thank', label: 'Сказать: спасибо, что спрашиваете', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_night' }, { id: 'b', goto: 'c28_b_late' }],
+        text: 'Хенрике смотрит на тебя поверх очков.\n\n— Ich habe es von Werner gelernt. Er hat immer gefragt. Und dann hat er gemacht, was er wollte.\n\nЯ научилась у Вернера. Он всегда спрашивал. А потом делал, как хотел.\n\nОна почти улыбается.', effects: [set28('ev', 'thank'), npc('henrike', 1), finish, until28(19, 30)] },
     ] }),
 
   S28({ id: 'c28_checkpoint', for: 'any', chapter: 'ch3', title: 'Пятница, восемь вечера', checkpoint: 28, universal: false, camp: house14,
