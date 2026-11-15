@@ -125,11 +125,11 @@ export const day25BScenes: Scene[] = [
       { text: 'Суп, хлеб. Место {A.gen} за столом пустое. Нина ставит туда кружку.' },
     ],
     actions: [
-      { id: 'c25_bl_eat', label: 'Поесть', minutes: 25, terminal: true, outcomes: [{ id: 'g', when: guestsHere, goto: 'c25_b_guests' }, { id: 'd', goto: 'c25_b_room' }], ...tableOnly,
+      { id: 'c25_bl_eat', label: 'Поесть', minutes: 25, terminal: true, outcomes: [{ id: 'g', when: guestsHere, goto: 'c25_b_guests' }, { id: 'd', goto: 'c25_b_tobias' }], ...tableOnly,
         text: 'Ты ешь и считаешь, сколько ещё до вечера.', effects: [set25('bl', 'eat'), toFarm, meal('eat'), until25(13, 0)] },
-      { id: 'c25_bl_nap', label: 'Лечь на час', minutes: 5, terminal: true, outcomes: [{ id: 'g', when: guestsHere, goto: 'c25_b_guests' }, { id: 'd', goto: 'c25_b_room' }],
+      { id: 'c25_bl_nap', label: 'Лечь на час', minutes: 5, terminal: true, outcomes: [{ id: 'g', when: guestsHere, goto: 'c25_b_guests' }, { id: 'd', goto: 'c25_b_tobias' }],
         text: 'Ты засыпаешь сразу и просыпаешься, когда солнце уже ушло с подоконника.', effects: [set25('bl', 'nap'), toFarm, until25(13, 30, true)] },
-      { id: 'c25_bl_tea', label: 'Только чай', minutes: 10, terminal: true, outcomes: [{ id: 'g', when: guestsHere, goto: 'c25_b_guests' }, { id: 'd', goto: 'c25_b_room' }],
+      { id: 'c25_bl_tea', label: 'Только чай', minutes: 10, terminal: true, outcomes: [{ id: 'g', when: guestsHere, goto: 'c25_b_guests' }, { id: 'd', goto: 'c25_b_tobias' }],
         text: 'Ты пьёшь чай у окна. Дорога пустая.', effects: [set25('bl', 'tea'), toFarm, until25(12, 45)] },
     ] }),
 
@@ -139,12 +139,27 @@ export const day25BScenes: Scene[] = [
       { text: 'Лео стоит у калитки и держит в руке сложенный листок.' },
     ],
     actions: [
-      { id: 'c25_bg_draw', label: 'Взять у Лео листок', minutes: 15, terminal: true, goto: 'c25_b_room', ambientDuring: snow25,
+      { id: 'c25_bg_draw', label: 'Взять у Лео листок', minutes: 15, terminal: true, goto: 'c25_b_tobias', ambientDuring: snow25,
         text: 'На листке дом с трубой, курица, пятеро. Подписано: «Für dich». Для тебя. Лео обхватывает тебя за пояс, быстро, и бежит догонять Маркуса.', effects: [set25('bg', 'draw'), { give: 'c25_leo_drawing' }, npc('c12_leo', 2), until25(14, 20)] },
-      { id: 'c25_bg_food', label: 'Дать им ещё хлеба и яиц в дорогу', when: { stocked: 'eggs', qty: 2, at: 'c3_farm_stock' }, minutes: 15, terminal: true, goto: 'c25_b_room',
+      { id: 'c25_bg_food', label: 'Дать им ещё хлеба и яиц в дорогу', when: { stocked: 'eggs', qty: 2, at: 'c3_farm_stock' }, minutes: 15, terminal: true, goto: 'c25_b_tobias',
         text: 'Маркус берёт молча. У калитки он оборачивается.\n\n— Wenn ihr mal nach Winsen kommt. Gerbergasse sieben. Mein Bruder heißt Jürgen.\n\nЕсли будете в Винзене. Гербергассе, семь. Брата зовут Юрген.', effects: [set25('bg', 'food'), { unstock: 'eggs', qty: 2, at: 'c3_farm_stock' }, w25('winsen_address', true), npc('c12_marcus', 2), until25(14, 20)] },
-      { id: 'c25_bg_walk', label: 'Проводить их до шоссе', minutes: 40, terminal: true, goto: 'c25_b_room', ambientDuring: snow25,
+      { id: 'c25_bg_walk', label: 'Проводить их до шоссе', minutes: 40, terminal: true, goto: 'c25_b_tobias', ambientDuring: snow25,
         text: 'Вы идёте втроём по снегу. Лео держит тебя за одну руку, Маркуса за другую. У шоссе он отпускает тебя первым. Ты стоишь, пока они не становятся двумя точками.', effects: [set25('bg', 'walk'), npc('c12_leo', 2), npc('c12_marcus', 1), until25(14, 50)] },
+    ] }),
+
+  B({ id: 'c25_b_tobias', title: '«Вольф» у ворот', camp: yard14, ambient: snow25,
+    text: [
+      { text: 'Около трёх у ворот тормозит «Вольф». Тобиас не глушит мотор и не выходит. Опускает стекло.' },
+      { text: '— Ist er in Lüneburg? Dein Mann? Bei Ole?\n\nОн в Люнебурге? Твой муж? У Оле?' },
+      { when: flag('w.c23_lea_exposed'), text: 'Глаза у Тобиаса красные. С воскресенья он, кажется, не спал.' },
+    ],
+    actions: [
+      { id: 'c25_bt_ask', label: 'Спросить, может ли он привезти Оле, если понадобится', minutes: 20, terminal: true, goto: 'c25_b_room',
+        text: '— Morgen früh fahre ich sowieso nach Lüneburg. Für Brandt, Benzin holen. — Тобиас смотрит на дорогу. — Wenn ihr wollt, bringe ich ihn mit. Wenn er will.\n\nЗавтра утром я всё равно еду в Люнебург. Для Брандта, за бензином. Если хотите, привезу его. Если он захочет.', effects: [set25('bt', 'ask'), w25('tobias_can_bring', true), npc('c15_tobias', 1), until25(15, 20)] },
+      { id: 'c25_bt_tea', label: 'Позвать его в дом погреться', minutes: 30, terminal: true, goto: 'c25_b_room',
+        text: 'Тобиас глушит мотор и заходит. Пьёт чай стоя, у печи, в куртке. Нина ставит перед ним тарелку с хлебом. Он съедает всё и только потом замечает, что съел.\n\n— Danke. Seit Sonntag hat mir keiner was hingestellt.\n\nСпасибо. С воскресенья мне никто ничего не ставил на стол.', effects: [set25('bt', 'tea'), npc('c15_tobias', 2), until25(15, 30)] },
+      { id: 'c25_bt_short', label: 'Ответить коротко: да, в Люнебурге', minutes: 10, terminal: true, goto: 'c25_b_room',
+        text: 'Тобиас кивает и поднимает стекло. «Вольф» уезжает к Йестебургу, оставляя на снегу две чёрные колеи.', effects: [set25('bt', 'short'), until25(15, 10)] },
     ] }),
 
   B({ id: 'c25_b_koehler', title: 'Кёлер', camp: kitchen14,
@@ -170,11 +185,11 @@ export const day25BScenes: Scene[] = [
     ],
     actions: [
       { id: 'c25_br_bed', label: 'Застелить кровать и вытереть пыль', minutes: 50, activity: 'light', terminal: true, goto: 'c25_b_dusk',
-        text: 'Простыни из шкафа Хенрике, два одеяла, подушка. Ты вытираешь подоконник, полку, шкаф. Нина приносит с улицы ветку ели и ставит в банку на окне. Не спрашивая. Просто так.', effects: [set25('br', 'bed'), w25('ole_room_ready', true), npc('c7_nina', 1), until25(15, 30)] },
+        text: 'Простыни из шкафа Хенрике, два одеяла, подушка. Ты вытираешь подоконник, полку, шкаф. Нина приносит с улицы ветку ели и ставит в банку на окне. Не спрашивая. Просто так.', effects: [set25('br', 'bed'), w25('ole_room_ready', true), npc('c7_nina', 1), until25(16, 30)] },
       { id: 'c25_br_stove', label: 'Перенести сюда обогреватель и проверить окно', minutes: 40, terminal: true, goto: 'c25_b_dusk',
-        text: 'Окно дует. Ты затыкаешь щели тряпками и газетой. Под крышей холодно. Оле придётся спать внизу, у печи, пока не потеплеет.', effects: [set25('br', 'stove'), w25('ole_downstairs', true), until25(15, 20)] },
+        text: 'Окно дует. Ты затыкаешь щели тряпками и газетой. Под крышей холодно. Оле придётся спать внизу, у печи, пока не потеплеет.', effects: [set25('br', 'stove'), w25('ole_downstairs', true), until25(16, 20)] },
       { id: 'c25_br_sit', label: 'Посидеть на его кровати', minutes: 20, terminal: true, goto: 'c25_b_dusk',
-        text: 'Ты сидишь на краю кровати. На полке стоят школьные кубки за футбол, три, пыльные. На одном написано: «Ole Lüdemann, Torschützenkönig 2014». Лучший бомбардир.', effects: [set25('br', 'sit'), until25(15, 0)] },
+        text: 'Ты сидишь на краю кровати. На полке стоят школьные кубки за футбол, три, пыльные. На одном написано: «Ole Lüdemann, Torschützenkönig 2014». Лучший бомбардир.', effects: [set25('br', 'sit'), until25(16, 0)] },
     ] }),
 
   B({ id: 'c25_b_dusk', title: 'Ждать', camp: kitchen14,
