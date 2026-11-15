@@ -930,7 +930,7 @@ export const newEntry26: Scene = {
   ],
   actions: ([
     { id: 'c26_go_a', label: 'Встать', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c26_a_morning', effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
-    { id: 'c26_go_b', label: 'Встать', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c26_b_morning', effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
+    { id: 'c26_go_b', label: 'Встать', when: { me: 'B' }, minutes: 30, terminal: true, outcomes: [{ id: 'shed', when: v18('w.c25_stranger', 'shed'), goto: 'c26_b_shed' }, { id: 'day', goto: 'c26_b_morning' }], effects: [prepare26, { restUntil: at(25, 6, 30), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point26Available, a.when ?? { always: true }) })),
 };
 

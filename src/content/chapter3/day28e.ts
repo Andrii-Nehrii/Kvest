@@ -1,0 +1,66 @@
+import type { Scene } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { not } from './world3';
+import { kitchen14, yard14 } from './point14';
+import { ninaFarm } from './point18';
+import { npc } from './point19';
+import { S28, set28, snow28, until28, w28 } from './point28';
+
+// Участок 28, дополнение (проверка объёма 15.11). A: с крыши — впадина у Гарльсторфа (задел 29–30).
+// B: Пан Кулька после Тима; Лея собирается в Ганновер (или вещи Тима с Эвой). Отклики — собрание 29-й, списки 34-й.
+const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S28({ ...scene, for: 'any', chapter: 'ch3' });
+const binoculars: Cond = { pairHas: 'c24_binoculars' };
+const leaHome: Cond = { npc: 'c21_lea', alive: true, at: 'hof_luedemann' };
+
+export const day28EScenes: Scene[] = [
+  X({ id: 'c28_a_roof', title: 'С крыши', camp: yard14, ambient: snow28, onEnter: [until28(15, 30)],
+    text: [
+      { text: 'Снег на крыше сарая лежит пластом, и Хенрике просит его сбросить, пока не продавил стропила. Ты лезешь по приставной лестнице. С конька видно далеко: поля, лес, шоссе, дымы Йестебурга.' },
+      { when: binoculars, text: 'В бинокль Оле видно впадину у Гарльсторфа. Тёмная масса, которая неделю стояла на месте, сдвинулась. Край её теперь у старого моста, на километр ближе. Медленно, но она идёт. На север. К вам.' },
+      { when: not(binoculars), text: 'На юге, у Гарльсторфа, тёмное пятно у леса, которого не было неделю назад. Оно больше. Или ближе. Без бинокля не понять.' },
+    ],
+    actions: [
+      { id: 'c28_ar_brandt', label: 'Слезть и сразу идти к Брандту', minutes: 120, activity: 'moderate', terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+        text: 'Брандт выслушивает тебя стоя, в дверях караулки. Потом молча ведёт тебя к карте на стене и показывает: синий карандаш уже обвёл впадину, красный — мост. «Seit gestern, — говорит он. — Danke, dass du gekommen bist». Со вчерашнего дня. Спасибо, что пришёл. Это первое «спасибо» от него.', effects: [set28('ar', 'brandt'), w28('hollow_reported', true), npc('c16_brandt', 1, 'c28_reported_hollow'), until28(17, 50)] },
+      { id: 'c28_ar_house', label: 'Сбросить снег и рассказать дома за ужином', minutes: 90, activity: 'heavy', terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+        text: 'Ты сбрасываешь снег пластами, пока не начинает темнеть. Внизу Нина отгребает его от стены. Про пятно у Гарльсторфа ты молчишь до ужина. А за ужином всё равно не находишь, как начать.', effects: [set28('ar', 'house'), w28('hollow_seen', true), { body: 'fatigue', delta: 8 }, until28(17, 50)] },
+      { id: 'c28_ar_watch', label: 'Остаться на крыше и смотреть, пока светло', minutes: 90, terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+        text: 'Ты сидишь на коньке до сумерек. Пальцы немеют. Масса у моста не двигается, пока ты смотришь. Но когда ты отводишь глаза на минуту и смотришь снова, край уже другой. Ты запоминаешь ориентиры: столб, ель с обломанной верхушкой, крыша сарая у моста.', effects: [set28('ar', 'watch'), w28('hollow_marks', true), until28(17, 50)] },
+    ] }),
+
+  X({ id: 'c28_b_kulka', title: 'Пан Кулька', camp: kitchen14,
+    text: [
+      { text: 'Клетка стоит на подоконнике, там, где её поставил Тим. Пан Кулька, рыжий хомяк с белым пятном, грызёт корку и не знает ничего.' },
+      { text: 'Кася смотрит на клетку и не подходит к ней. Потом говорит, не тебе, а стеклу:\n\n— Я не могу его кормить. Каждый раз я вижу Тима.' },
+      { when: ninaFarm, text: 'Нина стоит рядом. Она ничего не просит. Но смотрит на клетку так, будто давно хотела кого-то, о ком можно заботиться.' },
+    ],
+    actions: [
+      { id: 'c28_bk2_nina', label: 'Отдать клетку Нине', when: ninaFarm, minutes: 30, terminal: true, goto: 'c28_henrike',
+        text: 'Нина берёт клетку двумя руками, как берут что-то очень важное. Уносит к своей раскладушке. Кася смотрит ей вслед и впервые за утро плачет. Тихо, недолго. Потом идёт помогать Эве.', effects: [set28('bk2', 'nina'), w28('kulka', 'nina'), npc('c7_nina', 2, 'c28_got_kulka'), npc('kasia', 1), until28(11, 50)] },
+      { id: 'c28_bk2_keep', label: 'Сказать Касе: пусть останется у неё. Это его, значит — её', minutes: 30, terminal: true, goto: 'c28_henrike',
+        text: 'Кася долго молчит. Потом подходит к клетке, открывает дверцу и протягивает палец. Пан Кулька обнюхивает его и залезает на ладонь. Кася держит его у лица, закрыв глаза.', effects: [set28('bk2', 'keep'), w28('kulka', 'kasia'), npc('kasia', 2, 'c28_kept_kulka'), until28(11, 50)] },
+      { id: 'c28_bk2_barn', label: 'Предложить отнести его в сарай: там тепло от коров, пусть живёт сам', minutes: 30, terminal: true, goto: 'c28_henrike',
+        text: 'Вы с Касей несёте клетку в сарай и открываете дверцу в соломе, над коровами. Пан Кулька сидит в клетке долго. Потом выходит. Потом исчезает в сене. Кася стоит и смотрит на пустую клетку.', effects: [set28('bk2', 'barn'), w28('kulka', 'barn'), until28(11, 50)] },
+    ] }),
+
+  X({ id: 'c28_b_lea', title: 'Сборы', camp: kitchen14, onEnter: [until28(15, 30)],
+    text: [
+      { when: leaHome, text: 'В сенях Лея складывает свой рюкзак. Аккуратно, по-армейски: свитер, носки, бинты, флакон с йодом. Сверху — карта, где карандашом обведён Ганновер.' },
+      { when: leaHome, text: '— Ich gehe morgen. Zu Fuß. Hundertzwanzig Kilometer. Meine Mutter und Finn sind irgendwo da. Hier bin ich keine Ärztin. Hier bin ich ein Mund mehr.\n\nЯ ухожу завтра. Пешком. Сто двадцать километров. Мама и Финн где-то там. Здесь я не врач. Здесь я ещё один рот.' },
+      { when: not(leaHome), text: 'Эва разбирает вещи Тима на кухонном столе: свитер, штаны, носки с дыркой на пятке. Аккуратно, без слёз, как разбирают бельё после стирки. Она спрашивает тебя, что с ними делать.' },
+    ],
+    actions: [
+      { id: 'c28_bl_lists', label: 'Попросить подождать: Красный Крест читает списки по воскресеньям', when: leaHome, minutes: 60, terminal: true, goto: 'c28_supper',
+        text: 'Лея садится на рюкзак. «Listen. Ja. Vielleicht». Списки. Да. Может быть. Ты обещаешь, что {m:сам|сама} попросишь Зандер передать её имя и имена матери и брата в Красный Крест. Лея кивает. Рюкзак она не разбирает. Но и не надевает.', effects: [set28('bl', 'lists'), w28('lea_lists', true), npc('c21_lea', 2, 'c28_b_asked_lists'), until28(17, 50)] },
+      { id: 'c28_bl_need', label: 'Сказать: здесь ты нужна. Доктору Зандер нужны руки', when: leaHome, minutes: 60, terminal: true, goto: 'c28_supper',
+        text: '— Gebraucht, — повторяет Лея. Нужна. Она смотрит на свои руки. — Das hat lange keiner gesagt.\n\nДавно никто такого не говорил.\n\nВечером рюкзак стоит в углу, разобранный наполовину.', effects: [set28('bl', 'need'), w28('lea_needed', true), npc('c21_lea', 1), until28(17, 50)] },
+      { id: 'c28_bl_help', label: 'Помочь ей собраться и отдать свои сухие носки', when: leaHome, minutes: 60, terminal: true, goto: 'c28_supper',
+        text: 'Ты складываешь ей носки, хлеб, спички. Лея смотрит на тебя удивлённо: ты {m:первый|первая}, кто не отговаривает. Поздно вечером она приходит к тебе и говорит, что подождёт до воскресенья. Только до воскресенья.', effects: [set28('bl', 'help'), npc('c21_lea', 3, 'c28_b_helped_pack'), until28(17, 50)] },
+      { id: 'c28_bt_leo', label: 'Отложить вещи Тима для Лео', when: not(leaHome), minutes: 60, terminal: true, goto: 'c28_supper',
+        text: 'Эва кивает: Лео в Винзене, ему подойдут через год. Она перевязывает свёрток бечёвкой и пишет на бумажке «Leo».', effects: [set28('bt', 'leo'), until28(17, 50)] },
+      { id: 'c28_bt_poor', label: 'Отдать в пункт, кому нужнее', when: not(leaHome), minutes: 60, terminal: true, goto: 'c28_supper',
+        text: 'Ты относишь свёрток в пункт. Зандер отдаёт свитер мальчишке, которого вытащили из канавы у шоссе. Он надевает его сразу.', effects: [set28('bt', 'poor'), until28(17, 50)] },
+      { id: 'c28_bt_kasia', label: 'Спросить Касю', when: not(leaHome), minutes: 60, terminal: true, goto: 'c28_supper',
+        text: 'Кася берёт только носки с дыркой. Остальное, говорит она, пусть носят другие. Носки она кладёт себе под подушку.', effects: [set28('bt', 'kasia'), until28(17, 50)] },
+    ] }),
+];

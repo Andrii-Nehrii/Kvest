@@ -10,6 +10,10 @@ const w = (key: string): Cond => flag(`w.c28_${key}`);
 
 // Сверка в пятницу в восемь вечера.
 export const point28Notes: MergeNote[] = [
+  N('c28_hollow_rep', flag('w.c28_hollow_reported'), 'С крыши сарая {A} увидел: масса во впадине у Гарльсторфа сдвинулась к старому мосту, на километр ближе. Он сразу сходил к Брандту.'),
+  N('c28_hollow_seen', any(flag('w.c28_hollow_seen'), flag('w.c28_hollow_marks')), 'С крыши сарая {A} видел: тёмное пятно у Гарльсторфа стало ближе, у старого моста.'),
+  N('c28_kulka', v('w.c28_kulka', 'nina'), 'Пан Кулька, хомяк Тима, теперь живёт у Нины.'),
+  N('c28_lea', any(flag('w.c28_lea_lists'), flag('w.c28_lea_needed')), 'Лея собиралась уходить в Ганновер пешком. Пока осталась.'),
   N('c28_tim_dead', timDied, 'Ночью Тим умер. Утром его похоронили.'),
   N('c28_tim_pear', all(timDied, v('w.c27_tim', 'farm')), 'Тим лежит под грушей, рядом с матерью Тобиаса.'),
   N('c28_tim_kai', all(timDied, v('w.c27_tim', 'colony')), 'Тим лежит у насыпи, рядом с Каем, под ольхой.'),

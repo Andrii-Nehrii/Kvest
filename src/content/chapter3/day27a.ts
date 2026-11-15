@@ -98,12 +98,12 @@ export const day27AScenes: Scene[] = [
       { when: flag('w.c27_ole_last'), text: 'Ты думаешь об Оле. В Люнебурге. Ему сказали «решай сам». Ты не знаешь, что он решил.' },
     ],
     actions: [
-      { id: 'c27_ac_wood', label: 'Колоть дрова до темноты', minutes: 180, activity: 'heavy', terminal: true, goto: 'c27_a_tobias', ambientDuring: snow27,
-        text: 'Колун поднимается и падает. Поднимается и падает. Ты не считаешь поленья. Ты не думаешь. К четырём поленница выше тебя.', effects: [set27('ac', 'wood'), { body: 'fatigue', delta: 12 }, { body: 'stress', delta: -3 }, until27(15, 50)] },
-      { id: 'c27_ac_ole', label: 'Сесть рядом с Оле', when: oleHome27, minutes: 90, terminal: true, goto: 'c27_a_tobias',
-        text: '— Die Kleine am Fenster in Lüneburg, — говорит Оле, не глядя на тебя. Малышка у окна в Люнебурге. — Sie hieß Mia. Ich hab ihr jeden Tag einen Witz erzählt. Am Dienstag hab ich keinen mehr gewusst.\n\nЕё звали Мия. Я каждый день рассказывал ей анекдот. Во вторник ни одного не вспомнил.\n\nВы сидите до четырёх. Говорить больше не нужно.', effects: [set27('ac', 'ole'), npc('ole', 2), until27(15, 50)] },
-      { id: 'c27_ac_watch', label: 'Сидеть у окна наверху и смотреть на дорогу', minutes: 180, terminal: true, goto: 'c27_a_tobias',
-        text: 'Дорога пустая. Один раз проезжает трактор. Один раз проходит женщина с санками. В три у лесополосы встаёт Почтальон, лицом к хутору. Стоит до сумерек.', effects: [set27('ac', 'watch'), until27(15, 50)] },
+      { id: 'c27_ac_wood', label: 'Колоть дрова до темноты', minutes: 180, activity: 'heavy', terminal: true, goto: 'c27_a_broth', ambientDuring: snow27,
+        text: 'Колун поднимается и падает. Поднимается и падает. Ты не считаешь поленья. Ты не думаешь. К четырём поленница выше тебя.', effects: [set27('ac', 'wood'), { body: 'fatigue', delta: 12 }, { body: 'stress', delta: -3 }, until27(13, 0)] },
+      { id: 'c27_ac_ole', label: 'Сесть рядом с Оле', when: oleHome27, minutes: 90, terminal: true, goto: 'c27_a_broth',
+        text: '— Die Kleine am Fenster in Lüneburg, — говорит Оле, не глядя на тебя. Малышка у окна в Люнебурге. — Sie hieß Mia. Ich hab ihr jeden Tag einen Witz erzählt. Am Dienstag hab ich keinen mehr gewusst.\n\nЕё звали Мия. Я каждый день рассказывал ей анекдот. Во вторник ни одного не вспомнил.\n\nВы сидите до четырёх. Говорить больше не нужно.', effects: [set27('ac', 'ole'), npc('ole', 2), until27(13, 0)] },
+      { id: 'c27_ac_watch', label: 'Сидеть у окна наверху и смотреть на дорогу', minutes: 180, terminal: true, goto: 'c27_a_broth',
+        text: 'Дорога пустая. Один раз проезжает трактор. Один раз проходит женщина с санками. В три у лесополосы встаёт Почтальон, лицом к хутору. Стоит до сумерек.', effects: [set27('ac', 'watch'), until27(13, 0)] },
     ] }),
 
   A({ id: 'c27_a_tobias', title: 'Тобиас', camp: yard14, ambient: snow27,

@@ -190,10 +190,10 @@ export const day25AScenes: Scene[] = [
       { text: 'У Винзена он останавливается без причины, глушит мотор и сидит минуту, положив руки на руль.\n\n— Meine Frau war Donorin. In Buchholz. Station vier. — Он заводит мотор. — Erzähl das keinem.\n\nМоя жена была донором. В Бухгольце. Четвёртое отделение. Никому не рассказывай.' },
     ],
     actions: [
-      { id: 'c25_ab_ask', label: 'Спросить, где она сейчас', minutes: 120, terminal: true, goto: 'c25_supper',
-        text: '— Weiß ich nicht. — Вессель смотрит на дорогу. — Am zwölften haben sie die Station geräumt. Mit Bussen. Wohin, hat keiner gesagt.\n\nНе знаю. Двенадцатого отделение вывезли. Автобусами. Куда — никто не сказал.\n\nДо хутора вы больше не разговариваете.', effects: [set25('ab', 'ask'), w25('wessel_wife', true), { move: 'hof_luedemann' }, until25(17, 50)] },
-      { id: 'c25_ab_quiet', label: 'Промолчать', minutes: 120, terminal: true, goto: 'c25_supper',
-        text: 'Ты молчишь. Он, кажется, благодарен. У поворота на хутор он высаживает тебя и машет, не оборачиваясь.', effects: [set25('ab', 'quiet'), { move: 'hof_luedemann' }, until25(17, 50)] },
+      { id: 'c25_ab_ask', label: 'Спросить, где она сейчас', minutes: 120, terminal: true, goto: 'c25_a_road',
+        text: '— Weiß ich nicht. — Вессель смотрит на дорогу. — Am zwölften haben sie die Station geräumt. Mit Bussen. Wohin, hat keiner gesagt.\n\nНе знаю. Двенадцатого отделение вывезли. Автобусами. Куда — никто не сказал.\n\nДо хутора вы больше не разговариваете.', effects: [set25('ab', 'ask'), w25('wessel_wife', true), { move: 'hof_luedemann' }, until25(16, 30)] },
+      { id: 'c25_ab_quiet', label: 'Промолчать', minutes: 120, terminal: true, goto: 'c25_a_road',
+        text: 'Ты молчишь. Он, кажется, благодарен. У поворота на хутор он высаживает тебя и машет, не оборачиваясь.', effects: [set25('ab', 'quiet'), { move: 'hof_luedemann' }, until25(16, 30)] },
     ] }),
 ];
 

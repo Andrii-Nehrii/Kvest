@@ -83,9 +83,9 @@ export const day26AScenes: Scene[] = [
       { when: not(flag('w.c26_hollow_seen')), text: 'Дорога идёт по холму. С холма видно автобан. Внизу, у стоянки, впадина, серая от людей. Они стоят плотно, лицами к дороге. Сотни.' },
     ],
     actions: [
-      { id: 'c26_ar_go', label: 'Идти дальше, не останавливаясь', minutes: 40, terminal: true, goto: 'c26_a_timm', ambientDuring: snow26,
+      { id: 'c26_ar_go', label: 'Идти дальше, не останавливаясь', minutes: 40, terminal: true, goto: 'c26_a_anke', ambientDuring: snow26,
         text: 'Ты идёшь быстро. Впадину видно ещё минут десять, пока дорога не уходит за лес.', effects: [set26('ar', 'go'), w26('hollow_seen', true), { move: lullau }, timmUntil([9, 30], [13, 15])] },
-      { id: 'c26_ar_look', label: 'Остановиться на холме и посмотреть', minutes: 50, terminal: true, goto: 'c26_a_timm', ambientDuring: snow26,
+      { id: 'c26_ar_look', label: 'Остановиться на холме и посмотреть', minutes: 50, terminal: true, goto: 'c26_a_anke', ambientDuring: snow26,
         text: 'Ты стоишь на холме. Они не двигаются. Иногда кто-то с краю делает шаг вперёд, и вся масса чуть качается, как вода в ведре. Ветер дует от них. Пахнет.', effects: [set26('ar', 'look'), w26('hollow_seen', true), { body: 'stress', delta: 3 }, { move: lullau }, timmUntil([9, 40], [13, 25])] },
     ] }),
 
@@ -161,11 +161,11 @@ export const day26AScenes: Scene[] = [
       { when: { has: 'c24_binoculars' }, text: 'В бинокль видно лицо: молодое, гладкое, на виске пластырь от капельницы. На запястье браслет.' },
     ],
     actions: [
-      { id: 'c26_ap_leave', label: 'Оставить: стоит и стоит', minutes: 20, terminal: true, goto: 'c26_a_home',
+      { id: 'c26_ap_leave', label: 'Оставить: стоит и стоит', minutes: 20, terminal: true, goto: 'c26_a_nina',
         text: '— Он всегда так стоит, — говорит Нина. — С понедельника. Утром приходит, вечером уходит. Как на работу.\n\nОна говорит это спокойно. Ты — не {m:спокоен|спокойна}.', effects: [set26('ap', 'leave'), w26('postman', true), until26(15, 50)] },
-      { id: 'c26_ap_watch', label: 'Смотреть, куда он уйдёт вечером', minutes: 50, terminal: true, goto: 'c26_a_home',
+      { id: 'c26_ap_watch', label: 'Смотреть, куда он уйдёт вечером', minutes: 50, terminal: true, goto: 'c26_a_nina',
         text: 'Ты стоишь у окна, пока не начинает темнеть. В половине четвёртого он поворачивается и уходит вдоль лесополосы, на восток. К автобану. К впадине.', effects: [set26('ap', 'watch'), w26('postman', true), w26('postman_east', true), until26(15, 50)] },
-      { id: 'c26_ap_noise', label: 'Выйти и постучать по ведру: увести его подальше', minutes: 40, terminal: true, goto: 'c26_a_home', ambientDuring: snow26,
+      { id: 'c26_ap_noise', label: 'Выйти и постучать по ведру: увести его подальше', minutes: 40, terminal: true, goto: 'c26_a_nina', ambientDuring: snow26,
         text: 'Ты идёшь вдоль изгороди и стучишь палкой по ведру. Он поворачивает голову на звук. Делает шаг. Ещё. Ты уводишь его вдоль поля, к дороге на Ханштедт, и там бросаешь ведро. Обратно ты идёшь быстро и ни разу не оглядываешься.', effects: [set26('ap', 'noise'), w26('postman', true), w26('postman_led', true), { body: 'stress', delta: 3 }, until26(15, 50)] },
     ] }),
 

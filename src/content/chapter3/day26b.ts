@@ -6,7 +6,7 @@ import { meal } from './point12';
 import { any, v } from './point18';
 import { npc, tableOnly } from './point19';
 import {
-  S26, brandtAlly, brandtByB, brandtHostile, carLoss, dayFacts, dutyB, farm26, jest26, leaFarm26, oleNow, plasmaSpoils, set26, snow26, until26, w26,
+  S26, brandtAlly, brandtHostile, carLoss, dayFacts, dutyB, farm26, jest26, leaFarm26, oleNow, plasmaSpoils, set26, snow26, until26, w26,
 } from './point26';
 
 // Участок 26, линия B: смена у Зандер (Пия хуже; правда Брандту, если её решили сказать) или день на хуторе: испорченная плазма,
@@ -18,7 +18,6 @@ const pia: Cond = flag('w.c25_pia');
 const plasmaLeft = (fx: (qty: number) => Effect[]): Effect => ({ if: { v: 'w.c21_plasma_used', op: '==', value: 2 }, then: fx(2),
   else: [{ if: { v: 'w.c21_plasma_used', op: '==', value: 1 }, then: fx(3), else: fx(4) }] });
 const spoilPlasma: Effect = { if: plasmaSpoils, then: [plasmaLeft((qty) => [{ unstock: 'c21_plasma', qty, at: 'c3_farm_stock' }]), w26('plasma_spoiled', true)] };
-const afterPoint = [{ id: 'b', when: brandtByB, goto: 'c26_b_brandt' }, { id: 'w', goto: 'c26_b_walk' }];
 
 export const day26BScenes: Scene[] = [
   B({ id: 'c26_b_morning', title: 'Среда', camp: kitchen14, onEnter: [...dayFacts, spoilPlasma],
@@ -26,6 +25,7 @@ export const day26BScenes: Scene[] = [
       { text: 'Утро серое. Нина уже у плиты: каша, чай. Снег за окном не идёт, но и не тает.' },
       { when: carLoss, text: 'В семь у ворот звонит велосипед: бумага от Брандта. {A} читает её, складывает и молча идёт к машине. Её забирают. За колонию. За восемнадцатое.' },
       { when: dutyB, text: 'В семь тебя ждут в пункте у доктора Зандер. Ты {m:обещал|обещала}.' },
+      { when: v('w.c25_stranger', 'no'), text: 'У ворот следы вчерашнего человека из Харбурга: к колонии и обратно, к шоссе. Ночью он, похоже, искал, где лечь. Нина смотрит на следы и молчит.' },
       { when: all(not(dutyB), plasmaSpoils), text: 'В кладовке полоска на синей сумке стала жёлтой целиком. Срок вышел.' },
     ],
     actions: [
@@ -46,12 +46,12 @@ export const day26BScenes: Scene[] = [
       { when: not(pia), text: 'В задней комнате девочка девяти лет, укушенная в пятницу. Жар выше. У неё на груди тряпичная кукла.' },
     ],
     actions: [
-      { id: 'c26_bp_work', label: 'Работать по списку', minutes: 240, activity: 'moderate', terminal: true, outcomes: afterPoint,
-        text: 'Перевязка, термометр, вода, следующий. К полудню у тебя болят спина и руки, а в списке не осталось ни одной строчки. Зандер расписывается в твоём листке, как в табеле.', effects: [set26('bp', 'work'), w26('b_shift', true), { body: 'fatigue', delta: 10 }, until26(12, 0)] },
-      { id: 'c26_bp_pia', label: 'Между делами заходить к девочке в заднюю комнату', minutes: 240, activity: 'moderate', terminal: true, outcomes: afterPoint,
-        text: 'Ты заходишь к ней каждые полчаса. Пить, лоб, одеяло. На пятый раз она уже не открывает глаза, только сжимает куклу. Зандер видит тебя в дверях и говорит тихо:\n\n— Morgen kommt sie in den abgeschlossenen Raum. Ich will nicht, dass Sie dann hier sind.\n\nЗавтра её переведут в запертую комнату. Я не хочу, чтобы вы тогда были здесь.', effects: [set26('bp', 'pia'), w26('b_shift', true), w26('pia_worse', true), { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 4 }, until26(12, 0)] },
-      { id: 'c26_bp_lea', label: 'Работать в паре с Леей', when: leaPoint, minutes: 240, activity: 'moderate', terminal: true, outcomes: afterPoint,
-        text: 'Вы с Леей работаете в четыре руки. Она шьёт, ты держишь и подаёшь. К полудню вы понимаете друг друга без слов. В перерыв она говорит, грея руки о кружку:\n\n— Ich gehe nicht nach Hannover. Noch nicht. Hier bin ich wenigstens nützlich. Und hier sticht mich keiner.\n\nЯ не пойду в Ганновер. Пока. Здесь от меня хоть есть польза. И здесь меня никто не колет.', effects: [set26('bp', 'lea'), w26('b_shift', true), w26('lea_stays_point', true), npc('c21_lea', 2), { body: 'fatigue', delta: 8 }, until26(12, 0)] },
+      { id: 'c26_bp_work', label: 'Работать по списку', minutes: 240, activity: 'moderate', terminal: true, goto: 'c26_b_child',
+        text: 'Перевязка, термометр, вода, следующий. К полудню у тебя болят спина и руки, а в списке не осталось ни одной строчки. Зандер расписывается в твоём листке, как в табеле.', effects: [set26('bp', 'work'), w26('b_shift', true), { body: 'fatigue', delta: 10 }, until26(10, 0)] },
+      { id: 'c26_bp_pia', label: 'Между делами заходить к девочке в заднюю комнату', minutes: 240, activity: 'moderate', terminal: true, goto: 'c26_b_child',
+        text: 'Ты заходишь к ней каждые полчаса. Пить, лоб, одеяло. На пятый раз она уже не открывает глаза, только сжимает куклу. Зандер видит тебя в дверях и говорит тихо:\n\n— Morgen kommt sie in den abgeschlossenen Raum. Ich will nicht, dass Sie dann hier sind.\n\nЗавтра её переведут в запертую комнату. Я не хочу, чтобы вы тогда были здесь.', effects: [set26('bp', 'pia'), w26('b_shift', true), w26('pia_worse', true), { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 4 }, until26(10, 0)] },
+      { id: 'c26_bp_lea', label: 'Работать в паре с Леей', when: leaPoint, minutes: 240, activity: 'moderate', terminal: true, goto: 'c26_b_child',
+        text: 'Вы с Леей работаете в четыре руки. Она шьёт, ты держишь и подаёшь. К полудню вы понимаете друг друга без слов. В перерыв она говорит, грея руки о кружку:\n\n— Ich gehe nicht nach Hannover. Noch nicht. Hier bin ich wenigstens nützlich. Und hier sticht mich keiner.\n\nЯ не пойду в Ганновер. Пока. Здесь от меня хоть есть польза. И здесь меня никто не колет.', effects: [set26('bp', 'lea'), w26('b_shift', true), w26('lea_stays_point', true), npc('c21_lea', 2), { body: 'fatigue', delta: 8 }, until26(10, 0)] },
     ] }),
 
   J({ id: 'c26_b_brandt', title: 'Брандт', ambient: { tempC: 12, outdoor: false, wet: false },
@@ -102,11 +102,11 @@ export const day26BScenes: Scene[] = [
       { text: 'Нина смотрит в пол.\n\n— В ящике под лестницей осталось на четыре дня. Я посчитала. А тут их сотни.' },
     ],
     actions: [
-      { id: 'c26_bs_back', label: 'Сказать Нине: положи обратно. Это весна', minutes: 20, terminal: true, goto: 'c26_b_afternoon',
+      { id: 'c26_bs_back', label: 'Сказать Нине: положи обратно. Это весна', minutes: 20, terminal: true, goto: 'c26_b_attic',
         text: 'Нина кладёт картофелины обратно по одной, аккуратно, как яйца.\n\n— Весна, — повторяет она. — Если мы до неё доживём.', effects: [set26('bs', 'back'), w26('seed_kept', true), until26(10, 0)] },
-      { id: 'c26_bs_six', label: 'Сказать: эти шесть — сегодня. Остальное не трогать', minutes: 20, terminal: true, goto: 'c26_b_afternoon',
+      { id: 'c26_bs_six', label: 'Сказать: эти шесть — сегодня. Остальное не трогать', minutes: 20, terminal: true, goto: 'c26_b_attic',
         text: 'Эва поджимает губы, но молчит. Нина уносит миску на кухню. Шесть картофелин из весны. Сегодня это суп.', effects: [set26('bs', 'six'), w26('seed_used', true), npc('c8_eva', -1), until26(10, 0)] },
-      { id: 'c26_bs_count', label: 'Спуститься и пересчитать, сколько там всего', minutes: 40, terminal: true, goto: 'c26_b_afternoon',
+      { id: 'c26_bs_count', label: 'Спуститься и пересчитать, сколько там всего', minutes: 40, terminal: true, goto: 'c26_b_attic',
         text: 'Восемь ящиков. Примерно по двадцать кило. Сто шестьдесят кило. Если сажать — гектар. Если есть — две недели на всех. Ты записываешь цифры на стене мелом, под надписью «Saat».', effects: [set26('bs', 'count'), w26('seed_counted', true), until26(10, 20)] },
     ] }),
 

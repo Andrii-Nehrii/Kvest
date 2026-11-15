@@ -184,11 +184,11 @@ export const day25BScenes: Scene[] = [
       { when: v('w.c24_ole_cabinet', 'broken'), text: 'Железный шкаф у стены взломан, дужка замка валяется на полу. На полке осколки линзы.' },
     ],
     actions: [
-      { id: 'c25_br_bed', label: 'Застелить кровать и вытереть пыль', minutes: 50, activity: 'light', terminal: true, goto: 'c25_b_dusk',
+      { id: 'c25_br_bed', label: 'Застелить кровать и вытереть пыль', minutes: 50, activity: 'light', terminal: true, goto: 'c25_b_stranger',
         text: 'Простыни из шкафа Хенрике, два одеяла, подушка. Ты вытираешь подоконник, полку, шкаф. Нина приносит с улицы ветку ели и ставит в банку на окне. Не спрашивая. Просто так.', effects: [set25('br', 'bed'), w25('ole_room_ready', true), npc('c7_nina', 1), until25(16, 30)] },
-      { id: 'c25_br_stove', label: 'Перенести сюда обогреватель и проверить окно', minutes: 40, terminal: true, goto: 'c25_b_dusk',
+      { id: 'c25_br_stove', label: 'Перенести сюда обогреватель и проверить окно', minutes: 40, terminal: true, goto: 'c25_b_stranger',
         text: 'Окно дует. Ты затыкаешь щели тряпками и газетой. Под крышей холодно. Оле придётся спать внизу, у печи, пока не потеплеет.', effects: [set25('br', 'stove'), w25('ole_downstairs', true), until25(16, 20)] },
-      { id: 'c25_br_sit', label: 'Посидеть на его кровати', minutes: 20, terminal: true, goto: 'c25_b_dusk',
+      { id: 'c25_br_sit', label: 'Посидеть на его кровати', minutes: 20, terminal: true, goto: 'c25_b_stranger',
         text: 'Ты сидишь на краю кровати. На полке стоят школьные кубки за футбол, три, пыльные. На одном написано: «Ole Lüdemann, Torschützenkönig 2014». Лучший бомбардир.', effects: [set25('br', 'sit'), until25(16, 0)] },
     ] }),
 
