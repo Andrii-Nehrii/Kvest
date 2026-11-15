@@ -718,4 +718,10 @@ npx tsc --noEmit && npx vitest run && npm run e2e:quick
 * 15.11 — написана точка 29 (`point29.ts`, `day29x.ts`, `finish29.ts`). Суббота+воскресенье; потеря-эхо: `w.c29_coop_roof = fallen`,
   `w.c29_hens_lost = 3` (если в 18-й Фолькеру только вода и он не жилец); колонка `w.c29_pump_frozen` (`w.c29_pump_saved`); собрание —
   правда вслух всегда (`w.c29_truth_public`); Фолькер уходит в Тоштедт. КТ29 как в плане (`w.c29_sweep` join/guard/leave → guard,
-  `w.c29_diesel` trade/none/later → none). Дальше: точка 30 (ключевая, большая опасность).
+  `w.c29_diesel` trade/none/later → none).
+* 15.11 — написана точка 30 (`point30.ts`, `day30.ts`, `finish30.ts`). Входы: `entryJoin` (впадина, A цепь / B сани), `entryFuel`
+  (leave+later при тракторе: третий грузовик), `entryHome` (guard или leave: свой край у насыпи/ворота). Звенья: `$.c30_hurt1` →
+  `$.c30_hurt2` → `down30` (рана головы, кровь 58, `w.c30_down`, `A/B.c30_down`). Подготовка: рукавицы/сухие носки/верёвка
+  (`$.c30_mittens/dry/rope`). Итоги: `w.c30_fuel_got` (канистра солярки у A), `w.c30_tractor = ditch`, `w.c30_boy_saved`.
+  КТ30: `c3_new_after30` home/share/leave (разные → home). Даты декабря: `at(31, …)` = 1 декабря. Дальше: точка 31 (спасение, если
+  кто-то выбыл; находка A).

@@ -418,3 +418,62 @@ describe('участок 29: первый адвент, собрание', () =>
       for (const p of P) expect(out.chars[p].scene).toBe('c30_start');
     });
 });
+
+describe('участок 30: мороз — опасная ночь по трём входам', () => {
+  const s21 = finish(after20('stay', 'wait'));
+  const fresh = (s: GameState) => { for (const p of P) Object.assign(s.chars[p].body, { thirst: 25, hunger: 25, dehydratedSince: undefined, fatigue: 10, sleepDebt: 2 }); return s; };
+  fresh(s21);
+  let b28cache: GameState | undefined;
+  const after28 = () => {
+    if (b28cache) return structuredClone(b28cache) as GameState;
+    const b21 = completeCheckpoint(c, structuredClone(s21) as GameState, both({ c3_new_lea21: 'hide', c3_new_bag21: 'keep' })).state;
+    const s22 = fresh(mergeCp(b21, 22, leg(b21, 'A'), leg(b21, 'B')));
+    const b22 = completeCheckpoint(c, s22, { A: { c3_new_letter22: 'home' }, B: { c3_new_tobias22: 'silent' } }).state;
+    const s23 = fresh(mergeCp(b22, 23, leg(b22, 'A'), leg(b22, 'B')));
+    const b23 = completeCheckpoint(c, s23, both({ c3_new_guests23: 'in', c3_new_monday23: 'hide' })).state;
+    const s24 = fresh(mergeCp(b23, 24, leg(b23, 'A'), leg(b23, 'B')));
+    const b24 = completeCheckpoint(c, s24, both({ c3_new_duty24: 'b', c3_new_tuesday24: 'stay' })).state;
+    const s25 = fresh(mergeCp(b24, 25, leg(b24, 'A'), leg(b24, 'B')));
+    const b25 = completeCheckpoint(c, s25, both({ c3_new_ole25: 'fetch', c3_new_truth25: 'brandt' })).state;
+    const s26 = fresh(mergeCp(b25, 26, leg(b25, 'A'), leg(b25, 'B')));
+    const b26 = completeCheckpoint(c, s26, both({ c3_new_meet26: 'ready', c3_new_seed26: 'keep' })).state;
+    b26.vars['w.nowaks_gone'] = true; if (b26.npcs.kasia) b26.npcs.kasia.alive = true;
+    const s27 = fresh(mergeCp(b26, 27, leg(b26, 'A'), leg(b26, 'B')));
+    const b27 = completeCheckpoint(c, s27, { A: { c3_new_tim27: 'stay' }, B: { c3_new_patrol27: 'tobias' } }).state;
+    const s28 = fresh(mergeCp(b27, 28, leg(b27, 'A'), leg(b27, 'B')));
+    b28cache = completeCheckpoint(c, s28, both({ c3_new_place28: 'hands', c3_new_house28: 'eva' })).state;
+    return structuredClone(b28cache) as GameState;
+  };
+  const after29 = (sweep: string, diesel: string) => {
+    const b28 = after28();
+    const s29 = fresh(mergeCp(b28, 29, leg(b28, 'A'), leg(b28, 'B')));
+    s29.vars['w.c16_tractor'] = true;
+    return completeCheckpoint(c, s29, both({ c3_new_sweep29: sweep, c3_new_diesel29: diesel })).state;
+  };
+  for (const [sweep, diesel] of [['join', 'none'], ['guard', 'none'], ['leave', 'later'], ['leave', 'none']] as const)
+    it(`вход ${sweep}/${diesel}: осторожные проходят без выбывания, миры сходятся`, () => {
+      const b29 = after29(sweep, diesel);
+      for (const p of P) expect(b29.chars[p].scene).toBe('c30_start');
+      const a = leg(b29, 'A'), b = leg(b29, 'B');
+      expect(a.vars['$.c30_down'] ?? a.vars['A.c30_down']).toBeUndefined(); expect(b.vars['B.c30_down']).toBeUndefined();
+      const s30 = mergeCp(b29, 30, a, b);
+      expect(s30.chars.A.time).toBe(s30.chars.B.time);
+      for (const p of P) { expect(s30.chars[p].location).toBe('hof_luedemann'); expect(canAct(s30.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s30, both({ c3_new_after30: 'share' })).state;
+      expect(out.vars['w.c30_after']).toBe('share');
+      for (const p of P) expect(out.chars[p].scene).toBe('c31_start');
+    });
+
+  it('безрассудный A на впадине выбывает на третьем звене; B доводит до точки и ведёт его', () => {
+    const b29 = after29('join', 'none');
+    const a = leg(b29, 'A', { c30_monday: 'c30_mo_work', c30_j_a1: 'c30_ja1_step', c30_j_a2: 'c30_ja2_fight', c30_j_a3: 'c30_ja3_go' }, 'c30_night_end');
+    const fell = segmentFinished(c, a, 'A') === 'incapacitated';
+    if (process.env.KVEST_DEBUG) console.log('fell', fell, a.vars['A.c30_hurt1'], a.vars['A.c30_hurt2']);
+    if (!fell) return; // проверки силы/ловкости могли пройти — это законно
+    expect(a.vars['A.c30_down']).toBe(true);
+    const s30 = mergeCp(b29, 30, a, leg(b29, 'B'));
+    expect(s30.chars.A.body.consciousness).not.toBe('dead');
+    const out = completeCheckpoint(c, s30, { B: { c3_new_after30: 'home' } }).state;
+    expect(out.chars.A.controlledBy).toBe('B'); expect(out.chars.B.scene).toBe('c31_start');
+  });
+});

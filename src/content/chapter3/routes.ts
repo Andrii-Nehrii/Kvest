@@ -10,6 +10,7 @@ import { point26Available, prepare26 } from './point26';
 import { point27Available, prepare27 } from './point27';
 import { point28Available, prepare28 } from './point28';
 import { point29Available, prepare29 } from './point29';
+import { point30Available, prepare30 } from './point30';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -967,4 +968,17 @@ export const newEntry29: Scene = {
     { id: 'c29_go_a', label: 'Встать', when: { me: 'A' }, minutes: 30, terminal: true, goto: 'c29_a_sat', effects: [prepare29, { restUntil: at(28, 7, 0), sleeping: true }] },
     { id: 'c29_go_b', label: 'Встать', when: { me: 'B' }, minutes: 30, terminal: true, goto: 'c29_b_sat', effects: [prepare29, { restUntil: at(28, 6, 40), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point29Available, a.when ?? { always: true }) })),
+};
+
+
+// ───────────── Вход в участок 30 ─────────────
+export const newEntry30: Scene = {
+  id: 'c30_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true,
+  text: [
+    { when: point30Available, text: 'Ночь на понедельник. Мороз крепчает. Под утро трещат стены.' },
+    { when: not(point30Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c30_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c30_monday', effects: [prepare30, { restUntil: at(30, 13, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point30Available, a.when ?? { always: true }) })),
 };
