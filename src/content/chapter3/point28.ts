@@ -71,6 +71,7 @@ export const shared28: Scene[] = [
       { when: v('w.c27_tim_letter', 'kasia'), text: 'Кася кладёт Тиму под одеяло листок, исписанный по-польски. Что там — знает только она.' },
       { when: v('w.c27_tim_letter', 'promised'), text: 'Письмо Тима к отцу лежит у {B.gen} в кармане. Обещание тоже.' },
       { when: { has: 'c27_photo' }, text: 'Фотография дома в Бармбеке у {B.gen} в кармане. На ней Тим, маленький, на нижней ступеньке.' },
+      { when: flag('w.c27_grave_ready'), text: 'Земля под грушей оттаяла за ночь: ты разжёг{m:|ла} здесь костёр ещё днём. Лопата входит легко. Никто об этом не говорит.' },
     ],
     actions: [
       { id: 'c28_bu_say', label: 'Сказать несколько слов', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,

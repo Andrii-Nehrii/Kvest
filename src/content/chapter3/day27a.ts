@@ -83,11 +83,11 @@ export const day27AScenes: Scene[] = [
       { when: leoDrawing, text: 'В руках у неё рисунок Лео: дом, труба, пятеро.' },
     ],
     actions: [
-      { id: 'c27_ann_truth', label: 'Сказать правду: да. Скоро', minutes: 20, terminal: true, goto: 'c27_a_chores',
+      { id: 'c27_ann_truth', label: 'Сказать правду: да. Скоро', minutes: 20, terminal: true, goto: 'c27_a_pear',
         text: 'Нина кивает. Долго молчит.\n\n— Тогда я не буду туда ходить. Чтобы он помнил меня как раньше. Ну, как вчера. Он меня вчера не знал. Но всё равно.\n\nОна уходит наверх тихо, по одной ступеньке.', effects: [set27('ann', 'truth'), npc('c7_nina', 1), until27(11, 0)] },
-      { id: 'c27_ann_hold', label: 'Обнять её и ничего не говорить', minutes: 20, terminal: true, goto: 'c27_a_chores',
+      { id: 'c27_ann_hold', label: 'Обнять её и ничего не говорить', minutes: 20, terminal: true, goto: 'c27_a_pear',
         text: 'Ты садишься рядом и обнимаешь её. Нина сначала каменная, потом утыкается тебе в плечо. Вы сидите, пока внизу Эва не начинает греметь кастрюлями.', effects: [set27('ann', 'hold'), npc('c7_nina', 2), until27(11, 0)] },
-      { id: 'c27_ann_task', label: 'Дать ей дело: пусть отнесёт Касе чаю', minutes: 15, terminal: true, goto: 'c27_a_chores',
+      { id: 'c27_ann_task', label: 'Дать ей дело: пусть отнесёт Касе чаю', minutes: 15, terminal: true, goto: 'c27_a_pear',
         text: 'Нина берёт кружку обеими руками и идёт. Через минуту возвращается без кружки.\n\n— Кася сказала спасибо. По-польски. Я поняла.', effects: [set27('ann', 'task'), npc('c7_nina', 1), npc('kasia', 1), until27(10, 45)] },
     ] }),
 
@@ -98,11 +98,11 @@ export const day27AScenes: Scene[] = [
       { when: flag('w.c27_ole_last'), text: 'Ты думаешь об Оле. В Люнебурге. Ему сказали «решай сам». Ты не знаешь, что он решил.' },
     ],
     actions: [
-      { id: 'c27_ac_wood', label: 'Колоть дрова до темноты', minutes: 180, activity: 'heavy', terminal: true, goto: 'c27_a_broth', ambientDuring: snow27,
+      { id: 'c27_ac_wood', label: 'Колоть дрова до темноты', minutes: 60, activity: 'heavy', terminal: true, goto: 'c27_a_broth', ambientDuring: snow27,
         text: 'Колун поднимается и падает. Поднимается и падает. Ты не считаешь поленья. Ты не думаешь. К четырём поленница выше тебя.', effects: [set27('ac', 'wood'), { body: 'fatigue', delta: 12 }, { body: 'stress', delta: -3 }, until27(13, 0)] },
-      { id: 'c27_ac_ole', label: 'Сесть рядом с Оле', when: oleHome27, minutes: 90, terminal: true, goto: 'c27_a_broth',
+      { id: 'c27_ac_ole', label: 'Сесть рядом с Оле', when: oleHome27, minutes: 60, terminal: true, goto: 'c27_a_broth',
         text: '— Die Kleine am Fenster in Lüneburg, — говорит Оле, не глядя на тебя. Малышка у окна в Люнебурге. — Sie hieß Mia. Ich hab ihr jeden Tag einen Witz erzählt. Am Dienstag hab ich keinen mehr gewusst.\n\nЕё звали Мия. Я каждый день рассказывал ей анекдот. Во вторник ни одного не вспомнил.\n\nВы сидите до четырёх. Говорить больше не нужно.', effects: [set27('ac', 'ole'), npc('ole', 2), until27(13, 0)] },
-      { id: 'c27_ac_watch', label: 'Сидеть у окна наверху и смотреть на дорогу', minutes: 180, terminal: true, goto: 'c27_a_broth',
+      { id: 'c27_ac_watch', label: 'Сидеть у окна наверху и смотреть на дорогу', minutes: 60, terminal: true, goto: 'c27_a_broth',
         text: 'Дорога пустая. Один раз проезжает трактор. Один раз проходит женщина с санками. В три у лесополосы встаёт Почтальон, лицом к хутору. Стоит до сумерек.', effects: [set27('ac', 'watch'), until27(13, 0)] },
     ] }),
 

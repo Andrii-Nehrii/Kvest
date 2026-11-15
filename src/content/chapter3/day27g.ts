@@ -1,0 +1,51 @@
+import type { Scene } from '../../engine/content-types';
+import { house14, yard14 } from './point14';
+import { npc } from './point19';
+import { S27, set27, until27, w27 } from './point27';
+
+// Участок 27, третий проход (до уровня 19–20): место под грушей (A, днём), поздний вечер у обоих.
+const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S27({ ...scene, for: 'any', chapter: 'ch3' });
+const snow = { tempC: -4, outdoor: true, wet: false };
+
+export const day27GScenes: Scene[] = [
+  X({ id: 'c27_a_pear', title: 'Под грушей', camp: yard14, ambient: snow,
+    text: [
+      { text: 'Ты стоишь у груши за сараем. Здесь, под камнями, уже лежит кто-то из Людеманов, давно. Земля мёрзлая на две ладони. Если ночью случится то, что, скорее всего, случится, утром копать будет некогда и нечем: кирка отскакивает от такой земли, как от бетона.' },
+      { text: 'Об этом никто не говорит вслух. Но Уте вчера спросила, где у вас лопата.' },
+    ],
+    actions: [
+      { id: 'c27_ap4_fire', label: 'Развести на этом месте костёр: к утру земля оттает', minutes: 40, activity: 'moderate', terminal: true, goto: 'c27_a_chores', ambientDuring: snow,
+        text: 'Ты складываешь костёр из старых досок прямо на снегу под грушей и поджигаешь. Кася видит дым из окна и долго смотрит. Потом отходит от окна. Она поняла. Ты понял{m:|а}, что она поняла.', effects: [set27('ap4', 'fire'), w27('grave_ready', true), npc('kasia', -1, 'c27_saw_fire'), until27(12, 0)] },
+      { id: 'c27_ap4_ute', label: 'Спросить Уте: можно ли в колонии, у насыпи, где Кай', minutes: 30, terminal: true, goto: 'c27_a_chores',
+        text: 'Уте кивает, не дослушав. «Neben Kai ist Platz. Die Erde dort ist weicher, wegen dem Bach». Рядом с Каем есть место. Земля там мягче, из-за ручья. Она говорит это так спокойно, что тебе становится не по себе.', effects: [set27('ap4', 'ute'), w27('grave_place', 'colony'), npc('c14_ute', 1), until27(11, 50)] },
+      { id: 'c27_ap4_no', label: 'Не сейчас. Не пока он жив', minutes: 15, terminal: true, goto: 'c27_a_chores',
+        text: 'Ты уходишь от груши, не оглядываясь. Нельзя готовить могилу живому. Даже если завтра будет поздно.', effects: [set27('ap4', 'no'), until27(11, 35)] },
+    ] }),
+
+  X({ id: 'c27_a_late', title: 'Ночь перед', camp: yard14, ambient: snow, onEnter: [until27(20, 0)],
+    text: [
+      { text: 'После ужина двор тёмный и тихий. В окне комнаты, где Тим, горит свеча. Кася сидит у кровати, её тень на занавеске не двигается.' },
+      { text: 'Патруль Брандта будет утром. Тобиас обещал приехать раньше, если сможет.' },
+    ],
+    actions: [
+      { id: 'c27_al8_gate', label: 'Сесть у ворот с фонарём: встретить, кто бы ни пришёл', minutes: 60, terminal: true, goto: 'c27_checkpoint', ambientDuring: snow,
+        text: 'Ты сидишь на чурбаке у ворот, фонарь у ног выключен. Мороз. Звёзды. Один раз по дороге проезжает машина без фар, медленно, и не останавливается. Ты сидишь, пока не перестаёшь чувствовать ноги.', effects: [set27('al8', 'gate'), w27('gate_watch', true), { body: 'fatigue', delta: 4 }, until27(21, 30)] },
+      { id: 'c27_al8_door', label: 'Сесть у двери в комнату Тима, снаружи', minutes: 60, terminal: true, goto: 'c27_checkpoint',
+        text: 'Ты сидишь на полу в коридоре, спиной к стене. За дверью Кася поёт по-польски, тихо, одно и то же. Ты не входишь. Иногда пение обрывается, и ты встаёшь. Потом оно начинается снова.', effects: [set27('al8', 'door'), npc('kasia', 1, 'c27_sat_outside'), until27(21, 30)] },
+      { id: 'c27_al8_sleep', label: 'Лечь: утром понадобятся силы', minutes: 30, terminal: true, goto: 'c27_checkpoint',
+        text: 'Ты ложишься {m:одетым|одетой}. Засыпаешь не сразу: в доме слишком тихо.', effects: [set27('al8', 'sleep'), { body: 'fatigue', delta: -6 }, until27(21, 0, true)] },
+    ] }),
+
+  X({ id: 'c27_b_late', title: 'Ночь перед', camp: house14, onEnter: [until27(20, 0)],
+    text: [
+      { text: 'Поздно вечером Лея, если она здесь, или Эва приносит тебе две ампулы морфина от Зандер и кладёт на стол. Одну — на ночь. Вторую — если он станет беспокойным. Решать будешь ты: Касе нельзя это давать.' },
+    ],
+    actions: [
+      { id: 'c27_bl11_take', label: 'Взять ампулы себе в карман: решу, когда придёт время', minutes: 20, terminal: true, goto: 'c27_checkpoint',
+        text: 'Ампулы холодные. Ты кладёшь их во внутренний карман, к телу, чтобы не замёрзли. Шприц — рядом. Ты знаешь, как: Окафор показывал. В первый день, на кухне, в другой жизни.', effects: [set27('bl11', 'take'), w27('morphine_b', true), until27(20, 30)] },
+      { id: 'c27_bl11_kasia', label: 'Сказать Касе, что ампулы есть, и где они', minutes: 30, terminal: true, goto: 'c27_checkpoint',
+        text: 'Кася слушает, глядя на брата. Потом говорит: «Tylko jak będzie bolało». Только если будет больно. Ты киваешь. Она берёт тебя за руку, крепко, и не отпускает до полуночи.', effects: [set27('bl11', 'kasia'), w27('morphine_b', 'kasia'), npc('kasia', 2, 'c27_told_morphine'), until27(21, 0)] },
+      { id: 'c27_bl11_lea', label: 'Попросить Лею быть рядом ночью: она умеет', minutes: 20, terminal: true, goto: 'c27_checkpoint',
+        text: 'Лея кивает и садится на табурет у двери. «Ich bleibe bis zum Morgen». Я останусь до утра. Ампулы она кладёт на подоконник, рядом со свечой.', effects: [set27('bl11', 'lea'), w27('morphine_b', 'lea'), npc('c21_lea', 1), until27(20, 30)] },
+    ] }),
+];
