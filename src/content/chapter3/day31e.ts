@@ -1,0 +1,93 @@
+import type { Scene } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { flag, not } from './world3';
+import { house14, kitchen14, yard14 } from './point14';
+import { ninaFarm, v } from './point18';
+import { npc } from './point19';
+import { S31, frost31, henrike31, jest31, partnerUp31, set31, until31, w31 } from './point31';
+
+// Участок 31, дополнение (проверка объёма 15.11). A: сумка из кабины (или могила Хиннерка), сборы в Бухгольц.
+// B: обмороженные в пункте после ночи, сборы в Винзен. Спасающий: гости к выбывшему. Сборы откликаются в 32-й.
+const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S31({ ...scene, for: 'any', chapter: 'ch3' });
+const medbag: Cond = { has: 'c30_medbag' };
+const boy: Cond = flag('w.c30_boy_saved');
+const eggs: Cond = { stocked: 'eggs', qty: 6, at: 'c3_farm_stock' };
+
+export const day31EScenes: Scene[] = [
+  X({ id: 'c31_a_bag', title: 'До полудня', camp: yard14, ambient: frost31,
+    text: [
+      { when: medbag, text: 'Армейская сумка из кабины стоит в сенях, под твоей курткой. Бинты, жгуты, термоодеяла, коробка с ампулами «Morphin». Ночью ты решил{m:|а}, что решишь утром. Утро настало.' },
+      { when: not(medbag), text: 'К калитке подходит Лукас, без велосипеда, с лопатой на плече.\n\n— Wir graben für Hinnerk. Heute Mittag, auf dem Friedhof. Die Erde ist wie Stein. Wir brauchen Leute.\n\nКопаем для Хиннерка. Сегодня днём, на кладбище. Земля как камень. Нужны люди.' },
+    ],
+    actions: [
+      { id: 'c31_ag_point', label: 'Отнести сумку Зандер', when: medbag, minutes: 60, terminal: true, goto: 'c31_a_deniz', ambientDuring: frost31,
+        text: 'Зандер раскрывает сумку на столе, перебирает пальцами ампулы, как чётки. «Woher?» Откуда? Ты говоришь. Она смотрит на тебя долго и ничего не спрашивает больше. Коробку с морфином она запирает в шкаф и ключ кладёт себе за ворот.', effects: [set31('ag', 'point'), w31('medbag', 'point'), { take: 'c30_medbag' }, { move: jest31 }, until31(12, 0)] },
+      { id: 'c31_ag_keep', label: 'Оставить дома, в кладовке: мало ли что', when: medbag, minutes: 30, terminal: true, goto: 'c31_a_deniz',
+        text: 'Ты ставишь сумку на верхнюю полку кладовки, за банками. Хенрике видит и молчит. Потом говорит, не глядя: «Wenn jemand fragt — ich weiß von nichts». Если кто спросит — я ничего не знаю.', effects: [set31('ag', 'keep'), w31('medbag', 'home'), { stock: 'c30_medbag', qty: 1, at: 'c3_farm_stock' }, until31(11, 30)] },
+      { id: 'c31_ag_half', label: 'Бинты и одеяла в пункт, морфин оставить себе', when: medbag, minutes: 60, terminal: true, goto: 'c31_a_deniz', ambientDuring: frost31,
+        text: 'Бинты и термоодеяла ты отдаёшь Зандер, коробку с ампулами оставляешь во внутреннем кармане. Зандер благодарит. Ты не смотришь ей в глаза. Ампулы оттягивают карман весь день.', effects: [set31('ag', 'half'), w31('medbag', 'half'), { move: jest31 }, until31(12, 0)] },
+      { id: 'c31_ag_grave', label: 'Взять лом и идти копать', when: not(medbag), minutes: 60, activity: 'heavy', terminal: true, goto: 'c31_a_deniz', ambientDuring: frost31,
+        text: 'На кладбище за церковью шестеро мужчин и костёр на месте могилы: землю оттаивают огнём. Ты бьёшь ломом, когда твоя очередь. Брандт приходит в конце, с забинтованной рукой, кидает горсть земли левой и уходит, не сказав ни слова.', effects: [set31('ag', 'grave'), w31('hinnerk_grave', true), npc('c16_brandt', 1), { body: 'fatigue', delta: 8 }, until31(12, 0)] },
+      { id: 'c31_ag_no', label: 'Сказать Лукасу: сегодня не могу', when: not(medbag), minutes: 15, terminal: true, goto: 'c31_a_deniz',
+        text: 'Лукас кивает и уходит к следующему двору. Лопата на его плече качается. Ты смотришь ему вслед, пока он не скрывается за поворотом.', effects: [set31('ag', 'no'), until31(11, 0)] },
+    ] }),
+
+  X({ id: 'c31_a_pack', title: 'Сборы', camp: house14, onEnter: [until31(17, 0)],
+    text: [
+      { text: 'Если завтра в Бухгольц — собираться сегодня. Рюкзак на полу у кровати. Хенрике приносит хлеб и сало в тряпице и уходит, не спрашивая, нужно ли.' },
+      { when: flag('w.c31_car_back'), text: 'Corsa под навесом. На Бухгольц вы поедете фургоном братьев: бензина в Corsa на дорогу туда и обратно нет.' },
+    ],
+    actions: [
+      { id: 'c31_ap_hose', label: 'Взять шланг и пустые канистры: там во дворах машины', minutes: 60, terminal: true, goto: 'c31_evening',
+        text: 'Шланг от стиральной машины, две канистры по десять литров, воронка. Ты связываешь всё бечёвкой. Хенрике смотрит и говорит: «Nur von denen, die nicht mehr fahren». Только у тех, кто больше не поедет.', effects: [set31('ap', 'hose'), set31('hose', true), until31(18, 0)] },
+      { id: 'c31_ap_food', label: 'Взять еды на троих: братьям тоже', minutes: 60, terminal: true, goto: 'c31_evening',
+        text: 'Хлеб, сало, шесть яиц вкрутую, банка огурцов. Хенрике кладёт сверху ещё кусок окорока: «Für Deniz. Er hat mir die Säge nie zurückgegeben. Er soll sich schämen». Для Дениза. Он так и не вернул мне пилу. Пусть ему будет стыдно.', effects: [set31('ap', 'food'), set31('food3', true), until31(18, 0)] },
+      { id: 'c31_ap_keys', label: 'Найти ключи от своей квартиры', minutes: 60, terminal: true, goto: 'c31_evening',
+        text: 'Ключи нашлись на дне рюкзака, в кармашке, который ты не открывал{m:|а} с десятого. Связка: квартира, подвал, почтовый ящик. Ты держишь их в ладони долго.', effects: [set31('ap', 'keys'), set31('home_keys', true), until31(18, 0)] },
+    ] }),
+
+  X({ id: 'c31_b_frost', title: 'Обмороженные', location: jest31, camp: { at: jest31, stock: 'c3_farm_stock', rest: false }, safe: false, ambient: { tempC: 14, outdoor: false, wet: false }, onEnter: [until31(14, 0)],
+    text: [
+      { text: 'Зандер просит тебя зайти в пункт после обхода: после ночи у неё девять обмороженных и две руки.' },
+      { when: boy, text: 'На крайней раскладушке мальчишка из цепи, тот, что висел на краю впадины. Пальцы на ногах чёрные, два — совсем. Зандер говорит тебе тихо: их надо снять сегодня, иначе завтра будет нога. Он смотрит в потолок и делает вид, что не слышит.' },
+      { when: not(boy), text: 'На крайней раскладушке пожилой дружинник с черными пальцами на ноге. Зандер говорит тебе тихо: два пальца надо снять сегодня. Он смотрит в потолок и делает вид, что не слышит.' },
+    ],
+    actions: [
+      { id: 'c31_bf_hold', label: 'Держать его и не отпускать', minutes: 90, terminal: true, goto: 'c31_b_dusk',
+        text: 'Ты держишь его плечи, Лея — ногу. Морфина Зандер даёт одну ампулу, больше нет. Всё занимает десять минут. Он кричит один раз, коротко, и потом только дышит. Когда всё кончено, он говорит тебе: «Danke», — и отворачивается к стене, чтобы ты не {m:видел|видела} лица.', effects: [set31('bf', 'hold'), w31('toes', 'held'), until31(15, 30)] },
+      { id: 'c31_bf_talk', label: 'Говорить с ним всё время, держать за руку', minutes: 90, terminal: true, goto: 'c31_b_dusk',
+        text: 'Ты спрашиваешь его про всё подряд: школа, футбол, собака, что он будет есть на Рождество. Он отвечает сквозь зубы, потом громче, потом кричит, потом снова отвечает. Зандер работает быстро. Когда всё кончено, он не помнит, о чём вы говорили. Ты помнишь.', effects: [set31('bf', 'talk'), w31('toes', 'talked'), until31(15, 30)] },
+      { id: 'c31_bf_out', label: 'Выйти: ты не можешь на это смотреть', minutes: 60, terminal: true, goto: 'c31_b_dusk',
+        text: 'Ты выходишь на крыльцо. Через стену слышно всё. Лея выходит через десять минут, вытирая руки, и садится рядом на ступеньку. «Beim ersten Mal kann das keiner». В первый раз никто не может.', effects: [set31('bf', 'out'), until31(15, 0)] },
+    ] }),
+
+  X({ id: 'c31_b_pack', title: 'Сборы в Винзен', camp: kitchen14, onEnter: [until31(16, 30)],
+    text: [
+      { text: 'Если завтра в Винзен — собираться сегодня. Рюкзак, тетрадь, список Зандер, если он у тебя будет.' },
+      { when: ninaFarm, text: 'Нина собирается с обеда. Её рюкзак уже стоит у двери, застёгнутый, лямки подтянуты. В боковом кармане торчит её тетрадь.' },
+      { when: v('w.c28_kulka', 'nina'), text: 'Нина спрашивает, можно ли взять в Винзен Пана Кульку: показать Лене. Клетка маленькая.' },
+    ],
+    actions: [
+      { id: 'c31_bp_eggs', label: 'Взять десяток яиц: в Винзене это валюта', when: eggs, minutes: 60, terminal: true, goto: 'c31_evening',
+        text: 'Хенрике отдаёт яйца сама, заворачивает каждое в газету. «Für das Rote Kreuz. Die Frauen dort haben Kinder». Для Красного Креста. У женщин там дети.', effects: [set31('bp', 'eggs'), set31('eggs_trade', true), { unstock: 'eggs', qty: 6, at: 'c3_farm_stock' }, until31(18, 0)] },
+      { id: 'c31_bp_letters', label: 'Написать письма тем, кто может быть там', minutes: 60, terminal: true, goto: 'c31_evening',
+        text: 'Ты пишешь три коротких письма на листках из тетради: «Если вы знаете, где Мерле Х., скажите ей…». Адрес хутора, твоё имя. В Винзене Красный Крест, там списки. Может быть.', effects: [set31('bp', 'letters'), set31('wrote_notes', true), until31(18, 0)] },
+      { id: 'c31_bp_sleep', label: 'Лечь пораньше: завтра в семь', minutes: 60, terminal: true, goto: 'c31_evening',
+        text: 'Ты ложишься на час до ужина и засыпаешь сразу, будто выключили свет.', effects: [set31('bp', 'sleep'), { body: 'fatigue', delta: -10 }, until31(18, 0, true)] },
+    ] }),
+
+  X({ id: 'c31_r_guests', title: 'Соседи', camp: kitchen14, onEnter: [until31(15, 30)],
+    text: [
+      { text: 'К вечеру во двор приходят соседи. Кёлер с кастрюлей супа. Уте с вязаными носками. Двое из дружины, которые несли {partner.acc} ночью, — посмотреть, жив ли.' },
+      { when: partnerUp31, text: '{partner} слышит голоса и пытается сесть.' },
+      { when: henrike31, text: 'Хенрике стоит в дверях кухни, как часовой, и смотрит на тебя: пускать?' },
+    ],
+    actions: [
+      { id: 'c31_rg_all', label: 'Пустить всех по одному, на минуту', minutes: 60, terminal: true, goto: 'c31_r_dusk',
+        text: 'Они заходят по одному, снимают шапки, стоят у кровати минуту и выходят. Дружинник, который нёс, кладёт на одеяло кусок шоколада и говорит: «Schwer warst du». Тяжёлый ты был. Или тяжёлая. Все смеются, тихо, чтобы не тревожить.', effects: [set31('rg', 'all'), { body: 'stress', delta: -4 }, until31(16, 30)] },
+      { id: 'c31_rg_kitchen', label: 'Принять гостинцы на кухне, к больному не пускать', minutes: 45, terminal: true, goto: 'c31_r_dusk',
+        text: 'Суп, носки, банка мёда от кого-то. Ты благодаришь на кухне, за всех. Соседи понимают: кивают, уходят. Кёлер оставляет кастрюлю и говорит: «Bring sie mir morgen voll zurück. Mit Eiern». Вернёшь завтра полной. С яйцами.', effects: [set31('rg', 'kitchen'), npc('c3_koehler', 1), until31(16, 15)] },
+      { id: 'c31_rg_carriers', label: 'Пустить только тех двоих, что несли', minutes: 45, terminal: true, goto: 'c31_r_dusk',
+        text: 'Двое из дружины стоят у кровати, огромные, в мокрых ватниках. Один говорит, что держал за ноги, другой — что за плечи. Им важно, чтобы ты знал{m:|а}, кто за что держал. Ты благодаришь каждого отдельно.', effects: [set31('rg', 'carriers'), w31('carriers_thanked', true), until31(16, 15)] },
+    ] }),
+];

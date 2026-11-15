@@ -81,11 +81,11 @@ export const day31RScenes: Scene[] = [
       { when: all(ninaFarm, A31), text: 'Потом на кухне Нина рассказывает про подругу из Винзена: там открылась школа, в среду туда идёт армейский грузовик. Она хочет поехать с {partner.ins}. Когда {pm:он|она} встанет.' },
     ],
     actions: [
-      { id: 'c31_rv_out', label: 'Выйти к ним и поговорить', minutes: 90, terminal: true, goto: 'c31_r_dusk', ambientDuring: frost31,
+      { id: 'c31_rv_out', label: 'Выйти к ним и поговорить', minutes: 90, terminal: true, goto: 'c31_r_guests', ambientDuring: frost31,
         text: 'Ты стоишь во дворе на морозе, пока не перестаёшь чувствовать уши. Новости, кто как, кто где. Тебе нужно было постоять с живыми людьми, которые ни о чём не просят.', effects: [set31('rv', 'out'), npc('deniz', 1), until31(15, 30)] },
-      { id: 'c31_rv_eat', label: 'Поесть на кухне, пока есть минута', minutes: 30, terminal: true, goto: 'c31_r_dusk', ...tableOnly,
+      { id: 'c31_rv_eat', label: 'Поесть на кухне, пока есть минута', minutes: 30, terminal: true, goto: 'c31_r_guests', ...tableOnly,
         text: 'Хенрике ставит перед тобой миску и стоит рядом, пока ты не съешь всё. Ты не помнишь, когда ел{m:|а} последний раз. Кажется, вчера.', effects: [set31('rv', 'eat'), meal('eat'), until31(15, 0)] },
-      { id: 'c31_rv_back', label: 'Вернуться к постели', minutes: 60, terminal: true, goto: 'c31_r_dusk',
+      { id: 'c31_rv_back', label: 'Вернуться к постели', minutes: 60, terminal: true, goto: 'c31_r_guests',
         text: 'Ты киваешь всем сразу и уходишь обратно в комнату. {partner} спит. Ты садишься и смотришь, как поднимается одеяло.', effects: [set31('rv', 'back'), blood(-2), until31(15, 0)] },
     ] }),
 

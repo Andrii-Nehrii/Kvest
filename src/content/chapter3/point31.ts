@@ -75,7 +75,7 @@ export const afterTow = [
   { id: 'b', goto: 'c31_b_wash' },
 ];
 /** После ящика: спасающий — к постели, остальные — к братьям. */
-export const afterBox = [{ id: 'r', when: rescuer31, goto: 'c31_r_noon' }, { id: 'd', goto: 'c31_a_deniz' }];
+export const afterBox = [{ id: 'r', when: rescuer31, goto: 'c31_r_noon' }, { id: 'd', goto: 'c31_a_bag' }];
 
 export const shared31: Scene[] = [
   S31({ id: 'c31_dawn', for: 'any', chapter: 'ch3', title: 'Четыре утра', camp: house14,

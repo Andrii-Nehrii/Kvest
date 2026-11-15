@@ -66,10 +66,11 @@ export const day32BScenes: Scene[] = [
       { when: ninaWith, text: 'Нина замирает в дверях. Потом к ней бегом, через весь коридор, — девочка с короткой стрижкой. Лена. Они обнимаются молча и долго.' },
       { when: ninaWinsen32, text: 'Нина выбегает тебе навстречу в коридоре, в чужом свитере, с тетрадкой под мышкой.\n\n— Я же написала! — говорит она так, будто ты {m:мог|могла} не приехать.' },
       { text: 'Стол Красного Креста — в учительской. Очередь из двенадцати человек.' },
+      { when: flag('B.c31_eggs_trade'), text: 'Десяток яиц Хенрике, завёрнутых в газету, лежит у тебя в сумке. Женщины в очереди смотрят на сумку так, будто там золото.' },
     ],
     actions: [
       { id: 'c32_bs_queue', label: 'Встать в очередь со списком Зандер', minutes: 120, terminal: true, goto: 'c32_b_okafor',
-        text: 'Очередь ползёт. Женщина за столом, немолодая, с карандашом за ухом, читает список Зандер, вычёркивает половину и ставит галочки у остального.\n\n— Bis morgen früh packen wir. Antibiotika: zwei Packungen. Insulin: nein. Fiebersaft: ja, einer.\n\nДо утра соберём. Антибиотики — две упаковки. Инсулина нет. Сироп — да, один.', effects: [set32('bs', 'queue'), w32('meds', 'promised'), ...fed32(15), until32(32, 11, 30)] },
+        text: 'Очередь ползёт. Женщина за столом, немолодая, с карандашом за ухом, читает список Зандер, вычёркивает половину и ставит галочки у остального.\n\n— Bis morgen früh packen wir. Antibiotika: zwei Packungen. Insulin: nein. Fiebersaft: ja, einer.\n\nДо утра соберём. Антибиотики — две упаковки. Инсулина нет. Сироп — да, один.', effects: [set32('bs', 'queue'), w32('meds', 'promised'), { if: flag('B.c31_eggs_trade'), then: [w32('meds_extra', true)] }, ...fed32(15), until32(32, 11, 30)] },
       { id: 'c32_bs_help', label: 'Сначала помочь на раздаче супа', minutes: 120, activity: 'light', terminal: true, goto: 'c32_b_okafor',
         text: 'Ты разливаешь суп из бака, двести половников. Женщина из Красного Креста видит это и пропускает тебя без очереди.\n\n— Wer hilft, wird zuerst bedient. So machen wir das hier.\n\nКто помогает, того обслуживают первым. Так у нас заведено.\n\nОна ставит галочки щедрее: антибиотиков три упаковки вместо двух.', effects: [set32('bs', 'help'), w32('meds', 'promised'), w32('meds_extra', true), ...fed32(20), until32(32, 11, 30)] },
       { id: 'c32_bs_nina', label: 'Сначала посидеть с Ниной на уроке', when: any(ninaWith, ninaWinsen32), minutes: 120, terminal: true, goto: 'c32_b_okafor',

@@ -129,14 +129,14 @@ export const day31AScenes: Scene[] = [
       { when: ole31, text: 'Оле сидит на лавке у печи и пытается чинить свою шапку. Пальцы его не слушаются.' },
     ],
     actions: [
-      { id: 'c31_ay_wood', label: 'Наколоть дров на два дня вперёд', minutes: 60, activity: 'heavy', terminal: true, goto: 'c31_evening', ambientDuring: frost31,
-        text: 'Ты колешь, пока не темнеет. Поленница у стены растёт. Если завтра уезжать, это то, что после тебя останется.', effects: [set31('ay', 'wood'), { body: 'fatigue', delta: 6 }, until31(18, 0)] },
-      { id: 'c31_ay_ole', label: 'Сесть с Оле', when: ole31, minutes: 60, terminal: true, goto: 'c31_evening',
-        text: 'Ты берёшь у него шапку и иголку. Он смотрит, как ты шьёшь, и говорит:\n\n— Du nähst wie ein Soldat. Grob, aber hält.\n\nШьёшь как солдат. Грубо, но держится.', effects: [set31('ay', 'ole'), npc('ole', 1), until31(18, 0)] },
-      { id: 'c31_ay_map', label: 'Разложить на столе карту из ящика', when: { has: 'c31_post_map' }, minutes: 60, terminal: true, goto: 'c31_evening',
-        text: 'Ты разглаживаешь карту ладонью. Йестебург, Бухгольц, Винзен, Люнебург. Карандашные кружки вдоль дорог. Ты долго смотришь на дорогу до Бухгольца. Там кружков нет.', effects: [set31('ay', 'map'), set31('read_map', true), until31(18, 0)] },
-      { id: 'c31_ay_sleep', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c31_evening',
-        text: 'Ты засыпаешь сразу. Просыпаешься, когда Хенрике гремит кастрюлей.', effects: [set31('ay', 'sleep'), until31(18, 0, true)] },
+      { id: 'c31_ay_wood', label: 'Наколоть дров на два дня вперёд', minutes: 60, activity: 'heavy', terminal: true, goto: 'c31_a_pack', ambientDuring: frost31,
+        text: 'Ты колешь, пока не темнеет. Поленница у стены растёт. Если завтра уезжать, это то, что после тебя останется.', effects: [set31('ay', 'wood'), { body: 'fatigue', delta: 6 }, until31(17, 0)] },
+      { id: 'c31_ay_ole', label: 'Сесть с Оле', when: ole31, minutes: 60, terminal: true, goto: 'c31_a_pack',
+        text: 'Ты берёшь у него шапку и иголку. Он смотрит, как ты шьёшь, и говорит:\n\n— Du nähst wie ein Soldat. Grob, aber hält.\n\nШьёшь как солдат. Грубо, но держится.', effects: [set31('ay', 'ole'), npc('ole', 1), until31(17, 0)] },
+      { id: 'c31_ay_map', label: 'Разложить на столе карту из ящика', when: { has: 'c31_post_map' }, minutes: 60, terminal: true, goto: 'c31_a_pack',
+        text: 'Ты разглаживаешь карту ладонью. Йестебург, Бухгольц, Винзен, Люнебург. Карандашные кружки вдоль дорог. Ты долго смотришь на дорогу до Бухгольца. Там кружков нет.', effects: [set31('ay', 'map'), set31('read_map', true), until31(17, 0)] },
+      { id: 'c31_ay_sleep', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c31_a_pack',
+        text: 'Ты засыпаешь сразу. Просыпаешься, когда Хенрике гремит кастрюлей.', effects: [set31('ay', 'sleep'), until31(17, 0, true)] },
     ] }),
 ];
 
