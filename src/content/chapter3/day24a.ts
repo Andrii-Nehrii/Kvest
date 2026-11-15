@@ -113,11 +113,11 @@ export const day24AScenes: Scene[] = [
       { text: 'Завтра {A} едет в Люнебург с фургоном прачечной. Машина остаётся.' },
     ],
     actions: [
-      { id: 'c24_ac_back', label: 'Поставить аккумулятор обратно', when: battery, minutes: 30, activity: 'moderate', terminal: true, goto: 'c24_a_dusk',
+      { id: 'c24_ac_back', label: 'Поставить аккумулятор обратно', when: battery, minutes: 30, activity: 'moderate', terminal: true, goto: 'c24_a_fox',
         text: 'Клеммы, гайки, тряпка. Мотор схватывает со второго раза. Ты глушишь его через минуту: бензин дороже, чем звук.', effects: [set24('ac', 'back'), w24('battery_back', true), until24(15, 40)] },
-      { id: 'c24_ac_cap', label: 'Закрутить крышку и проверить уровень', minutes: 15, terminal: true, goto: 'c24_a_dusk',
+      { id: 'c24_ac_cap', label: 'Закрутить крышку и проверить уровень', minutes: 15, terminal: true, goto: 'c24_a_fox',
         text: 'Ты закручиваешь крышку до щелчка. Стрелка на приборке там же, где была в субботу. Не отлили. Пока.', effects: [set24('ac', 'cap'), until24(15, 25)] },
-      { id: 'c24_ac_teach', label: 'Позвать Нину и показать, как заводить', minutes: 30, terminal: true, goto: 'c24_a_dusk',
+      { id: 'c24_ac_teach', label: 'Позвать Нину и показать, как заводить', minutes: 30, terminal: true, goto: 'c24_a_fox',
         outcomes: [
           { id: 'nobat', when: battery, text: 'Нина садится за руль, кладёт руки на десять и два, как учил отец. Заводить нечего: аккумулятор в подвале. Ты показываешь всё остальное. Сцепление, передачи, ручник. Она запоминает с первого раза.', effects: [set24('ac', 'teach'), w24('nina_drives', true), npc('c7_nina', 2)] },
           { id: 'ok', text: 'Нина садится за руль, кладёт руки на десять и два. Мотор схватывает. Она проезжает два метра вперёд и два назад, не заглохнув, и глушит сама.\n\n— Папа учил на парковке у «Лидла», — говорит она. — Я помню.', effects: [set24('ac', 'teach'), w24('nina_drives', true), npc('c7_nina', 2)] },
