@@ -38,7 +38,13 @@ if (expect.getState().testPath?.endsWith('/src/content/quality.test.ts') && !pro
     return { ...actual, playGame: (options: Parameters<typeof actual.playGame>[0]) => actual.playGame({
       ...options, answers: {
         c3_midday5: 'relieve', c3_l_road6: 'divert', c3_new_night6: 'own_sleep',
-        c3_new_van7: 'quiet', c3_new_depart7: 'car', ...options.answers,
+        c3_new_van7: 'quiet', c3_new_depart7: 'car',
+        // Сыгранные ответы пары КТ8–КТ18: дальние участки проверяются на её линии.
+        c3_new_route8: 'home', c3_new_jens9: 'keep', c3_new_search9a: 'stay', c3_new_search9b: 'stay', c3_new_ole10: 'door', c3_new_nina10: 'barn',
+        c3_new_report11: 'report', c3_new_home11: 'stay', c3_new_guests12: 'split', c3_new_promise12a: 'promise', c3_new_promise12b: 'promise',
+        c3_new_leo13: 'drive', c3_new_road13: 'walk', c3_new_jens14: 'give', c3_new_nina14: 'house', c3_new_nina15: 'stay', c3_new_garden15: 'help',
+        c3_new_albers16: 'take', c3_new_sweep16: 'warn', c3_new_colony17: 'stand', c3_new_nina17: 'with', c3_new_friday18: 'write', c3_new_house18: 'known',
+        ...options.answers,
       },
     }) };
   });

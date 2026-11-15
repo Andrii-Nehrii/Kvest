@@ -170,7 +170,7 @@ export const day21CScenes: Scene[] = [
         text: '— Ich weiß, — говорит он. Знаю. — Befehl.\n\nОн пожимает плечами и берётся за борт один. Борт срывается и бьёт его по пальцам. Помочь он не просит.', effects: [set21('af', 'word'), brandtMinus, until21(20, 18, 15)] },
       { id: 'c21_af_boy', label: 'Спросить про парня в прицепе', minutes: 10, terminal: true, goto: 'c21_c_a_tobias',
         text: '— Meiner, — говорит пожарный. Мой. — Sechzehn. Wollte unbedingt mit.\n\nШестнадцать. Сам напросился. Он поправляет на парне куртку.\n\n— Der Arm ist durch. Kein Biss. Ich hab dreimal nachgeschaut.\n\nРука сломана. Не укус. Я три раза смотрел.', effects: [set21('af', 'boy'), until21(20, 18, 20)] },
-      { id: 'c21_af_haller', label: 'Сказать солдату, где ты нашёл ранец Халлера', when: flag('w.c20_wood_bag'), minutes: 10, terminal: true, goto: 'c21_c_a_tobias',
+      { id: 'c21_af_haller', label: 'Сказать солдату, где {m:нашёл|нашла} ранец Халлера', when: flag('w.c20_wood_bag'), minutes: 10, terminal: true, goto: 'c21_c_a_tobias',
         text: 'Ты рассказываешь про ложбину у ручья, про шестерых и про ранец с выжженной фамилией. Солдат кивает на каждое слово.\n\n— Dann war er einer von den sechs.\n\nЗначит, он был одним из шестерых.\n\nВторой автомат он снимает с плеча и кладёт в кузов аккуратно, как кладут чужую вещь.', effects: [set21('af', 'haller'), w21('haller_told', true), { body: 'stress', delta: 2 }, until21(20, 18, 25)] },
     ] }),
 
@@ -178,7 +178,7 @@ export const day21CScenes: Scene[] = [
     text: [
       { text: 'Тобиас находит тебя сам. Каска у него в руке, волосы мокрые.\n\n— Die Spenderin fehlt. Zweiter Laster, Beifahrersitz leer. Kein Blut im Fahrerhaus.\n\nДонора нет. Второй грузовик, место пассажира пустое. Крови в кабине нет.' },
       { text: 'Он смотрит в темноту за отбойником.\n\n— Wenn sie tot ist, sage ich es dem Jungen selbst.\n\nЕсли она мертва, мальчику я скажу сам.' },
-      { when: flag('w.c20_promise_lea'), text: 'Ты обещал Оле посмотреть, что с ней.' },
+      { when: flag('w.c20_promise_lea'), text: 'Ты {m:обещал|обещала} Оле посмотреть, что с ней.' },
       { when: hasId, text: 'Её студенческий билет лежит у тебя во внутреннем кармане.' },
     ],
     actions: [

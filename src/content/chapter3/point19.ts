@@ -21,6 +21,9 @@ export const point20Available: Cond = all(P20, flag('A.c19_finished'), flag('B.c
 
 // Положение после точки 18 (все исходы).
 export const henrikeHome: Cond = v('w.c18_henrike', 'home');
+/** Хенрике в Люнебурге: перевезена туда или осталась при Оле (в данных она могла остаться в пункте Йестебурга с участка 13). */
+export const henrikeInLue: Cond = all({ npc: 'henrike', alive: true }, any({ npc: 'henrike', alive: true, at: 'c18_lueneburg' },
+  all(v('w.c18_henrike', 'stays'), not({ npc: 'henrike', alive: true, at: 'hof_luedemann' }))));
 export const uteHere: Cond = v('w.c18_ute', 'farm');
 export const jannesHere: Cond = any(uteHere, flag('w.c18_jannes_home'));
 export const evaHere: Cond = v('w.c18_seat', 'eva');

@@ -4,7 +4,7 @@ import { all, flag, not } from './world3';
 import { house14, kitchen14, tense14, yard14 } from './point14';
 import { any, ninaFarm, v } from './point18';
 import {
-  A19, B19, S20, barnChained, byGirl, evaHere, girlHere, henrikeHome, jensBarn, npc, own20, set20, textByGirl, until, uteHere, w20,
+  A19, B19, S20, barnChained, byGirl, evaHere, girlHere, henrikeHome, henrikeInLue, jensBarn, npc, own20, set20, textByGirl, until, uteHere, w20,
 } from './point19';
 import { afterMorningA } from './day20f';
 
@@ -17,7 +17,7 @@ const yardAir = { tempC: 4, outdoor: true, wet: false };
 const rain = { tempC: 5, outdoor: true, wet: true };
 const L = (scene: Omit<Scene, 'for' | 'chapter' | 'location'>): Scene => S20({ ...scene, for: 'any', chapter: 'ch3', location: lue, camp: scene.camp ?? lueCamp, safe: false });
 const F = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S20({ ...scene, for: 'any', chapter: 'ch3' });
-const henrikeLue: Cond = { npc: 'henrike', alive: true, at: lue };
+const henrikeLue: Cond = henrikeInLue;
 const flueBad: Cond = any(v('w.c19_flue', 'left'), v('w.c19_flue', 'half'));
 const heavyHead: Effect = { if: flueBad, then: [{ body: 'fatigue', delta: 5 }, { body: 'stress', delta: 1 }] };
 const dogHere: Cond = any(v('w.c19_dog', 'house'), v('w.c19_dog', 'gate'));

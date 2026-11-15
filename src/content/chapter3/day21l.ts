@@ -1,9 +1,10 @@
 import type { Scene } from '../../engine/content-types';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { yard14 } from './point14';
+import { kitchen14, yard14 } from './point14';
+import { indoor16 as indoor21 } from './point16';
 import { any, v } from './point18';
-import { npc } from './point19';
+import { henrikeInLue, npc } from './point19';
 import {
   A21, B21, S21, car21, guestsHome, lea, lue21, malte, night21, nursed, partnerDown, set21, until21, w21,
 } from './point21';
@@ -18,7 +19,7 @@ const campL = { at: lue21, stock: 'c3_farm_stock', rest: false } as const;
 const L = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S21({ ...scene, for: 'any', chapter: 'ch3', location: scene.location ?? lue21,
   camp: scene.camp ?? campL, safe: scene.safe ?? false, ambient: scene.ambient ?? hall });
 const partnerUp: Cond = { partner: 'active' };
-const henrikeHere: Cond = { npc: 'henrike', alive: true, at: lue21 };
+const henrikeHere: Cond = henrikeInLue;
 const oleHurt: Cond = flag('w.c20_ole_hurt');
 const carLue: Cond = { itemAt: 'opel_corsa', place: lue21 };
 /** За рулём A; если он выбыл — та, что его выхаживала. */
@@ -29,6 +30,9 @@ const drink = (delta: number): Effect => ({ body: 'thirst', delta, target: '@par
 const fed: Effect[] = [{ body: 'hunger', delta: -40 }, { body: 'thirst', delta: -30 }];
 const afterDusk = [{ id: 'a', when: A21, goto: 'c21_l_a_ole' }, { id: 'b', goto: 'c21_l_b_ward' }];
 const afterWard = [{ id: 'h', when: henrikeHere, goto: 'c21_l_b_henrike' }, { id: 'n', goto: 'c21_l_supper' }];
+const afterWait = [{ id: 'a', when: A21, goto: 'c21_l_a_fence' }, { id: 'b', goto: 'c21_l_b_hanna' }];
+const pBand: Cond = any(flag('w.c20_p_known'), flag('w.c20_saw_p_band'));
+const metHanna: Cond = any({ visited: 'c18_b_queue' }, v('B.c18_bt', 'woman'));
 const afterTrucks = [{ id: 'n', when: nursed, goto: 'c21_l_n_night' }, { id: 'a', when: A21, goto: 'c21_l_a_tobias' }, { id: 'b', goto: 'c21_l_b_ole' }];
 /** Ночью из бака, оставленного за шлагбаумом, отливают. Если до дома не хватает, сержант даёт пять литров под подпись Хенрике. */
 const fuelAtDawn: Effect[] = [
@@ -37,8 +41,9 @@ const fuelAtDawn: Effect[] = [
 ];
 /** Дорога домой: A ведёт, B едет; спасающий везёт партнёра сам. */
 const homeDrive: Effect[] = [
-  { if: nursed, then: [{ takeFromPartner: 'car_keys' }, { carryPartner: { to: farm, km: 40, minutes: 65, vehicle: 'opel_corsa' } }],
-    else: [{ if: A21, then: [{ drive: 'opel_corsa', km: 40, to: farm }], else: [{ move: farm }] }] },
+  { if: all(nursed, carLue), then: [{ takeFromPartner: 'car_keys' }, { carryPartner: { to: farm, km: 40, minutes: 65, vehicle: 'opel_corsa' } }],
+    else: [{ if: nursed, then: [{ carryPartner: { to: farm, km: 40, minutes: 40, helped: true } }],
+      else: [{ if: all(A21, carLue), then: [{ drive: 'opel_corsa', km: 40, to: farm }], else: [{ move: farm }] }] }] },
   until21(21, 6, 35),
 ];
 /** К утру врач ставит ещё одну бутылку, если партнёр так и не очнулся. */
@@ -104,7 +109,7 @@ export const day21LScenes: Scene[] = [
   L({ id: 'c21_l_b_ward', title: 'Пять ампул',
     text: [
       { text: 'В детской восемь кроватей. Над каждой висит лист с температурой.' },
-      { when: flag('w.c20_b_chart'), text: 'Эти столбики ты уже видела днём: после плазмы вниз, потом снова вверх, выше прежнего.' },
+      { when: flag('w.c20_b_chart'), text: 'Эти столбики ты уже {m:видел|видела} днём: после плазмы вниз, потом снова вверх, выше прежнего.' },
       { text: 'Сестра считает пакеты в лотке. Их пять.\n\n— Für heute Nacht. Wenn der Transport nicht kommt, war es das.\n\nНа эту ночь. Если транспорт не придёт, это всё.' },
     ],
     actions: [
@@ -149,15 +154,64 @@ export const day21LScenes: Scene[] = [
   L({ id: 'c21_l_wait', title: 'Темнота', ambient: yard,
     text: [
       { text: 'После ужина делать нечего. Только ждать.' },
-      { text: 'В девять генератор глушат на час: берегут солярку. Казарма сидит в темноте и слушает дорогу.' },
+      { text: 'Двор казармы затихает. Слышно, как в донорском блоке гудит генератор и как у шлагбаума сержант стучит сапогом о сапог.' },
     ],
     actions: [
-      { id: 'c21_lx_road', label: 'Сидеть у шлагбаума и смотреть на шоссе', minutes: 30, terminal: true, goto: 'c21_l_trucks',
-        text: 'В половине десятого на западе появляются огни. Сначала две пары фар, потом четыре. Потом ты сбиваешься. Ползут они очень медленно.', effects: [set21('lx', 'road'), until21(20, 22, 0)] },
-      { id: 'c21_lx_ole', label: 'Пойти в блок и посидеть с Оле', minutes: 30, terminal: true, goto: 'c21_l_trucks',
-        text: 'Оле не спит. Вы сидите в темноте. Он рассказывает, как в девять лет упал с груши и сломал ключицу. Мать несла его до машины и ругалась всю дорогу.\n\n— Wenn sie schimpft, hat sie Angst.\n\nКогда она ругается, ей страшно.', effects: [set21('lx', 'ole'), npc('ole', 1), until21(20, 22, 0)] },
-      { id: 'c21_lx_nap', label: 'Лечь на час, пока тихо', minutes: 30, activity: 'rest', terminal: true, goto: 'c21_l_trucks',
-        text: 'Ты ложишься на скамью в коридоре, под чужое пальто. Будит тебя не шум, а свет: генератор включили раньше срока.', effects: [set21('lx', 'nap'), { body: 'fatigue', delta: -8 }, until21(20, 22, 0, true)] },
+      { id: 'c21_lx_road', label: 'Сидеть у шлагбаума и смотреть на шоссе', minutes: 30, terminal: true, outcomes: afterWait,
+        text: 'Шоссе на запад пустое и чёрное. Один раз далеко, у леса, мигает что-то жёлтое. Потом гаснет. Сержант говорит, что это не они: они поедут с синим.', effects: [set21('lx', 'road'), until21(20, 19, 30)] },
+      { id: 'c21_lx_ole', label: 'Пойти в блок и посидеть с Оле', minutes: 30, terminal: true, outcomes: afterWait,
+        text: 'Оле не спит. Он рассказывает, как в девять лет упал с груши и сломал ключицу. Мать несла его до машины и ругалась всю дорогу.\n\n— Wenn sie schimpft, hat sie Angst.\n\nКогда она ругается, ей страшно.', effects: [set21('lx', 'ole'), npc('ole', 1), until21(20, 19, 30)] },
+      { id: 'c21_lx_nap', label: 'Лечь на полчаса, пока тихо', minutes: 30, activity: 'rest', terminal: true, outcomes: afterWait,
+        text: 'Ты ложишься на скамью в коридоре, под чужое пальто, и проваливаешься сразу. Будит тебя чей-то голос: тебя ищут.', effects: [set21('lx', 'nap'), { body: 'fatigue', delta: -4 }, until21(20, 19, 30, true)] },
+    ] }),
+
+  L({ id: 'c21_l_a_fence', title: 'Сетка', ambient: yard,
+    text: [
+      { text: 'Сержант ищет того, кто покрепче. Часовых не хватает: половину увезли к Гарльсторфу.\n\n— Einmal um den Zaun. Mit Lampe. Wenn was ist — rufen, nicht anfassen.\n\nОдин раз вокруг забора. С фонарём. Если что — звать, руками не трогать.' },
+      { text: 'Ты идёшь вдоль сетки за прачечной. На полпути луч упирается в белое. По ту сторону, лицом к корпусам, стоит человек в больничной рубашке. Пальцы у него просунуты в ячейки сетки. Он смотрит на окна, где горит свет.' },
+      { when: pBand, text: 'На запястье у него пластиковый браслет. Ты уже знаешь, какая буква стоит в углу.' },
+    ],
+    actions: [
+      { id: 'c21_lf_call', label: 'Позвать часового', minutes: 20, terminal: true, goto: 'c21_l_ahlers',
+        text: 'Ты свистишь. Часовой приходит не спеша, смотрит и стреляет один раз, через сетку. Выстрел гремит на всю казарму. В женском корпусе кто-то кричит, потом замолкает.\n\nНа браслете в углу стоит «P». Часовой пишет номер в блокнот.', effects: [set21('lf', 'call'), w21('l_band', true), { body: 'stress', delta: 2 }, until21(20, 20, 30)] },
+      { id: 'c21_lf_lead', label: 'Стучать по сетке и увести его вдоль забора, подальше от корпусов', minutes: 30, activity: 'moderate', terminal: true, goto: 'c21_l_ahlers',
+        text: 'Ты идёшь вдоль сетки и стучишь фонарём по столбам. Он отлепляется от сетки и идёт за звуком, шаг в шаг, по ту сторону. У дальнего угла, где темно, ты гасишь фонарь и стоишь, пока он не теряет тебя. Обратно ты идёшь на ощупь.\n\nСержанту ты говоришь, что всё тихо. Он смотрит на твои руки и не спрашивает.', effects: [set21('lf', 'lead'), w21('l_led_away', true), { body: 'fatigue', delta: 3 }, until21(20, 20, 30)] },
+      { id: 'c21_lf_light', label: 'Держать на нём фонарь и смотреть', minutes: 20, terminal: true, goto: 'c21_l_ahlers',
+        text: 'Он не щурится от света. Не моргает. Он смотрит мимо фонаря, на окна. Лицо у него молодое, гладкое, на виске пластырь от капельницы. Ты стоишь так, пока не приходит часовой. Тот стреляет сразу.\n\nНа браслете «P» и номер. Номер ты запоминаешь сам, без блокнота.', effects: [set21('lf', 'light'), w21('l_band', true), set21('l_number', true), { body: 'stress', delta: 3 }, until21(20, 20, 30)] },
+    ] }),
+
+  L({ id: 'c21_l_b_hanna', title: 'Мальчик с жаром',
+    text: [
+      { when: metHanna, text: 'В женском корпусе у дальней стены сидит Ханна, та, что ехала с тобой в одном кузове. Мальчик лежит у неё на коленях, красный, мокрый.' },
+      { when: not(metHanna), text: 'В женском корпусе у дальней стены сидит женщина с мальчиком лет шести на коленях. Мальчик красный и мокрый.' },
+      { text: 'Вокруг них пустое место. Койки рядом сдвинуты. С соседней раскладушки говорят громко, чтобы слышал весь ряд:\n\n— Fieber. Die gehört raus. Mit dem Kind.\n\nЖар. Её надо выставить. С ребёнком.' },
+    ],
+    actions: [
+      { id: 'c21_lj_check', label: 'Сесть рядом и осмотреть мальчика при всех', minutes: 25, terminal: true, goto: 'c21_l_ahlers',
+        text: 'Руки, шея, щиколотки, за ушами. Ни царапины. Мальчик держится за правое ухо и хнычет, когда ты его трогаешь. Ты говоришь вслух, на весь ряд, по-немецки, как умеешь: «Ohr. Kein Biss». Ухо. Не укус.\n\nСоседка отворачивается. Койки обратно не придвигают. Но больше никто ничего не говорит.', effects: [set21('lj', 'check'), w21('l_boy_ear', true), until21(20, 20, 30)] },
+      { id: 'c21_lj_ahlers', label: 'Сходить за доктором Алерс', minutes: 30, terminal: true, goto: 'c21_l_ahlers',
+        text: 'Алерс приходит через двадцать минут, в рубашке, с фонариком в зубах. Смотрит горло, светит в ухо.\n\n— Mittelohr. Wärme und Geduld.\n\nСреднее ухо. Тепло и терпение.\n\nПотом поворачивается к ряду и говорит громче, чем нужно: «Wer hier noch einmal „raus“ sagt, schläft draußen». Кто ещё раз скажет «выставить», будет спать на улице.', effects: [set21('lj', 'ahlers'), w21('l_boy_ear', true), until21(20, 20, 30)] },
+      { id: 'c21_lj_sugar', label: 'Отдать мальчику свой сахар из кармана', minutes: 15, terminal: true, goto: 'c21_l_ahlers',
+        text: 'Два куска рафинада, завёрнутые в салфетку из столовой. Мальчик берёт один, долго сосёт и засыпает с ним за щекой. Мать смотрит на тебя поверх его головы и ничего не говорит. Она боится сказать лишнее при всех.', effects: [set21('lj', 'sugar'), { body: 'stress', delta: -1 }, until21(20, 20, 30)] },
+      { id: 'c21_lj_away', label: 'Не подходить: не твоё дело', minutes: 10, terminal: true, goto: 'c21_l_ahlers',
+        text: 'Ты ложишься на свою койку спиной к ним. Через полчаса женщина встаёт, заворачивает мальчика в одеяло и уходит с ним в коридор. Там холодно, но там на них никто не смотрит.', effects: [set21('lj', 'away'), { body: 'stress', delta: 2 }, until21(20, 20, 20)] },
+    ] }),
+
+  L({ id: 'c21_l_ahlers', title: 'Курилка', ambient: yard,
+    text: [
+      { text: 'В девять генератор глушат на час: берегут солярку. Казарма сидит в темноте.' },
+      { text: 'На крыльце донорского блока курит доктор Алерс. Сигарету она держит, как держат пипетку. Увидев тебя, она подвигается на ступеньке.' },
+      { text: '— Setzen Sie sich. Ich beiße nicht. Noch nicht.\n\nСадитесь. Я не кусаюсь. Пока.' },
+    ],
+    actions: [
+      { id: 'c21_lh2_p', label: 'Спросить, что значит буква «P» на браслетах', when: any(pBand, flag('w.c21_l_band')), minutes: 20, terminal: true, goto: 'c21_l_trucks',
+        text: 'Она долго смотрит на огонёк.\n\n— Plasma. Die erste Gruppe. Buchholz, Station vier. Wir dachten, wir halten sie auf.\n\nПлазма. Первая группа. Бухгольц, четвёртое отделение. Мы думали, что останавливаем.\n\n— Es hält auf. Eine Woche, zwei. Dann nicht mehr.\n\nОна и останавливает. Неделю, две. Потом нет.\n\nОкурок она гасит о ступеньку и долго трёт, пока от него ничего не остаётся.', effects: [set21('lh2', 'p'), w21('l_ahlers_week', true), { body: 'stress', delta: 2 }, until21(20, 21, 50)] },
+      { id: 'c21_lh2_ole', label: 'Спросить, сколько ещё выдержит Оле', minutes: 20, terminal: true, goto: 'c21_l_trucks',
+        text: '— Bei dem Tempo? Zehn Tage. Wenn die Spenderin kommt, länger.\n\nВ таком темпе? Десять дней. Если приедет донор, дольше.\n\nОна стряхивает пепел.\n\n— Und wenn sie nicht kommt, nehme ich trotzdem. Weil acht Kinder da drin liegen. Sagen Sie das seiner Mutter nicht. Sie weiß es.\n\nА если не приедет, я всё равно буду брать. Потому что там лежат восемь детей. Не говорите этого его матери. Она знает.', effects: [set21('lh2', 'ole'), w21('l_ten_days', true), { body: 'stress', delta: 2 }, until21(20, 21, 50)] },
+      { id: 'c21_lh2_help', label: 'Спросить, чем помочь до утра', minutes: 20, terminal: true, goto: 'c21_l_trucks',
+        text: '— Schlafen. Wenn die Kolonne kommt, brauche ich Leute, die nicht umfallen.\n\nСпать. Когда придёт колонна, мне нужны люди, которые не падают.\n\nОна протягивает тебе пачку. Ты не куришь. Она кивает, будто так и надо, и убирает.', effects: [set21('lh2', 'help'), { body: 'fatigue', delta: -2 }, until21(20, 21, 50)] },
+      { id: 'c21_lh2_sit', label: 'Просто посидеть рядом', minutes: 20, terminal: true, goto: 'c21_l_trucks',
+        text: 'Вы сидите молча. Где-то за прачечной лает собака, потом перестаёт. Алерс докуривает до фильтра.\n\n— Danke, — говорит она, вставая. Спасибо. За что, она не объясняет.', effects: [set21('lh2', 'sit'), { body: 'stress', delta: -1 }, until21(20, 21, 50)] },
     ] }),
 
   L({ id: 'c21_l_trucks', title: 'Десять вечера', ambient: yard,
@@ -184,7 +238,7 @@ export const day21LScenes: Scene[] = [
       { text: 'Тобиас сидит на подножке грузовика и не может расстегнуть ремешок каски. Пальцы его не слушаются.' },
       { text: '— Die Spenderin lebt. Spuren hinter der Leitplanke, kleine Schuhe. Sie ist weggelaufen. Vor uns.\n\nДонор жива. Следы за отбойником, маленькие ботинки. Она сбежала. От нас.' },
       { text: '— Morgen früh gehe ich die Höfe ab. Jeden. Auch euren.\n\nЗавтра утром я обойду дворы. Каждый. Ваш тоже.' },
-      { when: flag('w.c20_promise_lea'), text: 'Ты обещал Оле узнать, что с ней. Теперь ты хотя бы знаешь, что она жива.' },
+      { when: flag('w.c20_promise_lea'), text: 'Ты {m:обещал|обещала} Оле узнать, что с ней. Теперь ты хотя бы знаешь, что она жива.' },
     ],
     actions: [
       { id: 'c21_la_strap', label: 'Расстегнуть ему ремешок', minutes: 10, terminal: true, goto: 'c21_l_sleep',
@@ -325,19 +379,48 @@ export const day21LScenes: Scene[] = [
       { text: '— Это Лея, — говорит Нина. — Она ветеринар. Она вправила тому ногу гладильной доской. А солдату я сказала: ты спишь стоя, ляг. Он лёг.' },
     ],
     actions: [
-      { id: 'c21_lq_right', label: 'Сказать: правильно', minutes: 10, terminal: true, goto: 'c21_h_breakfast',
-        text: 'Нина выдыхает. Кочергу она ставит к стене и сразу становится на год младше.\n\n— Я боялась, что вы скажете: нет.', effects: [set21('lq', 'right'), w21('iron_board', true), npc('c7_nina', 3, 'c21_trusted_my_call'), until21(21, 6, 55)] },
-      { id: 'c21_lq_lea', label: 'Подойти к девушке у курятника', minutes: 15, terminal: true, goto: 'c21_h_breakfast',
+      { id: 'c21_lq_right', label: 'Сказать: правильно', minutes: 10, terminal: true, goto: 'c21_l_dirk',
+        text: 'Нина выдыхает. Кочергу она ставит к стене и сразу становится на год младше.\n\n— Я боялась, что вы скажете: нет.', effects: [set21('lq', 'right'), w21('iron_board', true), npc('c7_nina', 3, 'c21_trusted_my_call'), until21(21, 6, 50)] },
+      { id: 'c21_lq_lea', label: 'Подойти к девушке у курятника', minutes: 15, terminal: true, goto: 'c21_l_dirk',
         outcomes: [
           { id: 'choc', when: flag('$.c21_l_choc'), text: 'Ты достаёшь из кармана шоколадку и говоришь, откуда она: с койки, которую для неё застелили.\n\nОна долго смотрит на обёртку.\n\n— Dann wisst ihr, wer ich bin.\n\nЗначит, вы знаете, кто я.\n\nШоколадку она берёт. Руки у неё дрожат.', effects: [set21('lq', 'lea'), w21('iron_board', true), lea(3, 'c21_bed_was_made')] },
           { id: 'plain', text: 'Она держит в руках рыжую несушку и раздвигает ей перья под крылом.\n\n— Milben. Nicht schlimm. Asche ins Stroh.\n\nКлещи. Не страшно. Золы в солому.\n\nПотом, не поднимая глаз:\n\n— Euer Mädchen hat mich nicht gefragt, wer ich bin. Ihr werdet fragen.\n\nВаша девочка не спросила, кто я. Вы спросите.', effects: [set21('lq', 'lea'), w21('iron_board', true), lea(1)] },
-        ], effects: [until21(21, 6, 55)] },
-      { id: 'c21_lq_malte', label: 'Зайти на кухню, к раненому', minutes: 15, terminal: true, goto: 'c21_h_breakfast',
+        ], effects: [until21(21, 6, 50)] },
+      { id: 'c21_lq_malte', label: 'Зайти на кухню, к раненому', minutes: 15, terminal: true, goto: 'c21_l_dirk',
         outcomes: [
           { id: 'jessen', when: flag('$.c21_l_jessen'), text: 'Шофёр лежит на лавке у печи, нога в гладильной доске.\n\n— Jessen? — спрашиваешь ты. — Malte Jessen?\n\nОн приподнимается на локтях. Ты рассказываешь про его напарника с рукой на ремне, который всю ночь спрашивал о нём в Люнебурге.\n\n— Der Rolf lebt, — говорит он и ложится обратно. Рольф жив. И плачет, не закрывая лица.', effects: [set21('lq', 'malte'), w21('iron_board', true), malte(3, 'c21_rolf_alive')] },
           { id: 'plain', text: 'Шофёр лежит на лавке у печи, нога в гладильной доске.\n\n— Malte. Ich bin der Fahrer. Euer Mädchen hat mir die ganze Nacht Tee gebracht. Und Fragen gestellt. Hundert Fragen.\n\nМальте. Я шофёр. Ваша девочка всю ночь носила мне чай. И задавала вопросы. Сто вопросов.', effects: [set21('lq', 'malte'), w21('iron_board', true), malte(1)] },
-        ], effects: [until21(21, 6, 55)] },
-      { id: 'c21_lq_socks', label: 'Отдать Нине свёрток от Хенрике', when: { has: 'c21_socks' }, minutes: 10, terminal: true, goto: 'c21_h_breakfast',
-        text: 'Нина развязывает бечёвку зубами. Чулки серые, толстые, с красной полоской.\n\n— Она ругалась? — спрашивает Нина.\n\n— Ругалась.\n\nНина кивает и прижимает чулки к лицу.', effects: [set21('lq', 'socks'), w21('iron_board', true), w21('nina_socks', true), { take: 'c21_socks' }, npc('c7_nina', 2), until21(21, 6, 55)] },
+        ], effects: [until21(21, 6, 50)] },
+      { id: 'c21_lq_socks', label: 'Отдать Нине свёрток от Хенрике', when: { has: 'c21_socks' }, minutes: 10, terminal: true, goto: 'c21_l_dirk',
+        text: 'Нина развязывает бечёвку зубами. Чулки серые, толстые, с красной полоской.\n\n— Она ругалась? — спрашивает Нина.\n\n— Ругалась.\n\nНина кивает и прижимает чулки к лицу.', effects: [set21('lq', 'socks'), w21('iron_board', true), w21('nina_socks', true), { take: 'c21_socks' }, npc('c7_nina', 2), until21(21, 6, 50)] },
+    ] }),
+  L({ id: 'c21_l_dirk', title: 'Ефрейтор', location: farm, camp: yard14, safe: true, ambient: night21,
+    text: [
+      { text: 'Солдат на крыльце просыпается от вашего мотора и вскакивает, хватаясь за автомат. Потом видит Нину и опускает руки.' },
+      { text: '— Gefreiter Sommer. Dirk. — Он трёт лицо ладонями. — Ich habe verschlafen. Ich hätte gestern Abend melden müssen, wo die Spenderin ist.\n\nЕфрейтор Зоммер. Дирк. Я проспал. Я должен был ещё вечером доложить, где донор.' },
+      { text: 'Он кивает на дом.\n\n— Die da drin ist keine Sanitäterin. Das ist Hartmann. Die, wegen der wir gefahren sind.\n\nТа, что в доме, не санитарка. Это Хартман. Та, из-за которой мы ехали.' },
+    ],
+    actions: [
+      { id: 'c21_lk2_wait', label: 'Попросить: подожди до девяти, пока мы решим', minutes: 10, terminal: true, goto: 'c21_l_kitchen',
+        text: '— Bis neun, — повторяет он. До девяти.\n\nОн садится обратно на ступеньку и кладёт автомат поперёк колен.\n\n— Um neun kommt der Tobias sowieso. Dann muss ich nicht laufen.\n\nВ девять Тобиас всё равно придёт. Тогда мне не надо будет идти.', effects: [set21('lk2', 'wait'), w21('dirk_promised', true), until21(21, 7, 0)] },
+      { id: 'c21_lk2_needle', label: 'Спросить, что с ней будет, когда он доложит', minutes: 10, terminal: true, goto: 'c21_l_kitchen',
+        text: '— Lüneburg. An die Nadel. Jeden Tag ein halber Liter, bis sie umfällt. So war es bei dem vor ihr, in Hannover.\n\nЛюнебург. На иглу. Каждый день по пол-литра, пока не упадёт. Так было с тем, кто был до неё, в Ганновере.\n\nОн смотрит на свои ботинки.\n\n— Ich melde es trotzdem. Das ist mein Befehl.\n\nЯ всё равно доложу. Это мой приказ.', effects: [set21('lk2', 'needle'), set21('needle_known', true), until21(21, 7, 0)] },
+      { id: 'c21_lk2_go', label: 'Показать ему дорогу на Йестебург', minutes: 10, terminal: true, goto: 'c21_l_kitchen',
+        text: 'Просёлок, почтовый ящик, налево по шоссе. Он повторяет вслух, закидывает автомат за спину и уходит быстрым шагом. Через час в Йестебурге будут знать, где она.', effects: [set21('lk2', 'go'), w21('dirk', 'reported'), until21(21, 7, 0)] },
+    ] }),
+
+  L({ id: 'c21_l_kitchen', title: 'Кухня', location: farm, camp: kitchen14, safe: true, ambient: indoor21,
+    text: [
+      { text: 'На кухне тепло. На плите каша. Шофёр лежит на лавке у печи и спит с открытым ртом.' },
+      { text: 'У двери в сени, в самом холодном углу, стоит синяя сумка-холодильник. На крышке приклеена полоска с тремя окошками.' },
+      { text: 'Девушка входит следом за тобой, моет руки под краном и встаёт у плиты, спиной к стене. Так, чтобы видеть и дверь, и окно.' },
+    ],
+    actions: [
+      { id: 'c21_lc_bag', label: 'Открыть сумку', minutes: 10, terminal: true, goto: 'c21_h_breakfast',
+        text: 'Под пакетами со льдом, который уже стал водой, лежат четыре прозрачных мешка с жёлтой жидкостью и узкая коробка шприц-ручек.\n\n— Plasma. Und Insulin, — говорит она от плиты. — Das hat keiner vermisst. Nur mich.\n\nПлазма. И инсулин. Их никто не хватился. Только меня.', effects: [set21('lc', 'bag'), set21('saw_bag', true), set21('bag_known', true), until21(21, 7, 10)] },
+      { id: 'c21_lc_ask', label: 'Спросить её прямо: ты та, кого ждали в Люнебурге?', minutes: 10, terminal: true, goto: 'c21_h_breakfast',
+        text: '— Ja.\n\nОна не отводит глаз.\n\n— Euer Mädchen hat mich reingelassen, ohne zu fragen. Ihr fragt. Das ist euer Recht.\n\nВаша девочка впустила меня, не спрашивая. Вы спрашиваете. Это ваше право.\n\nПотом, тише:\n\n— Ich bin nicht krank gewesen. Das ist das Problem. Mehr sage ich nicht vor dem Frühstück.\n\nЯ не болела. В этом и беда. Больше я до завтрака ничего не скажу.', effects: [set21('lc', 'ask'), set21('lea_tomorrow', true), lea(1), until21(21, 7, 10)] },
+      { id: 'c21_lc_stove', label: 'Встать рядом у плиты и помешать кашу', minutes: 10, terminal: true, goto: 'c21_h_breakfast',
+        text: 'Вы стоите рядом молча. Она берёт у тебя ложку и мешает сама, ровно, по часовой.\n\n— Meine Mutter hat immer gesagt: nie gegen die Uhr. Sonst brennt es an.\n\nМама всегда говорила: никогда против часовой. Иначе пригорит.\n\nО маме она говорит в прошедшем времени и сама это слышит.', effects: [set21('lc', 'stove'), lea(2), until21(21, 7, 10)] },
     ] }),
 ];

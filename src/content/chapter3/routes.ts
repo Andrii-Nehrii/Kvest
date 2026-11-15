@@ -2,6 +2,7 @@ import { A18, B18, P18, point18Available } from './point18';
 import { any as any18, ninaFarm as ninaFarm18, v as v18 } from './point18';
 import { A19, B19, atFarm, byGirl, cold19, evaHere, girlHere, henrikeHome, inLue, janaHere, point19Available, point20Available, set19, until, uteHere, volkerHere, npc as npc19 } from './point19';
 import { indoor16 } from './point16';
+import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './point21';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
 import { farm6bAvailable } from './farm6b';
@@ -819,3 +820,27 @@ export const newEntry20: Scene = {
   ] as ActionDef[]).map(a => ({ ...a, when: all(point20Available, a.when ?? { always: true }) })),
 };
 
+
+
+// ───────────── Вход в участок 21 ─────────────
+// Вход в базе КТ20: без onEnter и места (у колонны, дома или в Люнебурге; партнёр может быть без сознания).
+const up21: Cond = { partner: 'active' };
+const down21: Cond = { partner: 'incapacitated' };
+export const newEntry21: Scene = {
+  id: 'c21_start', for: 'any', chapter: 'ch3', title: 'Пятничный вечер', universal: false, safe: true,
+  text: [
+    { when: stageC, text: 'Съезд с автобана у Гарльсторфа. Над ним мигает синим. На обочинах стоят брошенные машины с открытыми дверцами.' },
+    { when: stageF, text: 'Без четверти пять. Над лесом на востоке небо рыжее, хотя солнце село с другой стороны.' },
+    { when: stageR, text: 'На кухне пахнет кровью и мокрой шерстью. Часы Хенрике показывают без двадцати четыре.' },
+    { when: all(stageL, up21), text: 'Казарма на краю Люнебурга. Во дворе прачечной собирают простыни с бетона. Две армейские машины прогревают моторы у шлагбаума.' },
+    { when: all(stageL, down21), text: 'Донорский блок в казарме. Лампа на аккумуляторе, запах хлорки. Доктор Алерс моет руки до локтей.' },
+    { when: not(point21Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c21_go_convoy', label: 'Выйти из машины', when: stageC, minutes: 2, terminal: true, goto: 'c21_c_site', effects: [prepare21] },
+    { id: 'c21_go_farm', label: 'Выйти во двор', when: stageF, minutes: 2, terminal: true, goto: 'c21_f_dusk', effects: [prepare21] },
+    { id: 'c21_go_rescue', label: 'Подойти к столу', when: stageR, minutes: 1, terminal: true, goto: 'c21_r_bed', effects: [prepare21] },
+    { id: 'c21_go_lue', label: 'Выйти во двор казармы', when: all(stageL, up21), minutes: 2, terminal: true, goto: 'c21_l_dusk', effects: [prepare21] },
+    { id: 'c21_go_ahlers', label: 'Подойти к столу', when: all(stageL, down21), minutes: 1, terminal: true, goto: 'c21_l_n_table', effects: [prepare21] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point21Available, a.when ?? { always: true }) })),
+};

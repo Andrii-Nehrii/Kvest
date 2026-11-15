@@ -3,7 +3,7 @@ import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
 import { any, v } from './point18';
 import { ruthHere18 } from './day18y';
-import { A19, B19, S20, npc, own20, set20, until, w20 } from './point19';
+import { A19, B19, S20, henrikeInLue, npc, own20, set20, until, w20 } from './point19';
 
 // Участок 20, Люнебург: пятница в казарме. Оле, Хенрике, доктор Алерс, ожидание транспорта, который не пришёл.
 const lue = 'c18_lueneburg';
@@ -12,7 +12,7 @@ const yardAir = { tempC: 4, outdoor: true, wet: false };
 const fed: Effect[] = [{ body: 'hunger', delta: -40 }, { body: 'thirst', delta: -35 }];
 const prepare = { camp: { kind: 'prepare' as const, quiet: true } };
 const G = (scene: Omit<Scene, 'for' | 'chapter' | 'location'>): Scene => S20({ ...scene, for: 'any', chapter: 'ch3', location: lue, camp: scene.camp ?? camp, safe: false });
-const henrikeHere: Cond = { npc: 'henrike', alive: true, at: lue };
+const henrikeHere: Cond = henrikeInLue;
 const phoneHeld: Cond = flag('w.c18_phone_held');
 const kasiaHere: Cond = all({ npc: 'kasia', alive: true }, flag('w.nowaks_gone'));
 const gaveBlood: Cond = any(all(v('B.c18_bd', 'ole'), not(v('B.c18_bd_paid', 'pen'))), all(v('B.c18_bd', 'insulin'), not(v('B.c18_bd_paid', 'pen'))));
