@@ -136,6 +136,12 @@ export const shared34: Scene[] = [
       { when: not(coins34), text: 'И в каждом, ещё глубже, по горсти лесных орехов. Хенрике собирала их в сентябре и прятала до этого утра.' },
       { when: ninaFarm, text: 'Нина достаёт яблоко из своего сапога и держит его двумя руками, как что-то очень хрупкое.' },
       { text: 'Сегодня второй адвент. В Йестебурге служба в десять, а после неё у пожарной части читают списки Красного Креста.' },
+      { when: v('$.c34_ev', 'sing'), text: 'Петерсен с утра напевает вчерашнюю песню и сбивается на том же месте, где сбивался вчера.' },
+      { when: v('$.c34_ev', 'gift'), text: 'Хенрике смотрит на тебя поверх кружки и улыбается краем губ: она видела, кто ночью ходил к сапогам.' },
+      { when: flag('w.c34_owl_nina'), text: 'Нина держит в ладонях деревянную сову и не выпускает весь завтрак.' },
+      { when: flag('w.c34_coffee_henrike'), text: 'По кухне идёт запах кофе. Хенрике пьёт его стоя, у окна, медленно, и ничего не говорит. Глаза у неё мокрые.' },
+      { when: flag('w.c34_drawings'), text: 'Курица в шапке Хенрике ходит по рукам. Даже Оле смеётся, и потом долго кашляет.' },
+      { when: v('$.c34_al', 'hens'), text: 'Куры в хлеву, на новом насесте, снесли четыре яйца. Хенрике достаёт их из ящика, не обыскивая углы.' },
     ],
     actions: [
       { id: 'c34_su_go', label: 'Идти в Йестебург со всеми', minutes: 120, terminal: true, goto: 'c34_church', ambientDuring: frost34,
@@ -160,9 +166,9 @@ export const shared34: Scene[] = [
     actions: [
       { id: 'c34_ch_thomas', label: 'Пойти к столу Красного Креста: отвечать Томасу', when: all(A34, thomas34), minutes: 30, terminal: true, goto: 'c34_a_thomas',
         text: 'У стола в пункте женщина с карандашом. Перед ней бланк: «An: Thomas Brockmann, Toronto. Von: …». Она ждёт, что ты скажешь.', effects: [set34('ch', 'thomas')] },
-      { id: 'c34_ch_lea', label: 'Встать рядом с Леей', when: lea34, minutes: 60, terminal: true, goto: 'c34_home',
+      { id: 'c34_ch_lea', label: 'Встать рядом с Леей', when: lea34, minutes: 60, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c34_a_market' }, { id: 'b', goto: 'c34_b_market' }],
         text: 'Ты стоишь рядом. Ничего не говоришь. Через минуту Лея говорит сама:\n\n— Nicht verzeichnet heißt nicht tot. Heißt nur: nicht dort.\n\nНе значатся — не значит мертвы. Значит только: не там.\n\nИ берёт тебя под руку на обратном пути.', effects: [set34('ch', 'lea'), npc('c21_lea', 2, 'c34_stood_by'), until34(36, 12, 30)] },
-      { id: 'c34_ch_home', label: 'Идти домой', minutes: 60, terminal: true, goto: 'c34_home', ambientDuring: frost34,
+      { id: 'c34_ch_home', label: 'Идти домой', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c34_a_market' }, { id: 'b', goto: 'c34_b_market' }], ambientDuring: frost34,
         text: 'Обратно идут медленно, молча. Каждый несёт услышанное, как воду в ладонях.', effects: [set34('ch', 'home'), until34(36, 12, 30)] },
     ] }),
 
@@ -183,12 +189,14 @@ export const shared34: Scene[] = [
     text: [
       { text: 'Вечер второго адвента. Две свечи на венке, который сплела Нина. За окном снова мороз.' },
       { text: 'Десятое декабря. Колонна на восток. Колонна на север. Или хутор и зима. Никто не говорит этого вслух, но думают все.' },
+      { when: v('$.c34_ho', 'walk'), text: 'После прогулки к межевому камню в голове тише. Ты знаешь, куда смотришь. Почти.' },
+      { when: flag('w.c34_owes_door'), text: 'В среду ты {m:должен|должна} навесить дверь сарая в Йестебурге. Записано в чужом блокноте.' },
     ],
     actions: [
-      { id: 'c34_du_eat', label: 'Поужинать', minutes: 60, terminal: true, goto: 'c34_checkpoint', ...tableOnly,
-        text: 'Картошка с салом. Ты ешь и смотришь, как горят две свечи.', effects: [set34('du', 'eat'), meal('eat'), finish, until34(36, 20, 0)] },
-      { id: 'c34_du_partner', label: 'Сесть рядом с {partner.ins}', minutes: 60, terminal: true, goto: 'c34_checkpoint',
-        text: 'Ты садишься рядом. {partner} не спрашивает, о чём ты думаешь. Знает.', effects: [set34('du', 'partner'), { body: 'stress', delta: -3 }, finish, until34(36, 20, 0)] },
+      { id: 'c34_du_eat', label: 'Поужинать', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c34_a_night' }, { id: 'b', goto: 'c34_b_night' }], ...tableOnly,
+        text: 'Картошка с салом. Ты ешь и смотришь, как горят две свечи.', effects: [set34('du', 'eat'), meal('eat'), finish, until34(36, 19, 30)] },
+      { id: 'c34_du_partner', label: 'Сесть рядом с {partner.ins}', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c34_a_night' }, { id: 'b', goto: 'c34_b_night' }],
+        text: 'Ты садишься рядом. {partner} не спрашивает, о чём ты думаешь. Знает.', effects: [set34('du', 'partner'), { body: 'stress', delta: -3 }, finish, until34(36, 19, 30)] },
     ] }),
 
   S34({ id: 'c34_checkpoint', for: 'any', chapter: 'ch3', title: 'Воскресенье, вечер', checkpoint: 34, universal: false, camp: house14,
