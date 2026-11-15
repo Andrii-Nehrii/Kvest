@@ -52,14 +52,14 @@ export const day29Scenes: Scene[] = [
       { text: 'К вечеру мороз крепчает. Ручка колонки ходит туго, со скрипом. Потом перестаёт ходить совсем.' },
     ],
     actions: [
-      { id: 'c29_ap_wrap', label: 'Укутать колонку соломой и мешковиной', minutes: 40, terminal: true, goto: 'c29_night',
+      { id: 'c29_ap_wrap', label: 'Укутать колонку соломой и мешковиной', minutes: 40, terminal: true, goto: 'c29_a_kerem',
         text: 'Солома, мешки, бечёвка. Колонка становится похожа на пугало. Хенрике выходит посмотреть и говорит: «Zu spät. Aber gut gemeint». Поздно. Но с добрыми намерениями.', effects: [set29('ap', 'wrap'), until29(28, 18, 0)] },
-      { id: 'c29_ap_fire', label: 'Развести у колонки костёр и отогреть', minutes: 60, activity: 'moderate', terminal: true, goto: 'c29_night',
+      { id: 'c29_ap_fire', label: 'Развести у колонки костёр и отогреть', minutes: 60, activity: 'moderate', terminal: true, goto: 'c29_a_kerem',
         outcomes: [
           { id: 'ok', check: { traits: ['technical'], difficulty: 3, uses: ['focus'] }, text: 'Костёр, ведро горячей воды, тряпка на трубу. Через час ручка поддаётся. Вода идёт, ржавая, потом чистая. Ты сливаешь её из трубы до последней капли, чтобы ночью не замёрзло снова.', effects: [set29('ap', 'fire'), w29('pump_saved', true)] },
           { id: 'no', text: 'Костёр греет снаружи, лёд внутри не берёт. Через час ты сдаёшься. До весны или до оттепели — колодец и снег.', effects: [set29('ap', 'fire')] },
         ], effects: [until29(28, 18, 0)] },
-      { id: 'c29_ap_leave', label: 'Оставить до оттепели', minutes: 10, terminal: true, goto: 'c29_night',
+      { id: 'c29_ap_leave', label: 'Оставить до оттепели', minutes: 10, terminal: true, goto: 'c29_a_kerem',
         text: 'Колодец есть. Снега полно. Перезимуете.', effects: [set29('ap', 'leave'), until29(28, 17, 30)] },
     ] }),
 
@@ -72,9 +72,9 @@ export const day29Scenes: Scene[] = [
     actions: [
       { id: 'c29_bs_go', label: 'Идти в пункт', when: dutyB29, minutes: 60, terminal: true, goto: 'c29_b_point', ambientDuring: day29,
         text: 'Четыре километра по скрипучему снегу. Мороз щиплет щёки. Ты приходишь к семи, и Зандер уже ждёт с халатом в руках.', effects: [set29('bs', 'go'), { move: jest29 }, until29(28, 7, 50)] },
-      { id: 'c29_bs_kitchen', label: 'Взяться за кухню', when: not(dutyB29), minutes: 150, activity: 'light', terminal: true, goto: 'c29_b_henrike',
+      { id: 'c29_bs_kitchen', label: 'Взяться за кухню', when: not(dutyB29), minutes: 150, activity: 'light', terminal: true, goto: 'c29_b_cellar',
         text: 'Хенрике учит тебя печь хлеб из того, что есть: ржаная мука Кёлер, вода, соль, закваска из банки на подоконнике. Тесто липнет к рукам. Хенрике смеётся. Первый раз с тех пор, как вернулась.', effects: [set29('bs', 'kitchen'), w29('bread_learned', true), npc('henrike', 2), until29(28, 10, 0)] },
-      { id: 'c29_bs_nina', label: 'Сесть с Ниной за уроки', when: not(dutyB29), minutes: 120, terminal: true, goto: 'c29_b_henrike',
+      { id: 'c29_bs_nina', label: 'Сесть с Ниной за уроки', when: not(dutyB29), minutes: 120, terminal: true, goto: 'c29_b_cellar',
         text: 'Нина решает задачи на проценты. Потом пишет сочинение на немецком: «Mein Winter». Мою зиму. Ты читаешь через плечо. Там про кур, про Тима, про хомяка. Она закрывает тетрадь рукой.', effects: [set29('bs', 'nina'), npc('c7_nina', 2), until29(28, 9, 30)] },
     ] }),
 
@@ -84,10 +84,10 @@ export const day29Scenes: Scene[] = [
       { when: leaPoint, text: 'Лея уже моет мальчику ноги в тазу с тёплой водой. Не горячей. Говорит ему по-немецки, ровно, про собак, которые отморозили лапы и потом бегали.' },
     ],
     actions: [
-      { id: 'c29_bp_boy', label: 'Помогать с мальчиком', minutes: 180, terminal: true, goto: 'c29_b_henrike',
-        text: 'Тёплая вода, полотенце, снова вода. Кожа розовеет медленно. Два пальца остаются белыми. Зандер смотрит и качает головой: может, не спасти. Мальчик не плачет. Он держит тебя за руку и рассказывает, как шёл.', effects: [set29('bp', 'boy'), { body: 'fatigue', delta: 6 }, { move: 'hof_luedemann' }, until29(28, 13, 30)] },
-      { id: 'c29_bp_old', label: 'Сидеть со стариком', minutes: 180, terminal: true, goto: 'c29_b_henrike',
-        text: 'Старика зовут Эрих. Он был машинистом. Он рассказывает про паровозы, задыхаясь, и ты подаёшь ему воду. Зандер говорит тебе тихо: антибиотиков нет. Ты продолжаешь подавать воду.', effects: [set29('bp', 'old'), { move: 'hof_luedemann' }, { body: 'stress', delta: 2 }, until29(28, 13, 30)] },
+      { id: 'c29_bp_boy', label: 'Помогать с мальчиком', minutes: 180, terminal: true, goto: 'c29_b_ask',
+        text: 'Тёплая вода, полотенце, снова вода. Кожа розовеет медленно. Два пальца остаются белыми. Зандер смотрит и качает головой: может, не спасти. Мальчик не плачет. Он держит тебя за руку и рассказывает, как шёл.', effects: [set29('bp', 'boy'), { body: 'fatigue', delta: 6 }, until29(28, 11, 0)] },
+      { id: 'c29_bp_old', label: 'Сидеть со стариком', minutes: 180, terminal: true, goto: 'c29_b_ask',
+        text: 'Старика зовут Эрих. Он был машинистом. Он рассказывает про паровозы, задыхаясь, и ты подаёшь ему воду. Зандер говорит тебе тихо: антибиотиков нет. Ты продолжаешь подавать воду.', effects: [set29('bp', 'old'), { body: 'stress', delta: 2 }, until29(28, 11, 0)] },
     ] }),
 
   X({ id: 'c29_b_henrike', title: 'Хенрике', camp: kitchen14,

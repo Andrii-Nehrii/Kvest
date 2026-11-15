@@ -1,7 +1,7 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag } from './world3';
-import { any } from './point18';
+import { any, v } from './point18';
 import { P29, roofLoss } from './point29';
 
 export const finished29: Cond = all(P29, any(flag('A.c29_finished'), flag('B.c29_finished')));
@@ -10,6 +10,10 @@ const w = (key: string): Cond => flag(`w.c29_${key}`);
 
 // Сверка в воскресенье в семь вечера.
 export const point29Notes: MergeNote[] = [
+  N('c29_kerem_paid', v('w.c29_kerem', 'paid'), 'В субботу приезжал Керем. {A} рассчитался картошкой.'),
+  N('c29_reserve', flag('w.c29_reserve'), '{B} и Хенрике считали подвал: если все останутся, еды хватит до февраля, не до сева.'),
+  N('c29_rope', flag('A.c29_rope'), 'Уве, пожарный, отдал {A.dat} моток верёвки: в цепи на краю впадины.'),
+  N('c29_kids', flag('w.c29_kids_list'), 'Женщины из церкви составили с вами список пропавших детей для Красного Креста.'),
   N('c29_roof', roofLoss, 'В ночь на воскресенье под снегом просела крыша курятника. Три курицы погибли. Рубероид Фолькера так и стоял свёрнутым: прибить его было некому.'),
   N('c29_pump', w('pump_frozen'), 'Колонка во дворе замёрзла.'),
   N('c29_pump_saved', w('pump_saved'), '{A} отогрел колонку костром и слил воду. Пока работает.'),

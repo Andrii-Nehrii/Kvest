@@ -77,6 +77,7 @@ export const shared29: Scene[] = [
       { when: all(A29, v('$.c29_ac', 'speak')), text: 'Потом встаёшь ты. Говоришь по-немецки, медленно, с ошибками. Про колонию в среду. Про ямы с известью. Про впадину, которую видел{m:|а} с холма. Тебя слушают. Никто не перебивает.' },
       { when: all(B29, v('$.c29_bc', 'speak')), text: 'Ханна выходит вперёд, к алтарю. Ты встаёшь рядом. Она говорит про детскую, про столбики температур, про ноль. Голос у неё срывается дважды. Ты держишь её за локоть, и она договаривает.' },
       { text: 'К концу собрания все знают. Правда сказана вслух. Её не забрать обратно.' },
+      { when: flag('w.c28_hollow_reported'), text: 'Брандт показывает на карте впадину и старый мост. «Der Lüdemann-Hof hat es zuerst gemeldet». Хутор Людеманов сообщил первым. Несколько голов поворачиваются к вам.' },
     ],
     actions: [
       { id: 'c29_as_go', label: 'Выйти на воздух', minutes: 20, terminal: true, outcomes: [{ id: 'v', when: all(roofLoss, volkerSeen), goto: 'c29_volker' }, { id: 'h', goto: 'c29_home' }],
@@ -105,16 +106,16 @@ export const shared29: Scene[] = [
       { when: not(oleAlive29), text: 'На лавке у печи лежит шапка Оле. Хенрике её не убирает.' },
     ],
     actions: [
-      { id: 'c29_h_eat', label: 'Пообедать со всеми', minutes: 40, terminal: true, goto: 'c29_evening', ...tableOnly,
+      { id: 'c29_h_eat', label: 'Пообедать со всеми', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_hanna' }], ...tableOnly,
         text: 'Суп из кур, если они погибли ночью, или картошка с солониной. Хенрике режет хлеб толсто, по-воскресному.', effects: [set29('h', 'eat'), meal('eat'), until29(29, 14, 0)] },
-      { id: 'c29_h_rest', label: 'Лечь на час: ноги не держат', minutes: 5, terminal: true, goto: 'c29_evening',
+      { id: 'c29_h_rest', label: 'Лечь на час: ноги не держат', minutes: 5, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_hanna' }],
         text: 'Ты засыпаешь, едва коснувшись подушки.', effects: [set29('h', 'rest'), until29(29, 14, 30, true)] },
     ] }),
 
   S29({ id: 'c29_evening', for: 'any', chapter: 'ch3', title: 'Вечер адвента', camp: house14,
     text: [
       { text: 'Вечером на кухне собираются все. Свеча на венке горит. Тобиас заходит в шесть, без шапки, и садится к печи, не спрашивая.' },
-      { text: '— Dienstagnacht. Minus zehn, sagt das Radio. Die Senke. Wer mitkommt, ist um zehn am Feuerwehrhaus. — Он смотрит на вас. — Und wer nicht mitkommt, hält die Höfe am Bahndamm. Wenn wir sie aufscheuchen, laufen sie dahin.\n\nВ ночь на вторник. Минус десять, говорит радио. Впадина. Кто идёт — в десять у пожарной части. А кто не идёт — держит дворы у насыпи. Если мы их спугнём, они побегут туда.' },
+      { text: '— Die Nacht auf Dienstag. Minus zehn, sagt das Radio. Die Senke. Wer mitkommt, ist um zehn am Feuerwehrhaus. — Он смотрит на вас. — Und wer nicht mitkommt, hält die Höfe am Bahndamm. Wenn wir sie aufscheuchen, laufen sie dahin.\n\nВ ночь на вторник. Минус десять, говорит радио. Впадина. Кто идёт — в десять у пожарной части. А кто не идёт — держит дворы у насыпи. Если мы их спугнём, они побегут туда.' },
     ],
     actions: [
       { id: 'c29_ev_ask', label: 'Спросить Тобиаса, сколько их там', minutes: 30, terminal: true, goto: 'c29_checkpoint',

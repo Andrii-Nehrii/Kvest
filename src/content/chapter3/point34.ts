@@ -148,6 +148,10 @@ export const shared34: Scene[] = [
       { when: thomas34, text: 'Люди оглядываются на вас. Ответ можно продиктовать сегодня, у стола Красного Креста в пункте.' },
       { when: pawel34, text: '— …Paweł, an die Leute vom Lüdemann-Hof: Kolonne nach Osten am zehnten Dezember ab Winsen. Platz für zwei. Er wartet.\n\nПавел — людям с хутора Людеманов: колонна на восток десятого декабря из Винзена. Место на двоих. Он ждёт.' },
       { when: lea34, text: '— …Hartmann, Lea, Hannover: in den Listen von Celle sind Margit und Finn Hartmann nicht verzeichnet.\n\nХартман, Лея, Ганновер: в списках Целле Маргит и Финн Хартман не значатся.\n\nЛея стоит рядом с тобой. Она не плачет. Она очень прямо стоит.' },
+      { when: flag('w.c29_erich_letter'), text: '— …Für Erich Lange, Hanstedt, aus Hamburg-Rahlstedt: Deine Tochter lebt. Sie wartet auf dich.\n\nЭриху Ланге, Ханштедт, из Гамбурга-Ральштедта: твоя дочь жива. Она ждёт тебя. Письмо, которое писала {B}, дошло.' },
+      { when: all(flag('w.c29_boy_listed'), not(v('w.c29_boy_listed', 'typo'))), text: '— …Brede, Sabine, Harburg: gemeldet in Geesthacht. Ihr Sohn Finn wird gesucht.\n\nБреде, Сабина, Харбург: значится в Гестхахте. Её сын Финн разыскивается. В пункте, говорят, мальчик с белыми пальцами плакал полдня.' },
+      { when: v('w.c29_boy_listed', 'typo'), text: 'Фамилию мальчика с белыми пальцами Лукас не читает. В бланке, который заполняла {B}, она с ошибкой.' },
+      { when: flag('w.c29_kids_list'), text: 'Потом Лукас читает список Ханны: двадцать три ребёнка из округи. После третьего имени из толпы кто-то вскрикивает. После одиннадцатого — ещё раз. Двое нашлись в Винзене.' },
       { when: okaforComes, text: '— …Kolonne nach Ahrensburg: zehnter Dezember, sieben Uhr, Geesthacht. Begleitpersonen melden sich bei Dr. Zander.\n\nКолонна на Аренсбург: десятого декабря, семь утра, Гестхахт. Сопровождающим — к доктору Зандер. Окафор рядом с тобой кивает сам себе.' },
     ],
     actions: [
