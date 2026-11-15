@@ -31,7 +31,9 @@ const plasmaLeft = (fx: (qty: number) => Effect[]): Effect => ({ if: { v: 'w.c21
 const bagToSander: Effect[] = [plasmaLeft((qty) => [{ unstock: 'c21_plasma', qty, at: 'c3_farm_stock' }]), { unstock: 'c21_insulin', qty: 10, at: 'c3_farm_stock' }, w22('bag_sander', true)];
 const toJest: Effect = { move: jest };
 const toFarm: Effect = { move: farm22 };
-const afterCard = [{ id: 'j', when: wayJest, goto: 'c22_b_point' }, { id: 'f', goto: 'c22_b_nina' }];
+const afterCard = [{ id: 'j', when: wayJest, goto: 'c22_b_point' }, { id: 'h', when: wayHide, goto: 'c22_b_hair' }, { id: 'f', goto: 'c22_b_nina' }];
+/** После Уте: ночлег для Леи или её забытые вещи. */
+const afterUte = [{ id: 'b', when: wayHide, goto: 'c22_b_beds' }, { id: 'r', when: all(wayTobias, not(v('B.c22_bw', 'burn'))), goto: 'c22_b_room' }, { id: 'l', goto: 'c22_b_letter' }];
 const afterLunch = [{ id: 'c', when: bagPoint, goto: 'c22_b_carry' }, { id: 'v', when: leaHere, goto: 'c22_b_vet' }, { id: 'm', goto: 'c22_b_malte' }];
 const toLetter = [{ id: 's', when: wayJest, goto: 'c22_b_school' }, { id: 'j', goto: 'c22_b_letter_j' }];
 const afterPoint = [{ id: 'r', when: wayJest, goto: 'c22_b_room' }, { id: 's', goto: 'c22_b_soup' }];
@@ -180,6 +182,8 @@ export const day22BScenes: Scene[] = [
   B({ id: 'c22_b_nina', title: 'Нина спрашивает', camp: kitchen14,
     text: [
       { when: leaHere, text: 'Нина сидит за столом напротив Леи. Учебник по биологии открыт на странице с клеткой, но смотрит Нина не в учебник.\n\n— Mein Vater, — говорит она по-немецки. Мой отец. — War er wie die auf der Straße? Hat er… gewusst, wer er ist? Am Ende?\n\nОн был как те, на дороге? Он… знал, кто он? В конце?' },
+      { when: all(leaHere, v('w.c22_lea_hair', 'dyed')), text: 'Нина то и дело поглядывает на тёмную голову Леи, будто за столом сидит кто-то незнакомый.' },
+      { when: all(leaHere, v('w.c22_lea_hair', 'scarf')), text: 'Лея так и сидит в Хенрикином платке, хотя от печи жарко.' },
       { when: not(leaHere), text: 'Нина сидит на табурете у двери, там, где вчера сидела Лея.\n\n— Её увезли насовсем? — спрашивает она. — Она мне обещала нарисовать, как устроен глаз. У собаки и у человека. Она сказала, это почти одно и то же.' },
     ],
     actions: [
@@ -283,11 +287,11 @@ export const day22BScenes: Scene[] = [
       { text: '— Man sagt, die Kolonne ist weg. Und dass ein Bus kommt, am Montag. Für die, die krank waren.\n\nГоворят, колонны больше нет. И что в понедельник придёт автобус. За теми, кто болел.\n\nОна смотрит на тебя внимательно.\n\n— Mein Jannes war im Oktober krank. Drei Tage. Steht er jetzt auf einer Liste?\n\nМой Яннес болел в октябре. Три дня. Он теперь в каком-то списке?' },
     ],
     actions: [
-      { id: 'c22_bu_truth', label: 'Сказать, что знаешь: Брандт собирает имена переболевших', minutes: 25, terminal: true, goto: 'c22_b_letter',
+      { id: 'c22_bu_truth', label: 'Сказать, что знаешь: Брандт собирает имена переболевших', minutes: 25, terminal: true, outcomes: afterUte,
         text: 'Уте слушает, не перебивая. Потом поправляет платок.\n\n— Dann war Jannes nicht krank. Er hatte Grippe. Das sage ich jedem, der fragt.\n\nТогда Яннес не болел. У него был грипп. Так я и скажу каждому, кто спросит.\n\nОна уходит быстро, не оглядываясь.', effects: [set22('bu', 'truth'), w22('ute_warned', true), npc('c14_ute', 2), until22(15, 30)] },
-      { id: 'c22_bu_unsure', label: 'Сказать: ты не знаешь', minutes: 15, terminal: true, goto: 'c22_b_letter',
+      { id: 'c22_bu_unsure', label: 'Сказать: ты не знаешь', minutes: 15, terminal: true, outcomes: afterUte,
         text: '— Keiner weiß was, — говорит Уте. Никто ничего не знает. — Und am Montag wissen es alle.\n\nА в понедельник будут знать все.\n\nОна стоит ещё немного, потом уходит к насыпи.', effects: [set22('bu', 'unsure'), until22(15, 20)] },
-      { id: 'c22_bu_tea', label: 'Позвать её в дом, к печи', minutes: 30, terminal: true, goto: 'c22_b_letter',
+      { id: 'c22_bu_tea', label: 'Позвать её в дом, к печи', minutes: 30, terminal: true, outcomes: afterUte,
         text: 'Уте пьёт чай, не снимая платков. Она рассказывает, что ночами слышит, как поёт Кай. Из ямы за теплицей. Тихо, как в детстве, когда не мог уснуть.\n\n— Ich weiß, dass das nicht geht. Aber ich höre es.\n\nЯ знаю, что так не бывает. Но я слышу.', effects: [set22('bu', 'tea'), npc('c14_ute', 2), { body: 'stress', delta: 1 }, until22(15, 35)] },
     ] }),
 
@@ -295,6 +299,8 @@ export const day22BScenes: Scene[] = [
     text: [
       { text: 'В понедельник в Люнебург поедет фургон прачечной. Кёлер обещала передать письмо. Ты садишься за кухонный стол с Нининой тетрадью.' },
       { text: 'Первая строчка не пишется. Ты знаешь то, чего не знает никто в Люнебурге. Может быть, и Оле.' },
+      { when: v('w.c22_lea_things', 'letter'), text: 'Конверт с резинкой и ручкой лежит рядом. Его ты отдашь Кёлер вместе с письмом, отдельно.' },
+      { when: v('w.c22_lea_sleep', 'nina'), text: 'Сверху, из Нининой комнаты, доносится смех. Пишется под него легче.' },
     ],
     actions: letterActions('c22_bl', 'c22_dusk', [until22(17, 20)]) }),
 
