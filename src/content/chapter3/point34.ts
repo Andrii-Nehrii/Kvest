@@ -63,14 +63,14 @@ export const shared34: Scene[] = [
       { when: eldersInHouse, text: 'Наверху, в комнате стариков, кто-то тихо включает приёмник: марш, потом новости, потом снова марш.' },
     ],
     actions: [
-      { id: 'c34_sa_wood', label: 'Пилить дрова пилой Хенрике', when: { has: 'c32_saw' }, minutes: 210, activity: 'heavy', terminal: true, goto: 'c34_noon', ambientDuring: frost34,
-        text: 'Пила заводится с третьего рывка и визжит на весь двор. За утро ты распиливаешь три старых сосны с опушки. Хенрике выходит, смотрит на поленницу и кивает: до Нового года хватит.', effects: [set34('sa', 'saw'), ...dayFacts34, { body: 'fatigue', delta: 10 }, until34(35, 12, 0)] },
-      { id: 'c34_sa_axe', label: 'Колоть дрова', minutes: 210, activity: 'heavy', terminal: true, goto: 'c34_noon', ambientDuring: frost34,
-        text: 'Колун, чурбак, полено. Колун, чурбак, полено. К полудню рубашка мокрая под курткой, а поленница выросла на ладонь.', effects: [set34('sa', 'axe'), ...dayFacts34, { body: 'fatigue', delta: 12 }, until34(35, 12, 0)] },
-      { id: 'c34_sa_barn', label: 'Чистить хлев с Хенрике', when: henrike34, minutes: 210, activity: 'moderate', terminal: true, goto: 'c34_noon',
-        text: 'Навоз, вилы, свежая солома. Корова смотрит на тебя с подозрением. Хенрике работает молча, а в конце говорит: «Du machst das schon wie eine von hier». Ты делаешь это уже как здешняя.', effects: [set34('sa', 'barn'), ...dayFacts34, npc('henrike', 1), until34(35, 12, 0)] },
-      { id: 'c34_sa_elders', label: 'Посидеть со стариками из Бармбека', when: eldersCome, minutes: 210, terminal: true, goto: 'c34_noon',
-        text: 'Петерсен рассказывает, как в шестьдесят втором, в наводнение, вода стояла у них на лестнице по второй этаж. Тогда тоже думали, что конец. Фрау Кёрнер вяжет и поправляет его на каждой дате.', effects: [set34('sa', 'elders'), ...dayFacts34, { body: 'stress', delta: -4 }, until34(35, 12, 0)] },
+      { id: 'c34_sa_wood', label: 'Пилить дрова пилой Хенрике', when: { has: 'c32_saw' }, minutes: 140, activity: 'heavy', terminal: true, outcomes: [{ id: 'a', when: A34, goto: 'c34_a_late' }, { id: 'b', goto: 'c34_b_late' }], ambientDuring: frost34,
+        text: 'Пила заводится с третьего рывка и визжит на весь двор. За утро ты распиливаешь три старых сосны с опушки. Хенрике выходит, смотрит на поленницу и кивает: до Нового года хватит.', effects: [set34('sa', 'saw'), ...dayFacts34, { body: 'fatigue', delta: 10 }, until34(35, 10, 30)] },
+      { id: 'c34_sa_axe', label: 'Колоть дрова', minutes: 140, activity: 'heavy', terminal: true, outcomes: [{ id: 'a', when: A34, goto: 'c34_a_late' }, { id: 'b', goto: 'c34_b_late' }], ambientDuring: frost34,
+        text: 'Колун, чурбак, полено. Колун, чурбак, полено. Через два часа рубашка мокрая под курткой, а поленница выросла на ладонь.', effects: [set34('sa', 'axe'), ...dayFacts34, { body: 'fatigue', delta: 12 }, until34(35, 10, 30)] },
+      { id: 'c34_sa_barn', label: 'Чистить хлев с Хенрике', when: henrike34, minutes: 140, activity: 'moderate', terminal: true, outcomes: [{ id: 'a', when: A34, goto: 'c34_a_late' }, { id: 'b', goto: 'c34_b_late' }],
+        text: 'Навоз, вилы, свежая солома. Корова смотрит на тебя с подозрением. Хенрике работает молча, а в конце говорит: «Du machst das schon wie eine von hier». Ты делаешь это уже как здешняя.', effects: [set34('sa', 'barn'), ...dayFacts34, npc('henrike', 1), until34(35, 10, 30)] },
+      { id: 'c34_sa_elders', label: 'Посидеть со стариками из Бармбека', when: eldersCome, minutes: 140, terminal: true, outcomes: [{ id: 'a', when: A34, goto: 'c34_a_late' }, { id: 'b', goto: 'c34_b_late' }],
+        text: 'Петерсен рассказывает, как в шестьдесят втором, в наводнение, вода стояла у них на лестнице по второй этаж. Тогда тоже думали, что конец. Фрау Кёрнер вяжет и поправляет его на каждой дате.', effects: [set34('sa', 'elders'), ...dayFacts34, { body: 'stress', delta: -4 }, until34(35, 10, 30)] },
     ] }),
 
   S34({ id: 'c34_noon', for: 'any', chapter: 'ch3', title: 'Тобиас', camp: kitchen14,
@@ -139,7 +139,7 @@ export const shared34: Scene[] = [
     ],
     actions: [
       { id: 'c34_su_go', label: 'Идти в Йестебург со всеми', minutes: 120, terminal: true, goto: 'c34_church', ambientDuring: frost34,
-        text: 'Вы идёте пешком, все вместе, по укатанной дороге. Старики едут на тракторной тележке, укутанные в одеяла.', effects: [set34('su', 'go'), { move: jest34 }, until34(36, 10, 0)] },
+        text: 'Вы идёте пешком, все вместе, по укатанной дороге. Старики едут сзади, укутанные в одеяла: на санях, если сани починили, или на тракторной тележке.', effects: [set34('su', 'go'), { move: jest34 }, until34(36, 10, 0)] },
       { id: 'c34_su_eat', label: 'Сначала позавтракать, потом догнать', minutes: 120, terminal: true, goto: 'c34_church', ...tableOnly,
         text: 'Ты ешь наспех, стоя. Догоняешь своих уже у въезда в Йестебург.', effects: [set34('su', 'eat'), meal('eat'), { move: jest34 }, until34(36, 10, 0)] },
     ] }),
@@ -173,9 +173,9 @@ export const shared34: Scene[] = [
       { when: okaforComes, text: 'Окафор говорит, что пойдёт десятого за Мерле. Если Зандер даст пропуск. Если не даст — тоже пойдёт.' },
     ],
     actions: [
-      { id: 'c34_ho_eat', label: 'Поесть', minutes: 60, terminal: true, goto: 'c34_dusk', ...tableOnly,
+      { id: 'c34_ho_eat', label: 'Поесть', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A34, goto: 'c34_a_spring' }, { id: 'b', goto: 'c34_b_letter' }], ...tableOnly,
         text: 'Компот кислый и сладкий сразу. Пахнет летом.', effects: [set34('ho', 'eat'), meal('eat'), until34(36, 15, 0)] },
-      { id: 'c34_ho_walk', label: 'Выйти пройтись вдоль поля', minutes: 90, terminal: true, goto: 'c34_dusk', ambientDuring: frost34,
+      { id: 'c34_ho_walk', label: 'Выйти пройтись вдоль поля', minutes: 90, terminal: true, outcomes: [{ id: 'a', when: A34, goto: 'c34_a_spring' }, { id: 'b', goto: 'c34_b_letter' }], ambientDuring: frost34,
         text: 'Поле белое до самого леса. Следы зайца, следы лисы, следы трактора. Ты идёшь до межевого камня и обратно. Думать там легче.', effects: [set34('ho', 'walk'), { body: 'stress', delta: -3 }, until34(36, 15, 0)] },
     ] }),
 

@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { any, ninaFarm } from './point18';
+import { any, ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { brothersCome, okaforComes, oleHome33 } from './point33';
 import {
@@ -119,6 +119,8 @@ export const day35Scenes: Scene[] = [
       { when: henrike35, text: '— Ich weiß nicht, wohin ihr wollt. Ich frage auch nicht. Aber wenn ihr geht, sagt es mir vor dem Säen. Nicht danach.\n\nЯ не знаю, куда вы хотите. И не спрашиваю. Но если уйдёте, скажите мне до сева. Не после.' },
       { when: all(henrike35, oleHome33), text: '— Den Hof bekommt Ole. Und wer von euch bleibt — der auch. Das hab ich aufgeschrieben. Beim Pfarrer.\n\nХутор получит Оле. И тот из вас, кто останется, тоже. Я это записала. У пастора.' },
       { when: all(henrike35, oleDead), text: '— Ole ist nicht mehr. Den Hof bekommt, wer bleibt. Ihr. Das hab ich aufgeschrieben. Beim Pfarrer.\n\nОле больше нет. Хутор получит тот, кто останется. Вы. Я это записала. У пастора.' },
+      { when: all(henrike35, v('w.c34_a_spring', 'yes')), text: '— Er hat gesagt, er kann pflügen. — Она смотрит в окно, на поле. — Ich habe es aufgeschrieben. Aber ich glaube es erst im März.\n\nОн сказал, что сможет пахать. Я записала. Но поверю только в марте.' },
+      { when: all(henrike35, v('w.c34_a_spring', 'honest')), text: '— Er hat gesagt, er weiß nicht, ob ihr im März hier seid. — Она кивает сама себе. — Das war ehrlich. Deshalb frage ich dich jetzt.\n\nОн сказал, что не знает, будете ли вы здесь в марте. Это было честно. Поэтому я спрашиваю тебя сейчас.' },
       { when: not(henrike35), text: 'Дома тихо. Хенрике уехала в Йестебург к пастору и до вечера не вернётся. На столе записка её почерком: «Vor dem Säen. Nicht danach». До сева. Не после.' },
     ],
     actions: [

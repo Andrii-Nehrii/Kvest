@@ -1,0 +1,82 @@
+import type { Scene } from '../../engine/content-types';
+import type { Cond } from '../../engine/types';
+import { all, not } from './world3';
+import { kitchen14, yard14 } from './point14';
+import { v } from './point18';
+import { npc } from './point19';
+import { okaforComes, oleHome33 } from './point33';
+import { S34, frost34, set34, until34, w34 } from './point34';
+
+// Участок 34, дополнение (проверка объёма 15.11). Суббота до обеда: A — курятник после адвента или сани для стариков к службе;
+// B — укладка для колонны на север с Окафором (или бинты с Леей). Воскресенье после обеда: A — Хенрике спрашивает про весну;
+// B — письмо Мерле к десятому. Отклики — в воскресенье и в 35-й.
+const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S34({ ...scene, for: 'any', chapter: 'ch3' });
+const roof: Cond = v('w.c29_coop_roof', 'fallen');
+const toNoon = 'c34_noon';
+const lea: Cond = { npc: 'c21_lea', alive: true };
+
+export const day34EScenes: Scene[] = [
+  X({ id: 'c34_a_late', title: 'До обеда', camp: yard14, ambient: frost34, onEnter: [until34(35, 10, 30)],
+    text: [
+      { when: roof, text: 'Крыша курятника, проломленная снегом в ночь на адвент, так и лежит внутрь. Куры ночуют в хлеву, у коров, и несутся где попало. Хенрике каждое утро ищет яйца по углам и ругается.' },
+      { when: not(roof), text: 'Завтра служба, второй адвент. Старикам до Йестебурга четыре километра пешком не дойти. Хенрике говорит: на санях бы. Сани есть, полозья треснули.' },
+    ],
+    actions: [
+      { id: 'c34_al_roof', label: 'Поднять крышу курятника: стропила, доски, толь', when: roof, minutes: 90, activity: 'heavy', terminal: true, goto: toNoon,
+        text: 'Ты выпиливаешь новые стропила из жердей, которые Оле запас ещё летом. Доски от старого сарая, толь с крыши колодца. К обеду курятник стоит. Кривой, но стоит. Куры заходят внутрь по одной и садятся на насест, как будто ничего не было.', effects: [set34('al', 'roof'), w34('coop_fixed', true), npc('henrike', 1), until34(35, 12, 0)] },
+      { id: 'c34_al_hens', label: 'Сделать насест в хлеву, раз уж они там', when: roof, minutes: 60, terminal: true, goto: toNoon,
+        text: 'Жердь, два гвоздя, ящик с соломой для гнезда. Куры принимают хлев как свой. Корова смотрит на них сверху с недоумением. Яйца теперь в ящике, а не по углам.', effects: [set34('al', 'hens'), until34(35, 11, 30)] },
+      { id: 'c34_al_sled', label: 'Починить сани: стянуть полозья проволокой и железом', when: not(roof), minutes: 90, activity: 'moderate', terminal: true, goto: toNoon,
+        text: 'Полозья ты стягиваешь полосой жести и проволокой, сверху прибиваешь доски. Хенрике приносит овчину, стелет. Завтра старики поедут в церковь как господа.', effects: [set34('al', 'sled'), w34('sled', true), until34(35, 12, 0)] },
+      { id: 'c34_al_tractor', label: 'Сказать: повезём на тракторной тележке', when: not(roof), minutes: 40, terminal: true, goto: toNoon,
+        text: 'Ты выметаешь тележку, стелешь солому. Хенрике качает головой: тряско. Но лучше, чем пешком.', effects: [set34('al', 'tractor'), until34(35, 11, 15)] },
+    ] }),
+
+  X({ id: 'c34_b_late', title: 'До обеда', camp: kitchen14, onEnter: [until34(35, 10, 30)],
+    text: [
+      { when: okaforComes, text: 'Окафор приходит из колонии с пустой сумкой и списком. Десятого колонна на север. Он собирает укладку: что взять для Мерле и для тех, кого повезут лежачими. Он просит тебя помочь: у тебя руки быстрые.' },
+      { when: all(not(okaforComes), lea), text: 'Лея раскладывает на кухонном столе бинты из пункта: их надо перемотать, прокипятить старые, рассортировать. Зандер дала на это субботу.' },
+      { when: all(not(okaforComes), not(lea)), text: 'Хенрике раскладывает на кухонном столе бельё, которое надо штопать. Гора до потолка. Она протягивает тебе иголку.' },
+    ],
+    actions: [
+      { id: 'c34_bl_pack', label: 'Собрать укладку с Окафором: по его списку', when: okaforComes, minutes: 90, terminal: true, goto: toNoon,
+        text: 'Бинты, шприцы, спирт, сахар в кубиках — для Мерле, если упадёт сахар. Термос. Грелки. Окафор проверяет каждую вещь и кладёт обратно, точно на место. В конце говорит: «Вы делаете это так, как будто делали всю жизнь». Это не комплимент. Это наблюдение.', effects: [set34('bl', 'pack'), w34('b_packed', true), npc('okafor', 2, 'c34_packed'), until34(35, 12, 0)] },
+      { id: 'c34_bl_sugar', label: 'Отдать в укладку свои сахарные кубики из НЗ', when: okaforComes, minutes: 60, terminal: true, goto: toNoon,
+        text: 'Восемь кубиков в целлофане, которые ты носишь с первых дней на всякий случай. Окафор взвешивает их на ладони, кивает и кладёт в отдельный карман укладки: «Это для неё. Лично».', effects: [set34('bl', 'sugar'), w34('b_packed', true), w34('sugar_merle', true), until34(35, 11, 30)] },
+      { id: 'c34_bl_bandage', label: 'Перематывать бинты с Леей', when: all(not(okaforComes), lea), minutes: 90, terminal: true, goto: toNoon,
+        text: 'Вы с Леей перематываете бинты до обеда, стоя у плиты, где кипит бак. Она рассказывает про ветеринарную клинику, про собаку, которую оперировала в октябре. Ты слушаешь. Руки работают сами.', effects: [set34('bl', 'bandage'), w34('b_packed', true), npc('c21_lea', 1), until34(35, 12, 0)] },
+      { id: 'c34_bl_mend', label: 'Штопать с Хенрике', when: all(not(okaforComes), not(lea)), minutes: 90, terminal: true, goto: toNoon,
+        text: 'Носки, варежки, локти свитеров. Хенрике штопает быстро и ровно. Ты медленно и криво. Она ничего не говорит, только иногда забирает у тебя носок и показывает ещё раз.', effects: [set34('bl', 'mend'), until34(35, 12, 0)] },
+    ] }),
+
+  X({ id: 'c34_a_spring', title: 'Весна', camp: kitchen14, onEnter: [until34(36, 15, 0)],
+    text: [
+      { text: 'После обеда Хенрике садится напротив тебя с кружкой и спрашивает прямо, без предисловий.' },
+      { text: '— Im März muss gepflügt werden. Ole kann nicht. Ich kann nicht mehr. Kannst du einen Pflug führen? Kartoffeln setzen? Ich frage dich, nicht ihn. Dich.\n\nВ марте надо пахать. Оле не может. Я уже не могу. Ты сможешь водить плуг? Сажать картошку? Я спрашиваю тебя, не его. Тебя.' },
+      { when: oleHome33, text: 'Оле сидит у печи и делает вид, что спит.' },
+    ],
+    actions: [
+      { id: 'c34_as_yes', label: 'Сказать: смогу. Научите', minutes: 90, terminal: true, goto: 'c34_dusk',
+        text: 'Хенрике кивает и достаёт тетрадь. Рисует поле, делит на полосы, пишет, что где сажать. Объясняет, как цеплять плуг к трактору. Ты слушаешь до сумерек. Ты ещё не знаешь, будешь ли здесь в марте. Но слушаешь.', effects: [set34('as', 'yes'), w34('a_spring', 'yes'), npc('henrike', 2, 'c34_a_said_plough'), until34(36, 16, 45)] },
+      { id: 'c34_as_honest', label: 'Сказать честно: не знаю, будем ли мы здесь в марте', minutes: 60, terminal: true, goto: 'c34_dusk',
+        text: 'Хенрике долго молчит. Потом говорит: «Das ist ehrlich. Ehrlich ist besser als ja». Это честно. Честно лучше, чем «да». И уходит в хлев, к корове.', effects: [set34('as', 'honest'), w34('a_spring', 'honest'), until34(36, 16, 15)] },
+      { id: 'c34_as_ole', label: 'Сказать: спросите Оле. Он знает поле, я — нет', when: oleHome33, minutes: 60, terminal: true, goto: 'c34_dusk',
+        text: 'Оле открывает глаза. «Ich kann nicht pflügen. Aber ich kann sagen, wie». Я не могу пахать. Но могу сказать, как. Он говорит. Хенрике слушает сына, а ты — их обоих.', effects: [set34('as', 'ole'), w34('a_spring', 'ole'), npc('ole', 2), until34(36, 16, 15)] },
+    ] }),
+
+  X({ id: 'c34_b_letter', title: 'Письмо', camp: kitchen14, onEnter: [until34(36, 15, 0)],
+    text: [
+      { text: 'После обеда в доме тихо: старики спят, Хенрике в хлеву. Ты садишься к окну с тетрадью.' },
+      { when: okaforComes, text: 'Десятого Окафор уходит с колонной. Письмо Мерле можно передать с ним, лично в руки.' },
+      { when: not(okaforComes), text: 'Десятого на север уходит колонна Красного Креста. Письма берут, если они в конверте и с адресом.' },
+      { when: { has: 'c32_merle_letter' }, text: 'Письмо, которое ты {m:написал|написала} у фрау Витхён, у тебя в кармане. Можно его дописать. Можно написать заново.' },
+    ],
+    actions: [
+      { id: 'c34_bt_long', label: 'Написать длинное письмо: всё, что было', minutes: 90, terminal: true, goto: 'c34_dusk',
+        text: 'Ты пишешь три страницы. Про первый день, про хутор, про Хенрике, про Нину. Про то, что тебе страшно и что ты всё равно здесь. Перечитываешь и ничего не вычёркиваешь. Сверху: «Merle H., Ahrensburg».', effects: [set34('bt', 'long'), w34('merle_letter', 'long'), { give: 'c34_merle_letter' }, until34(36, 16, 45)] },
+      { id: 'c34_bt_short', label: 'Написать коротко: {m:жив|жива}, держись, жди', minutes: 30, terminal: true, goto: 'c34_dusk',
+        text: '«Мерле. Я {m:жив|жива}. Держись. Жди. Твоя соседка». Подумав, ты дописываешь адрес хутора. Остальное скажешь {m:сам|сама}. Если доведётся.', effects: [set34('bt', 'short'), w34('merle_letter', 'short'), { give: 'c34_merle_letter' }, until34(36, 15, 45)] },
+      { id: 'c34_bt_none', label: 'Не писать: если ехать, то {m:самому|самой}', minutes: 30, terminal: true, goto: 'c34_dusk',
+        text: 'Ты закрываешь тетрадь. Письмо — это когда не едешь. Ты ещё не {m:решил|решила}.', effects: [set34('bt', 'none'), until34(36, 15, 30)] },
+    ] }),
+];
