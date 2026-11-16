@@ -48,6 +48,8 @@ export const day31AScenes: Scene[] = [
         text: 'Ты снимаешь со стены лом Хенрике. Бьёшь по дужке, потом поддеваешь петлю. На десятом ударе петля отрывается вместе с куском крышки. Внутри что-то хрустнуло.', effects: [set31('a2', 'break'), ...opened('broken'), { body: 'fatigue', delta: 3 }, until31(11, 40)] },
       { id: 'c31_a2_leave', label: 'Бросить: пусть стоит', minutes: 5, terminal: true, outcomes: afterBox,
         text: 'Ты задвигаешь ящик под верстак. Не сегодня.', effects: [set31('a2', 'leave'), w31('box', 'left'), until31(11, 20)] },
+      { id: 'c31_a2_ole', label: 'Спросить Хенрике: может, она знает код', minutes: 20, terminal: true, outcomes: afterBox,
+        text: 'Хенрике смотрит на ящик и пожимает плечами: «Das ist von Werners Leuten. Nicht von uns». Это от людей Вернера. Не наше. Потом, подумав, говорит: у мужа на учениях код всегда был год выпуска. На крышке выбито: 1997. Ты пробуешь. Не подходит. Ящик остаётся закрытым до другого раза.', effects: [set31('a2', 'ask'), w31('box', 'asked'), until31(11, 20)] },
     ] }),
 
   A({ id: 'c31_a_open', title: 'Что внутри', camp: barn,
@@ -71,6 +73,10 @@ export const day31AScenes: Scene[] = [
     actions: [
       { id: 'c31_ak_take', label: 'Забрать бельё и карту', minutes: 10, terminal: true, outcomes: afterBox,
         text: 'Смятую спиртовку ты бросаешь обратно в ящик. Бельё и карту забираешь.', effects: [set31('ak', 'take'), { give: 'c31_thermals', qty: 2 }, { give: 'c31_post_map' }, until31(11, 50)] },
+      { id: 'c31_ak_map', label: 'Забрать только карту, бельё отдать Уве и Яннесу', minutes: 15, terminal: true, outcomes: afterBox,
+        text: 'Карту ты убираешь за пазуху. Бельё относишь в колонию: Уве ночью стоял в цепи в одной куртке, а у Яннеса дыра на пятке. Уте берёт свёрток и долго держит, не разворачивая.', effects: [set31('ak', 'give'), { give: 'c31_post_map' }, npc('c14_ute', 2, 'c31_thermals'), until31(11, 55)] },
+      { id: 'c31_ak_back', label: 'Закрыть крышку: вещи не наши', minutes: 5, terminal: true, outcomes: afterBox,
+        text: 'Ты закрываешь погнутую крышку, насколько она закрывается, и задвигаешь ящик под верстак. Чужое. Пусть лежит.', effects: [set31('ak', 'back'), until31(11, 45)] },
     ] }),
 
   A({ id: 'c31_a_deniz', title: 'Братья', camp: yard14, ambient: frost31, onEnter: [until31(12, 30)],
@@ -107,6 +113,10 @@ export const day31AScenes: Scene[] = [
     actions: [
       { id: 'c31_ac_go', label: 'Идти за машиной', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_a_brandt', ambientDuring: frost31,
         text: 'Ты идёшь пешком. Дорога укатана до блеска. Над впадиной у Гарльсторфа ещё стоит дым, серый, ровный, как от фабрики.', effects: [set31('ac', 'go'), { move: jest31 }, until31(16, 0)] },
+      { id: 'c31_ac_tomorrow', label: 'Сказать Лукасу: завтра. Сегодня ноги не держат', minutes: 10, terminal: true, goto: 'c31_a_yard',
+        text: 'Лукас кивает и уезжает. Машина постоит ещё день у пожарной части. Ничего с ней не будет. Наверное.', effects: [set31('ac', 'tomorrow'), w31('car_tomorrow', true), until31(15, 10)] },
+      { id: 'c31_ac_nina', label: 'Взять с собой Нину: пусть прокатится обратно', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_a_brandt', ambientDuring: frost31,
+        text: 'Нина одевается за две минуты и идёт рядом, подпрыгивая, чтобы не отстать. Всю дорогу она говорит о том, как поедет обратно на переднем сиденье и будет переключать радио, хотя радио не ловит ничего, кроме шипения.', effects: [set31('ac', 'nina'), { npc: 'c7_nina', trust: 1 }, until31(16, 0)] },
     ] }),
 
   A({ id: 'c31_a_brandt', title: 'Брандт', location: jest31, camp: { at: jest31, stock: 'c3_farm_stock', rest: false }, safe: false, ambient: { tempC: 8, outdoor: false, wet: false },

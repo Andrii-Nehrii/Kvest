@@ -107,11 +107,11 @@ export const shared31: Scene[] = [
       { text: 'Солнце встаёт красное, и снег во дворе розовеет, будто ночью ничего не было.' },
     ],
     actions: [
-      { id: 'c31_mo_eat', label: 'Позавтракать', minutes: 30, terminal: true, goto: 'c31_tow', ...tableOnly,
+      { id: 'c31_mo_eat', label: 'Позавтракать', minutes: 30, terminal: true, outcomes: [{ id: 'f', when: { all: [A31, { not: { flag: 'w.c31_rescue' } }] }, goto: 'c31_a_fingers' }, { id: 't', goto: 'c31_tow' }], ...tableOnly,
         text: 'Каша на воде, хлеб, чай. Ты ешь медленно. Руки после ночи держат ложку не сразу.', effects: [set31('mo', 'eat'), meal('eat'), until31(9, 30)] },
-      { id: 'c31_mo_lukas', label: 'Выйти к Лукасу и спросить, как остальные', minutes: 20, terminal: true, goto: 'c31_tow', ambientDuring: frost31,
+      { id: 'c31_mo_lukas', label: 'Выйти к Лукасу и спросить, как остальные', minutes: 20, terminal: true, outcomes: [{ id: 'f', when: { all: [A31, { not: { flag: 'w.c31_rescue' } }] }, goto: 'c31_a_fingers' }, { id: 't', goto: 'c31_tow' }], ambientDuring: frost31,
         text: 'Лукас перечисляет, загибая пальцы здоровой руки. У одного разбито лицо. У двоих отморожены ноги. Один солдат пропал, но он, может, просто уехал со своими.\n\n— Papa lebt, — говорит он в конце. Папа жив. И уезжает, не прощаясь.', effects: [set31('mo', 'lukas'), until31(9, 30)] },
-      { id: 'c31_mo_quiet', label: 'Посидеть молча', minutes: 30, terminal: true, goto: 'c31_tow',
+      { id: 'c31_mo_quiet', label: 'Посидеть молча', minutes: 30, terminal: true, outcomes: [{ id: 'f', when: { all: [A31, { not: { flag: 'w.c31_rescue' } }] }, goto: 'c31_a_fingers' }, { id: 't', goto: 'c31_tow' }],
         text: 'Ты сидишь. Хиннерк. Ты не знаешь, был ли он женат. Ты даже фамилии его не знаешь.', effects: [set31('mo', 'quiet'), { body: 'stress', delta: -2 }, until31(9, 30)] },
     ] }),
 
@@ -131,6 +131,8 @@ export const shared31: Scene[] = [
         text: 'Верёвку Хенрике, старую, просмолённую, вы вяжете вдвое. Пальцы на морозе деревенеют. Тягач трогается, верёвка трещит, но держит. Грузовик уползает к Йестебургу, и мел на борту уменьшается до белого пятна.', effects: [set31('tw', 'rope'), ...dayFacts31, { body: 'fatigue', delta: 3 }, until31(10, 30)] },
       { id: 'c31_tw_watch', label: 'Смотреть с крыльца', minutes: 20, terminal: true, outcomes: afterTow,
         text: 'Ты стоишь на крыльце, пока солдаты вяжут свою верёвку. Через полчаса грузовик уползает. На снегу у забора остаётся тёмное пятно масла.', effects: [set31('tw', 'watch'), ...dayFacts31, until31(10, 30)] },
+      { id: 'c31_tw_push', label: 'Встать к колесу и толкать, пока тянут', minutes: 60, activity: 'heavy', risky: true, terminal: true, outcomes: afterTow, ambientDuring: frost31,
+        text: 'Ты упираешься плечом в заднее колесо. Трос натягивается, звенит. Колесо проворачивается на льду, брызгает снежной кашей в лицо, потом цепляется. Трактор выползает из кювета рывком, и ты падаешь лицом в снег, туда, где только что было колесо. Встаёшь мокрый по пояс спереди. Дениз хохочет и хлопает тебя по спине.', effects: [set31('tw', 'push'), { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 2 }, until31(10, 30)] },
     ] }),
 
   S31({ id: 'c31_evening', for: 'any', chapter: 'ch3', title: 'Ужин во вторник', camp: kitchen14,
@@ -158,6 +160,8 @@ export const shared31: Scene[] = [
         text: 'Суп горячий. Ты ешь, пока тепло не доходит до пальцев ног.', effects: [set31('ev', 'eat'), meal('eat'), finish, until31(19, 30)] },
       { id: 'c31_ev_partner', label: 'Сесть рядом с {partner.ins}', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A31, goto: 'c31_a_late' }, { id: 'b', goto: 'c31_b_late' }],
         text: 'Ты садишься рядом. Под столом ваши колени касаются. Вы почти не разговариваете. После такой ночи и такого дня это и не нужно.', effects: [set31('ev', 'partner'), { body: 'stress', delta: -3 }, finish, until31(19, 30)] },
+      { id: 'c31_ev_plan', label: 'Разложить на столе, кто куда завтра едет и с чем', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A31, goto: 'c31_a_late' }, { id: 'b', goto: 'c31_b_late' }],
+        text: 'Вы раскладываете на столе: карта, листки, ключи. Кто куда, во сколько, с кем, что взять, что привезти. Хенрике смотрит через плечо и молча дописывает на краю листа: «Salz». Соль. Нина записывает всё в свою тетрадь, на отдельной странице, и подписывает: «Mittwoch».', effects: [set31('ev', 'plan'), w31('plan_written', true), until31(19, 30)] },
     ] }),
 
   S31({ id: 'c31_checkpoint', for: 'any', chapter: 'ch3', title: 'Вторник, вечер', checkpoint: 31, universal: false, camp: house14,

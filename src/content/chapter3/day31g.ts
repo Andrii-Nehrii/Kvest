@@ -54,12 +54,12 @@ export const day31GScenes: Scene[] = [
       { text: '— Ich habe sie für ihn gestrickt. Er braucht sie jetzt nicht mehr so viele. Nehmen Sie. Bitte.\n\nЯ вязала их для него. Ему теперь столько не нужно. Возьмите. Пожалуйста.' },
     ],
     actions: [
-      { id: 'c31_bm2_take', label: 'Взять и поблагодарить', minutes: 20, terminal: true, goto: 'c31_b_dusk',
-        text: 'Носки тёплые, будто их только что сняли со спиц. Она кивает и уходит быстро, не оборачиваясь. В кармане у тебя теперь пара на мороз.', effects: [set31('bm2', 'take'), { give: 'c31_socks' }, until31(16, 0)] },
-      { id: 'c31_bm2_back', label: 'Отказаться: пусть ему будут, на смену', minutes: 20, terminal: true, goto: 'c31_b_dusk',
-        text: '— Er hat genug. — Она вкладывает носки тебе в руки силой. Ты отдаёшь их Лее у двери: в пункте носки нужнее всего. Лея кивает, как будто так и было задумано.', effects: [set31('bm2', 'back'), w31('socks_point', true), npc('c21_lea', 1), until31(16, 0)] },
-      { id: 'c31_bm2_talk', label: 'Спросить, как он, и посидеть с ней на крыльце', minutes: 40, terminal: true, goto: 'c31_b_dusk',
-        text: 'Вы сидите на холодной ступеньке. Она рассказывает, каким он был в пять лет, в десять. Ты слушаешь. Носки ты берёшь в конце, когда она уже встаёт.', effects: [set31('bm2', 'talk'), { give: 'c31_socks' }, w31('mother_talked', true), until31(16, 10)] },
+      { id: 'c31_bm2_take', label: 'Взять и поблагодарить', minutes: 20, terminal: true, goto: 'c31_b_list',
+        text: 'Носки тёплые, будто их только что сняли со спиц. Она кивает и уходит быстро, не оборачиваясь. В кармане у тебя теперь пара на мороз.', effects: [set31('bm2', 'take'), { give: 'c31_socks' }, until31(15, 40)] },
+      { id: 'c31_bm2_back', label: 'Отказаться: пусть ему будут, на смену', minutes: 20, terminal: true, goto: 'c31_b_list',
+        text: '— Er hat genug. — Она вкладывает носки тебе в руки силой. Ты отдаёшь их Лее у двери: в пункте носки нужнее всего. Лея кивает, как будто так и было задумано.', effects: [set31('bm2', 'back'), w31('socks_point', true), npc('c21_lea', 1), until31(15, 40)] },
+      { id: 'c31_bm2_talk', label: 'Спросить, как он, и посидеть с ней на крыльце', minutes: 40, terminal: true, goto: 'c31_b_list',
+        text: 'Вы сидите на холодной ступеньке. Она рассказывает, каким он был в пять лет, в десять. Ты слушаешь. Носки ты берёшь в конце, когда она уже встаёт.', effects: [set31('bm2', 'talk'), { give: 'c31_socks' }, w31('mother_talked', true), until31(15, 45)] },
     ] }),
 
   X({ id: 'c31_a_late', title: 'Поздно', camp: house14, onEnter: [until31(19, 30)],
