@@ -47,6 +47,10 @@ export const day32AScenes: Scene[] = [
 
   A({ id: 'c32_a_road', title: 'Дорога', location: 'c7_farm_lane', camp: trip('c7_farm_lane'), safe: false, ambient: truck32,
     text: [
+      { when: all(v('$.c31_xr', 'b75'), not(flag('$.c32_avoided_post'))), text: 'Шоссе и пост, как ты и {m:рисовал|рисовала} вчера на кухне.' },
+      { when: all(v('$.c31_xr', 'forest'), flag('$.c32_avoided_post')), text: 'Лесные дороги, как на твоей вчерашней карте. Блокнот с ней лежит у Дениза на колене.' },
+      { when: all(v('$.c31_xr', 'forest'), not(flag('$.c32_avoided_post'))), text: 'Твоя карта с просеками лежит у Дениза на колене. Он посмотрел на снег и выбрал шоссе.' },
+      { when: v('$.c31_xr', 'rail'), text: 'Крестик у моста через Зеве на твоей карте не понадобится: Дениз едет машиной до самого города.' },
       { when: flag('$.c32_avoided_post'), text: 'Вы едете лесными дорогами, через Тостедтский лес, без постов. Дважды приходится вылезать и оттаскивать с дороги упавшую сосну. Один раз за деревьями на поляне что-то двигается, медленно, в сторону шума, но вы уже проехали.' },
       { when: not(flag('$.c32_avoided_post')), text: 'У Холм-Зеппензена шлагбаум из бревна и двое в форме. Один светит фонарём в кабину и сверяет лица со списком на планшете.' },
       { when: all(not(flag('$.c32_avoided_post')), listed), text: '— Aydın, Deniz. Genesen, — читает он вслух и смотрит на Дениза дольше, чем на остальных. Выздоровевший. — Wohin?\n\nКуда?' },
@@ -78,15 +82,15 @@ export const day32AScenes: Scene[] = [
       { when: v('$.c32_ar', 'paper'), text: 'Бумага пункта так и лежит у тебя за пазухой, помятая. Солдат на шлагбауме прочитал её дважды и пропустил.' },
     ],
     actions: [
-      { id: 'c32_at_gen', label: 'Грузить генератор', minutes: 150, activity: 'heavy', terminal: true, ambientDuring: cold32,
+      { id: 'c32_at_gen', label: 'Грузить генератор', minutes: 110, activity: 'heavy', terminal: true, ambientDuring: cold32,
         outcomes: [
-          { id: 'ok', check: { traits: ['strength'], difficulty: 4 }, text: 'Генератор на сто сорок килограммов. Доски, ремни, трое мужчин. На последнем рывке ты держишь угол один, пока братья подкладывают брус. Он встаёт в кузов ровно.', goto: 'c32_a_street', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { body: 'fatigue', delta: 10 }, until32(32, 12, 30)] },
-          { id: 'hurt', text: 'Генератор на сто сорок килограммов. На последнем рывке ремень соскальзывает, угол бьёт тебя по пальцам. Генератор всё-таки встаёт в кузов. Пальцы распухают, но шевелятся.', goto: 'c32_a_street', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { injure: 'bruise', site: 'hands', severity: 2 }, { body: 'fatigue', delta: 12 }, until32(32, 12, 30)] },
+          { id: 'ok', check: { traits: ['strength'], difficulty: 4 }, text: 'Генератор на сто сорок килограммов. Доски, ремни, трое мужчин. На последнем рывке ты держишь угол один, пока братья подкладывают брус. Он встаёт в кузов ровно.', goto: 'c32_x_a_gym', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { body: 'fatigue', delta: 10 }, until32(32, 11, 30)] },
+          { id: 'hurt', text: 'Генератор на сто сорок килограммов. На последнем рывке ремень соскальзывает, угол бьёт тебя по пальцам. Генератор всё-таки встаёт в кузов. Пальцы распухают, но шевелятся.', goto: 'c32_x_a_gym', effects: [...fed32(15), set32('at', 'gen'), w32('generator', true), { injure: 'bruise', site: 'hands', severity: 2 }, { body: 'fatigue', delta: 12 }, until32(32, 11, 30)] },
         ] },
-      { id: 'c32_at_tools', label: 'Разбирать инструмент, пока братья грузят генератор', minutes: 150, activity: 'moderate', terminal: true, goto: 'c32_a_street',
-        text: 'Ключи, головки, домкраты, сварка, болгарка, коробки с крепежом. Ты раскладываешь по ящикам и подписываешь мелом. Дениз проходит мимо и одобрительно хлопает по ящику: у тебя порядок, как у немца.\n\nГенератор братья поднимают сами, ругаясь в три голоса.', effects: [...fed32(15), set32('at', 'tools'), w32('generator', true), w32('tools_sorted', true), npc('deniz', 1), until32(32, 12, 30)] },
-      { id: 'c32_at_cars', label: 'Обойти машины во дворе: слить солярку', minutes: 150, activity: 'moderate', terminal: true, goto: 'c32_a_street', ambientDuring: frost32,
-        text: 'Шланг, канистра, вкус солярки во рту. Из шести машин во дворе у двух баки уже пустые: кто-то был здесь до вас. Из остальных набирается двадцать литров, а с твоим шлангом и канистрами — тридцать. Генератор тем временем стоит в кузове.', effects: [...fed32(15), set32('at', 'cars'), w32('generator', true), { if: flag('A.c31_hose'), then: [w32('diesel_found', 30)], else: [w32('diesel_found', 20)] }, until32(32, 12, 30)] },
+      { id: 'c32_at_tools', label: 'Разбирать инструмент, пока братья грузят генератор', minutes: 110, activity: 'moderate', terminal: true, goto: 'c32_x_a_gym',
+        text: 'Ключи, головки, домкраты, сварка, болгарка, коробки с крепежом. Ты раскладываешь по ящикам и подписываешь мелом. Дениз проходит мимо и одобрительно хлопает по ящику: у тебя порядок, как у немца.\n\nГенератор братья поднимают сами, ругаясь в три голоса.', effects: [...fed32(15), set32('at', 'tools'), w32('generator', true), w32('tools_sorted', true), npc('deniz', 1), until32(32, 11, 30)] },
+      { id: 'c32_at_cars', label: 'Обойти машины во дворе: слить солярку', minutes: 110, activity: 'moderate', terminal: true, goto: 'c32_x_a_gym', ambientDuring: frost32,
+        text: 'Шланг, канистра, вкус солярки во рту. Из шести машин во дворе у двух баки уже пустые: кто-то был здесь до вас. Из остальных набирается двадцать литров, а с твоим шлангом и канистрами — тридцать. Генератор тем временем стоит в кузове.', effects: [...fed32(15), set32('at', 'cars'), w32('generator', true), { if: flag('A.c31_hose'), then: [w32('diesel_found', 30)], else: [w32('diesel_found', 20)] }, until32(32, 11, 30)] },
     ] }),
 
   A({ id: 'c32_a_house', title: 'Свой подъезд', location: 'a_street', camp: trip('a_street'), safe: false, ambient: frost32,
@@ -245,10 +249,10 @@ export const day32AScenes: Scene[] = [
     actions: [
       { id: 'c32_ak_pharm', label: 'Попросить Дениза заехать к аптеке на Брёмер-штрассе', minutes: 20, terminal: true, goto: 'c32_a_pharmacy', ambientDuring: truck32,
         text: 'Дениз морщится, но сворачивает. «Fünf Minuten. Nicht mehr». Пять минут. Не больше.', effects: [set32('ak', 'pharm'), until32(33, 10, 50)] },
-      { id: 'c32_ak_drive', label: 'Сесть за руль самому: Дениз не спал полночи', minutes: 120, terminal: true, goto: 'c32_a_point', ambientDuring: truck32,
-        text: 'Дениз отдаёт ключи без спора и засыпает, едва фургон трогается. Ты ведёшь медленно: гружёный «Транзит» тянет в кюветы на каждом повороте. На посту ты показываешь бумагу пункта, и вас пропускают. Дениз просыпается у Йестебурга и говорит: «Gut gefahren». Хорошо доехали.', effects: [set32('ak', 'drive'), npc('deniz', 2, 'c32_drove_van'), { move: jest32 }, until32(33, 13, 0)] },
-      { id: 'c32_ak_go', label: 'Ехать', minutes: 120, terminal: true, goto: 'c32_a_point', ambientDuring: truck32,
-        text: 'Дорога обратно медленнее: фургон гружёный. На повороте к Йестебургу Дениз сбавляет ход и долго смотрит в зеркало, на Бухгольц.', effects: [set32('ak', 'go'), { move: jest32 }, until32(33, 13, 0)] },
+      { id: 'c32_ak_drive', label: 'Сесть за руль самому: Дениз не спал полночи', minutes: 80, terminal: true, goto: 'c32_x_a_hitch', ambientDuring: truck32,
+        text: 'Дениз отдаёт ключи без спора и засыпает, едва фургон трогается. Ты ведёшь медленно: гружёный «Транзит» тянет в кюветы на каждом повороте. На посту ты показываешь бумагу пункта, и вас пропускают. Дениз просыпается у Йестебурга и говорит: «Gut gefahren». Хорошо доехали.', effects: [set32('ak', 'drive'), npc('deniz', 2, 'c32_drove_van'), { move: jest32 }, until32(33, 12, 20)] },
+      { id: 'c32_ak_go', label: 'Ехать', minutes: 80, terminal: true, goto: 'c32_x_a_hitch', ambientDuring: truck32,
+        text: 'Дорога обратно медленнее: фургон гружёный. На повороте к Йестебургу Дениз сбавляет ход и долго смотрит в зеркало, на Бухгольц.', effects: [set32('ak', 'go'), { move: jest32 }, until32(33, 12, 20)] },
     ] }),
 
   A({ id: 'c32_a_point', title: 'Генератор', location: jest32, camp: trip(jest32), ambient: cold32,
@@ -266,11 +270,11 @@ export const day32AScenes: Scene[] = [
       { text: 'У пожарной части толпятся люди: пришли посмотреть на генератор, как на чудо. Мальчишки лезут под руку, их отгоняют. Кто-то уже спрашивает, будет ли свет в школе.' },
     ],
     actions: [
-      { id: 'c32_ap_wire', label: 'Помочь Яннесу подключить', minutes: 180, activity: 'moderate', terminal: true, goto: 'c32_a_home',
+      { id: 'c32_ap_wire', label: 'Помочь Яннесу подключить', minutes: 180, activity: 'moderate', terminal: true, goto: 'c32_x_dusk',
         text: 'Кабель, щиток, заземление на штыре в мёрзлой земле. Яннес ругается на щиток, на мороз, на тебя. В четыре генератор заводится. Под потолком спортзала загораются лампы. Кто-то на раскладушке плачет.', effects: [set32('ap', 'wire'), w32('generator_point', true), until32(33, 16, 30)] },
-      { id: 'c32_ap_home', label: 'Отдать и ехать домой', minutes: 60, terminal: true, goto: 'c32_a_home',
+      { id: 'c32_ap_home', label: 'Отдать и ехать домой', minutes: 60, terminal: true, goto: 'c32_x_dusk',
         text: 'Ты подписываешь бумагу, что генератор передан пункту. Дениз подписывает ниже. Яннес машет вам вслед, не отрываясь от щитка.', effects: [set32('ap', 'home'), w32('generator_point', true), until32(33, 15, 0)] },
-      { id: 'c32_ap3_brandt', label: 'Зайти к Брандту и рассказать про Бухгольц', minutes: 60, terminal: true, goto: 'c32_a_home',
+      { id: 'c32_ap3_brandt', label: 'Зайти к Брандту и рассказать про Бухгольц', minutes: 60, terminal: true, goto: 'c32_x_dusk',
         text: 'Брандт слушает, держа забинтованную руку на столе. Про больницу, про четвёртое отделение, про Кирхштрассе. В конце говорит: «Danke. Das hätte mir keiner erzählt». Спасибо. Мне бы этого никто не рассказал. И отмечает что-то на карте синим карандашом.', effects: [set32('ap3', 'brandt'), w32('brandt_told_town', true), until32(33, 16, 0)] },
     ] }),
 
