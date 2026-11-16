@@ -62,6 +62,10 @@ export const day32AScenes: Scene[] = [
         text: 'Ты протягиваешь записку с печатью дружины. Солдат читает, переворачивает, читает ещё раз.\n\n— Sanitätsstelle. Gut. Rückfahrt bis Donnerstag Abend, sonst steht ihr auf der Liste.\n\nМедпункт. Хорошо. Обратно до вечера четверга, иначе будете в списке.\n\nШлагбаум поднимают.', effects: [set32('ar', 'paper'), { move: ws32 }, until32(32, 8, 30)] },
       { id: 'c32_ar_talk', label: 'Спросить солдат, что в Бухгольце', when: not(flag('$.c32_avoided_post')), minutes: 60, terminal: true, goto: 'c32_a_town',
         text: '— Leer, — говорит солдат. Пусто. — Die meisten sind Richtung Autobahn. Aber im Krankenhaus… geht nicht ins Krankenhaus.\n\nБольшинство ушли к автобану. А в больнице… не ходите в больницу.', effects: [set32('ar', 'talk'), set32('warned_hospital', true), { move: ws32 }, until32(32, 8, 30)] },
+      { id: 'c32_ar_talk', label: 'Спросить Керема про Бухгольц: что там осталось', minutes: 75, terminal: true, goto: 'c32_a_town', ambientDuring: frost32,
+        text: 'Керем говорит не оборачиваясь: заправка на въезде сгорела, супермаркет у развязки разграблен в первую неделю, в старом городе кто-то живёт, по вечерам видно свет в двух окнах на Кирхштрассе. «Wer da wohnt, weiß keiner. Wer fragt, kriegt keine Antwort». Кто там живёт, никто не знает. Кто спрашивает, ответа не получает.', effects: [set32('ar', 'talk'), w32('a_knows_town', true), until32(32, 8, 30)] },
+      { id: 'c32_ar_watch', label: 'Смотреть в заднее окно: не едет ли кто за вами', minutes: 75, terminal: true, goto: 'c32_a_town', ambientDuring: frost32,
+        text: 'Дорога позади пустая и белая. Один раз на повороте у Холма тебе кажется, что за деревьями мелькнул свет фар. Потом нет. Дениз смотрит на тебя в зеркало и ничего не говорит.', effects: [set32('ar', 'watch'), until32(32, 8, 30)] },
     ] }),
 
   A({ id: 'c32_a_town', title: 'Бухгольц', location: ws32, camp: trip(ws32), ambient: cold32,
@@ -161,6 +165,11 @@ export const day32AScenes: Scene[] = [
         text: 'Вы идёте пешком, через парковку, где стоят машины скорой помощи с открытыми дверями.', effects: [set32('ad', 'ward'), { move: 'a_hospital' }] },
       { id: 'c32_ad_back', label: 'Вернуться в мастерскую до темноты', minutes: 30, terminal: true, goto: 'c32_a_night',
         text: 'Ты возвращаешься, пока ещё видно дорогу. Керем идёт рядом и молчит. Ему тоже не хотелось.', effects: [set32('ad', 'back'), { move: ws32 }, until32(32, 16, 30)] },
+      { id: 'c32_ad_kirch', label: 'Пройти по Кирхштрассе: там по вечерам свет в окнах', minutes: 40, risky: true, terminal: true, goto: 'c32_a_night', ambientDuring: frost32,
+        outcomes: [
+          { id: 'ok', check: { traits: ['stealth'], difficulty: 3, uses: ['focus'] }, text: 'Два окна на втором этаже, занавешенные одеялами. За ними свет, свечной, тёплый. Ты стоишь в подворотне напротив и смотришь. Потом в окне появляется силуэт: старая женщина ставит на подоконник банку с водой, чтобы замёрзла. Живые. Ты не стучишь. Уходишь так же тихо.', effects: [set32('ad', 'kirch'), w32('kirch_light', 'old_woman')] },
+          { id: 'seen', text: 'Ты подходишь ближе, и под ногой хрустит стекло. Свет в окне гаснет мгновенно. Сверху, из темноты, мужской голос: «Weg hier. Sonst schieß ich». Уходи. Иначе стреляю. Ты уходишь, не оборачиваясь, до самого угла.', effects: [set32('ad', 'kirch_seen'), w32('kirch_light', 'armed'), { body: 'stress', delta: 5 }] },
+        ], effects: [until32(32, 16, 30)] },
     ] }),
 
   A({ id: 'c32_a_ward', title: 'Четвёртое отделение', location: 'a_hospital', camp: trip('a_hospital'), safe: false, ambient: cold32,
@@ -207,6 +216,8 @@ export const day32AScenes: Scene[] = [
         text: 'Ты сидишь у буржуйки до часу. Подкидываешь доски от поддонов. Слушаешь, как дышат братья. В час будишь Керема и проваливаешься в сон.', effects: [set32('az', 'first'), until32(32, 23, 0)] },
       { id: 'c32_az_last', label: 'Спать сразу, дежурить под утро', minutes: 30, terminal: true, goto: 'c32_a_noise',
         text: 'Ты засыпаешь сразу. В четыре Дениз трясёт тебя за плечо. До рассвета ты сидишь у огня и смотришь, как светлеет окно.', effects: [set32('az', 'last'), until32(33, 4, 30, true)] },
+      { id: 'c32_as_kerem', label: 'Сесть дежурить вместе с Керемом и говорить вполголоса', minutes: 60, terminal: true, goto: 'c32_a_noise',
+        text: 'Вы сидите у двери мастерской на ящиках, укрывшись одним одеялом. Керем рассказывает про Измир, про бабушку, про то, как Дениз в двенадцать лет угнал отцовский «Форд» и разбил его о ворота. Ты рассказываешь про ринг. В два вас сменяет Дениз, и ты засыпаешь сразу.', effects: [set32('as', 'kerem'), { npc: 'kerem', trust: 2 }, until32(32, 23, 0), until32(33, 4, 30, true)] },
     ] }),
 
   // ═════════════ Четверг ═════════════
@@ -259,6 +270,8 @@ export const day32AScenes: Scene[] = [
         text: 'Кабель, щиток, заземление на штыре в мёрзлой земле. Яннес ругается на щиток, на мороз, на тебя. В четыре генератор заводится. Под потолком спортзала загораются лампы. Кто-то на раскладушке плачет.', effects: [set32('ap', 'wire'), w32('generator_point', true), until32(33, 16, 30)] },
       { id: 'c32_ap_home', label: 'Отдать и ехать домой', minutes: 60, terminal: true, goto: 'c32_a_home',
         text: 'Ты подписываешь бумагу, что генератор передан пункту. Дениз подписывает ниже. Яннес машет вам вслед, не отрываясь от щитка.', effects: [set32('ap', 'home'), w32('generator_point', true), until32(33, 15, 0)] },
+      { id: 'c32_ap3_brandt', label: 'Зайти к Брандту и рассказать про Бухгольц', minutes: 60, terminal: true, goto: 'c32_a_home',
+        text: 'Брандт слушает, держа забинтованную руку на столе. Про больницу, про четвёртое отделение, про Кирхштрассе. В конце говорит: «Danke. Das hätte mir keiner erzählt». Спасибо. Мне бы этого никто не рассказал. И отмечает что-то на карте синим карандашом.', effects: [set32('ap3', 'brandt'), w32('brandt_told_town', true), until32(33, 16, 0)] },
     ] }),
 
   A({ id: 'c32_a_home', title: 'Ворота', location: 'hof_luedemann', camp: yard14, ambient: frost32, onEnter: [until32(33, 17, 0)],
@@ -272,5 +285,7 @@ export const day32AScenes: Scene[] = [
         text: 'Сумки, ящик с инструментом. Ты стоишь у ворот и смотришь на дорогу со стороны Йестебурга. Скоро шесть.', effects: [set32('ah', 'unload'), finish32, until32(33, 18, 0)] },
       { id: 'c32_ah_tea', label: 'Сесть на кухне с горячим', minutes: 50, terminal: true, goto: 'c32_checkpoint',
         text: 'Хенрике ставит перед тобой кружку, не спрашивая. Тепло доходит до пальцев не сразу.', effects: [set32('ah', 'tea'), ...fed32(15), finish32, until32(33, 18, 0)] },
+      { id: 'c32_ah2_nina', label: 'Сначала найти Нину и спросить, как она', minutes: 30, terminal: true, goto: 'c32_checkpoint',
+        text: 'Нины нет на кухне. Ты находишь её в хлеву, у коровы: она сидит на скамеечке и молчит. Ты садишься рядом. Через минуту она начинает говорить, и говорит долго, про школу, про Лену, про то, что было в Винзене. Ты слушаешь, пока совсем не темнеет.', effects: [set32('ah2', 'nina'), { npc: 'c7_nina', trust: 1 }, until32(33, 18, 0)] },
     ] }),
 ];

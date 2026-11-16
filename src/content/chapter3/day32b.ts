@@ -61,6 +61,8 @@ export const day32BScenes: Scene[] = [
         text: 'Проверка длится сорок минут. Потом грузовик трогается, и через полчаса в тумане показываются крыши Винзена и труба спортзала. Из трубы идёт дым.', effects: [set32('br', 'wait'), { move: winsen32 }, until32(32, 9, 0)] },
       { id: 'c32_br_ask', label: 'Спросить солдата про колонны за Эльбу', minutes: 75, terminal: true, goto: 'c32_b_school',
         text: '— Über die Elbe? — Солдат пожимает плечами. — Das macht das DRK. Wenn sie fahren, dann um den Zehnten. Fragen Sie in der Schule.\n\nЗа Эльбу? Это Красный Крест. Если поедут, то около десятого. Спросите в школе.', effects: [set32('br', 'ask'), set32('heard_column', true), { move: winsen32 }, until32(32, 9, 0)] },
+      { id: 'c32_br_nina', label: 'Отдать Нине свой шарф: она дрожит', minutes: 105, terminal: true, goto: 'c32_b_school', ambientDuring: frost32,
+        text: 'Ты наматываешь Нине свой шарф поверх её. Она не спорит. Через полчаса она засыпает, привалившись к твоему плечу, и просыпается только на въезде в Винзен, когда грузовик подпрыгивает на трамвайных рельсах.', effects: [set32('br', 'nina'), { npc: 'c7_nina', trust: 1 }, until32(32, 9, 0)] },
     ] }),
 
   B({ id: 'c32_b_school', title: 'Школа', location: winsen32, camp: trip(winsen32), ambient: hall,
@@ -154,6 +156,8 @@ export const day32BScenes: Scene[] = [
         text: 'Ты засыпаешь сразу и спишь без снов, до самого утра.', effects: [set32('bz', 'sleep'), { body: 'stress', delta: -6 }, until32(33, 6, 30, true)] },
       { id: 'c32_bz_write', label: 'Написать письмо Мерле, на случай колонны', minutes: 60, terminal: true, goto: 'c32_b_radio',
         text: 'Ты пишешь на листке из тетради фрау Витхён. Про хутор, про кур, про то, что всё будет. Не пишешь ни про что страшное. Складываешь вчетверо и пишешь сверху: «Merle, Ahrensburg».', effects: [set32('bz', 'write'), { give: 'c32_merle_letter' }, until32(32, 21, 30), until32(33, 6, 30, true)] },
+      { id: 'c32_bs_watch', label: 'Не спать: сесть у двери спортзала', minutes: 120, terminal: true, goto: 'c32_b_radio',
+        text: 'Ты садишься на мат у двери. Спортзал дышит: сто человек, кашель, храп, ребёнок плачет в углу и затихает. В три часа мимо тебя к выходу крадётся мужчина с чужим рюкзаком. Ты говоришь вполголоса: «Das ist nicht deiner». Это не твой. Он кладёт рюкзак на пол и уходит.', effects: [set32('bs', 'watch'), w32('b_stopped_thief', true), { body: 'sleepDebt', delta: 3 }, until32(32, 23, 30), until32(33, 6, 30, true)] },
     ] }),
 
   // ═════════════ Четверг ═════════════
@@ -174,6 +178,8 @@ export const day32BScenes: Scene[] = [
         text: 'Коробки ты ставишь себе под ноги и держишь коленями. Грузовик трогается в половине одиннадцатого.', effects: [set32('bq', 'boxes'), w32('meds', 'got'), { give: 'c32_drk_box' }, until32(33, 10, 30)] },
       { id: 'c32_bq_okafor', label: 'Попрощаться с Окафором и жильцами', when: okaforHere32, minutes: 90, terminal: true, goto: 'c32_b_back',
         text: 'Окафор провожает тебя до грузовика. Фуфу в коробке смотрит в дырку. Окафор жмёт тебе руку двумя руками, по-старомодному.\n\n— Перчатки, — говорит он. — Всегда. Помните?\n\nТы помнишь. Коробки с лекарствами уже в кузове.', effects: [set32('bq', 'okafor'), w32('meds', 'got'), { give: 'c32_drk_box' }, npc('okafor', 1), until32(33, 10, 45)] },
+      { id: 'c32_bt2_note', label: 'Оставить на доске у входа записку для тех, кто будет искать', minutes: 20, terminal: true, goto: 'c32_b_back',
+        text: 'На доске у входа в школу сотни записок. Ты пишешь свою: «Lüdemann-Hof bei Jesteburg. Barmbek, Fuhlsbüttler Str. Wir leben». Хутор Людеманов у Йестебурга. Бармбек. Мы живы. Прикалываешь булавкой поверх чужой, старой, выцветшей.', effects: [set32('bt2', 'note'), w32('b_note_winsen', true), until32(33, 10, 40)] },
     ] }),
 
   B({ id: 'c32_b_back', title: 'Обратно', location: winsen32, camp: trip(winsen32), ambient: truck32, onEnter: [until32(33, 11, 0)],
@@ -199,6 +205,8 @@ export const day32BScenes: Scene[] = [
         text: 'Вы раскладываете по полкам до сумерек. Зандер подписывает каждую коробку сама. В конце говорит:\n\n— Sie haben ein Auge für Ordnung. Kommen Sie wieder.\n\nУ вас глаз на порядок. Приходите ещё.', effects: [set32('bp', 'help'), w32('meds_point', true), until32(33, 16, 30)] },
       { id: 'c32_bp_home', label: 'Отдать и идти домой', minutes: 60, terminal: true, goto: 'c32_b_home',
         text: 'Зандер расписывается в твоей тетради за всё, что ты {m:привёз|привезла}. Потом пожимает тебе руку, сухо и крепко.', effects: [set32('bp', 'home'), w32('meds_point', true), until32(33, 15, 0)] },
+      { id: 'c32_bp4_zander', label: 'Рассказать Зандер про доктора Визе и станцию в школе', minutes: 40, terminal: true, goto: 'c32_b_home',
+        text: 'Зандер слушает, раскладывая коробки по полкам. Про очередь, про Визе, про радиорубку. В конце спрашивает только одно: сколько там детей. Ты называешь цифру. Она записывает её на коробке с бинтами и долго смотрит.', effects: [set32('bp4', 'zander'), until32(33, 15, 30)] },
     ] }),
 
   B({ id: 'c32_b_home', title: 'Дорога к хутору', location: 'hof_luedemann', camp: yard14, ambient: frost32, onEnter: [until32(33, 17, 0)],
@@ -214,5 +222,7 @@ export const day32BScenes: Scene[] = [
         text: 'Ты стоишь у ворот, пока не начинают мёрзнуть ноги. Скоро шесть.', effects: [set32('bh', 'wait'), finish32, until32(33, 18, 0)] },
       { id: 'c32_bh_tea', label: 'Отогреться на кухне', minutes: 50, terminal: true, goto: 'c32_checkpoint',
         text: 'Хенрике наливает тебе чаю. Ты рассказываешь ей про Окафора, про стариков. Она слушает, не перебивая, и в конце говорит только: «Wir werden sehen». Посмотрим.', effects: [set32('bh', 'tea'), ...fed32(15), finish32, until32(33, 18, 0)] },
+      { id: 'c32_bh3_eggs', label: 'Пересчитать с Хенрике, что привезла и что осталось', minutes: 40, terminal: true, goto: 'c32_checkpoint',
+        text: 'Хенрике считает быстро, шевеля губами: коробки для пункта отдельно, свитер Нине отдельно, яйца, которые не ушли в обмен, обратно в миску. Получается неплохо. Хенрике говорит «Gut gemacht». Молодец. Первый раз так, вслух.', effects: [set32('bh3', 'eggs'), { npc: 'henrike', trust: 1 }, until32(33, 18, 0)] },
     ] }),
 ];
