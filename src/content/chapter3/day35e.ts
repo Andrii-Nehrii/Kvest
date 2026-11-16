@@ -22,13 +22,13 @@ export const day35EScenes: Scene[] = [
       { when: not(brandt), text: 'У караулки пусто. На двери приколота бумага: «Wehrleitung: Lukas Möller i.V.». Сыну пожарного пятнадцать лет. Он стоит у двери и смотрит на тебя, как будто ты что-то должен ему сказать.' },
     ],
     actions: [
-      { id: 'c35_ab_yes', label: 'Сказать: если останемся, я с тобой', when: brandt, minutes: 40, terminal: true, goto: 'c35_a_home',
+      { id: 'c35_ab_yes', label: 'Сказать: если останемся, я с тобой', when: brandt, minutes: 40, terminal: true, goto: 'c35_x_a_koehler',
         text: 'Брандт кивает, тяжело, как будто это слово стоило ему больше, чем тебе. Протягивает левую руку. «Dann bist du ab heute bei der Wehr». Тогда с сегодняшнего дня ты в дружине. Записывает твоё имя в журнал первым на новой странице.', effects: [set35('ab', 'yes'), w35('brandt_ask', 'yes'), npc('c16_brandt', 2, 'c35_a_promised'), until35(13, 40)] },
-      { id: 'c35_ab_no', label: 'Сказать честно: не знаю, останемся ли мы', when: brandt, minutes: 30, terminal: true, goto: 'c35_a_home',
+      { id: 'c35_ab_no', label: 'Сказать честно: не знаю, останемся ли мы', when: brandt, minutes: 30, terminal: true, goto: 'c35_x_a_koehler',
         text: '— Ehrlich, — говорит Брандт. Честно. — Das ist mehr, als die meisten sagen. — Он отворачивается к карте. — Bis zum Vierzehnten. Dann ist es egal.\n\nЭто больше, чем говорит большинство. До четырнадцатого. Потом будет всё равно.', effects: [set35('ab', 'no'), w35('brandt_ask', 'maybe'), until35(13, 30)] },
-      { id: 'c35_ab_why', label: 'Спросить: почему ты остаёшься? Тебя же возьмут', when: brandt, minutes: 40, terminal: true, goto: 'c35_a_home',
+      { id: 'c35_ab_why', label: 'Спросить: почему ты остаёшься? Тебя же возьмут', when: brandt, minutes: 40, terminal: true, goto: 'c35_x_a_koehler',
         text: 'Брандт долго смотрит на свою руку.\n\n— Meine Frau liegt hier. Mein Sohn auch. Seit Oktober. Und Hinnerk. Und der Junge von der Kolonie. — Он поднимает глаза. — Wohin soll ich denn?\n\nЗдесь лежит моя жена. И сын. С октября. И Хиннерк. И мальчишка из колонии. Куда мне идти?\n\nТы впервые видишь его без каски, без мегафона, без списка. Старый уставший человек.', effects: [set35('ab', 'why'), w35('brandt_ask', 'heard'), npc('c16_brandt', 1), until35(13, 40)] },
-      { id: 'c35_ab_lukas', label: 'Сказать Лукасу: держись, мы рядом', when: not(brandt), minutes: 30, terminal: true, goto: 'c35_a_home',
+      { id: 'c35_ab_lukas', label: 'Сказать Лукасу: держись, мы рядом', when: not(brandt), minutes: 30, terminal: true, goto: 'c35_x_a_koehler',
         text: 'Лукас кивает слишком быстро. «Danke». Ему пятнадцать, и он теперь отвечает за округ. Ты уходишь и оглядываешься: он всё ещё стоит у двери.', effects: [set35('ab', 'lukas'), until35(13, 30)] },
     ] }),
 

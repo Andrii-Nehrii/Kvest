@@ -30,6 +30,24 @@ export const day35XScenes: Scene[] = [
         effects: [set35('xs', 'no'), until35(11, 0)] },
     ] }),
 
+  X({ id: 'c35_x_a_koehler', title: 'Пекарня', location: 'c16_jesteburg', camp: { at: 'c16_jesteburg', stock: 'c3_farm_stock', rest: false }, safe: false, ambient: frost35,
+    text: [
+      { text: 'По дороге домой ты проходишь мимо пекарни. Дверь открыта, на пороге два чемодана и корзина. Кёлер стоит в зале у пустых полок и протирает прилавок, как каждый вечер последние тридцать лет.' },
+      { text: '— Zum Zehnten fahre ich. Zu meinem Bruder, nach Harburg, wenn es Harburg noch gibt. Der Ofen bleibt. Der Sauerteig nicht. Den kann ich nicht mitnehmen und nicht wegschmeißen.\n\nДесятого уезжаю. К брату, в Харбург, если Харбург ещё есть. Печь остаётся. Закваска — нет. Её не увезёшь и не выбросишь.' },
+      { text: 'На прилавке стоит глиняный горшок под полотенцем. Закваске, говорит Кёлер, сорок лет. Её мать начинала.' },
+    ],
+    actions: [
+      { id: 'c35_xk_starter', label: 'Взять закваску для Хенрике', minutes: 20, terminal: true, goto: 'c35_a_home', ambientDuring: frost35,
+        text: 'Кёлер заворачивает горшок в два полотенца и ещё в старый свитер, как младенца. Объясняет: кормить раз в два дня, мукой и тёплой водой, не держать у печи, не держать на холоде. Повторяет дважды. Ты несёшь горшок домой под курткой, прижав к груди, и он греет тебя всю дорогу.',
+        effects: [set35('xk', 'starter'), npc('c3_koehler', 2), until35(14, 0)] },
+      { id: 'c35_xk_pack', label: 'Помочь ей снести вещи к пожарной части', minutes: 20, terminal: true, goto: 'c35_a_home', ambientDuring: frost35,
+        text: 'Чемоданы тяжёлые: в одном, судя по звуку, кастрюли. Кёлер идёт рядом и рассказывает, кто из деревни что покупал по субботам. У пожарной части она ставит корзину на снег и говорит: «Das Brot für euch habe ich im Ofen gelassen. Holt es». Хлеб для вас я оставила в печи. Заберите.',
+        effects: [set35('xk', 'pack'), npc('c3_koehler', 1), until35(14, 0)] },
+      { id: 'c35_xk_stay', label: 'Спросить: а может, остаться? Хлеб нужен всем', minutes: 20, terminal: true, goto: 'c35_a_home',
+        text: 'Кёлер перестаёт тереть прилавок. Долго смотрит на печь.\n\n— Mach es mir nicht schwer, Junge. — Пауза. — Ich überlege es mir. Bis zum Zehnten ist noch Zeit.\n\nНе усложняй мне. Я подумаю. До десятого ещё есть время.\n\nОна снова трёт прилавок, уже медленнее.',
+        effects: [set35('xk', 'stay'), npc('c3_koehler', 1), until35(14, 0)] },
+    ] }),
+
   X({ id: 'c35_x_b_elders', title: 'Кто первым', camp: kitchen14,
     text: [
       { text: 'Хенрике кладёт на стол листок Хаазе. Внизу от руки: «Hof Lüdemann: 3 Plätze, Alte/Kranke. Namen bis 8.12». Хутор Людеманов: три места, старые и больные. Имена до восьмого.' },
