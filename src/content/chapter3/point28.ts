@@ -80,12 +80,12 @@ export const shared28: Scene[] = [
       { when: henrikeWasHome, text: 'Хенрике стоит без шапки. Никто не говорит ей надеть.' },
     ],
     actions: [
-      { id: 'c28_bu_say', label: 'Сказать несколько слов', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
-        text: 'Ты говоришь коротко. Что не знал{m:|а} его долго. Что он смеялся над ежом, который нашёл шапку на голове у совы. Что он спрашивал, тепло ли Пану Кульке. Кася стоит рядом и держит тебя за рукав.', effects: [set28('bu', 'say'), npc('kasia', 2), until28(9, 40)] },
-      { id: 'c28_bu_harm', label: 'Положить ему гармошку', when: flag('w.c27_box'), minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
-        text: 'Кася кивает. Гармошка ложится ему на грудь, синяя, облезлая. Земля падает на неё с глухим звуком. Ты будешь помнить этот звук.', effects: [set28('bu', 'harm'), until28(9, 30)] },
-      { id: 'c28_bu_quiet', label: 'Стоять молча', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_list' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
-        text: 'Никто ничего не говорит. Только лопаты, только снег. Уте в конце крестит холмик, по-старому, три раза.', effects: [set28('bu', 'quiet'), until28(9, 30)] },
+      { id: 'c28_bu_say', label: 'Сказать несколько слов', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_x_nina' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
+        text: 'Ты говоришь коротко. Что не знал{m:|а} его долго. Что он смеялся над ежом, который нашёл шапку на голове у совы. Что он спрашивал, тепло ли Пану Кульке. Кася стоит рядом и держит тебя за рукав.', effects: [set28('bu', 'say'), npc('kasia', 2), { if: A28, then: [until28(9, 0)], else: [until28(9, 40)] }] },
+      { id: 'c28_bu_harm', label: 'Положить ему гармошку', when: flag('w.c27_box'), minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_x_nina' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
+        text: 'Кася кивает. Гармошка ложится ему на грудь, синяя, облезлая. Земля падает на неё с глухим звуком. Ты будешь помнить этот звук.', effects: [set28('bu', 'harm'), { if: A28, then: [until28(9, 0)], else: [until28(9, 30)] }] },
+      { id: 'c28_bu_quiet', label: 'Стоять молча', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_x_nina' }, { id: 'b', goto: 'c28_b_kasia' }], ambientDuring: snow28,
+        text: 'Никто ничего не говорит. Только лопаты, только снег. Уте в конце крестит холмик, по-старому, три раза.', effects: [set28('bu', 'quiet'), { if: A28, then: [until28(9, 0)], else: [until28(9, 30)] }] },
     ] }),
 
   S28({ id: 'c28_henrike', for: 'any', chapter: 'ch3', title: 'Хенрике', camp: yard14, ambient: snow28,

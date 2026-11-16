@@ -25,11 +25,11 @@ export const day27AScenes: Scene[] = [
       { when: v('$.c27_k', 'take'), text: 'Руки ещё помнят вес мальчика: лёгкий, горячий, как грелка. Ты донёс{m:|ла} его до кровати и только там понял{m:|а}, что он не открыл глаз.' },
     ],
     actions: [
-      { id: 'c27_av_hide', label: 'Загнать фургон за сеновал, под брезент', minutes: 30, activity: 'moderate', terminal: true, goto: 'c27_a_note',
+      { id: 'c27_av_hide', label: 'Загнать фургон за сеновал, под брезент', minutes: 30, activity: 'moderate', terminal: true, goto: 'c27_x_a_cargo',
         text: 'Фургон встаёт за сеновалом, носом к лесополосе. Вы накрываете его брезентом от трактора, края придавливаете жердями. С дороги не видно. С воздуха — может быть.', effects: [set27('av', 'hide'), w27('van', 'hidden'), npc('c27_wessel', 2), until27(6, 20)] },
-      { id: 'c27_av_back', label: 'Сказать Весселю: уезжай сейчас, до света. Ты ничего не видел', minutes: 20, terminal: true, goto: 'c27_a_note',
+      { id: 'c27_av_back', label: 'Сказать Весселю: уезжай сейчас, до света. Ты ничего не видел', minutes: 20, terminal: true, goto: 'c27_x_a_cargo',
         text: 'Вессель смотрит на дом, на окно, где горит лампа.\n\n— Ich habe nichts gesehen. Ich habe Wäsche gefahren. — Он бросает окурок в снег. — Viel Glück. Euch allen.\n\nЯ ничего не видел. Я возил бельё. Удачи. Вам всем.\n\nФургон уезжает без фар. В Люнебург он вернётся к утренней смене, как будто ничего не было.', effects: [set27('av', 'back'), w27('van', 'gone'), { npc: 'c27_wessel', moveTo: 'c18_lueneburg' }, npc('c27_wessel', 3, 'c27_they_sent_me_back'), until27(6, 0)] },
-      { id: 'c27_av_ask', label: 'Спросить, почему он не развернулся на мосту', minutes: 25, terminal: true, goto: 'c27_a_note',
+      { id: 'c27_av_ask', label: 'Спросить, почему он не развернулся на мосту', minutes: 25, terminal: true, goto: 'c27_x_a_cargo',
         text: '— Weil meine Frau auch in so einem Bett lag. In Buchholz. Und keiner hat sie rausgeholt. — Он затягивается. — Das ist alles. Mehr Gründe hab ich nicht.\n\nПотому что моя жена тоже лежала в такой кровати. В Бухгольце. И никто её не вынес. Вот и всё. Других причин у меня нет.\n\nФургон вы всё-таки загоняете за сеновал.', effects: [set27('av', 'ask'), w27('van', 'hidden'), npc('c27_wessel', 2), until27(6, 20)] },
     ] }),
 
@@ -41,11 +41,11 @@ export const day27AScenes: Scene[] = [
       { text: 'Листок мятый, сложенный вчетверо, ещё тёплый от кармана Лукаса.' },
     ],
     actions: [
-      { id: 'c27_an_burn', label: 'Сжечь записку в печи', minutes: 10, terminal: true, goto: 'c27_a_village',
+      { id: 'c27_an_burn', label: 'Сжечь записку в печи', minutes: 10, terminal: true, goto: 'c27_x_a_milk',
         text: 'Бумага вспыхивает и сворачивается. Ты смотришь, пока не остаётся пепел. Слова ты запомнил{m:|а}.', effects: [set27('an', 'burn'), truthA, until27(8, 20)] },
-      { id: 'c27_an_keep', label: 'Сохранить: {B} должна это видеть', minutes: 10, terminal: true, goto: 'c27_a_village',
+      { id: 'c27_an_keep', label: 'Сохранить: {B} должна это видеть', minutes: 10, terminal: true, goto: 'c27_x_a_milk',
         text: 'Ты убираешь записку во внутренний карман. Если её найдут, Тобиасу конец. Ты знаешь это и всё равно не сжигаешь.', effects: [set27('an', 'keep'), truthA, { give: 'c27_tobias_note' }, until27(8, 15)] },
-      { id: 'c27_an_count', label: 'Сесть и пересчитать, что потеряет дом', minutes: 30, terminal: true, goto: 'c27_a_village',
+      { id: 'c27_an_count', label: 'Сесть и пересчитать, что потеряет дом', minutes: 30, terminal: true, goto: 'c27_x_a_milk',
         text: 'Паёк — половина или ничего. Машина уже у Брандта. Защита — никакой: кто вне списка, к тому могут прийти за чем угодно. Нина. Эва. Оле, если вернётся. Ты пишешь цифры на полях бумаги Брандта и зачёркиваешь.', effects: [set27('an', 'count'), truthA, { body: 'stress', delta: 3 }, until27(8, 40)] },
     ] }),
 

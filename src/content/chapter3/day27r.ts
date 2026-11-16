@@ -44,17 +44,17 @@ export const day27RScenes: Scene[] = [
       { text: 'Ты стоишь на пороге с фонарём. Изнутри доносится шорох. Мыши. Или нет.' },
     ],
     actions: [
-      { id: 'c27_ah3_in', label: 'Войти с фонарём и топором', minutes: 30, activity: 'moderate', risky: true, terminal: true, goto: 'c27_supper', ambientDuring: snow27,
+      { id: 'c27_ah3_in', label: 'Войти с фонарём и топором', minutes: 30, activity: 'moderate', risky: true, terminal: true, goto: 'c27_x_a_pit', ambientDuring: snow27,
         outcomes: [
           { id: 'ok', check: { traits: ['melee', 'agility'], difficulty: 3, uses: ['mobility'] }, text: 'В углу, за печкой, на корточках сидит старик в пижаме. Один из колонии. Его не было в списке убитых восемнадцатого: он спрятался здесь и здесь же кончился. Он поднимается тебе навстречу, медленно. Ты успеваешь первым. Потом выносишь его за домик, к насыпи, и до темноты носишь дрова из своей поленницы. Печь в двенадцатом теперь можно топить.', effects: [set27('ah3', 'in'), w27('hut', 'ready')] },
           { id: 'slip', text: 'Фонарь выхватывает лицо в углу, и в тот же миг старик в пижаме бросается на свет. Вы падаете оба. Ты бьёшь топорищем, не размахнувшись, раз, другой, пока он не затихает. Фонарь разбит. Обратно ты идёшь в темноте, на огонь в окне кухни, с ободранной щекой.', effects: [set27('ah3', 'slip'), w27('hut', 'cleared'), { injure: 'scratch', site: 'head', severity: 1 }, { body: 'stress', delta: 7 }] },
-        ], effects: [until27(18, 15)] },
-      { id: 'c27_ah3_jannes', label: 'Позвать Яннеса: он знает каждый домик', minutes: 30, terminal: true, goto: 'c27_supper', ambientDuring: snow27,
+        ], effects: [until27(17, 50)] },
+      { id: 'c27_ah3_jannes', label: 'Позвать Яннеса: он знает каждый домик', minutes: 30, terminal: true, goto: 'c27_x_a_pit', ambientDuring: snow27,
         text: 'Яннес приходит с ломом и фонарём, ничего не спрашивая. Он заходит первым. Короткая возня в углу, тяжёлый удар, тишина. Он выходит и говорит, глядя в сторону: «Herr Lindemann. Er hat sich versteckt». Господин Линдеманн. Он прятался. Потом вы вдвоём носите в двенадцатый дрова.',
-        effects: [set27('ah3', 'jannes'), w27('hut', 'ready'), npc('c14_ute', 1), until27(18, 15)] },
-      { id: 'c27_ah3_shut', label: 'Закрыть дверь на щеколду снаружи и уйти', minutes: 15, terminal: true, goto: 'c27_supper', ambientDuring: snow27,
+        effects: [set27('ah3', 'jannes'), w27('hut', 'ready'), npc('c14_ute', 1), until27(17, 50)] },
+      { id: 'c27_ah3_shut', label: 'Закрыть дверь на щеколду снаружи и уйти', minutes: 15, terminal: true, goto: 'c27_x_a_pit', ambientDuring: snow27,
         text: 'Ты закрываешь дверь и задвигаешь щеколду снаружи. Изнутри шорох затихает. Если ночью понадобится место не на вашем дворе, двенадцатый не годится. Или годится, но сначала кто-то должен туда войти.',
-        effects: [set27('ah3', 'shut'), w27('hut', 'shut'), until27(18, 0)] },
+        effects: [set27('ah3', 'shut'), w27('hut', 'shut'), until27(17, 40)] },
     ] }),
 
   X({ id: 'c27_b_fufu', title: 'Фуфу', camp: kitchen14,

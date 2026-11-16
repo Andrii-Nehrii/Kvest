@@ -11,8 +11,8 @@ import {
 // Участок 28, линия A: рассвет, патруль в шесть (A говорит то, что решила B), Вессель, Оле на кухне, двор после всего.
 const A = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S28({ ...scene, for: 'any', chapter: 'ch3' });
 const viaBurial = (list: Outcome[]): Outcome[] => list.flatMap(o => [
-  { ...o, id: `${o.id}_b`, when: all(o.when ?? { always: true }, timDied), goto: 'c28_burial' }, { ...o, goto: 'c28_a_wessel' }]);
-const afterPatrol = [{ id: 'b', when: timDied, goto: 'c28_burial' }, { id: 'w', goto: 'c28_a_wessel' }];
+  { ...o, id: `${o.id}_b`, when: all(o.when ?? { always: true }, timDied), goto: 'c28_x_a_ground' }, { ...o, goto: 'c28_a_wessel' }]);
+const afterPatrol = [{ id: 'b', when: timDied, goto: 'c28_x_a_ground' }, { id: 'w', goto: 'c28_a_wessel' }];
 
 export const day28AScenes: Scene[] = [
   A({ id: 'c28_a_dawn', title: 'Рассвет', camp: yard14, ambient: snow28, onEnter: nightFacts,
@@ -85,14 +85,14 @@ export const day28AScenes: Scene[] = [
       { when: not(oleDead), text: 'Кружка у Оле с отбитой ручкой, Нинина, самая большая. Он держит её обеими руками, как держат грелку, и пар поднимается ему в лицо.' },
     ],
     actions: [
-      { id: 'c28_ao_gun', label: 'Рассказать, что стало с ружьём', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_tell',
-        text: 'Ты рассказываешь. Оле слушает, кивает.\n\n— Vater hätte es auch so gemacht. Oder schlimmer. — Он улыбается углом рта. — Und der Schrank oben? Hast du das Wort?\n\nОтец бы сделал так же. Или хуже. А шкаф наверху? Слово угадал?', effects: [set28('ao', 'gun'), npc('ole', 2), until28(13, 40)] },
-      { id: 'c28_ao_mia', label: 'Спросить про малышку у окна', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_a_tell',
-        text: '— Mia. — Оле смотрит в кружку. — Sie hat am Dienstag gefragt, ob ich morgen komme. Ich hab ja gesagt. Und dann bin ich umgefallen. Ich weiß nicht, was mit ihr ist.\n\nМия. Во вторник спросила, приду ли я завтра. Я сказал: да. А потом упал. Не знаю, что с ней.', effects: [set28('ao', 'mia'), npc('ole', 1), { body: 'stress', delta: 2 }, until28(13, 40)] },
-      { id: 'c28_ao_book', label: 'Спросить Хенрике про тетрадь', when: oleDead, minutes: 30, terminal: true, goto: 'c28_a_tell',
-        text: 'Хенрике показывает последнюю страницу. Почерк Оле, неровный: «Do. Letztes Mal. Für Mia». Четверг. Последний раз. Для Мии.\n\n— Er hat es selbst entschieden. — Хенрике закрывает тетрадь. — Ihr habt ihm gesagt, er soll selbst entscheiden. Er hat.\n\nОн решил сам. Вы сказали ему решать самому. Он решил.', effects: [set28('ao', 'book'), { body: 'stress', delta: 4 }, until28(13, 40)] },
-      { id: 'c28_ao_sit', label: 'Просто сесть рядом', minutes: 30, terminal: true, goto: 'c28_a_tell',
-        text: 'Ты садишься. Печь гудит. Часы отстают на четыре минуты. Никто не встаёт их поправить.', effects: [set28('ao', 'sit'), until28(13, 40)] },
+      { id: 'c28_ao_gun', label: 'Рассказать, что стало с ружьём', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_x_a_pear',
+        text: 'Ты рассказываешь. Оле слушает, кивает.\n\n— Vater hätte es auch so gemacht. Oder schlimmer. — Он улыбается углом рта. — Und der Schrank oben? Hast du das Wort?\n\nОтец бы сделал так же. Или хуже. А шкаф наверху? Слово угадал?', effects: [set28('ao', 'gun'), npc('ole', 2), until28(13, 10)] },
+      { id: 'c28_ao_mia', label: 'Спросить про малышку у окна', when: not(oleDead), minutes: 30, terminal: true, goto: 'c28_x_a_pear',
+        text: '— Mia. — Оле смотрит в кружку. — Sie hat am Dienstag gefragt, ob ich morgen komme. Ich hab ja gesagt. Und dann bin ich umgefallen. Ich weiß nicht, was mit ihr ist.\n\nМия. Во вторник спросила, приду ли я завтра. Я сказал: да. А потом упал. Не знаю, что с ней.', effects: [set28('ao', 'mia'), npc('ole', 1), { body: 'stress', delta: 2 }, until28(13, 10)] },
+      { id: 'c28_ao_book', label: 'Спросить Хенрике про тетрадь', when: oleDead, minutes: 30, terminal: true, goto: 'c28_x_a_pear',
+        text: 'Хенрике показывает последнюю страницу. Почерк Оле, неровный: «Do. Letztes Mal. Für Mia». Четверг. Последний раз. Для Мии.\n\n— Er hat es selbst entschieden. — Хенрике закрывает тетрадь. — Ihr habt ihm gesagt, er soll selbst entscheiden. Er hat.\n\nОн решил сам. Вы сказали ему решать самому. Он решил.', effects: [set28('ao', 'book'), { body: 'stress', delta: 4 }, until28(13, 10)] },
+      { id: 'c28_ao_sit', label: 'Просто сесть рядом', minutes: 30, terminal: true, goto: 'c28_x_a_pear',
+        text: 'Ты садишься. Печь гудит. Часы отстают на четыре минуты. Никто не встаёт их поправить.', effects: [set28('ao', 'sit'), until28(13, 10)] },
     ] }),
 
   A({ id: 'c28_a_afternoon', title: 'После обеда', camp: yard14, ambient: snow28,
