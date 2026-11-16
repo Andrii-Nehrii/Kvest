@@ -94,6 +94,8 @@ export const shared30: Scene[] = [
         text: 'Ты ешь, пока не становится тяжело. Холод любит пустой живот. Хенрике подкладывает ещё.', effects: [set30('du', 'eat'), meal('eat'), { body: 'hunger', delta: -15 }, until30(30, 19, 0)] },
       { id: 'c30_du_nina', label: 'Ответить Нине: вернёмся', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_eve' }, { id: 'b', goto: 'c30_b_eve' }],
         text: 'Нина кивает. Не верит. Но кивает. Потом приносит тебе термос с чаем и ставит у двери.', effects: [set30('du', 'nina'), npc('c7_nina', 1), until30(30, 19, 0)] },
+      { id: 'c30_du_check', label: 'Проверить у всех, кто идёт: рукавицы, носки, сухое', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_eve' }, { id: 'b', goto: 'c30_b_eve' }],
+        text: 'Ты обходишь всех, кто идёт, как мать перед школой. Рукавицы, вторые рукавицы, носки, шарф. У Нины забираешь её запасные носки для Яннеса: у него дыра на пятке. Хенрике смотрит на это от плиты и одобрительно молчит.', effects: [set30('du', 'check'), w30('checked_gear', true), until30(30, 19, 0)] },
     ] }),
 
   S30({ id: 'c30_night_end', for: 'any', chapter: 'ch3', title: 'Четыре утра', camp: house14,
@@ -116,6 +118,8 @@ export const shared30: Scene[] = [
         text: 'Тепло. Руки отходят с болью. Ты сидишь и смотришь в огонь. Это кончилось.', effects: [set30('ne', 'sit'), finish, until30(31, 4, 0)] },
       { id: 'c30_ne_count', label: 'Пересчитать всех', minutes: 5, terminal: true, goto: 'c30_checkpoint',
         text: 'Хенрике. Нина. Эва. Остальные, по одному, кто спит, кто сидит у печи. Ты считаешь по головам. Потом ещё раз.', effects: [set30('ne', 'count'), finish, until30(31, 4, 0)] },
+      { id: 'c30_ne_nina', label: 'Подняться к Нине: она не спала', minutes: 20, terminal: true, goto: 'c30_checkpoint',
+        text: 'Нина сидит на кровати одетая, в куртке, с фонариком в руках. Она не спала ни минуты. Увидев тебя, она гасит фонарик и ложится, отвернувшись к стене, не сказав ни слова. Через минуту ты слышишь, что она плачет. Тихо, чтобы никто не слышал.', effects: [set30('ne', 'nina'), { npc: 'c7_nina', trust: 1 }, until30(31, 4, 0)] },
     ] }),
 
   S30({ id: 'c30_checkpoint', for: 'any', chapter: 'ch3', title: 'Вторник, четыре утра', checkpoint: 30, universal: false, camp: house14,
