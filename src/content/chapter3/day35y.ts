@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
-import { house14 } from './point14';
+import { house14, yard14 } from './point14';
 import { npc } from './point19';
-import { S35, set35, until35 } from './point35';
+import { S35, frost35, set35, until35 } from './point35';
 
 // Участок 35, третий круг (16.11): три сцены линии B.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S35({ ...scene, for: 'any', chapter: 'ch3' });
@@ -41,6 +41,23 @@ export const day35YScenes: Scene[] = [
       { id: 'c35_yp_stop', label: 'Сказать: никто пока не уезжает, разбирай', minutes: 15, terminal: true, goto: 'c35_b_bag',
         text: 'Нина замирает с варежками в руках. Потом вытряхивает рюкзак на пол, весь, одним движением, и уходит из комнаты. Вещи остаются лежать кучей. Вечером ты видишь, что рюкзак снова собран и стоит под кроватью.',
         effects: [set35('yp', 'stop'), npc('c7_nina', -1), until35(16, 50)] },
+    ] }),
+
+  X({ id: 'c35_y_a_wood', title: 'Дрова на две недели', camp: yard14, ambient: frost35,
+    text: [
+      { text: 'Если десятого кто-то уедет на две недели, здесь останутся Хенрике, старики, может быть, Оле. Поленница у сарая на неделю, не больше. Брёвна лежат под снегом у изгороди, нерасколотые.' },
+      { text: 'До темноты меньше часа.' },
+    ],
+    actions: [
+      { id: 'c35_yw_chop', label: 'Колоть до темноты, сколько успеешь', minutes: 45, activity: 'heavy', terminal: true, goto: 'c35_a_gift', ambientDuring: frost35,
+        text: 'Колун, чурка, полено. На морозе берёза колется со звоном. Ты не считаешь, просто колешь, пока не перестаёшь различать, где чурка, а где тень. Поленница вырастает на полметра. Плечи гудят. Хенрике выносит тебе кружку горячего чая и ставит на колоду, не говоря ни слова.',
+        effects: [set35('yw', 'chop'), { body: 'fatigue', delta: 8 }, until35(17, 15)] },
+      { id: 'c35_yw_teach', label: 'Позвать Петерсена и Яннеса: научить и разделить работу', minutes: 40, terminal: true, goto: 'c35_a_gift', ambientDuring: frost35,
+        text: 'Петерсен приходит сразу, в пальто нараспашку. Яннес чуть позже, с собственным колуном. Петерсен колоть не может, зато ставит чурки и командует, куда бить. Яннес колет. Ты складываешь. Втроём выходит быстрее, чем одному, и шумнее. Когда стемнеет, Петерсен говорит: «Morgen machen wir weiter». Завтра продолжим. Без тебя, понимаешь ты.',
+        effects: [set35('yw', 'teach'), npc('c14_jannes', 1), until35(17, 15)] },
+      { id: 'c35_yw_count', label: 'Пересчитать, что есть, и сказать Хенрике честно', minutes: 25, terminal: true, goto: 'c35_a_gift', ambientDuring: frost35,
+        text: 'Ты меряешь поленницу шагами и считаешь брёвна под снегом. Шесть дней, если топить одну печь. Девять, если ночью не топить. Хенрике выслушивает цифры и кивает: «Dann heizen wir nachts nicht. Das haben wir früher auch nicht». Значит, ночью не топим. Раньше тоже не топили.',
+        effects: [set35('yw', 'count'), npc('henrike', 1), until35(17, 15)] },
     ] }),
 
   X({ id: 'c35_y_b_advent', title: 'Две свечи', camp: house14,
