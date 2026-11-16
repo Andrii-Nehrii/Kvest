@@ -92,11 +92,11 @@ export const day33EScenes: Scene[] = [
       { when: eldersCome, text: 'Петерсен стоит в дверях и мнёт в руках шапку.\n\n— Sie hat mir in der Turnhalle ihre Decke gegeben. Die zweite. Ich hab nicht nein gesagt.\n\nВ спортзале она отдала мне своё одеяло. Второе. Я не отказался.' },
     ],
     actions: [
-      { id: 'c33_bk_zander', label: 'Сразу идти к Зандер в Йестебург', minutes: 70, terminal: true, goto: 'c33_b_ole', ambientDuring: frost33,
+      { id: 'c33_bk_zander', label: 'Сразу идти к Зандер в Йестебург', minutes: 70, terminal: true, goto: 'c33_x_b_ladle', ambientDuring: frost33,
         text: 'Зандер роется в коробке с лекарствами, которые ты {m:привёз|привезла} из Винзена. На дне — одна пластинка, чужой препарат, похожий. «Nicht dasselbe. Aber besser als nichts. Halbe Dosis». Не то же самое. Но лучше, чем ничего. Половину дозы. Ты несёшь пластинку домой в варежке, как живое.', effects: [set33('bk', 'zander'), w33('korner_pills', 'zander'), { move: 'hof_luedemann' }, until33(12, 30)] },
-      { id: 'c33_bk_neighbors', label: 'Обойти соседей: у кого-нибудь из стариков есть такие', minutes: 70, terminal: true, goto: 'c33_b_ole', ambientDuring: frost33,
+      { id: 'c33_bk_neighbors', label: 'Обойти соседей: у кого-нибудь из стариков есть такие', minutes: 70, terminal: true, goto: 'c33_x_b_ladle', ambientDuring: frost33,
         text: 'Кёлер, Шульце, двор у насыпи. У старика Шульце есть, полпачки, его покойной жены. Он отдаёт, не торгуясь, и говорит: «Sie hätte es so gewollt». Она бы так хотела.', effects: [set33('bk', 'neighbors'), w33('korner_pills', 'neighbors'), until33(12, 30)] },
-      { id: 'c33_bk_wait', label: 'Записать название и передать Красному Кресту на следующей неделе', minutes: 30, terminal: true, goto: 'c33_b_ole',
+      { id: 'c33_bk_wait', label: 'Записать название и передать Красному Кресту на следующей неделе', minutes: 30, terminal: true, goto: 'c33_x_b_ladle',
         text: 'Ты пишешь печатными буквами: DIGITOXIN, фрау Кёрнер, хутор Людеманов. Записку кладёшь в карман куртки. Фрау Кёрнер благодарит тебя, как благодарят за то, что уже сделано.', effects: [set33('bk', 'wait'), w33('korner_pills', 'none'), until33(12, 30)] },
     ] }),
 
