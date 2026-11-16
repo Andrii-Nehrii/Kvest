@@ -92,11 +92,11 @@ export const day24AScenes: Scene[] = [
       { text: 'Суп жидкий, но горячий. Нина ест быстро, не поднимая головы, и уходит, не дожидаясь чая.' },
     ],
     actions: [
-      { id: 'c24_al2_eat', label: 'Поесть горячего', minutes: 25, terminal: true, goto: 'c24_a_jannes', ...tableOnly,
+      { id: 'c24_al2_eat', label: 'Поесть горячего', minutes: 25, terminal: true, goto: 'c24_y_a_hen', ...tableOnly,
         text: 'Суп жидкий, но горячий. Ты ешь и смотришь на пустую лавку у печи.', effects: [set24('al2', 'eat'), meal('eat'), until24(13, 15)] },
-      { id: 'c24_al2_nap', label: 'Поесть и лечь на час', minutes: 30, terminal: true, goto: 'c24_a_jannes', ...tableOnly,
+      { id: 'c24_al2_nap', label: 'Поесть и лечь на час', minutes: 30, terminal: true, goto: 'c24_y_a_hen', ...tableOnly,
         text: 'Ты засыпаешь сразу. Тебе ничего не снится.', effects: [set24('al2', 'nap'), meal('eat'), until24(13, 0), until24(14, 0, true)] },
-      { id: 'c24_al2_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c24_a_jannes',
+      { id: 'c24_al2_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c24_y_a_hen',
         text: 'Ты пьёшь чай стоя. Есть не хочется.', effects: [set24('al2', 'tea'), until24(12, 45)] },
     ] }),
 

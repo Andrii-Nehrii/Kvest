@@ -208,12 +208,12 @@ export const day25AScenes: Scene[] = [
       { text: 'Мимо проплывают тёмные деревни. Ни одного окна со светом.' },
     ],
     actions: [
-      { id: 'c25_ab_ask', label: 'Спросить, где она сейчас', minutes: 120, terminal: true, goto: 'c25_a_road',
-        text: '— Weiß ich nicht. — Вессель смотрит на дорогу. — Am zwölften haben sie die Station geräumt. Mit Bussen. Wohin, hat keiner gesagt.\n\nНе знаю. Двенадцатого отделение вывезли. Автобусами. Куда — никто не сказал.\n\nДо хутора вы больше не разговариваете.', effects: [set25('ab', 'ask'), w25('wessel_wife', true), { move: 'hof_luedemann' }, until25(16, 30)] },
-      { id: 'c25_ab_quiet', label: 'Промолчать', minutes: 120, terminal: true, goto: 'c25_a_road',
-        text: 'Ты молчишь. Он, кажется, благодарен. У поворота на хутор он высаживает тебя и машет, не оборачиваясь.', effects: [set25('ab', 'quiet'), { move: 'hof_luedemann' }, until25(16, 30)] },
-      { id: 'c25_ab2_tell', label: 'Рассказать ему, что знаешь про четвёртое отделение', minutes: 20, terminal: true, goto: 'c25_a_road',
-        text: 'Ты рассказываешь про лист с полями, исписанными от руки, про «212», про то, что плазма только продлевает. Вессель слушает и не перебивает. На повороте у Винзена он говорит, не глядя:\n\n— Dann war sie umsonst dort.\n\nЗначит, она была там зря.\n\nИ больше ничего до самого Паттензена.', effects: [set25('ab2', 'tell'), w25('wessel_knows', true), until25(17, 10)] },
+      { id: 'c25_ab_ask', label: 'Спросить, где она сейчас', minutes: 80, terminal: true, goto: 'c25_y_a_post',
+        text: '— Weiß ich nicht. — Вессель смотрит на дорогу. — Am zwölften haben sie die Station geräumt. Mit Bussen. Wohin, hat keiner gesagt.\n\nНе знаю. Двенадцатого отделение вывезли. Автобусами. Куда — никто не сказал.\n\nДо хутора вы больше не разговариваете.', effects: [set25('ab', 'ask'), w25('wessel_wife', true), { move: 'hof_luedemann' }, until25(16, 0)] },
+      { id: 'c25_ab_quiet', label: 'Промолчать', minutes: 80, terminal: true, goto: 'c25_y_a_post',
+        text: 'Ты молчишь. Он, кажется, благодарен. У поворота на хутор он высаживает тебя и машет, не оборачиваясь.', effects: [set25('ab', 'quiet'), { move: 'hof_luedemann' }, until25(16, 0)] },
+      { id: 'c25_ab2_tell', label: 'Рассказать ему, что знаешь про четвёртое отделение', minutes: 20, terminal: true, goto: 'c25_y_a_post',
+        text: 'Ты рассказываешь про лист с полями, исписанными от руки, про «212», про то, что плазма только продлевает. Вессель слушает и не перебивает. На повороте у Винзена он говорит, не глядя:\n\n— Dann war sie umsonst dort.\n\nЗначит, она была там зря.\n\nИ больше ничего до самого Паттензена.', effects: [set25('ab2', 'tell'), w25('wessel_knows', true), until25(16, 40)] },
     ] }),
 ];
 
