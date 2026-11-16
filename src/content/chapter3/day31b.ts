@@ -67,13 +67,13 @@ export const day31BScenes: Scene[] = [
       { when: henrike31, text: 'Хенрике зажигает лампу раньше обычного: сегодня можно.' },
     ],
     actions: [
-      { id: 'c31_bk_soup', label: 'Помочь Хенрике с супом', when: henrike31, minutes: 60, terminal: true, goto: 'c31_b_bike',
+      { id: 'c31_bk_soup', label: 'Помочь Хенрике с супом', when: henrike31, minutes: 30, terminal: true, goto: 'c31_x_b_soup',
         text: 'Ты чистишь картошку, Хенрике режет лук. Она рассказывает про Хиннерка: как он в семьдесят девятом вытащил её мужа из горящего сарая и потом неделю не мог отмыть бороду.', effects: [set31('bk', 'soup'), npc('henrike', 1), until31(16, 10)] },
-      { id: 'c31_bk_kasia', label: 'Сесть рядом с Касей', when: kasia31, minutes: 60, terminal: true, goto: 'c31_b_bike',
+      { id: 'c31_bk_kasia', label: 'Сесть рядом с Касей', when: kasia31, minutes: 30, terminal: true, goto: 'c31_x_b_soup',
         text: 'Кася показывает на дорогу.\n\n— Mama ich komm Weihnachten, — читает она по памяти, с ошибками. — Kommt er?\n\nПриедет он?\n\nТы не знаешь, что ей ответить. Говоришь: не знаю. Она кивает: так честно.', effects: [set31('bk', 'kasia'), npc('kasia', 1), until31(16, 10)] },
-      { id: 'c31_bk_list', label: 'Составить список, что нужно пункту', minutes: 60, terminal: true, goto: 'c31_b_bike',
+      { id: 'c31_bk_list', label: 'Составить список, что нужно пункту', minutes: 30, terminal: true, goto: 'c31_x_b_soup',
         text: 'На обороте старого календаря ты пишешь по памяти: бинты, мазь, антибиотики, перчатки, физраствор. Потом то, чего не хватает дома. Список выходит на две стороны.', effects: [set31('bk', 'list'), set31('made_list', true), until31(16, 10)] },
-      { id: 'c31_bk_sleep', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c31_b_bike',
+      { id: 'c31_bk_sleep', label: 'Лечь на час', minutes: 30, terminal: true, goto: 'c31_x_b_soup',
         text: 'Ты засыпаешь под стук ножа на кухне и просыпаешься от запаха лука.', effects: [set31('bk', 'sleep'), until31(16, 30, true)] },
     ] }),
 ];

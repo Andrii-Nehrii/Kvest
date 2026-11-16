@@ -6,7 +6,7 @@ import { any, v } from './point18';
 import { npc } from './point19';
 import { entryJoin } from './point30';
 import {
-  S31, afterBox, after31, brothers31, carDue31, deniz31, ditch31, farm31, frost31, henrike31, jest31, kerem31, ole31, set31, until31, w31,
+  S31, afterBox, after31, brothers31, deniz31, ditch31, farm31, frost31, henrike31, jest31, kerem31, ole31, set31, until31, w31,
 } from './point31';
 
 // Участок 31, линия A в обычный день: ящик из кабины, братья Айдын, машина или двор.
@@ -16,7 +16,7 @@ const barn = { at: farm31, stock: 'c3_farm_stock', rest: false as const };
 const brothersBoth: Cond = all(deniz31, kerem31);
 const denizOnly: Cond = all(deniz31, not(kerem31));
 const keremOnly: Cond = all(kerem31, not(deniz31));
-const afterDeniz = [{ id: 'car', when: carDue31, goto: 'c31_a_car' }, { id: 'yard', goto: 'c31_a_yard' }];
+const afterDeniz = [{ id: 'r', goto: 'c31_x_a_route' }];
 const opened = (how: 'open' | 'broken') => [set31('box', how), w31('box', how)];
 
 export const day31AScenes: Scene[] = [
@@ -111,12 +111,12 @@ export const day31AScenes: Scene[] = [
       { text: 'До Йестебурга четыре километра по морозу. Пожарная часть, караулка, гвоздь с ключами.' },
     ],
     actions: [
-      { id: 'c31_ac_go', label: 'Идти за машиной', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_a_brandt', ambientDuring: frost31,
-        text: 'Ты идёшь пешком. Дорога укатана до блеска. Над впадиной у Гарльсторфа ещё стоит дым, серый, ровный, как от фабрики.', effects: [set31('ac', 'go'), { move: jest31 }, until31(16, 0)] },
+      { id: 'c31_ac_go', label: 'Идти за машиной', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_x_a_corsa', ambientDuring: frost31,
+        text: 'Ты идёшь пешком. Дорога укатана до блеска. Над впадиной у Гарльсторфа ещё стоит дым, серый, ровный, как от фабрики.', effects: [set31('ac', 'go'), { move: jest31 }, until31(15, 50)] },
       { id: 'c31_ac_tomorrow', label: 'Сказать Лукасу: завтра. Сегодня ноги не держат', minutes: 10, terminal: true, goto: 'c31_a_yard',
         text: 'Лукас кивает и уезжает. Машина постоит ещё день у пожарной части. Ничего с ней не будет. Наверное.', effects: [set31('ac', 'tomorrow'), w31('car_tomorrow', true), until31(15, 10)] },
-      { id: 'c31_ac_nina', label: 'Взять с собой Нину: пусть прокатится обратно', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_a_brandt', ambientDuring: frost31,
-        text: 'Нина одевается за две минуты и идёт рядом, подпрыгивая, чтобы не отстать. Всю дорогу она говорит о том, как поедет обратно на переднем сиденье и будет переключать радио, хотя радио не ловит ничего, кроме шипения.', effects: [set31('ac', 'nina'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until31(16, 0)] },
+      { id: 'c31_ac_nina', label: 'Взять с собой Нину: пусть прокатится обратно', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_x_a_corsa', ambientDuring: frost31,
+        text: 'Нина одевается за две минуты и идёт рядом, подпрыгивая, чтобы не отстать. Всю дорогу она говорит о том, как поедет обратно на переднем сиденье и будет переключать радио, хотя радио не ловит ничего, кроме шипения.', effects: [set31('ac', 'nina'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until31(15, 50)] },
     ] }),
 
   A({ id: 'c31_a_brandt', title: 'Брандт', location: jest31, camp: { at: jest31, stock: 'c3_farm_stock', rest: false }, safe: false, ambient: { tempC: 8, outdoor: false, wet: false },
@@ -143,14 +143,14 @@ export const day31AScenes: Scene[] = [
       { text: 'Во дворе ещё пахнет гарью: ветер всю ночь нёс дым от впадины, и снег у забора серый.' },
     ],
     actions: [
-      { id: 'c31_ay_wood', label: 'Наколоть дров на два дня вперёд', minutes: 60, activity: 'heavy', terminal: true, goto: 'c31_a_pack', ambientDuring: frost31,
-        text: 'Ты колешь, пока не темнеет. Поленница у стены растёт. Если завтра уезжать, это то, что после тебя останется.', effects: [set31('ay', 'wood'), { body: 'fatigue', delta: 6 }, until31(17, 0)] },
-      { id: 'c31_ay_ole', label: 'Сесть с Оле', when: ole31, minutes: 60, terminal: true, goto: 'c31_a_pack',
-        text: 'Ты берёшь у него шапку и иголку. Он смотрит, как ты шьёшь, и говорит:\n\n— Du nähst wie ein Soldat. Grob, aber hält.\n\nШьёшь как солдат. Грубо, но держится.', effects: [set31('ay', 'ole'), npc('ole', 1), until31(17, 0)] },
-      { id: 'c31_ay_map', label: 'Разложить на столе карту из ящика', when: { has: 'c31_post_map' }, minutes: 60, terminal: true, goto: 'c31_a_pack',
-        text: 'Ты разглаживаешь карту ладонью. Йестебург, Бухгольц, Винзен, Люнебург. Карандашные кружки вдоль дорог. Ты долго смотришь на дорогу до Бухгольца. Там кружков нет.', effects: [set31('ay', 'map'), set31('read_map', true), until31(17, 0)] },
-      { id: 'c31_ay_sleep', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c31_a_pack',
-        text: 'Ты засыпаешь сразу. Просыпаешься, когда Хенрике гремит кастрюлей.', effects: [set31('ay', 'sleep'), until31(17, 0, true)] },
+      { id: 'c31_ay_wood', label: 'Наколоть дров на два дня вперёд', minutes: 40, activity: 'heavy', terminal: true, outcomes: [{ id: 'o', when: ole31, goto: 'c31_x_a_ole' }, { id: 'p', goto: 'c31_a_pack' }], ambientDuring: frost31,
+        text: 'Ты колешь, пока не темнеет. Поленница у стены растёт. Если завтра уезжать, это то, что после тебя останется.', effects: [set31('ay', 'wood'), { body: 'fatigue', delta: 6 }, until31(17, 30)] },
+      { id: 'c31_ay_ole', label: 'Сесть с Оле', when: ole31, minutes: 40, terminal: true, outcomes: [{ id: 'o', when: ole31, goto: 'c31_x_a_ole' }, { id: 'p', goto: 'c31_a_pack' }],
+        text: 'Ты берёшь у него шапку и иголку. Он смотрит, как ты шьёшь, и говорит:\n\n— Du nähst wie ein Soldat. Grob, aber hält.\n\nШьёшь как солдат. Грубо, но держится.', effects: [set31('ay', 'ole'), npc('ole', 1), until31(17, 30)] },
+      { id: 'c31_ay_map', label: 'Разложить на столе карту из ящика', when: { has: 'c31_post_map' }, minutes: 40, terminal: true, outcomes: [{ id: 'o', when: ole31, goto: 'c31_x_a_ole' }, { id: 'p', goto: 'c31_a_pack' }],
+        text: 'Ты разглаживаешь карту ладонью. Йестебург, Бухгольц, Винзен, Люнебург. Карандашные кружки вдоль дорог. Ты долго смотришь на дорогу до Бухгольца. Там кружков нет.', effects: [set31('ay', 'map'), set31('read_map', true), until31(17, 30)] },
+      { id: 'c31_ay_sleep', label: 'Лечь на час', minutes: 40, terminal: true, outcomes: [{ id: 'o', when: ole31, goto: 'c31_x_a_ole' }, { id: 'p', goto: 'c31_a_pack' }],
+        text: 'Ты засыпаешь сразу. Просыпаешься, когда Хенрике гремит кастрюлей.', effects: [set31('ay', 'sleep'), until31(17, 30, true)] },
     ] }),
 ];
 

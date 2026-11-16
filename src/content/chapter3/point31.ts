@@ -107,12 +107,12 @@ export const shared31: Scene[] = [
       { text: 'Солнце встаёт красное, и снег во дворе розовеет, будто ночью ничего не было.' },
     ],
     actions: [
-      { id: 'c31_mo_eat', label: 'Позавтракать', minutes: 30, terminal: true, outcomes: [{ id: 'f', when: { all: [A31, { not: { flag: 'w.c31_rescue' } }] }, goto: 'c31_a_fingers' }, { id: 't', goto: 'c31_tow' }], ...tableOnly,
-        text: 'Каша на воде, хлеб, чай. Ты ешь медленно. Руки после ночи держат ложку не сразу.', effects: [set31('mo', 'eat'), meal('eat'), until31(9, 30)] },
-      { id: 'c31_mo_lukas', label: 'Выйти к Лукасу и спросить, как остальные', minutes: 20, terminal: true, outcomes: [{ id: 'f', when: { all: [A31, { not: { flag: 'w.c31_rescue' } }] }, goto: 'c31_a_fingers' }, { id: 't', goto: 'c31_tow' }], ambientDuring: frost31,
-        text: 'Лукас перечисляет, загибая пальцы здоровой руки. У одного разбито лицо. У двоих отморожены ноги. Один солдат пропал, но он, может, просто уехал со своими.\n\n— Papa lebt, — говорит он в конце. Папа жив. И уезжает, не прощаясь.', effects: [set31('mo', 'lukas'), until31(9, 30)] },
-      { id: 'c31_mo_quiet', label: 'Посидеть молча', minutes: 30, terminal: true, outcomes: [{ id: 'f', when: { all: [A31, { not: { flag: 'w.c31_rescue' } }] }, goto: 'c31_a_fingers' }, { id: 't', goto: 'c31_tow' }],
-        text: 'Ты сидишь. Хиннерк. Ты не знаешь, был ли он женат. Ты даже фамилии его не знаешь.', effects: [set31('mo', 'quiet'), { body: 'stress', delta: -2 }, until31(9, 30)] },
+      { id: 'c31_mo_eat', label: 'Позавтракать', minutes: 30, terminal: true, goto: 'c31_x_nina', ...tableOnly,
+        text: 'Каша на воде, хлеб, чай. Ты ешь медленно. Руки после ночи держат ложку не сразу.', effects: [set31('mo', 'eat'), meal('eat'), until31(8, 30)] },
+      { id: 'c31_mo_lukas', label: 'Выйти к Лукасу и спросить, как остальные', minutes: 20, terminal: true, goto: 'c31_x_nina', ambientDuring: frost31,
+        text: 'Лукас перечисляет, загибая пальцы здоровой руки. У одного разбито лицо. У двоих отморожены ноги. Один солдат пропал, но он, может, просто уехал со своими.\n\n— Papa lebt, — говорит он в конце. Папа жив. И уезжает, не прощаясь.', effects: [set31('mo', 'lukas'), until31(8, 30)] },
+      { id: 'c31_mo_quiet', label: 'Посидеть молча', minutes: 30, terminal: true, goto: 'c31_x_nina',
+        text: 'Ты сидишь. Хиннерк. Ты не знаешь, был ли он женат. Ты даже фамилии его не знаешь.', effects: [set31('mo', 'quiet'), { body: 'stress', delta: -2 }, until31(8, 30)] },
     ] }),
 
   S31({ id: 'c31_tow', for: 'any', chapter: 'ch3', title: 'Трос', camp: yard14, ambient: frost31,
