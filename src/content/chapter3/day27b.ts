@@ -81,15 +81,15 @@ export const day27BScenes: Scene[] = [
       { when: leaNear, text: 'Лея сидит на краю кровати и считает пульс по часам, шевеля губами. Потом записывает на ладони шариковой ручкой.' },
     ],
     actions: [
-      { id: 'c27_bl_ask', label: 'Спросить: можно хоть что-то сделать?', minutes: 20, terminal: true, goto: 'c27_b_fufu',
+      { id: 'c27_bl_ask', label: 'Спросить: можно хоть что-то сделать?', minutes: 20, terminal: true, goto: 'c27_y_b_icon',
         outcomes: [
           { id: 'lea', when: leaNear, text: '— Ihm nicht weh tun lassen. Das ist alles. — Лея достаёт из кармана две ампулы. — Morphin. Von Sander. Für heute Nacht. Eine. Wenn er unruhig wird. Nicht beide.\n\nНе дать ему мучиться. Это всё. Морфин. От Зандер. На ночь. Одну. Если станет беспокойным. Не обе.', effects: [set27('bl', 'ask'), { give: 'c27_morphine', qty: 2 }, w27('morphine', true)] },
           { id: 'eva', text: 'Эва качает головой.\n\n— Nur da sein. Mehr kann man nicht.\n\nТолько быть рядом. Больше нельзя.', effects: [set27('bl', 'ask')] },
-        ], effects: [truthB, until27(10, 30)] },
-      { id: 'c27_bl_kasia', label: 'Пойти к Касе и посидеть с ней', minutes: 40, terminal: true, goto: 'c27_b_fufu',
-        text: 'Ты садишься рядом с Касей на пол. Вы молчите. Тим спит. Иногда он вздрагивает во сне и зовёт кого-то по-польски. Кася гладит его по голове, не просыпаясь сама, кажется.', effects: [set27('bl', 'kasia'), truthB, npc('kasia', 2), until27(11, 0)] },
-      { id: 'c27_bl_nina', label: 'Выйти к Нине: она весь день у двери', minutes: 30, terminal: true, goto: 'c27_b_fufu',
-        text: 'Нина сидит у двери на корточках.\n\n— Можно мне к нему? На минуту?\n\nТы пускаешь. Она садится у дивана и показывает Тиму свою тетрадь: клетку, ядро, митохондрию. Он смотрит и говорит: «Wie eine Pizza». Как пицца. Нина смеётся сквозь слёзы.', effects: [set27('bl', 'nina'), truthB, npc('c7_nina', 2), npc('c27_tim', 1), until27(10, 50)] },
+        ], effects: [truthB, until27(10, 20)] },
+      { id: 'c27_bl_kasia', label: 'Пойти к Касе и посидеть с ней', minutes: 40, terminal: true, goto: 'c27_y_b_icon',
+        text: 'Ты садишься рядом с Касей на пол. Вы молчите. Тим спит. Иногда он вздрагивает во сне и зовёт кого-то по-польски. Кася гладит его по голове, не просыпаясь сама, кажется.', effects: [set27('bl', 'kasia'), truthB, npc('kasia', 2), until27(10, 40)] },
+      { id: 'c27_bl_nina', label: 'Выйти к Нине: она весь день у двери', minutes: 30, terminal: true, goto: 'c27_y_b_icon',
+        text: 'Нина сидит у двери на корточках.\n\n— Можно мне к нему? На минуту?\n\nТы пускаешь. Она садится у дивана и показывает Тиму свою тетрадь: клетку, ядро, митохондрию. Он смотрит и говорит: «Wie eine Pizza». Как пицца. Нина смеётся сквозь слёзы.', effects: [set27('bl', 'nina'), truthB, npc('c7_nina', 2), npc('c27_tim', 1), until27(10, 30)] },
     ] }),
 
   B({ id: 'c27_b_fever', title: 'Полдень', camp: kitchen14,

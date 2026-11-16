@@ -102,12 +102,12 @@ export const day28BScenes: Scene[] = [
       { text: 'В доме пахнет воском и хвоей: Нина принесла с опушки еловую лапу и поставила в банку у окна. Ни для чего. Просто так.' },
     ],
     actions: [
-      { id: 'c28_ba_lea', label: 'Позвать Лею в дом', when: any(flag('w.c25_lea_point'), v('w.c24_lea', 'sander')), minutes: 60, terminal: true, goto: 'c28_b_lea',
+      { id: 'c28_ba_lea', label: 'Позвать Лею в дом', when: any(flag('w.c25_lea_point'), v('w.c24_lea', 'sander')), minutes: 30, terminal: true, goto: 'c28_y_b_wash',
         text: 'Лея садится к печи. Хенрике ставит перед ней чай, не спрашивая, кто она. Потом спрашивает. Лея отвечает. Долго. Хенрике слушает и ни разу не перебивает. Потом говорит:\n\n— Dann haben Sie Ole das Leben gerettet. Auf Umwegen.\n\nЗначит, вы спасли Оле жизнь. Окольными путями.', effects: [set28('ba', 'lea'), npc('c21_lea', 2), npc('henrike', 1), until28(15, 30)] },
-      { id: 'c28_ba_nina', label: 'Посидеть с Ниной', minutes: 60, terminal: true, goto: 'c28_b_lea',
+      { id: 'c28_ba_nina', label: 'Посидеть с Ниной', minutes: 30, terminal: true, goto: 'c28_y_b_wash',
         text: 'Нина сидит на лестнице. Ты садишься рядом. Она говорит:\n\n— Хенрике вернулась. Теперь всё будет как раньше?\n\nТы не знаешь, что ответить. Она и не ждёт ответа. Она прислоняется к тебе плечом.', effects: [set28('ba', 'nina'), npc('c7_nina', 2), until28(15, 30)] },
-      { id: 'c28_ba_rest', label: 'Лечь: ты не {m:спал|спала} ночь', minutes: 5, terminal: true, goto: 'c28_b_lea',
-        text: 'Ты засыпаешь сразу. Тебе ничего не снится. Будит запах ужина.', effects: [set28('ba', 'rest'), until28(17, 50, true)] },
+      { id: 'c28_ba_rest', label: 'Лечь: ты не {m:спал|спала} ночь', minutes: 5, terminal: true, goto: 'c28_y_b_wash',
+        text: 'Ты засыпаешь сразу. Тебе ничего не снится. Будит запах ужина.', effects: [set28('ba', 'rest'), until28(17, 20, true)] },
     ] }),
 ];
 

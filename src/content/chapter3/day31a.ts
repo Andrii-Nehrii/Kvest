@@ -130,10 +130,10 @@ export const day31AScenes: Scene[] = [
       { when: v('$.c31_ac', 'go'), text: 'Расписку никто не спросил. Ключи легли тебе в ладонь, тёплые от печки.' },
     ],
     actions: [
-      { id: 'c31_ak_keys', label: 'Взять ключи и ехать', minutes: 20, terminal: true, goto: 'c31_a_yard',
-        text: 'Corsa заводится со второго раза. Печка дует холодом, потом тёплым. Через десять минут ты загоняешь её под навес.', effects: [set31('ak', 'keys'), { give: 'car_keys' }, { refuel: 'opel_corsa', liters: 3 }, { drive: 'opel_corsa', km: 4, to: farm31 }, w31('car_back', true), until31(16, 30)] },
-      { id: 'c31_ak_hinnerk', label: 'Спросить про Хиннерка', minutes: 30, terminal: true, goto: 'c31_a_yard',
-        text: '— Hinnerk Möller. Zweiundsechzig. Feuerwehr seit neunzehnhundertachtzig. — Брандт смотрит на свою руку. — Er hat mir gesagt, ich soll nicht vorgehen. Ich bin vorgegangen. Er hat mich zurückgezogen. Und ist selber gerutscht.\n\nХиннерк Мёллер. Шестьдесят два. В пожарной с восьмидесятого. Он сказал мне не лезть вперёд. Я полез. Он меня оттащил. И сам поскользнулся.\n\nДальше вы молчите. Потом ты берёшь ключи и едешь домой.', effects: [set31('ak', 'hinnerk'), npc('c16_brandt', 1, 'c31_asked_hinnerk'), { give: 'car_keys' }, { refuel: 'opel_corsa', liters: 3 }, { drive: 'opel_corsa', km: 4, to: farm31 }, w31('car_back', true), until31(16, 50)] },
+      { id: 'c31_ak_keys', label: 'Взять ключи и ехать', minutes: 20, terminal: true, goto: 'c31_y_a_helmet',
+        text: 'Corsa заводится со второго раза. Печка дует холодом, потом тёплым. Через десять минут ты загоняешь её под навес.', effects: [set31('ak', 'keys'), { give: 'car_keys' }, { refuel: 'opel_corsa', liters: 3 }, { drive: 'opel_corsa', km: 4, to: farm31 }, w31('car_back', true), until31(16, 20)] },
+      { id: 'c31_ak_hinnerk', label: 'Спросить про Хиннерка', minutes: 30, terminal: true, goto: 'c31_y_a_helmet',
+        text: '— Hinnerk Möller. Zweiundsechzig. Feuerwehr seit neunzehnhundertachtzig. — Брандт смотрит на свою руку. — Er hat mir gesagt, ich soll nicht vorgehen. Ich bin vorgegangen. Er hat mich zurückgezogen. Und ist selber gerutscht.\n\nХиннерк Мёллер. Шестьдесят два. В пожарной с восьмидесятого. Он сказал мне не лезть вперёд. Я полез. Он меня оттащил. И сам поскользнулся.\n\nДальше вы молчите. Потом ты берёшь ключи и едешь домой.', effects: [set31('ak', 'hinnerk'), npc('c16_brandt', 1, 'c31_asked_hinnerk'), { give: 'car_keys' }, { refuel: 'opel_corsa', liters: 3 }, { drive: 'opel_corsa', km: 4, to: farm31 }, w31('car_back', true), until31(16, 30)] },
     ] }),
 
   A({ id: 'c31_a_yard', title: 'Двор', camp: house14,

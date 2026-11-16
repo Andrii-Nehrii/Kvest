@@ -31,7 +31,7 @@ const plasmaLeft = (fx: (qty: number) => Effect[]): Effect => ({ if: { v: 'w.c21
 const bagToSander: Effect[] = [plasmaLeft((qty) => [{ unstock: 'c21_plasma', qty, at: 'c3_farm_stock' }]), { unstock: 'c21_insulin', qty: 10, at: 'c3_farm_stock' }, w22('bag_sander', true)];
 const toJest: Effect = { move: jest };
 const toFarm: Effect = { move: farm22 };
-const afterCard = [{ id: 'j', when: wayJest, goto: 'c22_b_point' }, { id: 'h', when: wayHide, goto: 'c22_b_hair' }, { id: 'f', goto: 'c22_b_nina' }];
+const afterCard = [{ id: 'j', when: wayJest, goto: 'c22_b_point' }, { id: 'h', when: wayHide, goto: 'c22_y_b_after' }, { id: 'f', goto: 'c22_b_nina' }];
 /** После Уте: ночлег для Леи или её забытые вещи. */
 const afterUte = [{ id: 'b', when: wayHide, goto: 'c22_x_b_fringe' }, { id: 'r', when: all(wayTobias, not(v('B.c22_bw', 'burn'))), goto: 'c22_b_things' }, { id: 'l', goto: 'c22_b_letter' }];
 const toLunch = [{ id: 'm', when: wayHide, goto: 'c22_x_b_malte' }, { id: 'l', goto: 'c22_b_lunch' }];

@@ -37,11 +37,11 @@ export const day26GScenes: Scene[] = [
       { text: 'Кёлер дышит тяжело и всё равно говорит про тесто.' },
     ],
     actions: [
-      { id: 'c26_bs2_pull', label: 'Впрячься вместе с ней до самой пекарни', minutes: 40, activity: 'moderate', terminal: true, goto: 'c26_b_afternoon',
-        text: 'Вы тянете вдвоём, дышите в такт. На горке ты толкаешь сзади. У пекарни фрау Кёлер садится на санки и долго не может говорить. Потом достаёт из-под прилавка вчерашнюю булку и суёт тебе в руки. «Für die Kleine. Die mit den Zöpfen». Для малышки. Той, что с косами.', effects: [set26('bs2', 'pull'), npc('c3_koehler', 2, 'c26_pulled_sled'), { give: 'c16_bread' }, until26(14, 40)] },
-      { id: 'c26_bs2_half', label: 'Помочь с горкой и идти домой', minutes: 20, terminal: true, goto: 'c26_b_afternoon',
+      { id: 'c26_bs2_pull', label: 'Впрячься вместе с ней до самой пекарни', minutes: 40, activity: 'moderate', terminal: true, goto: 'c26_y_b_bread',
+        text: 'Вы тянете вдвоём, дышите в такт. На горке ты толкаешь сзади. У пекарни фрау Кёлер садится на санки и долго не может говорить. Потом достаёт из-под прилавка вчерашнюю булку и суёт тебе в руки. «Für die Kleine. Die mit den Zöpfen». Для малышки. Той, что с косами.', effects: [set26('bs2', 'pull'), npc('c3_koehler', 2, 'c26_pulled_sled'), { give: 'c16_bread' }, until26(14, 20)] },
+      { id: 'c26_bs2_half', label: 'Помочь с горкой и идти домой', minutes: 20, terminal: true, goto: 'c26_y_b_bread',
         text: 'Ты затаскиваешь санки на горку. Дальше дорога ровная, фрау Кёлер машет: иди, справлюсь. Ты идёшь и оглядываешься: она тянет медленно, но тянет.', effects: [set26('bs2', 'half'), npc('c3_koehler', 1), until26(14, 20)] },
-      { id: 'c26_bs2_pass', label: 'Пройти мимо: {m:сам|сама} еле на ногах после смены', minutes: 5, terminal: true, goto: 'c26_b_afternoon',
+      { id: 'c26_bs2_pass', label: 'Пройти мимо: {m:сам|сама} еле на ногах после смены', minutes: 5, terminal: true, goto: 'c26_y_b_bread',
         text: 'Ты киваешь ей и проходишь. Сзади слышно, как санки снова сползают и как она ругается, тихо, по-старому.', effects: [set26('bs2', 'pass'), npc('c3_koehler', -1, 'c26_b_passed'), until26(14, 5)] },
     ] }),
 

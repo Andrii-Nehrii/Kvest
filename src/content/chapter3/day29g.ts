@@ -31,11 +31,11 @@ export const day29GScenes: Scene[] = [
       { when: v('$.c29_h', 'rest'), text: 'Час сна не помог: ноги тяжёлые, голова ватная.' },
     ],
     actions: [
-      { id: 'c29_bp3_go', label: 'Пойти с ней по дворам', minutes: 90, activity: 'light', terminal: true, goto: 'c29_b_hanna', ambientDuring: frost29,
+      { id: 'c29_bp3_go', label: 'Пойти с ней по дворам', minutes: 60, activity: 'light', terminal: true, goto: 'c29_y_b_boxes', ambientDuring: frost29,
         text: 'Семь дворов, семь огарков. У одной старухи нет спичек, ты оставляешь свои. Один старик плачет, когда видит свечу. На последнем дворе дверь не открывают, и фрау Хольм оставляет огарок на крыльце, в снегу, и долго стоит перед дверью.', effects: [set29('bp3', 'go'), w29('candles_round', true), npc('c3_koehler', 1), until29(29, 15, 0)] },
-      { id: 'c29_bp3_own', label: 'Отдать ей в корзину свою свечу', minutes: 20, terminal: true, goto: 'c29_b_hanna',
+      { id: 'c29_bp3_own', label: 'Отдать ей в корзину свою свечу', minutes: 20, terminal: true, goto: 'c29_y_b_boxes',
         text: 'Ты отдаёшь свою, целую. Фрау Хольм кладёт её сверху огарков, как подарок. «Für den letzten Hof. Da wohnt eine, die niemand besucht». Для последнего двора. Там живёт та, к которой никто не ходит.', effects: [set29('bp3', 'own'), w29('candle_given', true), until29(29, 14, 0)] },
-      { id: 'c29_bp3_tea', label: 'Напоить её чаем и отпустить дальше одну', minutes: 30, terminal: true, goto: 'c29_b_hanna',
+      { id: 'c29_bp3_tea', label: 'Напоить её чаем и отпустить дальше одну', minutes: 30, terminal: true, goto: 'c29_y_b_boxes',
         text: 'Фрау Хольм пьёт чай, держа кружку двумя руками. Рассказывает про пастора: он не спит третью ночь, пишет проповедь, которую некому будет слушать. Потом уходит, медленно, с корзиной.', effects: [set29('bp3', 'tea'), until29(29, 14, 0)] },
     ] }),
 ];

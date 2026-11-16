@@ -121,11 +121,11 @@ export const day33BScenes: Scene[] = [
       { when: ute33, text: 'Колодец у неё глубокий, и он один на всю колонию не замёрз. Об этом она говорит, когда снимает валенки у печи, коротко, как о погоде. И ещё о том, что воду за деньги не продают.' },
     ],
     actions: [
-      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 60, terminal: true, goto: 'c33_b_bath',
-        text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(15, 40)] },
-      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 60, terminal: true, goto: 'c33_b_bath', ambientDuring: frost33,
-        text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(15, 40)] },
-      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 60, terminal: true, goto: 'c33_b_bath',
-        text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(15, 40, true)] },
+      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 30, terminal: true, goto: 'c33_y_b_radio',
+        text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(15, 30)] },
+      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 30, terminal: true, goto: 'c33_y_b_radio', ambientDuring: frost33,
+        text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(15, 30)] },
+      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 30, terminal: true, goto: 'c33_y_b_radio',
+        text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(15, 30, true)] },
     ] }),
 ];

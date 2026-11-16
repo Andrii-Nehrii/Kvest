@@ -43,12 +43,12 @@ export const day31EScenes: Scene[] = [
       { text: 'Рюкзак лежит раскрытый, как пасть. Ты складываешь и перекладываешь, и всё время кажется, что что-то забыл{m:|а}.' },
     ],
     actions: [
-      { id: 'c31_ap_hose', label: 'Взять шланг и пустые канистры: там во дворах машины', minutes: 60, terminal: true, goto: 'c31_evening',
-        text: 'Шланг от стиральной машины, две канистры по десять литров, воронка. Ты связываешь всё бечёвкой. Хенрике смотрит и говорит: «Nur von denen, die nicht mehr fahren». Только у тех, кто больше не поедет.', effects: [set31('ap', 'hose'), set31('hose', true), until31(18, 0)] },
-      { id: 'c31_ap_food', label: 'Взять еды на троих: братьям тоже', minutes: 60, terminal: true, goto: 'c31_evening',
-        text: 'Хлеб, сало, шесть яиц вкрутую, банка огурцов. Хенрике кладёт сверху ещё кусок окорока: «Für Deniz. Er hat mir die Säge nie zurückgegeben. Er soll sich schämen». Для Дениза. Он так и не вернул мне пилу. Пусть ему будет стыдно.', effects: [set31('ap', 'food'), set31('food3', true), until31(18, 0)] },
-      { id: 'c31_ap_keys', label: 'Найти ключи от своей квартиры', minutes: 60, terminal: true, goto: 'c31_evening',
-        text: 'Ключи нашлись на дне рюкзака, в кармашке, который ты не открывал{m:|а} с десятого. Связка: квартира, подвал, почтовый ящик. Ты держишь их в ладони долго.', effects: [set31('ap', 'keys'), set31('home_keys', true), until31(18, 0)] },
+      { id: 'c31_ap_hose', label: 'Взять шланг и пустые канистры: там во дворах машины', minutes: 40, terminal: true, goto: 'c31_y_a_nina',
+        text: 'Шланг от стиральной машины, две канистры по десять литров, воронка. Ты связываешь всё бечёвкой. Хенрике смотрит и говорит: «Nur von denen, die nicht mehr fahren». Только у тех, кто больше не поедет.', effects: [set31('ap', 'hose'), set31('hose', true), until31(17, 40)] },
+      { id: 'c31_ap_food', label: 'Взять еды на троих: братьям тоже', minutes: 40, terminal: true, goto: 'c31_y_a_nina',
+        text: 'Хлеб, сало, шесть яиц вкрутую, банка огурцов. Хенрике кладёт сверху ещё кусок окорока: «Für Deniz. Er hat mir die Säge nie zurückgegeben. Er soll sich schämen». Для Дениза. Он так и не вернул мне пилу. Пусть ему будет стыдно.', effects: [set31('ap', 'food'), set31('food3', true), until31(17, 40)] },
+      { id: 'c31_ap_keys', label: 'Найти ключи от своей квартиры', minutes: 40, terminal: true, goto: 'c31_y_a_nina',
+        text: 'Ключи нашлись на дне рюкзака, в кармашке, который ты не открывал{m:|а} с десятого. Связка: квартира, подвал, почтовый ящик. Ты держишь их в ладони долго.', effects: [set31('ap', 'keys'), set31('home_keys', true), until31(17, 40)] },
     ] }),
 
   X({ id: 'c31_b_frost', title: 'Обмороженные', location: jest31, camp: { at: jest31, stock: 'c3_farm_stock', rest: false }, safe: false, ambient: { tempC: 14, outdoor: false, wet: false }, onEnter: [until31(14, 0)],

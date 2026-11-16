@@ -72,7 +72,7 @@ const finish: Effect = { set: '$.c31_finished', value: true };
 export const afterTow = [
   { id: 'a', when: A31, goto: 'c31_a_box' },
   { id: 'r', when: rescuer31, goto: 'c31_r_noon' },
-  { id: 'b', goto: 'c31_b_wash' },
+  { id: 'b', goto: 'c31_y_b_boots' },
 ];
 /** После ящика: спасающий — к постели, остальные — к братьям. */
 export const afterBox = [{ id: 'r', when: rescuer31, goto: 'c31_r_noon' }, { id: 'd', goto: 'c31_a_bag' }];
