@@ -33,7 +33,8 @@ const toJest: Effect = { move: jest };
 const toFarm: Effect = { move: farm22 };
 const afterCard = [{ id: 'j', when: wayJest, goto: 'c22_b_point' }, { id: 'h', when: wayHide, goto: 'c22_b_hair' }, { id: 'f', goto: 'c22_b_nina' }];
 /** После Уте: ночлег для Леи или её забытые вещи. */
-const afterUte = [{ id: 'b', when: wayHide, goto: 'c22_b_beds' }, { id: 'r', when: all(wayTobias, not(v('B.c22_bw', 'burn'))), goto: 'c22_b_things' }, { id: 'l', goto: 'c22_b_letter' }];
+const afterUte = [{ id: 'b', when: wayHide, goto: 'c22_x_b_fringe' }, { id: 'r', when: all(wayTobias, not(v('B.c22_bw', 'burn'))), goto: 'c22_b_things' }, { id: 'l', goto: 'c22_b_letter' }];
+const toLunch = [{ id: 'm', when: wayHide, goto: 'c22_x_b_malte' }, { id: 'l', goto: 'c22_b_lunch' }];
 const afterLunch = [{ id: 'c', when: bagPoint, goto: 'c22_b_carry' }, { id: 'v', when: leaHere, goto: 'c22_b_vet' }, { id: 'm', goto: 'c22_b_malte' }];
 const toLetter = [{ id: 's', when: wayJest, goto: 'c22_b_school' }, { id: 'j', goto: 'c22_b_letter_j' }];
 const afterPoint = [{ id: 'r', when: wayJest, goto: 'c22_b_room' }, { id: 's', goto: 'c22_b_soup' }];
@@ -42,12 +43,14 @@ const pointTime = (jm: number): Effect => ({ if: wayJest, then: [until22(11, jm)
 const brandtRoom: Cond = v('w.c22_lea_at', 'brandt');
 
 /** Черновик письма в Люнебург: одни и те же варианты дома и в пункте. */
-const letterActions = (pre: string, next: string, home: Effect[]): ActionDef[] => [
-  { id: `${pre}_ole`, label: 'Написать Оле: коротко, про дом, про Нину, про кур', minutes: 25, terminal: true, goto: next,
+type Route = string | NonNullable<ActionDef['outcomes']>;
+const route = (next: Route) => (typeof next === 'string' ? { goto: next } : { outcomes: next });
+const letterActions = (pre: string, next: Route, home: Effect[]): ActionDef[] => [
+  { id: `${pre}_ole`, label: 'Написать Оле: коротко, про дом, про Нину, про кур', minutes: 25, terminal: true, ...route(next),
     text: 'Ты пишешь про груши, которые Нина сложила в подвал, про насос, про то, что куры несутся через день. Про Лею и плазму не пишешь. Пока. Получается полстраницы. Ты перечитываешь и не зачёркиваешь ни слова.', effects: [set22('bl', 'ole'), w22('draft', 'ole'), ...home] },
-  { id: `${pre}_henrike`, label: 'Написать Хенрике: она прочтёт ему вслух, если надо', minutes: 25, terminal: true, goto: next,
+  { id: `${pre}_henrike`, label: 'Написать Хенрике: она прочтёт ему вслух, если надо', minutes: 25, terminal: true, ...route(next),
     text: 'Ты пишешь Хенрике, на «Sie», как пишут старшим. Про хутор, про Нину, про то, что всё на месте. Последнюю строчку ты переписываешь трижды: «Wir warten auf euch beide». Мы ждём вас обоих.', effects: [set22('bl', 'henrike'), w22('draft', 'henrike'), npc('henrike', 1), ...home] },
-  { id: `${pre}_blank`, label: 'Не писать: решить вечером вдвоём', minutes: 10, terminal: true, goto: next,
+  { id: `${pre}_blank`, label: 'Не писать: решить вечером вдвоём', minutes: 10, terminal: true, ...route(next),
     text: 'Ты складываешь чистый лист вчетверо и убираешь в карман. Что писать, вы решите вдвоём. Или не вдвоём.', effects: [set22('bl', 'blank'), ...home] },
 ];
 
@@ -63,17 +66,17 @@ export const day22BScenes: Scene[] = [
       { when: all(wayJest, herChoice), text: '— Der Soldat hat es ihnen schon gesagt, — говорит она. Солдат им уже сказал. — Dann gehe ich lieber zu der Ärztin. Bevor man mich holt. Bringst du mich?\n\nТогда я лучше пойду к врачу. Пока за мной не пришли. Отведёшь меня?' },
     ],
     actions: [
-      { id: 'c22_bm_cellar', label: 'Спрятать её в подвале, в нише за ящиками с картошкой', when: all(wayHide, letterOle), minutes: 20, terminal: true, goto: 'c22_b_hidden',
-        text: 'Про нишу написано в листке Оле: «за картошкой, второй ключ». Вы отодвигаете три ящика. За ними дверца в человеческий рост, на ней ржавый замок. Внутри сухо, пахнет яблоками и мышами. Места хватает на двоих.', effects: [set22('bm', 'cellar'), w22('hide', 'cellar'), lea22(2), until22(8, 50)] },
-      { id: 'c22_bm_smoke', label: 'Спрятать её в коптильне на чердаке, под ключ', when: all(wayHide, smokeKey), minutes: 20, terminal: true, goto: 'c22_b_hidden',
+      { id: 'c22_bm_cellar', label: 'Спрятать её в подвале, в нише за ящиками с картошкой', when: all(wayHide, letterOle), minutes: 20, terminal: true, goto: 'c22_x_b_traces',
+        text: 'Про нишу написано в листке Оле: «за картошкой, второй ключ». Вы отодвигаете три ящика. За ними дверца в человеческий рост, на ней ржавый замок. Внутри сухо, пахнет яблоками и мышами. Места хватает на двоих.', effects: [set22('bm', 'cellar'), w22('hide', 'cellar'), lea22(2), until22(8, 30)] },
+      { id: 'c22_bm_smoke', label: 'Спрятать её в коптильне на чердаке, под ключ', when: all(wayHide, smokeKey), minutes: 20, terminal: true, goto: 'c22_x_b_traces',
         outcomes: [
           { id: 'locked_before', when: v('w.c21_lea_bed', 'smoke'), text: 'Она смотрит на железную дверцу и бледнеет.\n\n— Schon wieder?\n\nОпять?\n\nВсё-таки входит. Ты входишь следом и прикрываешь дверцу изнутри: одну её здесь ты не оставишь.', effects: [set22('bm', 'smoke'), w22('hide', 'smoke'), lea22(1)] },
           { id: 'plain', text: 'Коптильня — железный шкаф в человеческий рост, весь в саже. Пахнет копчёным и холодом. Ты входишь с ней: одну её здесь ты не оставишь. Ключ ты отдаёшь Нине: если что, она отопрёт.', effects: [set22('bm', 'smoke'), w22('hide', 'smoke'), lea22(1), npc('c7_nina', 1)] },
-        ], effects: [until22(8, 50)] },
-      { id: 'c22_bm_loft', label: 'Спрятать её на сеновале, в дальнем углу, под сеном', when: wayHide, minutes: 20, terminal: true, goto: 'c22_b_hidden', ambientDuring: day22,
-        text: 'Вы забираетесь в дальний угол, под самую крышу. Сено колется через одежду. Сквозь щель в досках видно ворота и кусок дороги.', effects: [set22('bm', 'loft'), w22('hide', 'loft'), until22(8, 50)] },
-      { id: 'c22_bm_cousin', label: 'Не прятать: кузина из Харбурга, на виду, за работой', when: wayHide, minutes: 20, terminal: true, goto: 'c22_b_hidden',
-        text: 'Ты повязываешь ей платок Хенрике и даёшь ведро. Лея смотрит на себя в тёмное окно: короткие волосы, платок, кофта не по росту. На донора с фотографии она не похожа. Похожа на девушку, которая всю жизнь кормит кур.\n\n— Wenn er fragt, bin ich stumm, — говорит она. Если спросит, я немая.', effects: [set22('bm', 'cousin'), w22('hide', 'cousin'), lea22(1), until22(8, 50)] },
+        ], effects: [until22(8, 30)] },
+      { id: 'c22_bm_loft', label: 'Спрятать её на сеновале, в дальнем углу, под сеном', when: wayHide, minutes: 20, terminal: true, goto: 'c22_x_b_traces', ambientDuring: day22,
+        text: 'Вы забираетесь в дальний угол, под самую крышу. Сено колется через одежду. Сквозь щель в досках видно ворота и кусок дороги.', effects: [set22('bm', 'loft'), w22('hide', 'loft'), until22(8, 30)] },
+      { id: 'c22_bm_cousin', label: 'Не прятать: кузина из Харбурга, на виду, за работой', when: wayHide, minutes: 20, terminal: true, goto: 'c22_x_b_traces',
+        text: 'Ты повязываешь ей платок Хенрике и даёшь ведро. Лея смотрит на себя в тёмное окно: короткие волосы, платок, кофта не по росту. На донора с фотографии она не похожа. Похожа на девушку, которая всю жизнь кормит кур.\n\n— Wenn er fragt, bin ich stumm, — говорит она. Если спросит, я немая.', effects: [set22('bm', 'cousin'), w22('hide', 'cousin'), lea22(1), until22(8, 30)] },
       { id: 'c22_bm_pack', label: 'Помочь ей собраться', when: wayTobias, minutes: 30, terminal: true, goto: 'c22_b_wolf',
         text: 'Вещей у неё почти нет: парка с повязкой, синяя шапка, учебник без обложки. Ты кладёшь в пакет два яблока, хлеб и вязаные носки Хенрике. Она смотрит на носки дольше, чем на всё остальное.', effects: [set22('bm', 'pack'), lea22(1), until22(8, 55)] },
       { id: 'c22_bm_why', label: 'Спросить, почему она не бежит', when: wayTobias, minutes: 25, terminal: true, goto: 'c22_b_wolf',
@@ -94,6 +97,10 @@ export const day22BScenes: Scene[] = [
       { text: 'У ворот останавливается машина. Голоса. Голос {A.gen}, ровный.' },
       { when: search22, text: 'Потом шаги. В доме открывают двери, одну за другой. Кто-то проходит совсем рядом, останавливается. Скрипит доска. Шаги уходят.' },
       { when: not(search22), text: 'Голоса у ворот долго не стихают. Потом мотор. Потом тишина, но вы не двигаетесь ещё долго.' },
+      { when: v('$.c22_xu', 'carry'), text: 'Мешок с её вещами лежит под сеном. В доме не осталось ничего, что можно найти.' },
+      { when: v('$.c22_xu', 'slip'), text: 'Колено после ступеньки пульсирует.' },
+      { when: v('$.c22_xu', 'burn'), text: 'Из дома тянет палёным волосом. Ты надеешься, что это чувствуешь только ты.' },
+      { when: v('$.c22_xu', 'mix'), text: 'Ты думаешь о вешалке в сенях: её парка висит под твоей курткой, повязкой к стене.' },
       { text: 'Лея шепчет, не поворачивая головы:\n\n— Ich war nicht krank. Nie. Im Oktober hatte ich Leptospirose, von einer Ratte in der Klinik. Fieber, Gelbsucht, drei Wochen. Der Stabsarzt hat «genesen» in meine Akte geschrieben. Er hat nicht gefragt, wovon.\n\nЯ не болела. Никогда. В октябре у меня был лептоспироз, от крысы в клинике. Жар, желтуха, три недели. Штабной врач записал мне «переболела». Он не спросил, чем.' },
       { text: '— Mein Blut hilft keinem. Kein bisschen. Und wenn sie es merken, sind meine Mutter und Finn ihren Platz in Hannover los. Den haben sie nur, weil ich «Spenderin» bin.\n\nМоя кровь никому не помогает. Ни капли. А если это заметят, мама и Финн потеряют место в Ганновере. Оно у них только потому, что я «донор».' },
     ],
@@ -187,14 +194,14 @@ export const day22BScenes: Scene[] = [
       { when: not(leaHere), text: 'Нина сидит на табурете у двери, там, где вчера сидела Лея.\n\n— Её увезли насовсем? — спрашивает она. — Она мне обещала нарисовать, как устроен глаз. У собаки и у человека. Она сказала, это почти одно и то же.' },
     ],
     actions: [
-      { id: 'c22_bn_lea', label: 'Не мешать: пусть Лея ответит', when: leaHere, minutes: 25, terminal: true, goto: 'c22_b_lunch',
-        text: 'Лея долго молчит. Потом отвечает честно, как отвечают взрослым: в конце они не узнают никого. Но до самых последних дней узнают. И помнят. И твой отец — помнил, Нина. До последнего.\n\nНина кивает. Потом встаёт и уходит наверх. Через минуту слышно, как она плачет. Лея идёт за ней. Ты не идёшь.', effects: [set22('bn', 'lea'), npc('c7_nina', 2), lea22(1), until22(12, 30)] },
-      { id: 'c22_bn_stop', label: 'Остановить Нину: не сейчас', when: leaHere, minutes: 15, terminal: true, goto: 'c22_b_lunch',
-        text: '— Ninotschka, — говоришь ты.\n\nНина закрывает учебник. Лея смотрит на тебя так, будто хотела ответить, но благодарна, что не пришлось.', effects: [set22('bn', 'stop'), npc('c7_nina', -1), until22(12, 30)] },
-      { id: 'c22_bn_tell', label: 'Рассказать Нине правду: куда и зачем её увезли', when: not(leaHere), minutes: 20, terminal: true, goto: 'c22_b_lunch',
-        text: 'Ты рассказываешь. Нина слушает, наклонив голову, как птица.\n\n— Значит, Оле приедет домой, — говорит она. — А она будет лежать вместо него. — Она думает. — Это честно? Или нет?\n\nТы не знаешь, что ответить. Она это видит.', effects: [set22('bn', 'tell'), npc('c7_nina', 1), until22(12, 30)] },
-      { id: 'c22_bn_draw', label: 'Сесть рядом и нарисовать глаз самой, как умеешь', when: not(leaHere), minutes: 30, terminal: true, goto: 'c22_b_lunch',
-        text: 'Ты рисуешь на обороте Нининой тетради: хрусталик, зрачок, нерв. Получается криво. Нина поправляет и подписывает. Потом пишет сверху по-немецки: «Für Lea». Для Леи. И вырывает лист.', effects: [set22('bn', 'draw'), w22('nina_drawing', true), npc('c7_nina', 2), until22(12, 30)] },
+      { id: 'c22_bn_lea', label: 'Не мешать: пусть Лея ответит', when: leaHere, minutes: 25, terminal: true, outcomes: toLunch,
+        text: 'Лея долго молчит. Потом отвечает честно, как отвечают взрослым: в конце они не узнают никого. Но до самых последних дней узнают. И помнят. И твой отец — помнил, Нина. До последнего.\n\nНина кивает. Потом встаёт и уходит наверх. Через минуту слышно, как она плачет. Лея идёт за ней. Ты не идёшь.', effects: [set22('bn', 'lea'), npc('c7_nina', 2), lea22(1), { if: wayHide, then: [until22(11, 45)], else: [until22(12, 30)] }] },
+      { id: 'c22_bn_stop', label: 'Остановить Нину: не сейчас', when: leaHere, minutes: 15, terminal: true, outcomes: toLunch,
+        text: '— Ninotschka, — говоришь ты.\n\nНина закрывает учебник. Лея смотрит на тебя так, будто хотела ответить, но благодарна, что не пришлось.', effects: [set22('bn', 'stop'), npc('c7_nina', -1), { if: wayHide, then: [until22(11, 45)], else: [until22(12, 30)] }] },
+      { id: 'c22_bn_tell', label: 'Рассказать Нине правду: куда и зачем её увезли', when: not(leaHere), minutes: 20, terminal: true, outcomes: toLunch,
+        text: 'Ты рассказываешь. Нина слушает, наклонив голову, как птица.\n\n— Значит, Оле приедет домой, — говорит она. — А она будет лежать вместо него. — Она думает. — Это честно? Или нет?\n\nТы не знаешь, что ответить. Она это видит.', effects: [set22('bn', 'tell'), npc('c7_nina', 1), { if: wayHide, then: [until22(11, 45)], else: [until22(12, 30)] }] },
+      { id: 'c22_bn_draw', label: 'Сесть рядом и нарисовать глаз самой, как умеешь', when: not(leaHere), minutes: 30, terminal: true, outcomes: toLunch,
+        text: 'Ты рисуешь на обороте Нининой тетради: хрусталик, зрачок, нерв. Получается криво. Нина поправляет и подписывает. Потом пишет сверху по-немецки: «Für Lea». Для Леи. И вырывает лист.', effects: [set22('bn', 'draw'), w22('nina_drawing', true), npc('c7_nina', 2), { if: wayHide, then: [until22(11, 45)], else: [until22(12, 30)] }] },
     ] }),
 
   B({ id: 'c22_b_lunch', title: 'Обед', camp: kitchen14,
@@ -302,7 +309,7 @@ export const day22BScenes: Scene[] = [
       { when: v('w.c22_lea_things', 'letter'), text: 'Конверт с резинкой и ручкой лежит рядом. Его ты отдашь Кёлер вместе с письмом, отдельно.' },
       { when: v('w.c22_lea_sleep', 'nina'), text: 'Сверху, из Нининой комнаты, доносится смех. Пишется под него легче.' },
     ],
-    actions: letterActions('c22_bl', 'c22_dusk', [until22(17, 20)]) }),
+    actions: letterActions('c22_bl', [{ id: 'a', when: wayHide, goto: 'c22_x_b_atlas' }, { id: 'd', goto: 'c22_dusk' }], [{ if: wayHide, then: [until22(16, 45)], else: [until22(17, 20)] }]) }),
 
   // ───────────── Йестебург: сумка и пункт ─────────────
   B({ id: 'c22_b_carry', title: 'С сумкой в Йестебург', camp: tense14, ambient: day22,

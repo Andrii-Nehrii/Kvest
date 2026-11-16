@@ -4,7 +4,7 @@ import { all, flag, not } from './world3';
 import { house14, kitchen14, tense14, yard14 } from './point14';
 import { meal } from './point12';
 import { any, v } from './point18';
-import { npc, tableOnly } from './point19';
+import { carHere, npc, tableOnly } from './point19';
 import {
   S22, bAway, bag22, day22, debt22, dirkHere, herChoice, keremComes, leaMoves, malte22, search22, set22, until22, w22,
   wayHide, wayJest, wayTobias,
@@ -28,6 +28,8 @@ const plasmaOut = plasmaLeft((qty) => [{ unstock: 'c21_plasma', qty, at: 'c3_far
 const bagToTobias: Effect = { if: bag22('lueneburg'), then: [plasmaOut, { unstock: 'c21_insulin', qty: 10, at: 'c3_farm_stock' }, w22('bag_gone', true)],
   else: [{ if: bag22('keep'), then: [plasmaOut, w22('plasma_gone', true)] }] };
 const atGate: Effect[] = [leaMoves, bagToTobias];
+const toPatrol = [{ id: 'd', when: wayHide, goto: 'c22_x_a_deal' }, { id: 'p', goto: 'c22_a_patrol' }];
+const toMalte1 = [{ id: 'c', when: carHere, goto: 'c22_x_a_car' }, { id: 'm', goto: 'c22_a_malte1' }];
 const afterLunch = [{ id: 'k', when: keremComes, goto: 'c22_a_kerem' }, { id: 'p', goto: 'c22_a_pump' }];
 
 export const day22AScenes: Scene[] = [
@@ -45,14 +47,14 @@ export const day22AScenes: Scene[] = [
           { id: 'kept', when: flag('w.c21_dirk_promised'), text: '— Dass ich die Nacht hier geschlafen habe. Mehr hat er nicht gefragt, — говорит Дирк. Что я ночевал здесь. Больше он не спрашивал. — Und wenn er fragt, lüge ich nicht.\n\nА если спросит, врать не стану.\n\nОн встаёт и проверяет автомат, не глядя на дом.', effects: [set22('ay', 'dirk_ask')] },
           { id: 'tell', text: '— Alles, — говорит Дирк. Всё. — Dass die Spenderin bei euch ist. Dass ihr sie versteckt. Ich will euch nichts. Aber das ist ein Befehl.\n\nЧто донор у вас. Что вы её прячете. Я вам ничего плохого не хочу. Но это приказ.', effects: [set22('ay', 'dirk_ask')] },
         ], effects: [until22(9, 0)] },
-      { id: 'c22_ay_dirk_food', label: 'Вынести ему хлеба и горячего чаю', when: dirkHere, minutes: 15, terminal: true, goto: 'c22_a_patrol',
-        text: 'Он ест стоя, быстро, крошки сыплются на автомат. Кружку возвращает обеими руками.\n\n— Danke. Das macht es nicht leichter. Für keinen von uns.\n\nСпасибо. Легче от этого не станет. Никому из нас.', effects: [set22('ay', 'dirk_food'), { body: 'stress', delta: 1 }, until22(9, 0)] },
-      { id: 'c22_ay_wood', label: 'Наколоть дров, пока есть время', minutes: 30, activity: 'moderate', terminal: true, goto: 'c22_a_patrol', ambientDuring: day22,
-        text: 'Колун звенит на морозе. После десятого полена спина согревается и в голове становится пусто. Это хорошо.', effects: [set22('ay', 'wood'), { body: 'stress', delta: -1 }, until22(9, 0)] },
-      { id: 'c22_ay_malte', label: 'Сесть рядом с Мальте на лавку', when: not(dirkHere), minutes: 30, terminal: true, goto: 'c22_a_patrol', ambientDuring: day22,
-        text: '— Weißt du, was das Schlimmste ist? — говорит Мальте. Знаешь, что хуже всего? — Ich kann nicht weglaufen. Wenn die Montag kommen, lieg ich hier wie ein Paket.\n\nЯ не могу убежать. Когда они придут в понедельник, я буду лежать тут, как посылка.\n\nОн смеётся. Невесело.', effects: [set22('ay', 'malte'), malte22(1), until22(9, 0)] },
-      { id: 'c22_ay_road', label: 'Выйти к воротам и смотреть на дорогу', minutes: 20, terminal: true, goto: 'c22_a_patrol', ambientDuring: day22,
-        text: 'На дороге к Йестебургу пусто. У двора Кёлер из трубы идёт дым: тесто подошло, пекарня работает. Хоть что-то в округе идёт по часам.', effects: [set22('ay', 'road'), until22(9, 0)] },
+      { id: 'c22_ay_dirk_food', label: 'Вынести ему хлеба и горячего чаю', when: dirkHere, minutes: 15, terminal: true, outcomes: toPatrol,
+        text: 'Он ест стоя, быстро, крошки сыплются на автомат. Кружку возвращает обеими руками.\n\n— Danke. Das macht es nicht leichter. Für keinen von uns.\n\nСпасибо. Легче от этого не станет. Никому из нас.', effects: [set22('ay', 'dirk_food'), { body: 'stress', delta: 1 }, { if: wayHide, then: [until22(8, 35)], else: [until22(9, 0)] }] },
+      { id: 'c22_ay_wood', label: 'Наколоть дров, пока есть время', minutes: 30, activity: 'moderate', terminal: true, outcomes: toPatrol, ambientDuring: day22,
+        text: 'Колун звенит на морозе. После десятого полена спина согревается и в голове становится пусто. Это хорошо.', effects: [set22('ay', 'wood'), { body: 'stress', delta: -1 }, { if: wayHide, then: [until22(8, 35)], else: [until22(9, 0)] }] },
+      { id: 'c22_ay_malte', label: 'Сесть рядом с Мальте на лавку', when: not(dirkHere), minutes: 30, terminal: true, outcomes: toPatrol, ambientDuring: day22,
+        text: '— Weißt du, was das Schlimmste ist? — говорит Мальте. Знаешь, что хуже всего? — Ich kann nicht weglaufen. Wenn die Montag kommen, lieg ich hier wie ein Paket.\n\nЯ не могу убежать. Когда они придут в понедельник, я буду лежать тут, как посылка.\n\nОн смеётся. Невесело.', effects: [set22('ay', 'malte'), malte22(1), { if: wayHide, then: [until22(8, 35)], else: [until22(9, 0)] }] },
+      { id: 'c22_ay_road', label: 'Выйти к воротам и смотреть на дорогу', minutes: 20, terminal: true, outcomes: toPatrol, ambientDuring: day22,
+        text: 'На дороге к Йестебургу пусто. У двора Кёлер из трубы идёт дым: тесто подошло, пекарня работает. Хоть что-то в округе идёт по часам.', effects: [set22('ay', 'road'), { if: wayHide, then: [until22(8, 35)], else: [until22(9, 0)] }] },
     ] }),
 
   A({ id: 'c22_a_patrol', title: 'Девять часов', camp: tense14, ambient: day22,
@@ -63,6 +65,9 @@ export const day22AScenes: Scene[] = [
       { when: all(wayTobias, not(herChoice)), text: 'Из дома выходит {B}. Рядом с ней Лея, в куртке Хенрике, с сумкой через плечо. Волосы у неё до ушей, и Тобиас узнаёт её не сразу.' },
       { when: wayHide, text: '— Gestern Abend sind drei von der Kolonne Richtung Jesteburg gegangen. Eine Frau, ein Soldat, ein Verletzter. Nicht angekommen.\n\nВчера вечером трое с колонны пошли к Йестебургу. Женщина, солдат, раненый. Не дошли.' },
       { when: all(wayHide, search22), text: 'За его спиной стоит Дирк Зоммер. Он смотрит в землю.\n\n— Wir schauen uns um, — говорит Тобиас. Мы осмотримся. — Zwanzig Minuten.\n\nДвадцать минут.' },
+      { when: all(wayHide, v('$.c22_ym', 'agree')), text: 'Мальте с лавки говорит своё, слово в слово, как договорились: ночью, полем, спал. Голос у него скучный, как у человека, которому всё равно.' },
+      { when: all(wayHide, v('$.c22_ym', 'quiet')), text: 'Мальте лежит, отвернувшись к стене. Когда к нему обращаются, он морщится от боли, и ему верят.' },
+      { when: all(wayHide, v('$.c22_ym', 'truth')), text: 'Мальте на все вопросы отвечает одно: «Ich hab geschlafen». Я спал. Это правда, и это слышно.' },
       { when: wayJest, text: '— Wo ist deine Frau? — спрашивает Тобиас. Где твоя жена? — Und wo ist die Sanitäterin von gestern? Der Kruse hat «Lüdemann-Hof, zwei Personen» geschrieben.\n\nИ где вчерашняя санитарка? Крузе записал: «хутор Людеманов, двое».' },
       { when: any(bag22('lueneburg'), bag22('keep')), text: 'Синяя сумка стоит у твоих ног.' },
     ],
@@ -120,13 +125,13 @@ export const day22AScenes: Scene[] = [
       { when: uteGrave, text: 'Он мнётся и смотрит в сторону насыпи.\n\n— Und… Mutter fragt, ob ihr am Montag mit Spaten kommt. Wegen Kai. Bevor der Boden friert.\n\nИ ещё… Мать спрашивает, придёте ли вы в понедельник с лопатами. Из-за Кая. Пока земля не замёрзла.' },
     ],
     actions: [
-      { id: 'c22_aj_make', label: 'Сделать костыль вместе с ним', minutes: 40, activity: 'light', terminal: true, goto: 'c22_a_malte1',
+      { id: 'c22_aj_make', label: 'Сделать костыль вместе с ним', minutes: 40, activity: 'light', terminal: true, outcomes: toMalte1,
         text: 'Перекладину вы делаете из обрезка черенка, обматываете тряпкой и изолентой. Яннес работает молча и аккуратно, как отец, наверное, учил. Мальте пробует костыль у печи, делает три шага и садится, мокрый от пота.\n\n— Wie neu. Ich tanze Montag.\n\nКак новый. В понедельник станцую.', effects: [set22('aj', 'make'), w22('crutch', true), npc('c14_jannes', 2), malte22(2), until22(11, 10)] },
-      { id: 'c22_aj_grave', label: 'Пообещать прийти в понедельник с лопатами', when: uteGrave, minutes: 20, terminal: true, goto: 'c22_a_malte1',
+      { id: 'c22_aj_grave', label: 'Пообещать прийти в понедельник с лопатами', when: uteGrave, minutes: 20, terminal: true, outcomes: toMalte1,
         text: 'Яннес кивает и сразу отворачивается.\n\n— Früh. Bevor die Soldaten wach sind. Die mögen das nicht.\n\nРано. Пока солдаты не проснулись. Им такое не нравится.\n\nПалки он оставляет у крыльца. Костыль Мальте собирает к вечеру сам.', effects: [set22('aj', 'grave'), w22('grave_promised', true), w22('crutch', true), npc('c14_jannes', 3), npc('c14_ute', 2), until22(10, 50)] },
-      { id: 'c22_aj_pump', label: 'Спросить его про ваш насос', when: pump, minutes: 30, terminal: true, goto: 'c22_a_malte1',
+      { id: 'c22_aj_pump', label: 'Спросить его про ваш насос', when: pump, minutes: 30, terminal: true, outcomes: toMalte1,
         text: 'Яннес оживает сразу, как будто только этого и ждал.\n\n— Die Membran. Ich hab das gehört, als ich am Zaun stand. Ich kann das. Ich wollte Elektriker werden.\n\nМембрана. Я слышал, когда стоял у забора. Я умею. Я хотел стать электриком.\n\nОн обещает прийти завтра с инструментом. Палки остаются у крыльца.', effects: [set22('aj', 'pump'), w22('jannes_pump', true), w22('crutch', true), npc('c14_jannes', 2), until22(11, 0)] },
-      { id: 'c22_aj_send', label: 'Поблагодарить и отправить домой', minutes: 10, terminal: true, goto: 'c22_a_malte1',
+      { id: 'c22_aj_send', label: 'Поблагодарить и отправить домой', minutes: 10, terminal: true, outcomes: toMalte1,
         text: 'Яннес уходит быстро, руки в карманах. Палки остаются у крыльца. К обеду Нина, ругаясь, обматывает перекладину тряпкой сама.', effects: [set22('aj', 'send'), w22('crutch', true), until22(10, 40)] },
     ] }),
 
@@ -217,15 +222,15 @@ export const day22AScenes: Scene[] = [
       { text: 'Мальте кричит из окна кухни, что у них в автопарке такие насосы чинили изолентой и молитвой.' },
     ],
     actions: [
-      { id: 'c22_au_fix', label: 'Разобрать и посмотреть, что внутри', minutes: 50, activity: 'moderate', terminal: true, goto: 'c22_a_runner', ambientDuring: day22,
+      { id: 'c22_au_fix', label: 'Разобрать и посмотреть, что внутри', minutes: 50, activity: 'moderate', terminal: true, goto: 'c22_x_a_crutch', ambientDuring: day22,
         outcomes: [
           { id: 'ok', check: { traits: ['technical'], difficulty: 3, uses: ['focus'] }, text: 'Кожаная манжета на поршне ссохлась и треснула. Ты вырезаешь новую из старого голенища, смазываешь салом и собираешь обратно. Третий качок — и вода идёт толстой струёй, ледяная, со ржавчиной.', effects: [set22('au', 'fixed'), w22('pump_fixed', true)] },
           { id: 'half', text: 'Внутри ты находишь треснувшую манжету. Новую вырезаешь из голенища, но она выходит кривой. Вода идёт, но тонко, и надо качать вдвое дольше. До весны, может, и хватит.', effects: [set22('au', 'half')] },
-        ], effects: [until22(14, 25)] },
-      { id: 'c22_au_bucket', label: 'Наносить воды из колодца в бочку на вечер', minutes: 40, activity: 'heavy', terminal: true, goto: 'c22_a_runner', ambientDuring: day22,
-        text: 'Шестнадцать вёдер. Бочка в сенях полная. Плечи гудят. Насос подождёт до завтра.', effects: [set22('au', 'bucket'), { body: 'fatigue', delta: 4 }, until22(14, 25)] },
-      { id: 'c22_au_leave', label: 'Оставить до Яннеса: он разбирается', minutes: 10, terminal: true, goto: 'c22_a_runner',
-        text: 'Ты ставишь ведро вверх дном на насос, чтобы не забыли, что он сломан.', effects: [set22('au', 'leave'), until22(14, 25)] },
+        ], effects: [until22(13, 40)] },
+      { id: 'c22_au_bucket', label: 'Наносить воды из колодца в бочку на вечер', minutes: 40, activity: 'heavy', terminal: true, goto: 'c22_x_a_crutch', ambientDuring: day22,
+        text: 'Шестнадцать вёдер. Бочка в сенях полная. Плечи гудят. Насос подождёт до завтра.', effects: [set22('au', 'bucket'), { body: 'fatigue', delta: 4 }, until22(13, 40)] },
+      { id: 'c22_au_leave', label: 'Оставить до Яннеса: он разбирается', minutes: 10, terminal: true, goto: 'c22_x_a_crutch',
+        text: 'Ты ставишь ведро вверх дном на насос, чтобы не забыли, что он сломан.', effects: [set22('au', 'leave'), until22(13, 40)] },
     ] }),
 
   A({ id: 'c22_a_runner', title: 'Бумага на понедельник', camp: yard14, ambient: day22,
@@ -269,13 +274,13 @@ export const day22AScenes: Scene[] = [
       { when: not(ninaTold), text: '— Она останется? — спрашивает Нина. — Лея. Или вы её тоже отдадите, как всех?' },
     ],
     actions: [
-      { id: 'c22_an_sunday', label: 'Сказать: завтра пойдём, засветло, как обещал', when: ninaCap, minutes: 20, terminal: true, goto: 'c22_dusk',
-        text: 'Нина кивает и закрывает тетрадь.\n\n— В десять. Пока солдаты на обходе у Кёлер.\n\nОна уже всё рассчитала. Ты не споришь.', effects: [set22('an', 'sunday'), w22('cap_walk', 'sunday'), npc('c7_nina', 2), until22(17, 20)] },
-      { id: 'c22_an_no', label: 'Сказать: нет. Он не ходит. Его больше нет', when: all(ninaTold, not(ninaCap)), minutes: 20, terminal: true, goto: 'c22_dusk',
-        text: '— Я знаю, — говорит Нина. — Я просто хотела, чтобы кто-нибудь сказал «нет».\n\nОна прислоняется головой к перилам. Ты сидишь рядом, пока у неё не перестают дрожать колени.', effects: [set22('an', 'no'), npc('c7_nina', 2), until22(17, 20)] },
-      { id: 'c22_an_lea', label: 'Объяснить ей про Лею, как есть', when: not(ninaTold), minutes: 25, terminal: true, goto: 'c22_dusk',
-        text: 'Ты объясняешь: кто она, почему её ищут, что такое донорский блок. Нина слушает, наклонив голову.\n\n— Значит, у неё внутри лекарство, — говорит она. — А её за это хотят держать на привязи. Как Йенса.\n\nЕй пятнадцать. Она видит связи, которых ты не {m:хотел|хотела} видеть.', effects: [set22('an', 'lea'), w22('nina_lea', true), npc('c7_nina', 1), until22(17, 20)] },
-      { id: 'c22_an_work', label: 'Позвать её помогать с курами', minutes: 25, terminal: true, goto: 'c22_dusk',
-        text: 'Нина идёт с тобой. Пока вы чистите насест, она рассказывает, какая курица у кого ворует корм. Всех кур она знает по именам. Ты — ни одной.', effects: [set22('an', 'work'), npc('c7_nina', 1), until22(17, 20)] },
+      { id: 'c22_an_sunday', label: 'Сказать: завтра пойдём, засветло, как обещал', when: ninaCap, minutes: 20, terminal: true, goto: 'c22_x_a_koehler',
+        text: 'Нина кивает и закрывает тетрадь.\n\n— В десять. Пока солдаты на обходе у Кёлер.\n\nОна уже всё рассчитала. Ты не споришь.', effects: [set22('an', 'sunday'), w22('cap_walk', 'sunday'), npc('c7_nina', 2), until22(16, 0)] },
+      { id: 'c22_an_no', label: 'Сказать: нет. Он не ходит. Его больше нет', when: all(ninaTold, not(ninaCap)), minutes: 20, terminal: true, goto: 'c22_x_a_koehler',
+        text: '— Я знаю, — говорит Нина. — Я просто хотела, чтобы кто-нибудь сказал «нет».\n\nОна прислоняется головой к перилам. Ты сидишь рядом, пока у неё не перестают дрожать колени.', effects: [set22('an', 'no'), npc('c7_nina', 2), until22(16, 0)] },
+      { id: 'c22_an_lea', label: 'Объяснить ей про Лею, как есть', when: not(ninaTold), minutes: 25, terminal: true, goto: 'c22_x_a_koehler',
+        text: 'Ты объясняешь: кто она, почему её ищут, что такое донорский блок. Нина слушает, наклонив голову.\n\n— Значит, у неё внутри лекарство, — говорит она. — А её за это хотят держать на привязи. Как Йенса.\n\nЕй пятнадцать. Она видит связи, которых ты не {m:хотел|хотела} видеть.', effects: [set22('an', 'lea'), w22('nina_lea', true), npc('c7_nina', 1), until22(16, 0)] },
+      { id: 'c22_an_work', label: 'Позвать её помогать с курами', minutes: 25, terminal: true, goto: 'c22_x_a_koehler',
+        text: 'Нина идёт с тобой. Пока вы чистите насест, она рассказывает, какая курица у кого ворует корм. Всех кур она знает по именам. Ты — ни одной.', effects: [set22('an', 'work'), npc('c7_nina', 1), until22(16, 0)] },
     ] }),
 ];
