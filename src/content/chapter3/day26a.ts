@@ -20,7 +20,7 @@ const diesel: Cond = any2(flag('w.c19_diesel'), flag('w.c16_diesel'));
 const ham: Cond = { stocked: 'c18_ham', qty: 1, at: 'c3_farm_stock' };
 const cigs: Cond = { has: 'c19_cigs' };
 const meat: Effect[] = [{ give: 'c26_beef', qty: 6 }, { give: 'c26_milk', qty: 5 }, w26('meat_got', true)];
-const afterMorning = [{ id: 'car', when: carLoss, goto: 'c26_a_car' }, { id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
+const afterMorning = [{ id: 'car', when: carLoss, goto: 'c26_x_a_corsa' }, { id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
 const afterCar = [{ id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
 const afterTimm = [{ id: 't', when: v('w.c25_road', 'letter'), goto: 'c26_a_tractor' }, { id: 'd', goto: 'c26_a_ditch' }];
 const afterBrandt = [{ id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'h', goto: 'c26_a_yardwork' }];
@@ -42,11 +42,11 @@ export const day26AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c26_am_go', label: 'Собраться сразу', minutes: 20, terminal: true, outcomes: afterMorning,
-        text: 'Куртка, шапка, рукавицы. Нина суёт тебе в карман два варёных яйца, ещё тёплых.', effects: [set26('am', 'go'), until26(7, 30)] },
+        text: 'Куртка, шапка, рукавицы. Нина суёт тебе в карман два варёных яйца, ещё тёплых.', effects: [set26('am', 'go'), { if: carLoss, then: [until26(7, 0)], else: [until26(7, 30)] }] },
       { id: 'c26_am_coffee', label: 'Сначала выпить кофе у печи', minutes: 30, terminal: true, outcomes: afterMorning,
-        text: 'Кофе остался на донышке банки, на две кружки. Одну ты пьёшь сам{m:|а}, вторую оставляешь {B.dat}. Горький, горячий.', effects: [set26('am', 'coffee'), { body: 'fatigue', delta: -3 }, until26(7, 40)] },
+        text: 'Кофе остался на донышке банки, на две кружки. Одну ты пьёшь сам{m:|а}, вторую оставляешь {B.dat}. Горький, горячий.', effects: [set26('am', 'coffee'), { body: 'fatigue', delta: -3 }, { if: carLoss, then: [until26(7, 10)], else: [until26(7, 40)] }] },
       { id: 'c26_am_paper', label: 'Прочитать бумагу ещё раз, медленно', when: any2(carLoss, rationLoss), minutes: 20, terminal: true, outcomes: afterMorning,
-        text: 'Ты читаешь. Подпись Брандта, печать пожарной дружины, дата. Всё по форме. Против этой формы у тебя нет ничего, кроме злости.', effects: [set26('am', 'paper'), { body: 'stress', delta: 2 }, until26(7, 30)] },
+        text: 'Ты читаешь. Подпись Брандта, печать пожарной дружины, дата. Всё по форме. Против этой формы у тебя нет ничего, кроме злости.', effects: [set26('am', 'paper'), { body: 'stress', delta: 2 }, { if: carLoss, then: [until26(7, 0)], else: [until26(7, 30)] }] },
     ] }),
 
   A({ id: 'c26_a_car', title: 'Ключи', camp: yard14, safe: false, ambient: snow26,
@@ -54,6 +54,8 @@ export const day26AScenes: Scene[] = [
       { text: 'Ты едешь в Йестебург на второй передаче, медленно, как на похоронах. У пожарной части уже стоят три машины: «Гольф», пикап, старый «Пассат». На стёклах бумажки с фамилиями.' },
       { text: 'Ключи принимает Тобиас. Он не смотрит тебе в глаза.\n\n— Ich pass auf ihn auf. Keiner fährt damit. Versprochen.\n\nЯ за ней присмотрю. Никто на ней не поедет. Обещаю.' },
       { text: 'Тобиас пишет на бумажке номер и фамилию, привязывает её проволокой к ключам и вешает на доску, где уже висят чужие связки с такими же бумажками. Под доской на табурете дремлет дружинник с ружьём на коленях. Охрана.' },
+      { when: v('$.c26_xc', 'note'), text: 'Тобиас опускает козырёк, находит записку, читает и кладёт обратно. Ничего не говорит.' },
+      { when: v('$.c26_xc', 'kit'), text: 'Аптечка, трос и плед остались дома, в сенях. Машину ты отдаёшь пустой.' },
       { when: v('$.c26_am', 'paper'), text: 'Бумагу Брандта ты {m:сложил|сложила} вчетверо и {m:убрал|убрала} во внутренний карман. Если когда-нибудь будут спрашивать, по какому праву, она будет при тебе.' },
       { when: v('$.c26_am', 'go'), text: 'Бумагу Брандта ты {m:оставил|оставила} на кухонном столе. Нина, наверное, уже прочла.' },
     ],
@@ -173,12 +175,12 @@ export const day26AScenes: Scene[] = [
       { when: { has: 'c24_binoculars' }, text: 'В бинокль видно лицо: молодое, гладкое, на виске пластырь от капельницы. На запястье браслет.' },
     ],
     actions: [
-      { id: 'c26_ap_leave', label: 'Оставить: стоит и стоит', minutes: 20, terminal: true, goto: 'c26_a_nina',
-        text: '— Он всегда так стоит, — говорит Нина. — С понедельника. Утром приходит, вечером уходит. Как на работу.\n\nОна говорит это спокойно. Ты — не {m:спокоен|спокойна}.', effects: [set26('ap', 'leave'), w26('postman', true), until26(15, 50)] },
-      { id: 'c26_ap_watch', label: 'Смотреть, куда он уйдёт вечером', minutes: 50, terminal: true, goto: 'c26_a_nina',
-        text: 'Ты стоишь у окна, пока не начинает темнеть. В половине четвёртого он поворачивается и уходит вдоль лесополосы, на восток. К автобану. К впадине.', effects: [set26('ap', 'watch'), w26('postman', true), w26('postman_east', true), until26(15, 50)] },
-      { id: 'c26_ap_noise', label: 'Выйти и постучать по ведру: увести его подальше', minutes: 40, terminal: true, goto: 'c26_a_nina', ambientDuring: snow26,
-        text: 'Ты идёшь вдоль изгороди и стучишь палкой по ведру. Он поворачивает голову на звук. Делает шаг. Ещё. Ты уводишь его вдоль поля, к дороге на Ханштедт, и там бросаешь ведро. Обратно ты идёшь быстро и ни разу не оглядываешься.', effects: [set26('ap', 'noise'), w26('postman', true), w26('postman_led', true), { body: 'stress', delta: 3 }, until26(15, 50)] },
+      { id: 'c26_ap_leave', label: 'Оставить: стоит и стоит', minutes: 20, terminal: true, goto: 'c26_x_a_bike',
+        text: '— Он всегда так стоит, — говорит Нина. — С понедельника. Утром приходит, вечером уходит. Как на работу.\n\nОна говорит это спокойно. Ты — не {m:спокоен|спокойна}.', effects: [set26('ap', 'leave'), w26('postman', true), until26(15, 15)] },
+      { id: 'c26_ap_watch', label: 'Смотреть, куда он уйдёт вечером', minutes: 50, terminal: true, goto: 'c26_x_a_bike',
+        text: 'Ты стоишь у окна, пока не начинает темнеть. В половине четвёртого он поворачивается и уходит вдоль лесополосы, на восток. К автобану. К впадине.', effects: [set26('ap', 'watch'), w26('postman', true), w26('postman_east', true), until26(15, 15)] },
+      { id: 'c26_ap_noise', label: 'Выйти и постучать по ведру: увести его подальше', minutes: 40, terminal: true, goto: 'c26_x_a_bike', ambientDuring: snow26,
+        text: 'Ты идёшь вдоль изгороди и стучишь палкой по ведру. Он поворачивает голову на звук. Делает шаг. Ещё. Ты уводишь его вдоль поля, к дороге на Ханштедт, и там бросаешь ведро. Обратно ты идёшь быстро и ни разу не оглядываешься.', effects: [set26('ap', 'noise'), w26('postman', true), w26('postman_led', true), { body: 'stress', delta: 3 }, until26(15, 15)] },
     ] }),
 
   A({ id: 'c26_a_home', title: 'Дома', camp: yard14, ambient: snow26,

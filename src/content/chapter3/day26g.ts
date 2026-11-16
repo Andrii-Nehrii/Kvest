@@ -9,7 +9,7 @@ import { S26, brandtByA, dutyA, oleNow, set26, snow26, until26, w26 } from './po
 // Участок 26, третий проход (до уровня 19–20): мёртвый дружинник в канаве (A), санки Кёлер на дороге и письмо Леи (B),
 // поздний вечер у обоих.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S26({ ...scene, for: 'any', chapter: 'ch3' });
-const afterTimm = [{ id: 'b', when: brandtByA, goto: 'c26_a_brandt' }, { id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'h', goto: 'c26_a_yardwork' }];
+const afterTimm = [{ id: 'b', when: brandtByA, goto: 'c26_a_brandt' }, { id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'h', goto: 'c26_x_a_house' }];
 const lea: Cond = { npc: 'c21_lea', alive: true };
 
 export const day26GScenes: Scene[] = [
