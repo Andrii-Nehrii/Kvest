@@ -22,7 +22,7 @@ const cigs: Cond = { has: 'c19_cigs' };
 const meat: Effect[] = [{ give: 'c26_beef', qty: 6 }, { give: 'c26_milk', qty: 5 }, w26('meat_got', true)];
 const afterMorning = [{ id: 'car', when: carLoss, goto: 'c26_a_car' }, { id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
 const afterCar = [{ id: 'duty', when: dutyA, goto: 'c26_a_duty' }, { id: 'timm', goto: 'c26_a_road' }];
-const afterTimm = [{ id: 'd', goto: 'c26_a_ditch' }];
+const afterTimm = [{ id: 't', when: v('w.c25_road', 'letter'), goto: 'c26_a_tractor' }, { id: 'd', goto: 'c26_a_ditch' }];
 const afterBrandt = [{ id: 'm', when: flag('w.c26_meat_got'), goto: 'c26_a_salt' }, { id: 'dl', when: dutyA, goto: 'c26_a_home' }, { id: 'h', goto: 'c26_a_yardwork' }];
 /** Время дня у Тимм: с утра — до полудня, после смены — до темноты. */
 const timmUntil = (morning: [number, number], afternoon: [number, number]): Effect =>
@@ -93,6 +93,10 @@ export const day26AScenes: Scene[] = [
         text: 'Ты идёшь быстро. Впадину видно ещё минут десять, пока дорога не уходит за лес.', effects: [set26('ar', 'go'), w26('hollow_seen', true), { move: lullau }, timmUntil([9, 30], [13, 15])] },
       { id: 'c26_ar_look', label: 'Остановиться на холме и посмотреть', minutes: 50, terminal: true, goto: 'c26_a_anke', ambientDuring: snow26,
         text: 'Ты стоишь на холме. Они не двигаются. Иногда кто-то с краю делает шаг вперёд, и вся масса чуть качается, как вода в ведре. Ветер дует от них. Пахнет.', effects: [set26('ar', 'look'), w26('hollow_seen', true), { body: 'stress', delta: 3 }, { move: lullau }, timmUntil([9, 40], [13, 25])] },
+      { id: 'c26_ar_down', label: 'Спуститься по лесополосе поближе к стоянке', minutes: 15, activity: 'moderate', terminal: true, goto: 'c26_a_hollow', ambientDuring: snow26,
+        text: 'Ты сворачиваешь с дороги в лесополосу.', effects: [set26('ar', 'down'), until26(9, 0)] },
+      { id: 'c26_ar_glass', label: 'Посмотреть в бинокль Оле', when: { has: 'c24_binoculars' }, minutes: 50, terminal: true, goto: 'c26_a_anke', ambientDuring: snow26,
+        text: 'В бинокль видно лица. Ты опускаешь его и поднимаешь снова. За толпой, на краю стоянки, три армейских грузовика под снегом. У третьего откинут тент, под ним бочки. Синие.', effects: [set26('ar', 'glass'), w26('hollow_seen', true), w26('trucks_seen', true), { move: lullau }, timmUntil([9, 40], [13, 25])] },
     ] }),
 
   L({ id: 'c26_a_timm', title: 'Фрау Тимм', ambient: snow26,
@@ -192,6 +196,8 @@ export const day26AScenes: Scene[] = [
       { id: 'c26_ah_wood', label: 'Натаскать дров на ночь', minutes: 40, activity: 'moderate', terminal: true, outcomes: [{ id: 'l', when: all(not(oleNow), { before: at(25, 17, 30) }), goto: 'c26_a_lamp' }, { id: 's', goto: 'c26_supper' }], ambientDuring: snow26,
         text: 'Шесть охапок. Дрова в поленнице подмёрзли друг к другу, приходится отбивать их колуном.', effects: [set26('ah', 'wood'), until26(17, 10)] },
       { id: 'c26_ah_sit', label: 'Посидеть на крыльце', minutes: 20, terminal: true, outcomes: [{ id: 'l', when: all(not(oleNow), { before: at(25, 17, 30) }), goto: 'c26_a_lamp' }, { id: 's', goto: 'c26_supper' }], ambientDuring: snow26,
-        text: 'Ты сидишь и смотришь, как темнеет. Ноги гудят. Руки ещё пахнут мясом, хотя ты мыл{m:|а} их три раза.', effects: [set26('ah', 'sit'), { body: 'stress', delta: -2 }, until26(17, 10)] },
+        text: 'Ты сидишь и смотришь, как темнеет. Ноги гудят после поля.', effects: [set26('ah', 'sit'), { body: 'stress', delta: -2 }, until26(17, 10)] },
+      { id: 'c26_ah_gate', label: 'Обойти изгородь и проверить заднюю калитку', when: not(oleNow), minutes: 30, terminal: true, outcomes: [{ id: 'l', when: { before: at(25, 17, 30) }, goto: 'c26_a_lamp' }, { id: 's', goto: 'c26_supper' }], ambientDuring: snow26,
+        text: 'Калитка держится на одной петле и на проволоке. Ты подвязываешь её второй проволокой, крест-накрест, и подпираешь жердью. У изгороди следы: босые, старые, присыпанные. Кто-то ходил здесь позавчера.', effects: [set26('ah', 'gate'), w26('gate_fixed', true), until26(16, 50)] },
     ] }),
 ];

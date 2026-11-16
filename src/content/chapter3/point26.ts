@@ -99,7 +99,9 @@ export const shared26: Scene[] = [
       { id: 'c26_ev_talk', label: 'Говорить про завтра', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c26_a_late' }, { id: 'b', goto: 'c26_b_late' }],
         text: 'Вы говорите тихо, чтобы не слышала Нина. Кого пустить. Кого нет. Что делать, если придёт мать с больным ребёнком на руках. Ответа нет ни у одного из вас.', effects: [set26('ev', 'talk'), finish, until26(19, 45)] },
       { id: 'c26_ev_rest', label: 'Лечь пораньше', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c26_a_late' }, { id: 'b', goto: 'c26_b_late' }],
-        text: 'Ты ложишься и долго смотришь в потолок. Снизу доносится голос Оле или Нины. Ты засыпаешь, не разобрав слов.', effects: [set26('ev', 'rest'), finish, until26(19, 45)] },
+        text: 'Ты ложишься и долго смотришь в потолок. Снизу доносятся голоса. Ты засыпаешь, не разобрав слов.', effects: [set26('ev', 'rest'), finish, until26(19, 45)] },
+      { id: 'c26_ev_bolts', label: 'Выйти вдвоём проверить засовы', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c26_a_late' }, { id: 'b', goto: 'c26_b_late' }], ambientDuring: snow26,
+        text: 'Ворота, калитка, сарай, хлев. Засовы холодные, пальцы липнут. Над насыпью звёзды, крупные. Вы стоите у ворот минуту дольше, чем надо, плечом к плечу, и молчите про четверг.', effects: [set26('ev', 'bolts'), { body: 'stress', delta: -2 }, until26(19, 30)] },
     ] }),
 
   S26({ id: 'c26_checkpoint', for: 'any', chapter: 'ch3', title: 'Среда, половина девятого', checkpoint: 26, universal: false, camp: house14,

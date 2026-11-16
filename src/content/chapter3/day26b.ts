@@ -3,7 +3,7 @@ import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { meal } from './point12';
-import { any, v } from './point18';
+import { any, ninaFarm, v } from './point18';
 import { npc, tableOnly } from './point19';
 import {
   S26, brandtAlly, brandtHostile, carLoss, dayFacts, dutyB, farm26, jest26, leaFarm26, oleNow, plasmaSpoils, set26, snow26, until26, w26,
@@ -74,11 +74,11 @@ export const day26BScenes: Scene[] = [
       { when: all(not(brandtAlly), not(brandtHostile)), text: 'Брандт сидит, глядя на свои руки.\n\n— Sabine hat es mir am Sonntag gesagt. — Он снимает каску. — Geht. Alle. Geht nach Hause.\n\nСабина сказала мне это в воскресенье. Идите. Все. Идите по домам.' },
     ],
     actions: [
-      { id: 'c26_bb_sabine', label: 'Посмотреть на Сабину', minutes: 15, terminal: true, goto: 'c26_b_walk',
+      { id: 'c26_bb_sabine', label: 'Посмотреть на Сабину', minutes: 15, terminal: true, outcomes: [{ id: 'g', when: flag('w.c25_kirch_given'), goto: 'c26_b_grete' }, { id: 'w', goto: 'c26_b_walk' }],
         text: 'Сабина стоит у окна с термосом. Она не плачет. Она кивает тебе один раз, коротко. Спасибо или прощай — не понять.', effects: [set26('bb', 'sabine'), until26(12, 40)] },
-      { id: 'c26_bb_go', label: 'Уйти', minutes: 10, terminal: true, goto: 'c26_b_walk',
+      { id: 'c26_bb_go', label: 'Уйти', minutes: 10, terminal: true, outcomes: [{ id: 'g', when: flag('w.c25_kirch_given'), goto: 'c26_b_grete' }, { id: 'w', goto: 'c26_b_walk' }],
         text: 'Ты выходишь во двор. Снег скрипит. За спиной тихо.', effects: [set26('bb', 'go'), until26(12, 30)] },
-      { id: 'c26_bb_paper', label: 'Положить на стол лист с цифрами и уйти', minutes: 10, terminal: true, goto: 'c26_b_walk',
+      { id: 'c26_bb_paper', label: 'Положить на стол лист с цифрами и уйти', minutes: 10, terminal: true, outcomes: [{ id: 'g', when: flag('w.c25_kirch_given'), goto: 'c26_b_grete' }, { id: 'w', goto: 'c26_b_walk' }],
         text: 'Ты вырываешь лист из блокнота, пишешь крупно: «212 — 0» и кладёшь его Брандту на списки, поверх фамилий.\n\nОн не смотрит на лист. Но и не убирает.',
         effects: [set26('bb', 'paper'), w26('brandt_paper', true), until26(12, 30)] },
     ] }),
@@ -90,11 +90,13 @@ export const day26BScenes: Scene[] = [
       { text: 'Мороз щиплет щёки. На дороге ни машины, ни трактора, только следы санок и потерянная варежка, детская, красная, вмёрзшая в колею.' },
       { when: v('$.c26_bb', 'sabine'), text: 'Ты всё ещё видишь лицо Сабины у окна. Она не отвела глаз.' },
       { when: v('$.c26_bb', 'go'), text: 'Дверь караулки ты {m:закрыл|закрыла} за собой тихо, без хлопка. Почему-то это кажется важным.' },
-      { when: v('$.c26_bb', 'paper'), text: 'Лист с цифрами остался на столе у Брандта. Без подписи, но он и так знает, от кого.' },
     ],
     actions: [
-      { id: 'c26_bw_go', label: 'Дойти до дома и сесть у печи', minutes: 60, terminal: true, goto: 'c26_b_sled', ambientDuring: snow26,
-        text: 'Дома Нина снимает с тебя куртку, как с ребёнка, и усаживает к печи.', effects: [set26('bw', 'go'), meal('eat'), until26(14, 0)] },
+      { id: 'c26_bw_go', label: 'Пройти мимо по дороге, не меняя шага', minutes: 60, risky: true, terminal: true, goto: 'c26_b_sled', ambientDuring: snow26,
+        outcomes: [
+          { id: 'ok', check: { traits: ['stealth'], difficulty: 3, uses: ['focus'] }, text: 'Ты идёшь ровно, не быстрее и не медленнее. Белый у лесополосы поворачивает голову, следит, но не двигается. Ты проходишь мимо, и только у поворота спина перестаёт чувствовать его взгляд. Дома Нина снимает с тебя куртку, как с ребёнка, и усаживает к печи.', effects: [set26('bw', 'go'), meal('eat')] },
+          { id: 'follow', text: 'На середине поворота он делает шаг на дорогу. Потом второй. Ты ускоряешь шаг, он тоже. Ты бежишь, поскальзываешься на колее, падаешь на ладони, вскакиваешь и бежишь дальше. У поворота оглядываешься: он остановился на середине дороги и смотрит тебе вслед. Ладони содраны. Дома Нина молча промывает их тёплой водой.', effects: [set26('bw', 'ran'), meal('eat'), { injure: 'scratch', site: 'hands', severity: 1 }, { body: 'stress', delta: 5 }, { body: 'fatigue', delta: 5 }] },
+        ], effects: [until26(14, 0)] },
       { id: 'c26_bw_tell', label: 'Дома сразу сказать Нине, что {m:видел|видела}', minutes: 70, terminal: true, goto: 'c26_b_sled', ambientDuring: snow26,
         text: 'Нина слушает и кивает.\n\n— Я тоже видела. Позавчера. Он стоит там каждый день. Я назвала его Почтальоном.\n\nОна не шутит.', effects: [set26('bw', 'tell'), w26('postman', true), until26(14, 10)] },
       { id: 'c26_bw_field', label: 'Свернуть в поле и обойти его по дуге', activity: 'moderate', ambientDuring: snow26, minutes: 80, terminal: true, goto: 'c26_b_sled',
@@ -140,10 +142,12 @@ export const day26BScenes: Scene[] = [
     actions: [
       { id: 'c26_ba_room', label: 'Приготовить Оле место у печи', when: oleNow, minutes: 40, terminal: true, goto: 'c26_b_ole',
         text: 'Лавка у печи, где лежал Мальте. Ты стелешь два одеяла и подушку. Нина приносит грелку и ставит на табурет кружку. Пустую. На случай.', effects: [set26('ba', 'room'), until26(15, 50)] },
-      { id: 'c26_ba_hens', label: 'Почистить курятник с Ниной', when: not(oleNow), minutes: 60, activity: 'light', terminal: true, goto: 'c26_b_letter',
+      { id: 'c26_ba_hens', label: 'Почистить курятник с Ниной', when: not(oleNow), minutes: 60, activity: 'light', terminal: true, goto: 'c26_b_seed2',
         text: 'Вы выгребаете старую подстилку и стелете свежую солому. Куры ходят вокруг и ругаются. Нина ругается в ответ, по-немецки, так же.', effects: [set26('ba', 'hens'), npc('c7_nina', 1), until26(15, 30)] },
-      { id: 'c26_ba_sleep', label: 'Поспать час', minutes: 5, terminal: true, outcomes: [{ id: 'o', when: oleNow, goto: 'c26_b_ole' }, { id: 'e', goto: 'c26_b_letter' }],
+      { id: 'c26_ba_sleep', label: 'Поспать час', minutes: 5, terminal: true, outcomes: [{ id: 'o', when: oleNow, goto: 'c26_b_ole' }, { id: 'e', goto: 'c26_b_seed2' }],
         text: 'Ты засыпаешь сразу. Снится пункт: термометры, бинты, кукла с разными глазами.', effects: [set26('ba', 'sleep'), until26(15, 50, true)] },
+      { id: 'c26_ba_ute', label: 'Сходить к Уте за молоком для Нины', when: not(oleNow), minutes: 50, terminal: true, goto: 'c26_b_seed2', ambientDuring: snow26,
+        text: 'Уте доит самую старую козу при тебе, в ведёрко, и переливает в банку. Пол-литра, тёплого. Денег она не берёт. Спрашивает только про Нину, и ты видишь, что ей правда интересно.', effects: [set26('ba', 'ute'), { give: 'c26_milk', qty: 1 }, npc('c14_ute', 1), until26(15, 40)] },
     ] }),
 
   B({ id: 'c26_b_ole', title: 'Оле дома', camp: yard14, ambient: snow26,
@@ -164,13 +168,14 @@ export const day26BScenes: Scene[] = [
       { text: 'Три яйца на десять ртов.' },
       { text: 'Рыжая несушка сидит на гнезде и не хочет вставать, ворчит, когда ты подсовываешь руку. Её яйцо самое тёплое.' },
       { when: v('$.c26_bl3', 'later'), text: 'Неотправленное письмо лежит на подоконнике в кухне. «Потом» в такую зиму может и не наступить.' },
-      { text: 'Три яйца лежат в ладонях тёплые, и с ними страшно сделать неверный шаг.' },
     ],
     actions: [
       { id: 'c26_be_nina', label: 'Отдать Нине: пусть решит сама', minutes: 15, terminal: true, goto: 'c26_b_wash',
         text: 'Нина держит яйца в ладонях и думает.\n\n— Оле, — говорит она. — Одно Оле. Два — в суп. Так честно.', effects: [set26('be', 'nina'), { place: 'eggs', at: 'c3_farm_stock', qty: 3 }, npc('c7_nina', 1), until26(17, 20)] },
       { id: 'c26_be_stock', label: 'Положить в кладовку', minutes: 10, terminal: true, goto: 'c26_b_wash',
         text: 'Три яйца ложатся в миску к остальным. Нина записывает в тетрадь: «25.11 — 3».', effects: [set26('be', 'stock'), { place: 'eggs', at: 'c3_farm_stock', qty: 3 }, until26(17, 20)] },
+      { id: 'c26_be_cook', label: 'Сварить их сейчас: Нине, Эве и себе', minutes: 20, terminal: true, goto: 'c26_b_wash',
+        text: 'Три яйца в кастрюльке, семь минут. Нина ест своё медленно, отщипывая белок по кусочку, чтобы растянуть. Эва отдаёт половину желтка Нине и говорит, что не любит желток. Это неправда.', effects: [set26('be', 'cook'), { body: 'hunger', delta: -6 }, { if: ninaFarm, then: [npc('c7_nina', 1)] }, until26(17, 0)] },
     ] }),
 ];
 
