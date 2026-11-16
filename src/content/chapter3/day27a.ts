@@ -113,6 +113,8 @@ export const day27AScenes: Scene[] = [
         text: '— Die Kleine am Fenster in Lüneburg, — говорит Оле, не глядя на тебя. Малышка у окна в Люнебурге. — Sie hieß Mia. Ich hab ihr jeden Tag einen Witz erzählt. Am Dienstag hab ich keinen mehr gewusst.\n\nЕё звали Мия. Я каждый день рассказывал ей анекдот. Во вторник ни одного не вспомнил.\n\nВы сидите до четырёх. Говорить больше не нужно.', effects: [set27('ac', 'ole'), npc('ole', 2), until27(13, 0)] },
       { id: 'c27_ac_watch', label: 'Сидеть у окна наверху и смотреть на дорогу', minutes: 60, terminal: true, goto: 'c27_a_broth',
         text: 'Дорога пустая. Один раз проезжает трактор. Один раз проходит женщина с санками. В три у лесополосы встаёт Почтальон, лицом к хутору. Стоит до сумерек.', effects: [set27('ac', 'watch'), until27(13, 0)] },
+      { id: 'c27_ac_water', label: 'Натаскать воды в бак и нагреть: Касе и мальчику помыться', minutes: 70, activity: 'moderate', terminal: true, goto: 'c27_a_broth', ambientDuring: snow27,
+        text: 'Восемь вёдер от колонки, бак на плиту. К часу вода горячая. Кася моет Тима тёплой тряпкой, медленно, как маленького, а ты стоишь за дверью и держишь полотенце. Потом она моется сама, впервые за неделю, и выходит в чужой кофте другой женщиной.', effects: [set27('ac', 'water'), npc('kasia', 1), { body: 'fatigue', delta: 6 }, until27(13, 0)] },
     ] }),
 
   A({ id: 'c27_a_tobias', title: 'Тобиас', camp: yard14, ambient: snow27,
@@ -140,12 +142,12 @@ export const day27AScenes: Scene[] = [
       { when: flag('w.c27_tobias_delay'), text: 'Тобиас обещал задержать лейтенанта на час. Час — это немного. Это всё, что у вас есть.' },
     ],
     actions: [
-      { id: 'c27_ad_kasia', label: 'Зайти к Касе', minutes: 40, terminal: true, goto: 'c27_supper',
-        text: 'Кася поднимает на тебя глаза. Тим дышит часто и мелко.\n\n— Nicht die Armee, — говорит она тебе. Только это. — Bitte. Nicht die.\n\nНе армия. Пожалуйста. Не они.\n\nТы стоишь в дверях, пока {B} не кивает тебе: иди.', effects: [set27('ad', 'kasia'), truthA, npc('kasia', 1), until27(18, 20)] },
-      { id: 'c27_ad_water', label: 'Натаскать воды и дров на ночь, к ним и в дом', minutes: 60, activity: 'moderate', terminal: true, goto: 'c27_supper', ambientDuring: snow27,
-        text: 'Два ведра воды к двери, охапка дров к печи. Ещё два, ещё охапка. Ты носишь, пока не перестаёт хватать места. Это единственное, что ты сейчас можешь сделать руками.', effects: [set27('ad', 'water'), { body: 'fatigue', delta: 5 }, until27(18, 20)] },
-      { id: 'c27_ad_gate', label: 'Проверить ворота и калитку', minutes: 30, terminal: true, goto: 'c27_supper', ambientDuring: snow27,
-        text: 'Засов, цепь, колокольчик на задней калитке. Дорога пустая. У лесополосы никого: Почтальон ушёл до темноты.', effects: [set27('ad', 'gate'), until27(18, 15)] },
+      { id: 'c27_ad_kasia', label: 'Зайти к Касе', minutes: 40, terminal: true, goto: 'c27_a_hut',
+        text: 'Кася поднимает на тебя глаза. Тим дышит часто и мелко.\n\n— Nicht die Armee, — говорит она тебе. Только это. — Bitte. Nicht die.\n\nНе армия. Пожалуйста. Не они.\n\nТы стоишь в дверях, пока {B} не кивает тебе: иди.', effects: [set27('ad', 'kasia'), truthA, npc('kasia', 1), until27(17, 20)] },
+      { id: 'c27_ad_water', label: 'Натаскать воды и дров на ночь, к ним и в дом', minutes: 60, activity: 'moderate', terminal: true, goto: 'c27_a_hut', ambientDuring: snow27,
+        text: 'Два ведра воды к двери, охапка дров к печи. Ещё два, ещё охапка. Ты носишь, пока не перестаёт хватать места. Это единственное, что ты сейчас можешь сделать руками.', effects: [set27('ad', 'water'), { body: 'fatigue', delta: 5 }, until27(17, 20)] },
+      { id: 'c27_ad_gate', label: 'Проверить ворота и калитку', minutes: 30, terminal: true, goto: 'c27_a_hut', ambientDuring: snow27,
+        text: 'Засов, цепь, колокольчик на задней калитке. Дорога пустая. У лесополосы никого: Почтальон ушёл до темноты.', effects: [set27('ad', 'gate'), until27(17, 20)] },
     ] }),
 ];
 

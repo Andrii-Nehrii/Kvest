@@ -17,11 +17,11 @@ export const day27GScenes: Scene[] = [
       { text: 'Груша стоит голая, чёрная, с одним сморщенным плодом на верхней ветке, который так и не упал. Снег под ней ровный, нетронутый.' },
     ],
     actions: [
-      { id: 'c27_ap4_fire', label: 'Развести на этом месте костёр: к утру земля оттает', minutes: 40, activity: 'moderate', terminal: true, goto: 'c27_a_chores', ambientDuring: snow,
+      { id: 'c27_ap4_fire', label: 'Развести на этом месте костёр: к утру земля оттает', minutes: 40, activity: 'moderate', terminal: true, goto: 'c27_a_kasia', ambientDuring: snow,
         text: 'Ты складываешь костёр из старых досок прямо на снегу под грушей и поджигаешь. Кася видит дым из окна и долго смотрит. Потом отходит от окна. Она поняла. Ты понял{m:|а}, что она поняла.', effects: [set27('ap4', 'fire'), w27('grave_ready', true), npc('kasia', -1, 'c27_saw_fire'), until27(12, 0)] },
-      { id: 'c27_ap4_ute', label: 'Спросить Уте: можно ли в колонии, у насыпи, где Кай', minutes: 30, terminal: true, goto: 'c27_a_chores',
+      { id: 'c27_ap4_ute', label: 'Спросить Уте: можно ли в колонии, у насыпи, где Кай', minutes: 30, terminal: true, goto: 'c27_a_kasia',
         text: 'Уте кивает, не дослушав. «Neben Kai ist Platz. Die Erde dort ist weicher, wegen dem Bach». Рядом с Каем есть место. Земля там мягче, из-за ручья. Она говорит это так спокойно, что тебе становится не по себе.', effects: [set27('ap4', 'ute'), w27('grave_place', 'colony'), npc('c14_ute', 1), until27(11, 50)] },
-      { id: 'c27_ap4_no', label: 'Не сейчас. Не пока он жив', minutes: 15, terminal: true, goto: 'c27_a_chores',
+      { id: 'c27_ap4_no', label: 'Не сейчас. Не пока он жив', minutes: 15, terminal: true, goto: 'c27_a_kasia',
         text: 'Ты уходишь от груши, не оглядываясь. Нельзя готовить могилу живому. Даже если завтра будет поздно.', effects: [set27('ap4', 'no'), until27(11, 35)] },
     ] }),
 

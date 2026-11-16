@@ -81,14 +81,14 @@ export const day27BScenes: Scene[] = [
       { when: leaNear, text: 'Лея сидит на краю кровати и считает пульс по часам, шевеля губами. Потом записывает на ладони шариковой ручкой.' },
     ],
     actions: [
-      { id: 'c27_bl_ask', label: 'Спросить: можно хоть что-то сделать?', minutes: 20, terminal: true, goto: 'c27_b_fever',
+      { id: 'c27_bl_ask', label: 'Спросить: можно хоть что-то сделать?', minutes: 20, terminal: true, goto: 'c27_b_fufu',
         outcomes: [
           { id: 'lea', when: leaNear, text: '— Ihm nicht weh tun lassen. Das ist alles. — Лея достаёт из кармана две ампулы. — Morphin. Von Sander. Für heute Nacht. Eine. Wenn er unruhig wird. Nicht beide.\n\nНе дать ему мучиться. Это всё. Морфин. От Зандер. На ночь. Одну. Если станет беспокойным. Не обе.', effects: [set27('bl', 'ask'), { give: 'c27_morphine', qty: 2 }, w27('morphine', true)] },
           { id: 'eva', text: 'Эва качает головой.\n\n— Nur da sein. Mehr kann man nicht.\n\nТолько быть рядом. Больше нельзя.', effects: [set27('bl', 'ask')] },
         ], effects: [truthB, until27(10, 30)] },
-      { id: 'c27_bl_kasia', label: 'Пойти к Касе и посидеть с ней', minutes: 40, terminal: true, goto: 'c27_b_fever',
+      { id: 'c27_bl_kasia', label: 'Пойти к Касе и посидеть с ней', minutes: 40, terminal: true, goto: 'c27_b_fufu',
         text: 'Ты садишься рядом с Касей на пол. Вы молчите. Тим спит. Иногда он вздрагивает во сне и зовёт кого-то по-польски. Кася гладит его по голове, не просыпаясь сама, кажется.', effects: [set27('bl', 'kasia'), truthB, npc('kasia', 2), until27(11, 0)] },
-      { id: 'c27_bl_nina', label: 'Выйти к Нине: она весь день у двери', minutes: 30, terminal: true, goto: 'c27_b_fever',
+      { id: 'c27_bl_nina', label: 'Выйти к Нине: она весь день у двери', minutes: 30, terminal: true, goto: 'c27_b_fufu',
         text: 'Нина сидит у двери на корточках.\n\n— Можно мне к нему? На минуту?\n\nТы пускаешь. Она садится у дивана и показывает Тиму свою тетрадь: клетку, ядро, митохондрию. Он смотрит и говорит: «Wie eine Pizza». Как пицца. Нина смеётся сквозь слёзы.', effects: [set27('bl', 'nina'), truthB, npc('c7_nina', 2), npc('c27_tim', 1), until27(10, 50)] },
     ] }),
 
@@ -99,12 +99,12 @@ export const day27BScenes: Scene[] = [
       { text: 'Окно приоткрыто на щель: нужен воздух. Занавеска шевелится. На подоконнике стоит стакан воды с трубочкой.' },
     ],
     actions: [
-      { id: 'c27_bf_cool', label: 'Обтирать его мокрым полотенцем', minutes: 120, terminal: true, goto: 'c27_b_letter',
-        text: 'Холодная вода, полотенце, лоб, шея, запястья. Снова. Снова. Жар не уходит. Но Тим дышит ровнее, пока ты это делаешь. Ты не останавливаешься два часа.', effects: [set27('bf', 'cool'), { body: 'fatigue', delta: 6 }, until27(12, 30)] },
-      { id: 'c27_bf_sing', label: 'Петь ему, что помнишь', minutes: 120, terminal: true, goto: 'c27_b_letter',
-        text: 'Ты поёшь по-русски, колыбельную. Кася узнаёт мелодию: у поляков есть похожая. Она начинает подпевать по-польски. Две колыбельные на одну мелодию. Тим засыпает.', effects: [set27('bf', 'sing'), npc('kasia', 2), until27(12, 30)] },
-      { id: 'c27_bf_kasia', label: 'Отправить Касю поспать, сесть вместо неё', minutes: 120, terminal: true, goto: 'c27_b_letter',
-        text: 'Кася не хочет. Потом соглашается на час. Спит на полу у стены, свернувшись, в пальто. Ты сидишь у Тима. Он открывает глаза, смотрит на тебя и спрашивает: «Wo ist Mama?» Ты показываешь. Он кивает и снова закрывает глаза.', effects: [set27('bf', 'kasia'), npc('kasia', 3), { body: 'fatigue', delta: 4 }, until27(12, 30)] },
+      { id: 'c27_bf_cool', label: 'Обтирать его мокрым полотенцем', minutes: 120, terminal: true, goto: 'c27_b_eva',
+        text: 'Холодная вода, полотенце, лоб, шея, запястья. Снова. Снова. Жар не уходит. Но Тим дышит ровнее, пока ты это делаешь. Ты не останавливаешься два часа.', effects: [set27('bf', 'cool'), { body: 'fatigue', delta: 6 }, until27(12, 0)] },
+      { id: 'c27_bf_sing', label: 'Петь ему, что помнишь', minutes: 120, terminal: true, goto: 'c27_b_eva',
+        text: 'Ты поёшь по-русски, колыбельную. Кася узнаёт мелодию: у поляков есть похожая. Она начинает подпевать по-польски. Две колыбельные на одну мелодию. Тим засыпает.', effects: [set27('bf', 'sing'), npc('kasia', 2), until27(12, 0)] },
+      { id: 'c27_bf_kasia', label: 'Отправить Касю поспать, сесть вместо неё', minutes: 120, terminal: true, goto: 'c27_b_eva',
+        text: 'Кася не хочет. Потом соглашается на час. Спит на полу у стены, свернувшись, в пальто. Ты сидишь у Тима. Он открывает глаза, смотрит на тебя и спрашивает: «Wo ist Mama?» Ты показываешь. Он кивает и снова закрывает глаза.', effects: [set27('bf', 'kasia'), npc('kasia', 3), { body: 'fatigue', delta: 4 }, until27(12, 0)] },
     ] }),
 
   B({ id: 'c27_b_ute', title: 'Уте', camp: kitchen14,
@@ -135,6 +135,8 @@ export const day27BScenes: Scene[] = [
         text: 'Кася кивает и возвращается к Тиму. Ты идёшь за ней и садишься у двери. Тим дышит. Часы на кухне отстают на четыре минуты.', effects: [set27('bd', 'stay'), truthB, until27(18, 25)] },
       { id: 'c27_bd_a', label: 'Сказать: сейчас позову {A.acc}, решим вместе', minutes: 40, terminal: true, goto: 'c27_supper',
         text: 'Кася кивает. Она не спорит. Она просто возвращается к Тиму. Ты идёшь искать {A.acc} и находишь его во дворе, у «Вольфа» Тобиаса.', effects: [set27('bd', 'a'), truthB, until27(18, 0)] },
+      { id: 'c27_bd_hold', label: 'Взять его на руки, пока он ещё узнаёт', minutes: 30, terminal: true, goto: 'c27_supper',
+        text: 'Ты поднимаешь его вместе с одеялом. Он лёгкий, как свёрток с бельём. Он смотрит на тебя, потом на Касю, потом снова на тебя, и говорит одно слово: «Lift». Лифт. Ты не понимаешь. Кася понимает и закрывает лицо руками.', effects: [set27('bd', 'hold'), npc('kasia', 2), { body: 'stress', delta: 3 }, until27(18, 0)] },
     ] }),
 ];
 
