@@ -1,6 +1,8 @@
 import type { Scene } from '../../engine/content-types';
 import { house14, kitchen14, yard14 } from './point14';
 import { npc } from './point19';
+import { all, not } from './world3';
+import { any, v } from './point18';
 import { S33, frost33, set33, until33 } from './point33';
 
 // Участок 33, второй круг дотяжки (16.11).
@@ -12,10 +14,15 @@ export const day33XScenes: Scene[] = [
   // ───────────── A ─────────────
   X({ id: 'c33_x_a_well', title: 'Колодец Уте', camp: yard14, safe: false, ambient: frost33,
     text: [
+      { when: any(v('w.c30_ute_saved', 'b'), v('w.c30_ute_saved', 'uwe')), text: 'После той ночи у колонии Уте здоровается с тобой за руку и держит её дольше, чем надо. Чайник с кипятком у неё уже наготове.' },
+      { when: v('B.c30_yj', 'wait'), text: 'Уте здоровается сухо. Яннес из дома не выходит.' },
       { text: 'Колодец у Уте старый, с воротом и цепью. Ворот обледенел, цепь вмёрзла в наледь на срубе. Ведро висит внизу, в чёрной дыре, и не поднимается.' },
       { text: 'Уте стоит рядом с кипятком в чайнике. — Erst den Kragen abtauen. Und nicht reinlehnen. Kai hat sich da mal fast den Hals gebrochen.\n\nСначала оттаять сруб. И не наклоняться. Кай тут однажды чуть шею не свернул.' },
     ],
     actions: [
+      { id: 'c33_xw_jannes', label: 'Позвать Яннеса: пусть крутит ворот, а ты держишь цепь', when: all(any(v('A.c30_xj', 'post'), v('A.c30_xj', 'fire'), v('B.c30_xj', 'post'), v('B.c30_xj', 'fire')), not(v('B.c30_yj', 'wait'))), minutes: 25, terminal: true, goto: 'c33_x_a_slope', ambientDuring: frost33,
+        text: 'Яннес выходит сразу, как будто ждал. Он отбивает наледь с ворота короткими ударами, ты держишь цепь, чтобы не сорвалась. Вдвоём выходит быстро и без риска. Пока бочка наполняется, он рассказывает, что в ту ночь простоял у ваших ворот до трёх. Ему это важно, и он хочет, чтобы ты знал{m:|а}.',
+        effects: [set33('xw', 'jannes'), npc('c14_jannes', 2), until33(10, 30)] },
       { id: 'c33_xw_lean', label: 'Сбить наледь ломиком, наклонившись над срубом', minutes: 30, activity: 'moderate', risky: true, terminal: true, goto: 'c33_x_a_slope', ambientDuring: frost33,
         outcomes: [
           { id: 'ok', check: { traits: ['agility', 'strength'], difficulty: 3, uses: ['mobility'] },
@@ -35,11 +42,13 @@ export const day33XScenes: Scene[] = [
 
   X({ id: 'c33_x_a_slope', title: 'Подъём у насыпи', camp: yard14, safe: false, ambient: frost33,
     text: [
+      { when: v('A.c31_yt', 'lost'), text: 'Солярки в баке на донышке: ту, что была, слили мальчишки из деревни у канавы. Газовать на подъёме нечем.' },
+      { when: v('A.c31_yt', 'let'), text: 'Солярки в баке меньше, чем было: пять литров ушли на чью-то печку в деревне. Ты об этом не жалеешь.' },
       { text: 'От Уте к хутору дорога идёт вверх, вдоль насыпи. Подъём короткий, но крутой, и за ночь его укатало до зеркала. Трактор Хенрике тянет прицеп с бочкой, бочка качается.' },
       { text: 'На середине подъёма заднее колесо начинает пробуксовывать.' },
     ],
     actions: [
-      { id: 'c33_xs_gas', label: 'Дать газу и проскочить с разгона', minutes: 15, risky: true, terminal: true, goto: 'c33_a_pump2', ambientDuring: frost33,
+      { id: 'c33_xs_gas', label: 'Дать газу и проскочить с разгона', when: not(v('A.c31_yt', 'lost')), minutes: 15, risky: true, terminal: true, goto: 'c33_a_pump2', ambientDuring: frost33,
         outcomes: [
           { id: 'ok', check: { traits: ['driving'], difficulty: 3, uses: ['focus'] },
             text: 'Мотор ревёт, колесо цепляется, прицеп ведёт вбок, но ты выравниваешь. Трактор выползает наверх, бочка ухает на ухабе, плещет через край, но стоит. Наверху ты глушишь мотор и сидишь минуту, разжимая пальцы на руле.',
@@ -139,6 +148,9 @@ export const day33XScenes: Scene[] = [
       { text: '— Herz. Zu viel Blut abgegeben, zu schnell, drei Wochen lang. Das Herz pumpt, was nicht da ist.\n\nСердце. Слишком много крови сдал, слишком быстро, три недели подряд. Сердце качает то, чего нет.' },
     ],
     actions: [
+      { id: 'c33_xv_anti', label: 'Отдать Окафору антибиотики из Винзена', when: any(v('B.c32_xs', 'anti'), v('B.c32_xs', 'trade')), minutes: 20, terminal: true, goto: 'c33_b_kasia',
+        text: 'Окафор вертит коробку в руках, читает срок годности, поднимает на тебя глаза.\n\n— Amoxicillin. Damit kann ich ihm die Lunge retten, wenn die Entzündung kommt. Bei diesem Herz kommt sie immer.\n\nАмоксициллин. С ним я спасу ему лёгкие, когда начнётся воспаление. С таким сердцем оно начинается всегда.\n\nКоробку он кладёт в нагрудный карман и застёгивает пуговицу.',
+        effects: [set33('xv', 'anti'), npc('okafor', 2), until33(14, 30)] },
       { id: 'c33_xv_how', label: 'Спросить прямо: сколько у него времени', minutes: 20, terminal: true, goto: 'c33_b_kasia',
         text: '— Wenn er liegt und isst: Monate. Wenn er arbeitet: Wochen. Wenn er sich aufregt… — Окафор пожимает плечами.\n\nЕсли лежит и ест — месяцы. Если работает — недели. Если будет волноваться…\n\nТы запоминаешь каждое слово, чтобы потом решать, что из этого сказать Хенрике.',
         effects: [set33('xv', 'how'), { body: 'stress', delta: 3 }, until33(14, 30)] },

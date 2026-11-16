@@ -1,5 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import { yard14 } from './point14';
+import { v } from './point18';
+import { all } from './world3';
 import { S35, frost35, jest35, set35, until35, w35 } from './point35';
 
 // Участок 35, переработка 16.11 (до уровня 17–20).
@@ -30,6 +32,8 @@ export const day35RScenes: Scene[] = [
 
   X({ id: 'c35_b_radio', title: 'Радио', location: jest35, camp: { at: jest35, stock: 'c3_farm_stock', rest: false }, ambient: { tempC: 14, outdoor: false, wet: false },
     text: [
+      { when: all(v('B.c32_xl', 'search'), { npc: 'kasia', alive: true }), text: 'В конце листка ещё строчка, для хутора: «An Hof Lüdemann: K. aus Barmbek-Nord lebt, Geesthacht, Halle 3. Grüße an Kasia». К. из Бармбека жив, Гестхахт, зал три. Привет Касе. Это ответ на твою записку на стене в Винзене.' },
+      { when: v('B.c32_xl', 'pin'), text: 'В конце листка ещё строчка: «Hof Lüdemann: gelesen in Winsen. Danke für die Namen». Хутор Людеманов: прочитано в Винзене. Спасибо за имена. Кто-то нашёл на стене твою записку.' },
       { text: 'В задней комнате пункта у Зандер стоит рация Красного Креста. Раз в день, в десять, связь с Гестхахтом и дальше по цепочке. Сегодня у рации Окафор.' },
       { text: 'Он снимает наушники и протягивает тебе листок, на котором записал карандашом:\n\n«Ahrensburg, Sporthalle. Thiessen, Merle. Lebt. Insulin bis 15.12., wenn sparsam. Fragt nach Barmbek».\n\nАренсбург, спортзал. Тиссен, Мерле. Жива. Инсулин до 15.12, если экономить. Спрашивает про Бармбек.' },
       { text: '— Wir können antworten. Ein Satz. Mehr lassen sie nicht durch.\n\nМожем ответить. Одна фраза. Больше не пропускают.' },

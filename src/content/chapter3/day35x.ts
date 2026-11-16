@@ -1,6 +1,8 @@
 import type { Scene } from '../../engine/content-types';
 import { house14, kitchen14, yard14 } from './point14';
 import { npc } from './point19';
+import { v } from './point18';
+import { flag, not } from './world3';
 import { A35, S35, frost35, set35, until35 } from './point35';
 
 // Участок 35, второй круг дотяжки (16.11).
@@ -50,6 +52,8 @@ export const day35XScenes: Scene[] = [
 
   X({ id: 'c35_x_b_elders', title: 'Кто первым', camp: kitchen14,
     text: [
+      { when: flag('w.c35_seat4'), text: 'Под строчкой Хаазе приписка другой рукой: «+1. Für Hof Lüdemann. S.» Сандра сдержала слово. Мест четыре.' },
+      { when: flag('w.c33_gisela'), text: 'Фрау Кёрнер живёт у Гизелы Мёллер, в деревне. Гизела сказала, что впишет её сама, если та захочет. Решать надо за остальных.' },
       { text: 'Хенрике кладёт на стол листок Хаазе. Внизу от руки: «Hof Lüdemann: 3 Plätze, Alte/Kranke. Namen bis 8.12». Хутор Людеманов: три места, старые и больные. Имена до восьмого.' },
       { text: 'Стариков на хуторе трое. Фрау Кёрнер с сердцем. Петерсены, оба за восемьдесят.' },
       { when: oleAlive, text: 'И Оле. Мест три.' },
@@ -57,6 +61,9 @@ export const day35XScenes: Scene[] = [
       { text: '— Du warst im Punkt. Du weißt, wer es nicht schafft. Ich kann das nicht entscheiden.\n\nТы {m:был|была} в пункте. Ты знаешь, кто не выдержит. Я не могу это решать.' },
     ],
     actions: [
+      { id: 'c35_xe_all', label: 'Вписать всех: мест теперь хватает', when: flag('w.c35_seat4'), minutes: 25, terminal: true, goto: 'c35_b_dusk',
+        text: 'Ты пишешь фамилии одну под другой, и выбирать никого не нужно. Хенрике читает список через плечо и долго молчит. Потом говорит: «Wer ist diese S.?» Кто эта «С.»? Ты рассказываешь про девочку без варежек. Хенрике кивает, будто это всё объясняет. Для неё — объясняет.',
+        effects: [set35('xe', 'all'), until35(14, 30)] },
       { id: 'c35_xe_heart', label: 'Вписать тех, кому хуже всех', minutes: 30, terminal: true, goto: 'c35_b_dusk',
         outcomes: [
           { id: 'o', when: oleAlive, text: 'Ты пишешь три фамилии, начиная с фрау Кёрнер. Те, кого в списке нет, узнают вечером, от тебя {m:самого|самой}. Никто не спорит. Фрау Петерсен только говорит: «Wir bleiben, wo wir sind». Мы останемся, где есть. От этого не легче.', effects: [set35('xe', 'heart'), until35(14, 30)] },
@@ -89,11 +96,12 @@ export const day35XScenes: Scene[] = [
 
   X({ id: 'c35_x_animals', title: 'Скотина', camp: yard14, ambient: frost35,
     text: [
+      { when: v('B.c30_yj', 'wait'), text: 'Яннес после той ночи у колонии к вам не заходит. Проходит мимо ворот, глядя в сторону.' },
       { text: 'В хлеву корова тянется мордой к твоему рукаву. Козы Уте толкаются у кормушки. Куры на насесте, нахохлившись. Сена до февраля, если не жадничать.' },
       { text: 'Если десятого уехать хоть кому-то, их надо на кого-то оставить. Если уехать всем, решать надо сейчас.' },
     ],
     actions: [
-      { id: 'c35_xa_jannes', label: 'Договориться с Яннесом: если уедем, он будет ходить', minutes: 35, terminal: true, outcomes: afterAnimals, ambientDuring: frost35,
+      { id: 'c35_xa_jannes', label: 'Договориться с Яннесом: если уедем, он будет ходить', when: not(v('B.c30_yj', 'wait')), minutes: 35, terminal: true, outcomes: afterAnimals, ambientDuring: frost35,
         text: 'Яннес выслушивает, сунув руки в карманы, и кивает раньше, чем ты договариваешь. «Ich komm zweimal am Tag. Morgens und abends. Mutter auch». Я буду приходить два раза в день. Утром и вечером. И мать тоже. Вы жмёте руки, как на рынке.',
         effects: [set35('xa', 'jannes'), npc('c14_jannes', 2), animalsUntil] },
       { id: 'c35_xa_henrike', label: 'Спросить Хенрике: это её скотина, ей решать', minutes: 30, terminal: true, outcomes: afterAnimals,

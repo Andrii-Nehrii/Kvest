@@ -1,6 +1,8 @@
 import type { Scene } from '../../engine/content-types';
 import { house14, kitchen14, yard14 } from './point14';
 import { npc } from './point19';
+import { not } from './world3';
+import { any, v } from './point18';
 import { S33, eldersCome, frost33, set33, until33 } from './point33';
 
 // Участок 33, третий круг (16.11). B: правила дома; Петерсен и приёмник; письмо фрау Кёрнер. A: колонка к вечеру; дрова для дружины.
@@ -15,8 +17,10 @@ export const day33YScenes: Scene[] = [
     ],
     actions: [
       { id: 'c33_yr_short', label: 'Коротко: еда, вода, уборная, ночью не шуметь', minutes: 20, terminal: true, goto: 'c33_b_arrive',
-        text: 'Шесть строк крупными буквами, по-немецки. Ты прикалываешь лист на дверь кухни кнопкой. Хенрике читает, кивает и добавляет внизу от руки: «Die Katze nicht füttern». Кошку не кормить. Кошки у вас нет. Ты не спрашиваешь.',
-        effects: [set33('yr', 'short'), until33(9, 0)] },
+        outcomes: [
+          { id: 'cat', when: v('A.c32_av2', 'cat'), text: 'Шесть строк крупными буквами, по-немецки. Ты прикалываешь лист на дверь кухни кнопкой. Хенрике читает, кивает и добавляет внизу от руки: «Die Katze nicht füttern». Кошку не кормить. Кошка Фогта, привезённая из Бухгольца, лежит на печи и смотрит на листок с презрением.', effects: [set33('yr', 'short'), until33(9, 0)] },
+          { id: 'plain', text: 'Шесть строк крупными буквами, по-немецки. Ты прикалываешь лист на дверь кухни кнопкой. Хенрике читает, кивает и добавляет внизу от руки: «Die Katze nicht füttern». Кошку не кормить. Кошки у вас нет. Ты не спрашиваешь.', effects: [set33('yr', 'short'), until33(9, 0)] },
+        ] },
       { id: 'c33_yr_jobs', label: 'Расписать, кто что делает: чтобы старики тоже были при деле', minutes: 25, terminal: true, goto: 'c33_b_arrive',
         text: 'Ты пишешь столбиком: дрова, вода, куры, посуда, печь ночью. Напротив пустые строчки. «Заполнят сами, — говоришь ты Хенрике. — Кому что по силам». Хенрике смотрит на лист долго и говорит: «Das hätte mein Mann gemacht». Так сделал бы мой муж.',
         effects: [set33('yr', 'jobs'), npc('henrike', 1), until33(9, 0)] },
@@ -95,16 +99,22 @@ export const day33YScenes: Scene[] = [
 
   X({ id: 'c33_y_a_wood', title: 'Дрова для дружины', camp: yard14, ambient: frost33,
     text: [
+      { when: any(v('A.c30_xs', 'gave'), v('A.c30_xs', 'watch')), text: 'Дружинник смотрит в бумагу и хмыкает: «Lüdemann. Die aus Holm haben erzählt, ihr habt ihnen Diesel gegeben. Brandt sagt: bei euch ein Raummeter». Те, из Холма, рассказывали, что вы им солярки дали. Брандт сказал: с вас один куб.' },
+      { when: v('A.c30_xs', 'fight'), text: 'Дружинник смотрит исподлобья: «Ihr empfangt Leute mit der Mistgabel, hört man. Brandt sagt: zwei. Ohne Gerede». Говорят, вы людей вилами встречаете. Брандт сказал: два. Без разговоров.' },
+      { when: v('w.c31_till', 'found'), text: 'Второго ты узнаёшь: Уве. Он кивает тебе с телеги: «Für den Till. Das vergessen wir nicht». За Тилля. Этого мы не забудем.' },
       { text: 'К воротам подъезжают двое из дружины на телеге. Один из них с бумагой.' },
       { text: '— Brandt sagt: jeder Hof gibt zwei Raummeter für die Wache und die Schule. Die Kinder frieren da.\n\nБрандт говорит: каждый двор даёт по два кубометра на караулку и школу. Дети там мёрзнут.' },
       { text: 'Поленница у вас на месяц. Если отдать два куба, хватит недели на три.' },
       { when: eldersCome, text: 'А стариков в доме прибавилось трое.' },
     ],
     actions: [
+      { id: 'c33_yw_one', label: 'Отдать один куб, как велено, и спасибо сказать', when: any(v('A.c30_xs', 'gave'), v('A.c30_xs', 'watch'), v('w.c31_till', 'found')), minutes: 20, activity: 'moderate', terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,
+        text: 'Один куб уходит на телегу быстро. Поленница почти не меняется на вид. Дружинник расписывается и, уже трогая лошадь, бросает: «Ihr seid in Ordnung, ihr da oben». Вы там, наверху, нормальные. Хенрике слышит из окна. До самого совета она что-то напевает.',
+        effects: [set33('yw', 'one'), until33(16, 30)] },
       { id: 'c33_yw_give', label: 'Отдать два куба: в школе дети', minutes: 30, activity: 'moderate', terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,
         text: 'Вы грузите втроём, молча. Поленница уменьшается на треть. Тот, что с бумагой, расписывается в ней за ваш двор и говорит: «Ihr seid der Erste heute, der nicht schimpft». Вы первые сегодня, кто не ругается. Хенрике смотрит из окна и ничего не говорит до самого совета.',
         effects: [set33('yw', 'give'), { body: 'fatigue', delta: 4 }, until33(16, 30)] },
-      { id: 'c33_yw_half', label: 'Отдать один: у нас теперь одиннадцать ртов', minutes: 25, terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,
+      { id: 'c33_yw_half', label: 'Отдать один: у нас теперь одиннадцать ртов', when: not(v('A.c30_xs', 'fight')), minutes: 25, terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,
         text: 'Дружинник смотрит на бумагу, на поленницу, на окна, где видны три седые головы. Вычёркивает «2», пишет «1» и ставит свою подпись. «Das sag ich Brandt selber». Это я Брандту скажу сам.',
         effects: [set33('yw', 'half'), until33(16, 30)] },
       { id: 'c33_yw_work', label: 'Предложить вместо дров руки: наколоть для школы из их брёвен', minutes: 30, terminal: true, goto: 'c33_a_eve',

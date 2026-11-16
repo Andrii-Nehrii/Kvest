@@ -1,7 +1,9 @@
 import type { Scene } from '../../engine/content-types';
+import { flag } from './world3';
 import { house14, yard14 } from './point14';
 import { npc } from './point19';
-import { S35, frost35, set35, until35 } from './point35';
+import { any, v } from './point18';
+import { S35, frost35, set35, until35, w35 } from './point35';
 import { eldersCome } from './point33';
 
 // Участок 35, третий круг (16.11): три сцены линии B.
@@ -11,10 +13,14 @@ const jest = 'c16_jesteburg';
 export const day35YScenes: Scene[] = [
   X({ id: 'c35_y_b_queue', title: 'Очередь', location: jest, camp: { at: jest, stock: 'c3_farm_stock', rest: false }, safe: false,
     text: [
+      { when: flag('w.c30_sandra'), text: 'Чуть дальше в той же очереди стоит Сандра, с дочкой на руках. Девочка в твоих варежках или в своих, новых. Сандра замечает тебя и машет.' },
       { text: 'У стены пожарной части, где висит список на десятое, очередь. Женщина в вязаной шапке узнаёт тебя: ты {m:перевязывал|перевязывала} её мужу руку после той ночи.' },
       { text: '— Meine Mutter. Sie ist zweiundachtzig, sie liegt seit Oktober. Sie steht nicht drauf. Sie kennen doch die Frau Doktor. Bitte.\n\nМоя мать. Ей восемьдесят два, она лежит с октября. Её нет в списке. Вы же знаете фрау доктор. Пожалуйста.' },
     ],
     actions: [
+      { id: 'c35_yq_sandra', label: 'Подойти к Сандре', when: flag('w.c30_sandra'), minutes: 25, terminal: true, goto: 'c35_b_okafor2',
+        text: 'Сандра обнимает тебя, неловко, одной рукой, вторая занята дочкой. Она тут с понедельника, моет полы в караулке, и адъютант Хаазе берёт у неё сигареты для начальника. «Euer Hof. Wie viele Alte habt ihr?» Сколько у вас стариков? Ты говоришь. Она кивает: «Ich frag ihn. Für die, die mein Kind gewärmt haben». Спрошу. За тех, кто отогрел мою девочку.',
+        effects: [set35('yq', 'sandra'), w35('seat4', true), until35(11, 0)] },
       { id: 'c35_yq_ask', label: 'Пообещать поговорить с Зандер', minutes: 20, terminal: true, goto: 'c35_b_okafor2',
         text: 'Женщина пишет на обрывке: имя, возраст, адрес, «liegt seit Oktober». Ты убираешь бумажку в карман, к своей тетради. Обещать больше, чем «поговорю», ты не можешь. Она это знает и благодарит всё равно.',
         effects: [set35('yq', 'ask'), until35(11, 0)] },
@@ -50,6 +56,9 @@ export const day35YScenes: Scene[] = [
       { text: 'До темноты меньше часа.' },
     ],
     actions: [
+      { id: 'c35_yw_tostedt', label: 'Позвать того, из Тостедта: он живёт у сестры в Йестебурге', when: any(v('A.c32_xh', 'all'), v('A.c32_xh', 'girl')), minutes: 40, terminal: true, goto: 'c35_a_gift', ambientDuring: frost35,
+        text: 'Он приходит через час, со своим колуном и с сыном сестры. Говорит: «Ich hab gesagt, ich komm zu Fuß nach. Bin ich». Я сказал, что дойду пешком. Дошёл. Вдвоём они колют до темноты, не разговаривая. Поленница вырастает на метр. Денег он не берёт, от супа не отказывается.',
+        effects: [set35('yw', 'tostedt'), until35(17, 15)] },
       { id: 'c35_yw_chop', label: 'Колоть до темноты, сколько успеешь', minutes: 45, activity: 'heavy', terminal: true, goto: 'c35_a_gift', ambientDuring: frost35,
         text: 'Колун, чурка, полено. На морозе берёза колется со звоном. Ты не считаешь, просто колешь, пока не перестаёшь различать, где чурка, а где тень. Поленница вырастает на полметра. Плечи гудят. Хенрике выносит тебе кружку горячего чая и ставит на колоду, не говоря ни слова.',
         effects: [set35('yw', 'chop'), { body: 'fatigue', delta: 8 }, until35(17, 15)] },

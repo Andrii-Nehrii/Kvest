@@ -125,12 +125,16 @@ export const day33EScenes: Scene[] = [
 export const day33LateScenes: Scene[] = [
   X({ id: 'c33_b_rooms', title: 'Постели', camp: house14, onEnter: [until33(8, 0)],
     text: [
+      { when: all(eldersCome, any(v('A.c31_yh', 'carry'), v('A.c31_yh', 'together'))), text: 'На столе записка, Лукас принёс её на рассвете: «Einer von den Alten kann bei mir wohnen. Hinnerks Zimmer steht leer. Ihr wart gut zu mir. Gisela Möller». Один из стариков может жить у меня. Комната Хиннерка пустует. Вы были добры ко мне.' },
       { text: 'До грузовика час. Кровать в комнате наверху одна, а стариков трое. Хенрике стоит посреди комнаты с охапкой простыней и думает вслух: перина, матрас, солома.' },
       { when: eldersCome, text: 'Петерсенам за восемьдесят. У фрау Кёрнер сердце.' },
       { when: not(eldersCome), text: 'Стариков не будет: решили помогать им едой. Но в доме и без них холодные углы, а Окафор, если придёт, тоже где-то должен спать.' },
       { when: ninaFarm, text: 'Нина приносит из сарая охапку соломы для матраса и чихает так, что с волос сыплется труха. Хенрике смеётся, впервые за утро. Из-за стены кашляет Оле, и она тут же замолкает и прислушивается.' },
     ],
     actions: [
+      { id: 'c33_br_gisela', label: 'Принять предложение Гизелы: фрау Кёрнер будет жить у неё', when: all(eldersCome, any(v('A.c31_yh', 'carry'), v('A.c31_yh', 'together'))), minutes: 20, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_rules' }, { id: 'n', goto: 'c33_b_arrive' }],
+        text: 'Хенрике читает записку дважды и кивает: в деревне, у Гизелы, печь лучше и до пункта двести метров, с таким сердцем это важно. Комната наверху остаётся Петерсенам. Матрасов на всех теперь хватает. Ты пишешь Гизеле ответ на обороте: «Danke. Heute Abend».',
+        effects: [set33('br', 'gisela'), w33('gisela', true), until33(8, 40)] },
       { id: 'c33_br_own', label: 'Отдать свой матрас, себе — солому в мешке', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_rules' }, { id: 'n', goto: 'c33_b_arrive' }],
         text: 'Ты стаскиваешь свой матрас по лестнице. Себе набиваешь мешок соломой из хлева, сухой, колючей. Хенрике смотрит и молча добавляет к соломе своё старое одеяло.', effects: [set33('br', 'own'), w33('b_mattress', 'given'), npc('henrike', 1), until33(8, 40)] },
       { id: 'c33_br_feather', label: 'Уговорить Хенрике достать из сундука перину её матери', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_rules' }, { id: 'n', goto: 'c33_b_arrive' }],
