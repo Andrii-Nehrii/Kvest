@@ -56,7 +56,7 @@ export const day26YScenes: Scene[] = [
         effects: [set26('yr', 'temp'), until26(8, 45)] },
     ] }),
 
-  X({ id: 'c26_y_b_bread', title: 'Пекарня', camp: yard14, ambient: snow26,
+  X({ id: 'c26_y_b_bread', title: 'Пекарня', location: jest, camp: pointCamp, safe: false, ambient: snow26,
     text: [
       { text: 'У пекарни Кёлер ставит санки к стене и отряхивает руки. Потом смотрит на тебя внимательно, как смотрят на того, кто приходит из пункта.' },
       { text: '— Wie geht es den Kindern da? Man hört so viel. Die kleine Pia, wie geht es ihr?\n\nКак там дети? Столько всего говорят. Маленькая Пия, как она?' },
