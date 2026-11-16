@@ -47,6 +47,7 @@ const list: ItemType[] = [
   { id: 'c34_lamp_oil', name: 'бутыль лампового масла', weight: 1000, tags: ['trade'], description: 'Литр. Лампа Хенрике будет гореть по вечерам.' },
   { id: 'c34_nails', name: 'коробка гвоздей и две петли', weight: 1500, tags: ['tool'], description: 'За обещание навесить дверь сарая в Йестебурге.' },
   { id: 'c34_soap', name: 'кусок мыла с лавандой', weight: 120, tags: ['trade'], description: 'Настоящее, пахнет летом.' },
+  { id: 'c25_amoxi', name: 'амоксициллин, блистер на 10 таблеток', weight: 20, tags: ['medicine'], description: 'Из-за мусорных баков у задних ворот казармы. Антибиотик. В пункте у Зандер такого нет.' },
   { id: 'c34_vbelt', name: 'клиновой ремень для трактора', weight: 600, tags: ['parts'], description: 'В коробке из магазина запчастей в Винзене, на имя Оле. Заказан в начале ноября.' },
   { id: 'c34_koehler_parcel', name: 'посылка для Кёлер', weight: 1500, tags: ['note'], description: '«Köhler, Jesteburg», от «J. Köhler, Hamburg-Harburg». Штемпель: седьмое ноября.' },
   { id: 'c34_chocolate', name: 'шоколадные Николаусы, упаковка', weight: 300, tags: ['food'], food: { hunger: 8, kcal: 1500, minutes: 3 }, spoilsAfter: 120 * 1440, description: 'Шесть штук в фольге. Из чужой посылки «für die Enkel».' },

@@ -30,7 +30,7 @@ export const day25AScenes: Scene[] = [
       { id: 'c25_av_front', label: 'Сесть впереди и разговаривать', minutes: 60, terminal: true, goto: 'c25_a_post', ambientDuring: van,
         text: 'Вессель едет через Винзен, медленно, по снегу. Говорит всю дорогу. Про то, что в Винзене поляки с консервного завода собирают колонну домой, на восток: «um den zehnten Dezember», около десятого декабря. Про то, что Эльбу у Лауэнбурга держат военные. Про то, что пятнадцатого армия уходит из Люнебурга, «so heißt es», так говорят.\n\n— Und dann? — спрашиваешь ты.\n\n— Dann sind wir dran. Wir alle.\n\nА потом? — Потом наша очередь. Всех.', effects: [set25('av', 'front'), w25('east_convoy', true), w25('army_leaves', true), until25(7, 30)] },
       { id: 'c25_av_back', label: 'Сесть сзади, на мешки, и поспать', minutes: 60, activity: 'rest', terminal: true, goto: 'c25_a_post', ambientDuring: van,
-        text: 'Мешки с бельём мягкие и пахнут хлоркой. Ты засыпаешь на первом повороте и просыпаешься от того, что фургон стоит. Шлагбаум. Люнебург.', effects: [set25('av', 'back'), { body: 'fatigue', delta: -8 }, until25(8, 10, true)] },
+        text: 'Мешки с бельём мягкие и пахнут хлоркой. Ты засыпаешь на первом повороте и просыпаешься от того, что фургон стоит. Шлагбаум.', effects: [set25('av', 'back'), { body: 'fatigue', delta: -8 }, until25(8, 10, true)] },
       { id: 'c25_av_window', label: 'Сесть впереди и смотреть в окно', minutes: 60, terminal: true, goto: 'c25_a_post', ambientDuring: van,
         text: 'Поля белые. У Винзена на обочине стоят брошенные машины под снегом, как грибы. У одной открыта дверь, и в салон намело. На мосту через Ильменау двое солдат проверяют документы и машут: прачечная, проезжай.', effects: [set25('av', 'window'), until25(7, 30)] },
     ] }),
@@ -40,7 +40,6 @@ export const day25AScenes: Scene[] = [
       { text: 'Тот же сержант у шлагбаума. Тот же ящик с ячейками для телефонов. Только снег на нём новый.' },
       { text: '— Lüdemann? Der Ole? — Сержант кивает на донорский блок. — Er wartet seit sechs. Er hat gesagt, einer kommt.\n\nЛюдеман? Оле? Ждёт с шести. Сказал, что кто-то приедет.' },
       { when: v('$.c25_av', 'front'), text: 'Вессель всю дорогу говорил. Теперь ты знаешь про него больше, чем про многих соседей.' },
-      { when: v('$.c25_av', 'back'), text: 'Ты проспал{m:|а} на мешках почти всю дорогу и теперь не можешь размять шею.' },
       { text: 'За шлагбаумом казарма: красный кирпич, белые рамы, на плацу ни души. Над донорским блоком из трубы идёт дым: там топят лучше, чем везде.' },
     ],
     actions: [
@@ -52,6 +51,8 @@ export const day25AScenes: Scene[] = [
           { id: 'stop', when: oleStopped, text: '— Er gibt nichts mehr. Seit Montag. Hat einen Brief gekriegt. Seitdem sitzt er angezogen auf dem Bett.\n\nБольше не сдаёт. С понедельника. Получил письмо. С тех пор сидит одетый на кровати.', effects: [set25('ag', 'ask')] },
           { id: 'rel', text: '— Er darf sich ausruhen. Seit Samstag hat er eine Nachbarin. Die neue Spenderin.\n\nЕму дают отдохнуть. С субботы у него соседка. Новый донор.', effects: [set25('ag', 'ask')] },
         ], effects: [{ phonePower: false }, until25(8, 30)] },
+      { id: 'c25_ag_henrike', label: 'Попросить сержанта сказать Хенрике, что ты приехал{m:|а}', minutes: 15, terminal: true, goto: 'c25_a_ole', ambientDuring: snow25,
+        text: 'Сержант кивает и кричит что-то в окно караулки. Пока ты сдаёшь телефон, по коридору блока уже стучат каблуки. Хенрике знает. Теперь она будет ждать в коридоре.', effects: [set25('ag', 'henrike'), until25(8, 45)] },
     ] }),
 
   A({ id: 'c25_a_ole', title: 'Оле',
@@ -81,6 +82,8 @@ export const day25AScenes: Scene[] = [
         ], effects: [until25(9, 20)] },
       { id: 'c25_ao_hand', label: 'Ничего не говорить. Сесть рядом и взять за руку', minutes: 30, terminal: true, goto: 'c25_a_henrike',
         text: 'Рука у него холодная и лёгкая, как у старика. Он не отнимает её. Вы сидите так, пока в дверях не появляется сестра с градусником.', effects: [set25('ao', 'hand'), npc('ole', 1), until25(9, 10)] },
+      { id: 'c25_ao_ask', label: 'Спросить, чего хочет он сам', minutes: 30, terminal: true, goto: 'c25_a_henrike',
+        text: 'Оле долго смотрит в окно.\n\n— Nach Hause. Aber nicht ohne Mutter. Und nicht, bevor die Kinder hier jemanden haben.\n\nДомой. Но не без матери. И не раньше, чем у детей здесь кто-то будет.\n\nОн говорит это так, будто давно решил и ждал только, чтобы кто-то спросил.', effects: [set25('ao', 'ask'), w25('ole_wish_known', true), npc('ole', 1), until25(9, 10)] },
     ] }),
 
   A({ id: 'c25_a_henrike', title: 'Хенрике в коридоре',
@@ -158,11 +161,11 @@ export const day25AScenes: Scene[] = [
       { text: 'Игрушек на тумбочках больше, чем детей: их приносят сёстры из дома.' },
     ],
     actions: [
-      { id: 'c25_ak2_yes', label: 'Сказать: придёт', minutes: 25, terminal: true, goto: 'c25_a_ole2',
+      { id: 'c25_ak2_yes', label: 'Сказать: придёт', minutes: 25, terminal: true, goto: 'c25_a_lists',
         text: 'Девочка ложится обратно и закрывает глаза, довольная. Сестра смотрит на тебя поверх её головы долго и ничего не говорит. Потом отворачивается к окну.', effects: [set25('ak2', 'yes'), w25('girl_promised', true), until25(12, 30)] },
-      { id: 'c25_ak2_truth', label: 'Сказать: Оле устал. Ему надо домой', minutes: 25, terminal: true, goto: 'c25_a_ole2',
+      { id: 'c25_ak2_truth', label: 'Сказать: Оле устал. Ему надо домой', minutes: 25, terminal: true, goto: 'c25_a_lists',
         text: 'Девочка думает.\n\n— Dann soll er nach Hause. Ich bin auch müde. — Она поворачивается на бок. — Sag ihm, er soll sein Pferd grüßen.\n\nТогда пусть едет домой. Я тоже устала. Скажи, чтобы передал привет своей лошади.\n\nУ Людеманов нет лошади. Ты не поправляешь.', effects: [set25('ak2', 'truth'), until25(12, 30)] },
-      { id: 'c25_ak2_nurse', label: 'Спросить сестру, сколько у неё ещё плазмы', minutes: 20, terminal: true, goto: 'c25_a_ole2',
+      { id: 'c25_ak2_nurse', label: 'Спросить сестру, сколько у неё ещё плазмы', minutes: 20, terminal: true, goto: 'c25_a_lists',
         text: '— Bis Donnerstag. Sechs Beutel. Acht Kinder. — Сестра поправляет девочке одеяло. — Ich habe den Plan geschrieben. Ich schreibe auch den nächsten. Wer zuerst.\n\nДо четверга. Шесть пакетов. Восемь детей. План писала я. И следующий напишу я. Кому первым.', effects: [set25('ak2', 'nurse'), { body: 'stress', delta: 2 }, until25(12, 20)] },
     ] }),
 
@@ -173,11 +176,11 @@ export const day25AScenes: Scene[] = [
       { text: 'Двор расчищен лопатами до асфальта. Оле останавливается каждые десять шагов и делает вид, что разглядывает ворон на крыше.' },
     ],
     actions: [
-      { id: 'c25_ao2_all', label: 'Рассказать всё по порядку: дом, люди, Брандт', minutes: 60, terminal: true, goto: 'c25_a_yard', ambientDuring: yard,
+      { id: 'c25_ao2_all', label: 'Рассказать всё по порядку: дом, люди, Брандт', minutes: 60, terminal: true, goto: 'c25_a_trade', ambientDuring: yard,
         text: 'Ты рассказываешь долго. Оле слушает, кивает, иногда переспрашивает: какая курица? где поставили крест? кто такой Маркус? На Брандте он останавливается.\n\n— Der Brandt hat Vater beim Schützenfest unter den Tisch getrunken. Zweimal. Er ist kein schlechter Mensch. Er ist ein Mensch, der Angst hat.\n\nБрандт дважды перепил отца на празднике стрелков. Он не плохой человек. Он человек, которому страшно.', effects: [set25('ao2', 'all'), npc('ole', 2), until25(14, 30)] },
-      { id: 'c25_ao2_nina', label: 'Рассказать про Нину', minutes: 40, terminal: true, goto: 'c25_a_yard', ambientDuring: yard,
+      { id: 'c25_ao2_nina', label: 'Рассказать про Нину', minutes: 40, terminal: true, goto: 'c25_a_trade', ambientDuring: yard,
         text: 'Про то, как она водит Corsa. Как решает задачи для себя. Как перевязывает лучше тебя. Оле смеётся, впервые за день, и закашливается.\n\n— Die wird mal Ärztin. Oder Bürgermeisterin. Oder beides.\n\nОна станет врачом. Или бургомистром. Или и тем и другим.', effects: [set25('ao2', 'nina'), npc('ole', 1), until25(14, 10)] },
-      { id: 'c25_ao2_quiet', label: 'Просто ходить рядом молча', minutes: 40, terminal: true, goto: 'c25_a_yard', ambientDuring: yard,
+      { id: 'c25_ao2_quiet', label: 'Просто ходить рядом молча', minutes: 40, terminal: true, goto: 'c25_a_trade', ambientDuring: yard,
         text: 'Вы делаете три круга по двору. Оле дышит тяжело, но идёт сам. На третьем круге он останавливается у ворот прачечной и смотрит на поле.\n\n— Danke, dass du nichts sagst. Hier reden alle die ganze Zeit.\n\nСпасибо, что молчишь. Здесь все всё время говорят.', effects: [set25('ao2', 'quiet'), npc('ole', 1), until25(14, 10)] },
     ] }),
 
@@ -193,6 +196,8 @@ export const day25AScenes: Scene[] = [
         text: 'Фургон трогается. В зеркале шлагбаум опускается.', effects: [set25('ay', 'go'), { if: henrikeLue25, then: [{ give: 'c25_henrike_letter' }] }, until25(15, 15)] },
       { id: 'c25_ay_wave', label: 'Поднять руку в ответ', minutes: 10, terminal: true, goto: 'c25_a_back',
         text: 'Ты поднимаешь ладонь. Оле кивает и отходит от окна. Фургон трогается.', effects: [set25('ay', 'wave'), npc('ole', 1), { if: henrikeLue25, then: [{ give: 'c25_henrike_letter' }] }, until25(15, 15)] },
+      { id: 'c25_ay2_hug', label: 'Вернуться к Хенрике и обнять её', minutes: 10, terminal: true, goto: 'c25_a_back', ambientDuring: snow25,
+        text: 'Ты возвращаешься от фургона. Хенрике стоит прямо, руки по швам. Когда ты её обнимаешь, она не обнимает в ответ. Но и не отстраняется. Потом говорит тебе в плечо: «Geh. Er hupt». Иди. Он сигналит.', effects: [set25('ay2', 'hug'), npc('henrike', 2, 'c25_hug'), until25(15, 0)] },
     ] }),
 
   A({ id: 'c25_a_back', title: 'Обратно', ambient: van,
@@ -207,6 +212,8 @@ export const day25AScenes: Scene[] = [
         text: '— Weiß ich nicht. — Вессель смотрит на дорогу. — Am zwölften haben sie die Station geräumt. Mit Bussen. Wohin, hat keiner gesagt.\n\nНе знаю. Двенадцатого отделение вывезли. Автобусами. Куда — никто не сказал.\n\nДо хутора вы больше не разговариваете.', effects: [set25('ab', 'ask'), w25('wessel_wife', true), { move: 'hof_luedemann' }, until25(16, 30)] },
       { id: 'c25_ab_quiet', label: 'Промолчать', minutes: 120, terminal: true, goto: 'c25_a_road',
         text: 'Ты молчишь. Он, кажется, благодарен. У поворота на хутор он высаживает тебя и машет, не оборачиваясь.', effects: [set25('ab', 'quiet'), { move: 'hof_luedemann' }, until25(16, 30)] },
+      { id: 'c25_ab2_tell', label: 'Рассказать ему, что знаешь про четвёртое отделение', minutes: 20, terminal: true, goto: 'c25_a_road',
+        text: 'Ты рассказываешь про лист с полями, исписанными от руки, про «212», про то, что плазма только продлевает. Вессель слушает и не перебивает. На повороте у Винзена он говорит, не глядя:\n\n— Dann war sie umsonst dort.\n\nЗначит, она была там зря.\n\nИ больше ничего до самого Паттензена.', effects: [set25('ab2', 'tell'), w25('wessel_knows', true), until25(17, 10)] },
     ] }),
 ];
 

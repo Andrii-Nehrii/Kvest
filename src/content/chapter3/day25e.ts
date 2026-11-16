@@ -6,7 +6,6 @@ import { S25, set25, until25 } from './point25';
 // Участок 25, дополнение (проверка объёма 15.11): дорога обратно у A и человек у ворот у B. Оба выбора откликаются в 26-й.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S25({ ...scene, for: 'any', chapter: 'ch3' });
 const van = { tempC: 8, outdoor: false, wet: false };
-const snow = { tempC: -2, outdoor: true, wet: true };
 
 export const day25EScenes: Scene[] = [
   X({ id: 'c25_a_road', title: 'Обочина', location: 'c7_farm_lane', ambient: van,
@@ -17,11 +16,11 @@ export const day25EScenes: Scene[] = [
       { when: v('$.c25_ab', 'quiet'), text: 'После его слов про жену ты молчишь до самого Паттензена. Он тоже.' },
     ],
     actions: [
-      { id: 'c25_ar_stop', label: 'Заставить его остановиться и взять их до Йестебурга', minutes: 30, terminal: true, goto: 'c25_supper', ambientDuring: snow,
-        text: 'Ты говоришь «halt» так, что Вессель тормозит, ругаясь. Женщину зовут Анке, мальчика — Йонас, ему шесть. Они едут в Люллау, к свекрови, второй день. Сзади, на мешках с бельём, мальчик засыпает сразу. У поста в Ханштедте солдат светит фонарём в кузов, видит спящего ребёнка и машет: проезжайте. Вессель молчит до самого Йестебурга. У пекарни Кёлер говорит одно: «Nächstes Mal fragst du vorher». В следующий раз спрашивай заранее.', effects: [set25('ar', 'stop'), { set: 'w.c25_road', value: 'lift' }, until25(17, 50)] },
-      { id: 'c25_ar_letter', label: 'Остановиться на минуту: отдать хлеб и взять у неё записку', minutes: 20, terminal: true, goto: 'c25_supper', ambientDuring: snow,
-        text: 'Вессель тормозит, но мотор не глушит. Ты выскакиваешь в мокрый снег. Женщина плачет и пишет на обороте чека, прислонив его к крыше машины: «Timm, Lüllau. Anke und Jonas leben. Sind in Pattensen, im Graben. Holt uns». Ты отдаёшь ей свой хлеб из кармана. Фургон уже сигналит.', effects: [set25('ar', 'letter'), { set: 'w.c25_road', value: 'letter' }, { give: 'c25_timm_note' }, until25(17, 50)] },
-      { id: 'c25_ar_drive', label: 'Промолчать: он прав', minutes: 10, terminal: true, goto: 'c25_supper',
+      { id: 'c25_ar_stop', label: 'Заставить его остановиться и взять их до Йестебурга', minutes: 5, terminal: true, goto: 'c25_a_polo',
+        effects: [set25('ar', 'stop'), until25(17, 20)] },
+      { id: 'c25_ar_letter', label: 'Остановиться на минуту: отдать хлеб и взять у неё записку', minutes: 5, terminal: true, goto: 'c25_a_polo',
+        effects: [set25('ar', 'letter'), until25(17, 20)] },
+      { id: 'c25_ar_drive', label: 'Промолчать: он прав', minutes: 10, terminal: true, goto: 'c25_a_swerve',
         text: 'Ты смотришь в зеркало. Женщина ещё машет, потом опускает руки. Через поворот её уже не видно. Вессель включает радио, там шипение. Он его не выключает.', effects: [set25('ar', 'drive'), { set: 'w.c25_road', value: 'drove' }, { body: 'stress', delta: 4 }, until25(17, 50)] },
     ] }),
 
