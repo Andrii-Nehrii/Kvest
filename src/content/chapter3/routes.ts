@@ -818,7 +818,7 @@ export const newEntry19: Scene = {
 // ───────────── Вход в участок 20 ─────────────
 // Вход в базе КТ19: без onEnter и места (игроки могут быть в Люнебурге или дома).
 export const newEntry20: Scene = {
-  id: 'c20_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
+  id: 'c20_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: all(point20Available, inLue), text: 'Казарма на краю Люнебурга ещё в темноте. У шлагбаума горит прожектор. Corsa остывает на обочине и тикает.' },
     { when: all(point20Available, atFarm), text: 'Пятница начинается без поездки. Во дворе темно, у курятника иней.' },
@@ -841,10 +841,10 @@ export const newEntry20: Scene = {
 const up21: Cond = { partner: 'active' };
 const down21: Cond = { partner: 'incapacitated' };
 export const newEntry21: Scene = {
-  id: 'c21_start', for: 'any', chapter: 'ch3', title: 'Пятничный вечер', universal: false, safe: true, camp: house14,
+  id: 'c21_start', for: 'any', chapter: 'ch3', title: 'Пятничный вечер', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: stageC, text: 'Съезд с автобана у Гарльсторфа. Над ним мигает синим. На обочинах стоят брошенные машины с открытыми дверцами.' },
-    { when: stageF, text: 'Без четверти пять. Над лесом на востоке небо рыжее, хотя солнце село с другой стороны.' },
+    { when: stageF, text: 'Половина четвёртого. Над лесом на востоке небо рыжее, хотя солнце садится с другой стороны.' },
     { when: stageR, text: 'На кухне пахнет кровью и мокрой шерстью. Часы Хенрике показывают без двадцати четыре.' },
     { when: all(stageL, up21), text: 'Казарма на краю Люнебурга. Во дворе прачечной собирают простыни с бетона. Две армейские машины прогревают моторы у шлагбаума.' },
     { when: all(stageL, down21), text: 'Донорский блок в казарме. Лампа на аккумуляторе, запах хлорки. Доктор Алерс моет руки до локтей.' },
@@ -862,7 +862,7 @@ export const newEntry21: Scene = {
 
 // ───────────── Вход в участок 22 ─────────────
 export const newEntry22: Scene = {
-  id: 'c22_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14,
+  id: 'c22_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point22Available, text: 'Половина восьмого. Дверь в сени закрыта. На кухне пахнет кашей. Решение принято, и теперь его надо выполнять.' },
     { when: all(point22Available, hide22), text: 'До девяти, когда патруль дойдёт до ваших ворот, полтора часа.' },
@@ -879,7 +879,7 @@ export const newEntry22: Scene = {
 
 // ───────────── Вход в участок 23 ─────────────
 export const newEntry23: Scene = {
-  id: 'c23_start', for: 'any', chapter: 'ch3', title: 'Ночь на воскресенье', universal: false, safe: true, camp: house14,
+  id: 'c23_start', for: 'any', chapter: 'ch3', title: 'Ночь на воскресенье', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point23Available, text: 'Девять вечера. Решено. Лампа на столе прикручена до синего огонька. Внизу Мальте ворочается на лавке и что-то бормочет про Целле.' },
     { when: not(point23Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -892,7 +892,7 @@ export const newEntry23: Scene = {
 
 // ───────────── Вход в участок 24 ─────────────
 export const newEntry24: Scene = {
-  id: 'c24_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14,
+  id: 'c24_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point24Available, text: 'Ночь проходит без звуков. Под утро снова идёт снег.\n\nТы просыпаешься в темноте за минуту до будильника, как будто тело само знает, что сегодня рано. За окном снег падает отвесно, без ветра, и в свете фонаря у сарая видно каждую снежинку.' },
     { when: all(point24Available, graveDay), text: 'В половине шестого в окно кухни стучат: Яннес. Пора к насыпи.' },
@@ -907,7 +907,7 @@ export const newEntry24: Scene = {
 
 // ───────────── Вход в участок 25 ─────────────
 export const newEntry25: Scene = {
-  id: 'c25_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14,
+  id: 'c25_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point25Available, text: 'Ночью мороз. Под утро в окна стучит сухой снег.\n\nТы лежишь и слушаешь, как снег сыплется по стеклу, сухо, как крупа. Внизу тикают часы, которые отстают на четыре минуты. Сегодня кто-то из вас уедет, а кто-то останется, и оба вы об этом думаете, не говоря.' },
     { when: all(point25Available, { me: 'A' }), text: 'В шесть тебе вставать: в без четверти семь у пекарни Кёлер фургон прачечной.' },
@@ -923,9 +923,9 @@ export const newEntry25: Scene = {
 
 // ───────────── Вход в участок 26 ─────────────
 export const newEntry26: Scene = {
-  id: 'c26_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14,
+  id: 'c26_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
-    { when: point26Available, text: 'Ночь проходит тихо. Мороз. Под утро в доме холодно так, что вода в кружке на подоконнике схватилась коркой.\n\nТы просыпаешься раньше всех. Внизу Хенрике гремит печной заслонкой, и по дому ползёт запах первого дыма, горький, пока дрова не разгорелись. За стеной Нина бормочет во сне по-немецки, сердито, как будто спорит.' },
+    { when: point26Available, text: 'Ночь проходит тихо. Мороз. Под утро в доме холодно так, что вода в кружке на подоконнике схватилась коркой.\n\nТы просыпаешься раньше всех. Внизу Нина гремит печной заслонкой, и по дому ползёт запах первого дыма, горький, пока дрова не разгорелись. За стеной Нина бормочет во сне по-немецки, сердито, как будто спорит.' },
     { when: not(point26Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
@@ -937,7 +937,7 @@ export const newEntry26: Scene = {
 
 // ───────────── Вход в участок 27 ─────────────
 export const newEntry27: Scene = {
-  id: 'c27_start', for: 'any', chapter: 'ch3', title: 'Четверг', universal: false, safe: true, camp: house14,
+  id: 'c27_start', for: 'any', chapter: 'ch3', title: 'Четверг', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point27Available, text: 'Ночью минус шесть. Дом спит. Под утро на дороге со стороны Йестебурга слышен мотор, медленный, без фар.\n\nТы спишь чутко, как спят теперь все в этом доме: вполуха, вполглаза. Где-то за стеной Нина переворачивается и бормочет. Часы внизу бьют четыре раза, и ты считаешь удары, не открывая глаз.' },
     { when: not(point27Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -950,9 +950,9 @@ export const newEntry27: Scene = {
 
 // ───────────── Вход в участок 28 ─────────────
 export const newEntry28: Scene = {
-  id: 'c28_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
+  id: 'c28_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
-    { when: point28Available, text: 'Ночь на пятницу.\n\nВ доме никто не спит по-настоящему. Скрипят половицы, кто-то ходит на кухню за водой и возвращается. Свеча за дверью маленькой комнаты горит всю ночь, и полоска света под дверью не гаснет ни на минуту.' },
+    { when: point28Available, text: 'Ночь на пятницу.\n\nВ доме никто не спит по-настоящему. Скрипят половицы, кто-то ходит на кухню за водой и возвращается. Ты лежишь и считаешь шаги.' },
     { when: not(point28Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
@@ -964,7 +964,7 @@ export const newEntry28: Scene = {
 
 // ───────────── Вход в участок 29 ─────────────
 export const newEntry29: Scene = {
-  id: 'c29_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14,
+  id: 'c29_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point29Available, text: 'Ночь на субботу. Мороз. Под утро снег скрипит под ногами даже в доме, на чердаке, где Хенрике держит яблоки.\n\nПосле поминок в доме пахнет свечами и корном. Ты засыпаешь не сразу: перед глазами груша и свежая земля под ней. Потом всё-таки проваливаешься, глубоко, без снов.' },
     { when: not(point29Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -978,7 +978,7 @@ export const newEntry29: Scene = {
 
 // ───────────── Вход в участок 30 ─────────────
 export const newEntry30: Scene = {
-  id: 'c30_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14,
+  id: 'c30_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point30Available, text: 'Ночь на понедельник. Мороз крепчает. Под утро трещат стены.\n\nТы просыпаешься в темноте и не сразу понимаешь от чего. Потом понимаешь: от тишины. Ни ветра, ни собак. Только иногда снаружи щёлкает, будто кто-то ломает сухие ветки, — это мороз рвёт брёвна сарая.' },
     { when: not(point30Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -991,7 +991,7 @@ export const newEntry30: Scene = {
 
 // ───────────── Вход в участок 31 ─────────────
 export const newEntry31: Scene = {
-  id: 'c31_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14,
+  id: 'c31_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: stageN31, text: 'Четыре утра. В доме пахнет мокрой шерстью, гарью и чаем.\n\nНа вешалке в сенях сохнут куртки, от них поднимается пар. На полу у двери лужа от растаявшего снега и чьи-то сапоги, брошенные как попало. Никто не спит, но никто и не говорит.' },
     { when: stageR31, text: 'Четыре утра. В доме пахнет мокрой шерстью и кровью. Тебя трясут за плечо: {partner} у печи, и {pm:он|она} не просыпается.' },
@@ -1006,7 +1006,7 @@ export const newEntry31: Scene = {
 
 // ───────────── Вход в участок 32 ─────────────
 export const newEntry32: Scene = {
-  id: 'c32_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14,
+  id: 'c32_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point32Available, text: 'Ночь на среду. Под утро на дороге слышно, как прогревают мотор.\n\nТы лежишь в темноте и слушаешь мотор. Он то захлёбывается, то выравнивается. Кто-то за стеной уже не спит: скрипит кровать, потом тихо, на цыпочках, шаги к лестнице. Два дня порознь. Вчера вечером вы так и не договорили.' },
     { when: not(point32Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -1020,7 +1020,7 @@ export const newEntry32: Scene = {
 
 // ───────────── Вход в участок 33 ─────────────
 export const newEntry33: Scene = {
-  id: 'c33_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14,
+  id: 'c33_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point33Available, text: 'Ночь на пятницу. Мороз такой, что трещат брёвна сарая.\n\nТы просыпаешься от холода. Печь внизу прогорела к полуночи, в комнате видно пар от дыхания. За окном ни звука: ни собак, ни ветра, ни выстрелов. Только сарай потрескивает, будто его кто-то медленно сжимает в кулаке.' },
     { when: not(point33Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -1033,7 +1033,7 @@ export const newEntry33: Scene = {
 
 // ───────────── Вход в участок 34 ─────────────
 export const newEntry34: Scene = {
-  id: 'c34_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14,
+  id: 'c34_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point34Available, text: 'Ночь на субботу. Тихо. Впервые за неделю никто не стучит в ворота.\n\nТы просыпаешься среди ночи и лежишь, слушая дом. Сначала кажется, что кто-то храпит за стеной, потом понимаешь: это ветер в трубе. Внизу кто-то подкладывает в печь полено, тихо, чтобы не стукнуть заслонкой. Потом снова тишина.' },
     { when: not(point34Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
@@ -1046,7 +1046,7 @@ export const newEntry34: Scene = {
 
 // ───────────── Вход в участок 35 ─────────────
 export const newEntry35: Scene = {
-  id: 'c35_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14,
+  id: 'c35_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point35Available, text: 'Ночь на понедельник. Мороз крепчает к утру. В темноте кто-то ходит по кухне, тихо, чтобы не разбудить.\n\nПод одеялом тепло, а нос мёрзнет. На подоконнике за ночь вырос иней, узором, как папоротник. Ты лежишь и считаешь дни до десятого, до пятнадцатого, и каждый раз выходит меньше, чем хочется.' },
     { when: not(point35Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },

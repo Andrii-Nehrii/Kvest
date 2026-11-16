@@ -92,7 +92,7 @@ export const day22BScenes: Scene[] = [
       { when: v('w.c22_hide', 'cousin'), text: 'Девять. Вы обе во дворе. Лея сыплет зерно курам, ты набираешь воду у колонки. Руки у тебя заняты, иначе было бы видно, как они дрожат.' },
       { when: not(v('w.c22_hide', 'cousin')), text: 'Девять. Вы сидите в темноте плечом к плечу. Слышно своё дыхание. Слышно её.' },
       { text: 'У ворот останавливается машина. Голоса. Голос {A.gen}, ровный.' },
-      { when: search22, text: 'Потом шаги. В доме открывают двери, одну за другой. Кто-то проходит прямо над вами, останавливается. Скрипит доска. Шаги уходят.' },
+      { when: search22, text: 'Потом шаги. В доме открывают двери, одну за другой. Кто-то проходит совсем рядом, останавливается. Скрипит доска. Шаги уходят.' },
       { when: not(search22), text: 'Голоса у ворот долго не стихают. Потом мотор. Потом тишина, но вы не двигаетесь ещё долго.' },
       { text: 'Лея шепчет, не поворачивая головы:\n\n— Ich war nicht krank. Nie. Im Oktober hatte ich Leptospirose, von einer Ratte in der Klinik. Fieber, Gelbsucht, drei Wochen. Der Stabsarzt hat «genesen» in meine Akte geschrieben. Er hat nicht gefragt, wovon.\n\nЯ не болела. Никогда. В октябре у меня был лептоспироз, от крысы в клинике. Жар, желтуха, три недели. Штабной врач записал мне «переболела». Он не спросил, чем.' },
       { text: '— Mein Blut hilft keinem. Kein bisschen. Und wenn sie es merken, sind meine Mutter und Finn ihren Platz in Hannover los. Den haben sie nur, weil ich «Spenderin» bin.\n\nМоя кровь никому не помогает. Ни капли. А если это заметят, мама и Финн потеряют место в Ганновере. Оно у них только потому, что я «донор».' },

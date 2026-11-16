@@ -183,10 +183,10 @@ export function performCamp(ctx: Ctx, op: CampOperation): string[] {
     prepare(ctx, notes);
     if (op.mode === 'give' && qtyHeld(ctx, 'c3_meal') > 0) {
       const n = takeItems(ctx, i => i.type === 'c3_meal', Math.min(1, qtyHeld(ctx, 'c3_meal')));
-      return [...notes, `Передана готовая порция из рюкзака: ${pretty(n)}. Вторая порция не появилась, сытость владельца не выросла.`];
+      return [...notes, `Ты отдаёшь свою порцию из рюкзака: ${pretty(n)}. Себе ничего не остаётся.`];
     }
     const host = op.mode === 'host', meal = host ? ration(ctx) : nextMeal(ctx);
-    if (!meal || !campAvailable(ctx, host ? 'hostMeal' : op.communal ? 'tableMeal' : 'meal')) return [...notes, 'Доступной порции нет. Еда и сытость не появились.'];
+    if (!meal || !campAvailable(ctx, host ? 'hostMeal' : op.communal ? 'tableMeal' : 'meal')) return [...notes, 'Твоей порции здесь нет: её уже съели или взяли с собой.'];
     const n = host ? Math.min(0.5, meal.food) : meal.food;
     if (!op.communal) { useWater(ctx, 0.5 * n); burnIfCold(ctx); }
     if (host) setVar(ctx, 'w.c6_camp_host_meal', n);
