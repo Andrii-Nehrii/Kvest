@@ -13,7 +13,6 @@ const jest = 'c16_jesteburg';
 const J = (scene: Omit<Scene, 'for' | 'chapter' | 'location'>): Scene => B({ ...scene, location: jest, camp: scene.camp ?? { at: jest, stock: 'c3_farm_stock', rest: false }, safe: false });
 const leaHome: Cond = wayHide;
 const guestsShed: Cond = v('w.c23_guests', 'shed');
-const insulinHome: Cond = any(v('w.c21_bag', 'wait'), v('w.c21_bag', 'keep'));
 const leaSchool: Cond = any(v('w.c24_lea', 'brandt'), v('w.c22_lea_at', 'brandt'));
 const leaPoint: Cond = any(v('w.c24_lea', 'sander'), v('w.c22_lea_at', 'sander'));
 const leaJestNow: Cond = any(leaSchool, leaPoint);
@@ -94,11 +93,11 @@ export const day24BScenes: Scene[] = [
       { when: v('$.c24_bs', 'look'), text: 'В школу ты так и не {m:вошёл|вошла}. Постоял{m:|а} у двери и {m:ушёл|ушла}, и теперь это идёт за тобой.' },
     ],
     actions: [
-      { id: 'c24_bpo_yes', label: 'Сказать: если от нас пойду я — приду к вам', minutes: 15, terminal: true, outcomes: [{ id: 'k', when: insulinHome, goto: 'c24_b_kirch' }, { id: 'b', goto: 'c24_b_back' }],
+      { id: 'c24_bpo_yes', label: 'Сказать: если от нас пойду я — приду к вам', minutes: 15, terminal: true, goto: 'c24_b_girl',
         text: 'Зандер кивает, будто вы подписали договор.\n\n— Sieben Uhr. Und bringen Sie Handschuhe mit, wenn Sie welche haben.\n\nВ семь. И принесите перчатки, если есть.', effects: [set24('bpo', 'yes'), w24('sander_wants_b', true), until24(13, 0)] },
-      { id: 'c24_bpo_help', label: 'Остаться на час и помочь', minutes: 60, terminal: true, outcomes: [{ id: 'k', when: insulinHome, goto: 'c24_b_kirch' }, { id: 'b', goto: 'c24_b_back' }],
+      { id: 'c24_bpo_help', label: 'Остаться на час и помочь', minutes: 60, terminal: true, goto: 'c24_b_girl',
         text: 'Час проходит в бинтах и тазах. Старик с пальцами, ребёнок с ожогом, дружинник с порезом на ладони. В конце Зандер протягивает тебе кружку чая и галету.\n\n— Mittwoch. Sieben Uhr.\n\nСреда. Семь утра.', effects: [set24('bpo', 'help'), w24('sander_wants_b', true), w24('b_helped_point', true), { body: 'fatigue', delta: 4 }, until24(13, 50)] },
-      { id: 'c24_bpo_girl', label: 'Спросить про заднюю комнату', minutes: 20, terminal: true, outcomes: [{ id: 'k', when: insulinHome, goto: 'c24_b_kirch' }, { id: 'b', goto: 'c24_b_back' }],
+      { id: 'c24_bpo_girl', label: 'Спросить про заднюю комнату', minutes: 20, terminal: true, goto: 'c24_b_girl',
         text: '— Ein Mädchen, neun. Gebissen am Freitag. — Зандер смотрит на дверь. — Das Fieber kam am Samstag. Ich habe nichts mehr, was es aufhält.\n\nДевочка, девять лет. Укушена в пятницу. Жар пришёл в субботу. Мне больше нечем это задержать.', effects: [set24('bpo', 'girl'), w24('girl_back_room', true), { body: 'stress', delta: 2 }, until24(13, 0)] },
     ] }),
 
@@ -124,13 +123,13 @@ export const day24BScenes: Scene[] = [
       { when: v('w.c24_marcus', 'taken'), text: 'Дома тебя ждёт Лео. Он стоит у ворот в валенках Хенрике, с рисунком в руке.' },
     ],
     actions: [
-      { id: 'c24_bb_koehler', label: 'Отдать Кёлер половину буханки обратно', when: halfRation, minutes: 15, terminal: true, goto: 'c24_b_ute',
+      { id: 'c24_bb_koehler', label: 'Отдать Кёлер половину буханки обратно', when: halfRation, minutes: 15, terminal: true, outcomes: [{ id: 'split', when: halfRation, goto: 'c24_b_split' }, { id: 'ute', goto: 'c24_b_ute' }],
         text: '— Nein, — говорит Кёлер. — Ich backe. Ihr nicht.\n\nНет. Пеку я. Не вы.\n\nОна уходит к своей калитке, не оборачиваясь.', effects: [set24('bb', 'koehler'), npc('c3_koehler', 2), until24(15, 20)] },
-      { id: 'c24_bb_leo', label: 'Взять у Лео рисунок', when: v('w.c24_marcus', 'taken'), minutes: 15, terminal: true, goto: 'c24_b_ute',
+      { id: 'c24_bb_leo', label: 'Взять у Лео рисунок', when: v('w.c24_marcus', 'taken'), minutes: 15, terminal: true, outcomes: [{ id: 'split', when: halfRation, goto: 'c24_b_split' }, { id: 'ute', goto: 'c24_b_ute' }],
         text: 'На рисунке дом, труба, дым. У дома пятеро: двое больших, двое средних, один маленький. Маленький держит за руку того, что повыше. Подписано: «Marcus kommt wieder». Маркус вернётся.', effects: [set24('bb', 'leo'), w24('leo_drawing', true), npc('c12_leo', 2), until24(15, 20)] },
-      { id: 'c24_bb_stock', label: 'Разложить паёк по полкам', minutes: 20, terminal: true, goto: 'c24_b_ute',
+      { id: 'c24_bb_stock', label: 'Разложить паёк по полкам', minutes: 20, terminal: true, outcomes: [{ id: 'split', when: halfRation, goto: 'c24_b_split' }, { id: 'ute', goto: 'c24_b_ute' }],
         text: 'Хлеб в ларь, крупу в банки, тушёнку на верхнюю полку. Нина записывает в тетрадь, сколько чего. Её почерк ровнее твоего.', effects: [set24('bb', 'stock'), npc('c7_nina', 1), until24(15, 20)] },
-      { id: 'c24_bb_sit', label: 'Сесть у печи и отогреть руки', minutes: 20, terminal: true, goto: 'c24_b_ute',
+      { id: 'c24_bb_sit', label: 'Сесть у печи и отогреть руки', minutes: 20, terminal: true, outcomes: [{ id: 'split', when: halfRation, goto: 'c24_b_split' }, { id: 'ute', goto: 'c24_b_ute' }],
         text: 'Пальцы отходят медленно, с болью. Ты сидишь, пока их не перестаёт ломить.', effects: [set24('bb', 'sit'), { body: 'stress', delta: -1 }, until24(15, 20)] },
     ] }),
   B({ id: 'c24_b_dusk', title: 'До ужина', camp: kitchen14,

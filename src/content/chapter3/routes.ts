@@ -4,7 +4,7 @@ import { A19, B19, atFarm, byGirl, cold19, evaHere, girlHere, henrikeHome, inLue
 import { indoor16 } from './point16';
 import { point21Available, prepare21, stageC, stageF, stageL, stageR } from './point21';
 import { point23Available, prepare23 } from './point23';
-import { graveDay, point24Available, prepare24 } from './point24';
+import { graveGo, point24Available, prepare24 } from './point24';
 import { point25Available, prepare25 } from './point25';
 import { point26Available, prepare26 } from './point26';
 import { point27Available, prepare27 } from './point27';
@@ -895,12 +895,12 @@ export const newEntry24: Scene = {
   id: 'c24_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14, ambient: indoor16,
   text: [
     { when: point24Available, text: 'Ночь проходит без звуков. Под утро снова идёт снег.\n\nТы просыпаешься в темноте за минуту до будильника, как будто тело само знает, что сегодня рано. За окном снег падает отвесно, без ветра, и в свете фонаря у сарая видно каждую снежинку.' },
-    { when: all(point24Available, graveDay), text: 'В половине шестого в окно кухни стучат: Яннес. Пора к насыпи.' },
+    { when: all(point24Available, graveGo), text: 'В половине шестого в окно кухни стучат: Яннес. Пора к насыпи.' },
     { when: not(point24Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
-    { id: 'c24_go_grave', label: 'Одеться и выйти', when: graveDay, minutes: 30, terminal: true, goto: 'c24_grave', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
-    { id: 'c24_go_day', label: 'Встать', when: not(graveDay), minutes: 30, terminal: true, goto: 'c24_morning', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
+    { id: 'c24_go_grave', label: 'Одеться и выйти', when: graveGo, minutes: 30, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c24_a_pit' }, { id: 'b', goto: 'c24_grave' }], effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
+    { id: 'c24_go_day', label: 'Встать', when: not(graveGo), minutes: 30, terminal: true, goto: 'c24_morning', effects: [prepare24, { restUntil: at(23, 6, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point24Available, a.when ?? { always: true }) })),
 };
 

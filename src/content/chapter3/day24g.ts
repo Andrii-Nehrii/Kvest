@@ -1,16 +1,19 @@
 import type { Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
-import { not } from './world3';
+import { all, not } from './world3';
 import { house14, kitchen14, yard14 } from './point14';
-import { ninaFarm, v } from './point18';
+import { any, ninaFarm } from './point18';
 import { npc } from './point19';
-import { S24, set24, until24, w24 } from './point24';
+import { S24, canHome, fuelTaken, gunHidden, set24, until24, w24 } from './point24';
 
 // Участок 24, третий проход (до уровня 19–20): лиса у курятника и Пауль, внук Кёлер (A; откликается в 33-й), козы Уте (B),
 // поздний вечер у обоих.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S24({ ...scene, for: 'any', chapter: 'ch3' });
 const snow = { tempC: -2, outdoor: true, wet: false };
 const ute: Cond = { npc: 'c14_ute', alive: true };
+
+const canStill: Cond = all(canHome, not(fuelTaken));
+const hidden: Cond = any(canStill, gunHidden);
 
 export const day24GScenes: Scene[] = [
   X({ id: 'c24_a_fox', title: 'Курятник', camp: yard14, ambient: snow,
@@ -19,11 +22,11 @@ export const day24GScenes: Scene[] = [
     ],
     actions: [
       { id: 'c24_af_board', label: 'Прибить доски внизу и закопать сетку поглубже', minutes: 40, activity: 'moderate', terminal: true, goto: 'c24_a_paul', ambientDuring: snow,
-        text: 'Мёрзлая земля поддаётся ломом. Ты закапываешь сетку на ладонь и прибиваешь сверху две доски. Ночью лиса ходит вокруг, ты слышишь, как куры кудахчут, но утром все на месте.', effects: [set24('af', 'board'), w24('fox', 'blocked'), until24(16, 20)] },
+        text: 'Мёрзлая земля поддаётся только лому. Ты закапываешь сетку на ладонь и прибиваешь сверху две доски. Если лиса вернётся ночью, ей придётся грызть дерево.', effects: [set24('af', 'board'), w24('fox', 'blocked'), until24(16, 20)] },
       { id: 'c24_af_trap', label: 'Поставить в сарае старый капкан Оле', minutes: 30, terminal: true, goto: 'c24_a_paul',
-        text: 'Капкан ржавый, пружина тугая. Ты взводишь его рукояткой ломика и ставишь у лаза, присыпав соломой. Утром в капкане лиса, рыжая, худая, с белым кончиком хвоста. Шкуру Хенрике, если вернётся, выделает.', effects: [set24('af', 'trap'), w24('fox', 'trapped'), until24(16, 10)] },
+        text: 'Капкан ржавый, пружина тугая. Ты взводишь его рукояткой ломика и ставишь у лаза, присыпав соломой. Кто в него попадёт, станет ясно утром.', effects: [set24('af', 'trap'), w24('fox', 'trapped'), until24(16, 10)] },
       { id: 'c24_af_leave', label: 'Оставить: куры на ночь в хлеву, у коровы', minutes: 20, terminal: true, goto: 'c24_a_paul',
-        text: 'Ты переносишь кур по одной в хлев. Корова недовольна. Ночью лиса разоряет пустой курятник, ничего не находит и уходит. Утром надо будет переносить обратно.', effects: [set24('af', 'leave'), w24('fox', 'moved'), until24(16, 0)] },
+        text: 'Ты переносишь кур по одной в хлев. Корова недовольна. Если лиса придёт ночью, она найдёт пустой курятник.', effects: [set24('af', 'leave'), w24('fox', 'moved'), until24(16, 0)] },
     ] }),
 
   X({ id: 'c24_a_paul', title: 'Пауль', camp: yard14, ambient: snow,
@@ -55,32 +58,29 @@ export const day24GScenes: Scene[] = [
 
   X({ id: 'c24_a_late', title: 'Поздно', camp: house14, onEnter: [until24(19, 0)],
     text: [
-      { text: 'После ужина ты достаёшь из-за печки то, что не нашли при обыске. Спрятанное надо проверить: на месте ли, не отсырело ли.' },
+      { when: hidden, text: 'После ужина ты проверяешь то, что не нашли при обыске: на месте ли, не отсырело ли.' },
+      { when: canStill, text: 'Канистра на месте. В подвале пахнет бензином меньше, чем утром.' },
+      { when: gunHidden, text: 'Ружьё под половицей в швейной, в мешковине. Патроны в банке с пуговицами.' },
+      { when: not(hidden), text: 'После ужина ты обходишь дом. Прятать больше нечего: что было, Брандт видел.' },
       { text: 'В доме все легли, кроме вас. Ступеньки скрипят, как будто нарочно громче ночью.' },
-      { when: v('$.c24_su', 'tea'), text: 'Ты так и не {m:поел|поела} толком. Под ложечкой сосёт.' },
-      { when: v('$.c24_su', 'eat'), text: 'После ужина тепло, и глаза слипаются.' },
-      { when: v('$.c24_ev', 'rest'), text: 'Вы просидели молча, и это было лучше любого разговора.' },
-      { when: v('$.c24_ev', 'ole'), text: 'Что сказать Оле завтра, вы так и не решили. Слова крутятся в голове, ни одно не подходит.' },
-      { when: v('$.c24_ev', 'count'), text: 'Цифры из кладовки всё ещё стоят перед глазами: картошки на столько-то дней, муки на столько-то.' },
     ],
     actions: [
-      { id: 'c24_al5_move', label: 'Перепрятать всё в другое место', minutes: 25, terminal: true, goto: 'c24_checkpoint',
-        text: 'Канистру — под доски в сенях, патроны — в банку с крупой. Ты делаешь это при свече, тихо, чтобы не разбудить Нину. Теперь даже ты не сразу найдёшь.', effects: [set24('al5', 'move'), w24('stash', 'moved'), until24(19, 30)] },
-      { id: 'c24_al5_tell', label: 'Показать тайник {partner.dat}', minutes: 25, terminal: true, goto: 'c24_checkpoint',
-        text: 'Ты показываешь {partner.dat}: здесь канистра, здесь патроны. Если тебя не будет, кто-то должен знать. {partner} кивает и повторяет вслух, чтобы запомнить.', effects: [set24('al5', 'tell'), w24('stash', 'shared'), until24(19, 30)] },
-      { id: 'c24_al5_leave', label: 'Оставить как есть: не нашли раз, не найдут и снова', minutes: 15, terminal: true, goto: 'c24_checkpoint',
-        text: 'Ты кладёшь всё обратно. Печка тёплая, за ней сухо. Ты надеешься, что прав{m:|а}.', effects: [set24('al5', 'leave'), until24(19, 20)] },
+      { id: 'c24_al5_move', label: 'Перепрятать всё в другое место', when: hidden, minutes: 25, terminal: true, goto: 'c24_checkpoint',
+        text: 'Ты перекладываешь спрятанное при свече, тихо, чтобы не разбудить Нину. Теперь даже ты не сразу найдёшь. Это и хорошо, и плохо.', effects: [set24('al5', 'move'), w24('stash_moved', true), until24(19, 30)] },
+      { id: 'c24_al5_tell', label: 'Показать тайник {partner.dat}', when: hidden, minutes: 25, terminal: true, goto: 'c24_checkpoint',
+        text: 'Ты показываешь {partner.dat}, где что лежит. Если тебя не будет, кто-то должен знать. {partner} кивает и повторяет вслух, чтобы запомнить.', effects: [set24('al5', 'tell'), w24('stash_shared', true), until24(19, 30)] },
+      { id: 'c24_al5_leave', label: 'Оставить как есть: не нашли раз, не найдут и снова', when: hidden, minutes: 15, terminal: true, goto: 'c24_checkpoint',
+        text: 'Ты кладёшь всё обратно. Ты надеешься, что прав{m:|а}.', effects: [set24('al5', 'leave'), until24(19, 20)] },
+      { id: 'c24_al5_list', label: 'Записать, что взяли и что оставили', when: not(hidden), minutes: 25, terminal: true, goto: 'c24_checkpoint',
+        text: 'Ты пишешь столбиком: что взяли, что оставили, что сказал Брандт. Выходит полстраницы. Внизу ты добавляешь: «Oле — завтра» и подчёркиваешь дважды.', effects: [set24('al5', 'list'), until24(19, 25)] },
+      { id: 'c24_al5_bolts', label: 'Проверить засовы и лечь', when: not(hidden), minutes: 15, terminal: true, goto: 'c24_checkpoint',
+        text: 'Засовы задвинуты, ворота на цепи. Ты всё равно дёргаешь каждую дверь. Завтра рано вставать.', effects: [set24('al5', 'bolts'), until24(19, 15)] },
     ] }),
 
   X({ id: 'c24_b_late', title: 'Поздно', camp: kitchen14, onEnter: [until24(19, 0)],
     text: [
       { text: 'После ужина Нина сидит над тетрадкой, куда записывает, кто что ел. Сегодня она пишет медленно и стирает. Потом показывает тебе: сегодня ели все, кроме неё. Она отдала свою порцию Лео.' },
       { when: not(ninaFarm), text: 'Нины нет: тетрадь лежит на подоконнике раскрытая. Сегодняшняя строка пустая.' },
-      { when: v('$.c24_su', 'tea'), text: 'Ты так и не {m:поел|поела} толком. Под ложечкой сосёт.' },
-      { when: v('$.c24_su', 'eat'), text: 'После ужина тепло, и глаза слипаются.' },
-      { when: v('$.c24_ev', 'rest'), text: 'Вы просидели молча, и это было лучше любого разговора.' },
-      { when: v('$.c24_ev', 'ole'), text: 'Что сказать Оле завтра, вы так и не решили. Слова крутятся в голове, ни одно не подходит.' },
-      { when: v('$.c24_ev', 'count'), text: 'Цифры из кладовки всё ещё стоят перед глазами: картошки на столько-то дней, муки на столько-то.' },
     ],
     actions: [
       { id: 'c24_bl8_share', label: 'Отдать ей половину своего хлеба', when: ninaFarm, minutes: 20, terminal: true, goto: 'c24_checkpoint',
