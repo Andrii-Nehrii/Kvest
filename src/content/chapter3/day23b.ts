@@ -53,6 +53,8 @@ export const day23BScenes: Scene[] = [
         text: 'В яме за теплицей, у колонии. С остальными шестью. Солдаты засыпали известью.\n\nНина кивает.\n\n— Уте хочет забрать оттуда Кая. — Она смотрит в окно. — А папу никто не заберёт. Потому что я одна, а копать надо вдвоём.\n\nТы не знаешь, что на это сказать. Она и не ждёт.', effects: [set23('bn', 'where'), w23('nina_knows_grave', true), npc('c7_nina', 2), until23(8, 10)] },
       { id: 'c23_bn_cap', label: 'Сказать: когда земля оттает, мы перенесём его вместе', when: ninaKnows, minutes: 20, terminal: true, outcomes: afterNina,
         text: 'Нина долго смотрит на тебя.\n\n— Обещаешь? Не «посмотрим». Обещаешь?\n\nТы обещаешь. Она кивает и идёт на улицу, к курам, без куртки. Ты не останавливаешь.', effects: [set23('bn', 'cap'), w23('nina_spring', true), npc('c7_nina', 3, 'c23_b_promised_spring'), until23(8, 10)] },
+      { id: 'c23_bn_lie', label: 'Соврать: на кладбище в Йестебурге, как положено', when: ninaKnows, minutes: 20, terminal: true, outcomes: afterNina,
+        text: '— На кладбище в Йестебурге. У стены, где хоронят всех, кого привезли из деревень. С крестом и табличкой.\n\nНина выдыхает, как будто не дышала с прошлой недели.\n\n— С табличкой, — повторяет она. — Хорошо.\n\nТаблички нет. Креста тоже. Есть яма за теплицей и известь. Теперь это знаешь только ты.', effects: [set23('bn', 'lie'), w23('nina_lie', true), npc('c7_nina', 1), { body: 'stress', delta: 3 }, until23(8, 0)] },
     ] }),
 
   // ───────────── Церковь ─────────────
@@ -146,11 +148,11 @@ export const day23BScenes: Scene[] = [
       { when: guestsCome, text: 'Лео садится к тебе на колени, не спрашивая, и ест из твоей ложки. Маркус ест у окна, стоя.' },
     ],
     actions: [
-      { id: 'c23_bu_eat', label: 'Поесть горячего', minutes: 25, terminal: true, goto: 'c23_b_ute', ...tableOnly,
+      { id: 'c23_bu_eat', label: 'Поесть горячего', minutes: 25, terminal: true, outcomes: [{ id: 'lea', when: all(leaHere23, guestsCome), goto: 'c23_b_lea2' }, { id: 'ute', goto: 'c23_b_ute' }], ...tableOnly,
         text: 'Ты ешь одной рукой. Другой держишь Лео, чтобы не свалился. Он засыпает на третьей ложке.', effects: [set23('bu', 'eat'), meal('eat'), until23(13, 40)] },
-      { id: 'c23_bu_nap', label: 'Лечь на час: ночью {m:спал|спала} плохо', minutes: 30, terminal: true, goto: 'c23_b_ute',
+      { id: 'c23_bu_nap', label: 'Лечь на час: ночью {m:спал|спала} плохо', minutes: 30, terminal: true, outcomes: [{ id: 'lea', when: all(leaHere23, guestsCome), goto: 'c23_b_lea2' }, { id: 'ute', goto: 'c23_b_ute' }],
         text: 'Ты засыпаешь сразу. Когда открываешь глаза, рядом на одеяле спит Лео, свернувшись, в шапке. Ты не помнишь, когда он пришёл.', effects: [set23('bu', 'nap'), until23(14, 30, true)] },
-      { id: 'c23_bu_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c23_b_ute',
+      { id: 'c23_bu_tea', label: 'Только чай', minutes: 10, terminal: true, outcomes: [{ id: 'lea', when: all(leaHere23, guestsCome), goto: 'c23_b_lea2' }, { id: 'ute', goto: 'c23_b_ute' }],
         text: 'Ты пьёшь чай и отдаёшь свой хлеб Лео. Он прячет его в карман: на потом.', effects: [set23('bu', 'tea'), until23(13, 20)] },
     ] }),
 
@@ -160,7 +162,6 @@ export const day23BScenes: Scene[] = [
       { text: '— Für den Kleinen. Ich hab gehört, ihr habt wieder einen Jungen.\n\nДля малыша. Я слышала, у вас снова мальчик.' },
       { text: '— Morgen früh holen wir Kai aus der Grube. Bringen ihn an den Bahndamm. Kommst du? Nicht zum Graben. Zum Singen. Ich kann nicht singen, wenn ich ihn sehe.\n\nЗавтра рано утром мы заберём Кая из ямы. Перенесём к насыпи. Придёшь? Не копать. Петь. Я не смогу петь, когда увижу его.' },
       { when: v('$.c23_bu', 'tea'), text: 'Чай согрел, но в животе пусто.' },
-      { when: v('$.c23_bu', 'nap'), text: 'После часа сна ты наконец {m:согрелся|согрелась}.' },
       { when: v('$.c23_bu', 'eat'), text: 'Горячий суп ещё греет изнутри.' },
       { text: 'Варежки серые, с красной полоской, как те, что она приносила Нине в ноябре.' },
     ],
@@ -196,11 +197,11 @@ export const day23BScenes: Scene[] = [
       { when: v('$.c23_bl9', 'in'), text: 'Маркус и Лео греются на кухне: ты {m:позвал|позвала} их в дом, когда стало темнеть.' },
     ],
     actions: [
-      { id: 'c23_bz_insulin', label: 'Ответить: у меня есть инсулин. Как его передать?', when: all(merle, insulinHome), minutes: 15, terminal: true, goto: 'c23_supper', enabled: { phoneUsable: true }, disabledReason: 'Телефон сел',
+      { id: 'c23_bz_insulin', label: 'Ответить: у меня есть инсулин. Как его передать?', when: all(merle, insulinHome), minutes: 15, terminal: true, goto: 'c23_b_barn', enabled: { phoneUsable: true }, disabledReason: 'Телефон сел',
         text: 'Ответ уходит с третьей попытки. Ответ на ответ не приходит. Окно сети закрывается, как будто его и не было. Ты стоишь у сарая с поднятой рукой ещё десять минут.', effects: [set23('bz', 'insulin'), w23('merle_told_insulin', true), { charge: 'phone', delta: -1 }, until23(17, 20)] },
-      { id: 'c23_bz_hold', label: 'Ответить: держитесь. Я что-нибудь придумаю', minutes: 10, terminal: true, goto: 'c23_supper', enabled: { phoneUsable: true }, disabledReason: 'Телефон сел',
+      { id: 'c23_bz_hold', label: 'Ответить: держитесь. Я что-нибудь придумаю', minutes: 10, terminal: true, goto: 'c23_b_barn', enabled: { phoneUsable: true }, disabledReason: 'Телефон сел',
         text: 'Ты пишешь и стираешь три раза. Отправляешь короткое. Что «что-нибудь», ты не знаешь {m:сам|сама}.', effects: [set23('bz', 'hold'), { charge: 'phone', delta: -1 }, until23(17, 15)] },
-      { id: 'c23_bz_off', label: 'Не отвечать сейчас', minutes: 5, terminal: true, goto: 'c23_supper',
+      { id: 'c23_bz_off', label: 'Не отвечать сейчас', minutes: 5, terminal: true, goto: 'c23_b_barn',
         text: 'Ты убираешь телефон. Сообщение остаётся непрочитанным. Для них.', effects: [set23('bz', 'off'), until23(17, 10)] },
     ] }),
 ];

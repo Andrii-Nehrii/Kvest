@@ -36,8 +36,8 @@ export const day23AScenes: Scene[] = [
       { when: flag('w.c22_bell'), text: 'Колокольчик на калитке ночью не звенел. Тот, кто ходил, калитку не трогал.' },
     ],
     actions: [
-      { id: 'c23_as_follow', label: 'Пройти по следам, пока их не замело', minutes: 30, activity: 'moderate', terminal: true, goto: 'c23_a_tobias', ambientDuring: snow23,
-        text: 'Следы идут вдоль изгороди, огибают грушу, останавливаются у холмика. Там снег утоптан, как будто кто-то долго стоял. Потом они уходят к лесополосе, прямо, не петляя. В лесополосе ты находишь его: сидит под берёзой, спиной к стволу, в больничной рубашке, засыпанный снегом. Не двигается. Мёртв, по-настоящему, давно. Холод сделал то, чего не сделал никто.', effects: [set23('as', 'follow'), w23('frozen_found', true), { body: 'stress', delta: 2 }, until23(8, 0)] },
+      { id: 'c23_as_follow', label: 'Пройти по следам, пока их не замело', minutes: 20, activity: 'moderate', terminal: true, goto: 'c23_a_birch', ambientDuring: snow23,
+        text: 'Ты берёшь топор у поленницы и идёшь по следам.', effects: [set23('as', 'follow'), until23(7, 0)] },
       { id: 'c23_as_sweep', label: 'Расчистить дорожки и не ходить туда', minutes: 30, activity: 'moderate', terminal: true, goto: 'c23_a_tobias', ambientDuring: snow23,
         text: 'Лопата, метла, двор. От крыльца к колодцу, к курятнику, к воротам. Цепочку у изгороди ты обходишь стороной. К завтраку её почти заносит.', effects: [set23('as', 'sweep'), until23(8, 0)] },
       { id: 'c23_as_hens', label: 'Проверить курятник', minutes: 20, terminal: true, goto: 'c23_a_tobias', ambientDuring: snow23,
@@ -55,6 +55,8 @@ export const day23AScenes: Scene[] = [
       { when: tob('truth'), text: 'Сказать надо правду: Лея не болела. Её кровь никого не лечит.' },
       { when: tob('silent'), text: 'Сказать надо то же, что вчера. Ни слова сверх.' },
       { when: tob('release'), text: 'Сказать надо для Оле: замены не будет. Пусть решает сам.' },
+      { when: v('$.c23_ab', 'tobias'), text: 'Но сначала ты ведёшь его к задней изгороди и показываешь на берёзу. Тобиас уходит в лесополосу с автоматом. Один выстрел, глухой, в снег. Он возвращается, вытирает сапоги о сугроб у ворот и только потом протягивает руку за письмом.' },
+      { when: v('$.c23_ay', 'band'), text: 'Вместе с письмом ты отдаёшь браслет: «Sander, Wiebke». Тобиас кладёт его в нагрудный карман и застёгивает пуговицу.' },
     ],
     actions: [
       { id: 'c23_at_plain', label: 'Сказать прямо, как решили', minutes: 20, terminal: true,
@@ -147,11 +149,11 @@ export const day23AScenes: Scene[] = [
       { when: all(guestsCome, leaHere23), text: 'Лея смотрит, как Лео кашляет, и встаёт из-за стола. Через минуту она возвращается с кружкой тёплого молока с мёдом.' },
     ],
     actions: [
-      { id: 'c23_al_eat', label: 'Поесть горячего', minutes: 25, terminal: true, goto: 'c23_a_fuel', ...tableOnly,
+      { id: 'c23_al_eat', label: 'Поесть горячего', minutes: 25, terminal: true, goto: 'c23_a_jannes', ...tableOnly,
         text: 'Суп горячий. Ты ешь и чувствуешь, как отходят пальцы, задеревеневшие на снегу.', effects: [set23('al', 'eat'), meal('eat'), until23(13, 40)] },
-      { id: 'c23_al_nap', label: 'Поесть и лечь на час', minutes: 30, terminal: true, goto: 'c23_a_fuel', ...tableOnly,
+      { id: 'c23_al_nap', label: 'Поесть и лечь на час', minutes: 30, terminal: true, goto: 'c23_a_jannes', ...tableOnly,
         text: 'Ты засыпаешь в одежде, поверх одеяла. Будит тебя Нина: её рука на плече и шёпот, что пришёл Яннес.', effects: [set23('al', 'nap'), meal('eat'), until23(13, 30), until23(14, 30, true)] },
-      { id: 'c23_al_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c23_a_fuel',
+      { id: 'c23_al_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c23_a_jannes',
         text: 'Ты пьёшь чай у окна. Снег на дороге уже разъезжен: кто-то проехал на тракторе.', effects: [set23('al', 'tea'), until23(13, 20)] },
     ] }),
 
@@ -161,7 +163,6 @@ export const day23AScenes: Scene[] = [
       { text: 'В баке Corsa — сколько есть. Солярка в бочке у сарая, для трактора.' },
       { when: canHere, text: 'Канистра Керема, пять литров, стоит в сенях за дверью.' },
       { when: guestsCome, text: 'Маркус стоит рядом и смотрит, куда ты смотришь.\n\n— Bei uns in Buchholz haben sie den Leuten die Tanks leer gesaugt. Mit Schlauch. Vor den Augen.\n\nУ нас в Бухгольце людям выкачали баки. Шлангом. На глазах.' },
-      { when: v('$.c23_al', 'nap'), text: 'После часа сна голова ясная, но вставать не хотелось.' },
       { when: v('$.c23_al', 'tea'), text: 'Чай согрел, но есть хочется.' },
     ],
     actions: [
@@ -192,6 +193,10 @@ export const day23AScenes: Scene[] = [
         text: '— Eingesammelt. Registriert. Und dann haben Brandts Leute damit Wache gestanden. — Маркус пожимает плечами. — Wer eins versteckt hatte und erwischt wurde, kam von der Liste. Keine Ration mehr.\n\nСобрали. Записали. А потом люди Брандта стояли с ними на посту. Кто спрятал и попался — того вычеркнули из списка. Пайка больше нет.', effects: [set23('ag', 'marcus'), w23('gun_risk_known', true), until23(15, 0)] },
       { id: 'c23_ag_none', label: 'Обойти дом: что ещё может приглянуться Брандту', when: not(gunHere), minutes: 30, terminal: true, goto: 'c23_a_corsa',
         text: 'Генератора нет. Бензопилы нет. Есть трактор, который Брандт и так знает. Есть окорок в кладовке. Есть люди. Людей не спрячешь под половицу.', effects: [set23('ag', 'none'), until23(15, 10)] },
+      { id: 'c23_ag_ham', label: 'Унести окорок на чердак, под сено', when: not(gunHere), minutes: 25, terminal: true, goto: 'c23_a_corsa',
+        text: 'Окорок завёрнут в мешковину и пахнет дымом на весь чердак. Ты закапываешь его в сено у трубы, поглубже. Собака найдёт. Человек, который спешит, — нет.', effects: [set23('ag', 'ham'), w23('ham_hidden', true), until23(15, 10)] },
+      { id: 'c23_ag_open', label: 'Ничего не прятать: спрятанное найдут, и будет хуже', when: not(gunHere), minutes: 10, terminal: true, goto: 'c23_a_corsa',
+        text: 'Ты оставляешь всё как есть. Окорок на крюке в кладовке, топор у поленницы. Если Брандт захочет взять, возьмёт. Но лгать ему в глаза не придётся.', effects: [set23('ag', 'open'), until23(14, 55)] },
     ] }),
 
   A({ id: 'c23_a_corsa', title: 'Ключи', camp: yard14, ambient: snow23,
@@ -201,11 +206,11 @@ export const day23AScenes: Scene[] = [
       { text: 'Без машины до Йестебурга час пешком. До Люнебурга — день.' },
     ],
     actions: [
-      { id: 'c23_ac_keys', label: 'Снять с машины аккумулятор и спрятать', minutes: 30, activity: 'moderate', terminal: true, goto: 'c23_a_malte',
+      { id: 'c23_ac_keys', label: 'Снять с машины аккумулятор и спрятать', minutes: 30, activity: 'moderate', terminal: true, outcomes: [{ id: 'fence', when: not(any(v('$.c23_ab', 'axe'), v('$.c23_ab', 'slip'), v('$.c23_ab', 'tobias'))), goto: 'c23_a_fence' }, { id: 'malte', goto: 'c23_a_malte' }],
         text: 'Клеммы прикипели. Ты отбиваешь их молотком через тряпку и вынимаешь аккумулятор, тяжёлый, как ведро с водой. Он уезжает в подвал, под старое пальто. Без него машина не заведётся. Ни у кого.', effects: [set23('ac', 'battery'), w23('battery_out', true), until23(15, 50)] },
-      { id: 'c23_ac_spare', label: 'Сделать так, чтобы запасной ключ остался у {B.gen}', minutes: 15, terminal: true, goto: 'c23_a_malte',
+      { id: 'c23_ac_spare', label: 'Сделать так, чтобы запасной ключ остался у {B.gen}', minutes: 15, terminal: true, outcomes: [{ id: 'fence', when: not(any(v('$.c23_ab', 'axe'), v('$.c23_ab', 'slip'), v('$.c23_ab', 'tobias'))), goto: 'c23_a_fence' }, { id: 'malte', goto: 'c23_a_malte' }],
         text: 'Запасного ключа нет. Есть один, на кольце с брелоком аптеки. Ты снимаешь его с кольца и кладёшь в жестяную коробку на полке, за банкой с мукой. {B} будет знать, где.', effects: [set23('ac', 'spare'), w23('key_tin', true), until23(15, 35)] },
-      { id: 'c23_ac_leave', label: 'Оставить как есть', minutes: 5, terminal: true, goto: 'c23_a_malte',
+      { id: 'c23_ac_leave', label: 'Оставить как есть', minutes: 5, terminal: true, outcomes: [{ id: 'fence', when: not(any(v('$.c23_ab', 'axe'), v('$.c23_ab', 'slip'), v('$.c23_ab', 'tobias'))), goto: 'c23_a_fence' }, { id: 'malte', goto: 'c23_a_malte' }],
         text: 'Ты закрываешь машину и кладёшь ключ в карман. Что будет — то будет.', effects: [set23('ac', 'leave'), until23(15, 25)] },
     ] }),
 
