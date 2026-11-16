@@ -36,6 +36,21 @@ export const contacts3: Record<string, ContactDef> = {
     intro: 'Старая женщина в мужском свитере из третьего ряда женского корпуса. В казарме с тринадцатого.',
     knownWhen: { visited: 'c18_b_block' },
   },
+  c34_gerdes: {
+    id: 'c34_gerdes', name: 'Фрау Гердес', fromCheckpoint: 33,
+    intro: 'Ищет мужа, развозчика посылок. Десятого ноября он не вернулся домой.',
+    knownWhen: { visited: 'c34_a_post' },
+  },
+  c34_sabina: {
+    id: 'c34_sabina', name: 'Сабина', fromCheckpoint: 33,
+    intro: 'Дочь Брандта, мать Матса.',
+    knownWhen: { visited: 'c34_b_warm' },
+  },
+  c34_mats: {
+    id: 'c34_mats', name: 'Матс', fromCheckpoint: 33,
+    intro: 'Внук Брандта, мальчик лет девяти. Провалился под лёд на мельничном пруду в Йестебурге.',
+    knownWhen: { visited: 'c34_b_pond' },
+  },
   c3_jens: {
     id: 'c3_jens', name: 'Йенс', fromCheckpoint: 5,
     intro: 'Приехал к воротам хутора на белом развозном фургоне. Попросил воды и помощи.',
