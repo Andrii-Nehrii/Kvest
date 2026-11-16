@@ -74,12 +74,12 @@ export const shared30: Scene[] = [
       { text: 'Солнце висит низко над лесом, белое, без тепла. Тени от столбов изгороди лежат через весь двор, синие, длинные, как в шесть вечера, хотя только час.' },
     ],
     actions: [
-      { id: 'c30_mo_kit', label: 'Собраться как следует: вторые рукавицы, сухие носки, верёвка', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_aft' }, { id: 'b', goto: 'c30_b_aft' }],
-        text: 'Рукавицы Уте, серые с красной полосой, во внутренний карман. Сухие носки в целлофане. Моток верёвки через плечо. Фонарь, батарейки. Хенрике проверяет каждую вещь сама, как перед школой.', effects: [{ if: all(A30, flag('A.c29_rope')), then: [set30('rope', true)] }, set30('mo', 'kit'), set30('mittens', true), set30('dry', true), set30('rope', true), until30(30, 15, 0)] },
-      { id: 'c30_mo_sleep', label: 'Выспаться днём: ночь будет длинной', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_aft' }, { id: 'b', goto: 'c30_b_aft' }],
-        text: 'Ты спишь до сумерек, тяжело, без снов. Встаёшь {m:отдохнувшим|отдохнувшей}. Рукавицы ищешь уже в темноте и находишь одну пару.', effects: [{ if: all(A30, flag('A.c29_rope')), then: [set30('rope', true)] }, set30('mo', 'sleep'), set30('dry', true), { body: 'fatigue', delta: -15 }, until30(30, 15, 0, true)] },
-      { id: 'c30_mo_work', label: 'Сначала дела по дому, сборы потом', minutes: 60, activity: 'moderate', terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_a_aft' }, { id: 'b', goto: 'c30_b_aft' }],
-        text: 'Дрова, вода из колодца, куры. К сумеркам руки красные и мокрые от снега. Собираешься бегом, что под руку попало.', effects: [{ if: all(A30, flag('A.c29_rope')), then: [set30('rope', true)] }, set30('mo', 'work'), { body: 'fatigue', delta: 6 }, until30(30, 15, 0)] },
+      { id: 'c30_mo_kit', label: 'Собраться как следует: вторые рукавицы, сухие носки, верёвка', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_x_a_knife' }, { id: 'b', goto: 'c30_x_b_socks' }],
+        text: 'Рукавицы Уте, серые с красной полосой, во внутренний карман. Сухие носки в целлофане. Моток верёвки через плечо. Фонарь, батарейки. Хенрике проверяет каждую вещь сама, как перед школой.', effects: [{ if: all(A30, flag('A.c29_rope')), then: [set30('rope', true)] }, set30('mo', 'kit'), set30('mittens', true), set30('dry', true), set30('rope', true), until30(30, 14, 15)] },
+      { id: 'c30_mo_sleep', label: 'Выспаться днём: ночь будет длинной', minutes: 60, terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_x_a_knife' }, { id: 'b', goto: 'c30_x_b_socks' }],
+        text: 'Ты спишь до сумерек, тяжело, без снов. Встаёшь {m:отдохнувшим|отдохнувшей}. Рукавицы ищешь уже в темноте и находишь одну пару.', effects: [{ if: all(A30, flag('A.c29_rope')), then: [set30('rope', true)] }, set30('mo', 'sleep'), set30('dry', true), { body: 'fatigue', delta: -15 }, until30(30, 14, 15, true)] },
+      { id: 'c30_mo_work', label: 'Сначала дела по дому, сборы потом', minutes: 60, activity: 'moderate', terminal: true, outcomes: [{ id: 'a', when: A30, goto: 'c30_x_a_knife' }, { id: 'b', goto: 'c30_x_b_socks' }],
+        text: 'Дрова, вода из колодца, куры. К сумеркам руки красные и мокрые от снега. Собираешься бегом, что под руку попало.', effects: [{ if: all(A30, flag('A.c29_rope')), then: [set30('rope', true)] }, set30('mo', 'work'), { body: 'fatigue', delta: 6 }, until30(30, 14, 15)] },
     ] }),
 
   S30({ id: 'c30_dusk', for: 'any', chapter: 'ch3', title: 'Перед ночью', camp: kitchen14,

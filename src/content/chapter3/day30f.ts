@@ -8,7 +8,7 @@ import { S30, entryFuel, entryHome, entryJoin, frost30, mittens, set30, until30,
 // Участок 30, второй проход объёма (15.11): вечер перед выходом у каждого (записка на случай, проверка вещей, сон)
 // и короткая сцена после цепочки, до возвращения в дом (кому помочь, кого пересчитать).
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S30({ ...scene, for: 'any', chapter: 'ch3' });
-const toRoad = [{ id: 'j', when: entryJoin, goto: 'c30_j_road' }, { id: 'f', when: entryFuel, goto: 'c30_f_road' }, { id: 'h', goto: 'c30_h_post' }];
+const toRoad = [{ id: 'j', when: entryJoin, goto: 'c30_x_jannes' }, { id: 'f', when: entryFuel, goto: 'c30_f_road' }, { id: 'h', goto: 'c30_h_post' }];
 
 export const day30FScenes: Scene[] = [
   X({ id: 'c30_a_eve', title: 'Перед выходом', camp: house14, onEnter: [until30(30, 19, 0)],
@@ -22,11 +22,11 @@ export const day30FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c30_ae_note', label: 'Написать {partner.dat} записку на случай, если не вернёшься', minutes: 40, terminal: true, outcomes: toRoad,
-        text: 'Ты пишешь коротко, на листке из тетради. Перечитываешь, зачёркиваешь одну фразу, пишешь сверху другую. Складываешь вчетверо и кладёшь во внутренний карман, к телу. Если что — найдут.', effects: [set30('ae', 'note'), set30('note', true), until30(30, 21, 0)] },
+        text: 'Ты пишешь коротко, на листке из тетради. Перечитываешь, зачёркиваешь одну фразу, пишешь сверху другую. Складываешь вчетверо и кладёшь во внутренний карман, к телу. Если что — найдут.', effects: [set30('ae', 'note'), set30('note', true), { if: entryJoin, then: [until30(30, 20, 20)], else: [until30(30, 21, 0)] }] },
       { id: 'c30_ae_check', label: 'Перебрать вещи ещё раз: всё ли взято', minutes: 40, terminal: true, outcomes: toRoad,
-        text: 'Фонарь, батарейки, спички в целлофане, нож. На дне сундука в сенях ты находишь старые шерстяные рукавицы Хенрике, жёсткие от времени. Лучше, чем ничего.', effects: [set30('ae', 'check'), { if: not(mittens), then: [set30('mittens', true)] }, until30(30, 21, 0)] },
+        text: 'Фонарь, батарейки, спички в целлофане, нож. На дне сундука в сенях ты находишь старые шерстяные рукавицы Хенрике, жёсткие от времени. Лучше, чем ничего.', effects: [set30('ae', 'check'), { if: not(mittens), then: [set30('mittens', true)] }, { if: entryJoin, then: [until30(30, 20, 20)], else: [until30(30, 21, 0)] }] },
       { id: 'c30_ae_sleep', label: 'Лечь на полтора часа: ночь длинная', minutes: 30, terminal: true, outcomes: toRoad,
-        text: 'Ты ложишься {m:одетым|одетой} поверх одеяла. Засыпаешь сразу. Просыпаешься за минуту до того, как Хенрике трогает тебя за плечо.', effects: [set30('ae', 'sleep'), { body: 'fatigue', delta: -10 }, until30(30, 21, 0, true)] },
+        text: 'Ты ложишься {m:одетым|одетой} поверх одеяла. Засыпаешь сразу. Просыпаешься за минуту до того, как Хенрике трогает тебя за плечо.', effects: [set30('ae', 'sleep'), { body: 'fatigue', delta: -10 }, { if: entryJoin, then: [until30(30, 20, 20, true)], else: [until30(30, 21, 0, true)] }] },
     ] }),
 
   X({ id: 'c30_b_eve', title: 'Перед выходом', camp: house14, onEnter: [until30(30, 19, 0)],
@@ -40,11 +40,11 @@ export const day30FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c30_be_note', label: 'Написать {partner.dat} записку на случай, если не вернёшься', minutes: 40, terminal: true, outcomes: toRoad,
-        text: 'Ты пишешь, сидя на краю кровати. Получается не то, что хотелось. Ты пишешь снова, короче. Складываешь и кладёшь в нагрудный карман, застёгиваешь пуговицу.', effects: [set30('be', 'note'), set30('note', true), until30(30, 21, 0)] },
+        text: 'Ты пишешь, сидя на краю кровати. Получается не то, что хотелось. Ты пишешь снова, короче. Складываешь и кладёшь в нагрудный карман, застёгиваешь пуговицу.', effects: [set30('be', 'note'), set30('note', true), { if: entryJoin, then: [until30(30, 20, 20)], else: [until30(30, 21, 0)] }] },
       { id: 'c30_be_bag', label: 'Собрать сумку для саней: бинты, сахар, сухие носки на смену', minutes: 40, terminal: true, outcomes: toRoad,
-        text: 'Бинты, сахар в кубиках, две пары носков в целлофане, фляга с горячим чаем. Сумка тяжёлая. Сухие носки ты кладёшь сверху, чтобы достать, не глядя.', effects: [set30('be', 'bag'), set30('dry', true), until30(30, 21, 0)] },
+        text: 'Бинты, сахар в кубиках, две пары носков в целлофане, фляга с горячим чаем. Сумка тяжёлая. Сухие носки ты кладёшь сверху, чтобы достать, не глядя.', effects: [set30('be', 'bag'), set30('dry', true), { if: entryJoin, then: [until30(30, 20, 20)], else: [until30(30, 21, 0)] }] },
       { id: 'c30_be_nina', label: 'Посидеть с Ниной, пока она не уснёт', minutes: 40, terminal: true, outcomes: toRoad,
-        text: 'Нина не спит, притворяется. Ты сидишь рядом и рассказываешь ей про Гамбург, про трамвай, про кофе на углу. На середине она засыпает по-настоящему.', effects: [set30('be', 'nina'), npc('c7_nina', 1), until30(30, 21, 0)] },
+        text: 'Нина не спит, притворяется. Ты сидишь рядом и рассказываешь ей про Гамбург, про трамвай, про кофе на углу. На середине она засыпает по-настоящему.', effects: [set30('be', 'nina'), npc('c7_nina', 1), { if: entryJoin, then: [until30(30, 20, 20)], else: [until30(30, 21, 0)] }] },
     ] }),
 
   X({ id: 'c30_a_after', title: 'Под утро', location: undefined, safe: false, ambient: frost30,

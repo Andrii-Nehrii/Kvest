@@ -17,7 +17,7 @@ const F = (scene: Omit<Scene, 'for' | 'chapter' | 'location'>): Scene => X({ ...
 const ute: Cond = { npc: 'c14_ute', alive: true };
 const taught: Cond = v('w.c26_nina_gun', 'taught');
 const cold1 = set30('hurt1', true);
-const toNoon = [{ id: 'a', when: A30, goto: 'c30_a_noon' }, { id: 'b', goto: 'c30_b_noon' }];
+const toNoon = [{ id: 'a', when: A30, goto: 'c30_x_a_rags' }, { id: 'b', goto: 'c30_x_b_kit' }];
 
 export const day30EScenes: Scene[] = [
   X({ id: 'c30_morning', title: 'Утро понедельника', camp: kitchen14,
@@ -29,11 +29,11 @@ export const day30EScenes: Scene[] = [
     ],
     actions: [
       { id: 'c30_mn_ute', label: 'Сходить к Уте: у неё есть вторые рукавицы', when: ute, minutes: 120, terminal: true, outcomes: toNoon, ambientDuring: frost30,
-        text: 'Уте выносит рукавицы сама, серые, с красной полосой, ручной вязки. «Die hat mein Mann getragen. Am Eis». Их носил мой муж. На льду. Она не спрашивает, вернёшь ли ты их.', effects: [set30('mn', 'ute'), set30('mittens', true), npc('c14_ute', 1), until30(30, 11, 0)] },
+        text: 'Уте выносит рукавицы сама, серые, с красной полосой, ручной вязки. «Die hat mein Mann getragen. Am Eis». Их носил мой муж. На льду. Она не спрашивает, вернёшь ли ты их.', effects: [set30('mn', 'ute'), set30('mittens', true), npc('c14_ute', 1), until30(30, 10, 30)] },
       { id: 'c30_mn_boots', label: 'Смазать сапоги жиром, высушить портянки у печи', minutes: 90, terminal: true, outcomes: toNoon,
-        text: 'Свиной жир, тряпка, старая щётка. Ты втираешь в швы, в носы, в голенища, пока кожа не становится тёмной и мягкой. Портянки висят над печью и парят. Ноги будут сухими. Хотя бы в начале.', effects: [set30('mn', 'boots'), set30('dry', true), until30(30, 10, 30)] },
+        text: 'Свиной жир, тряпка, старая щётка. Ты втираешь в швы, в носы, в голенища, пока кожа не становится тёмной и мягкой. Портянки висят над печью и парят. Ноги будут сухими. Хотя бы в начале.', effects: [set30('mn', 'boots'), set30('dry', true), until30(30, 10, 0)] },
       { id: 'c30_mn_fire', label: 'Пойти в пожарную часть: помочь с факелами, узнать план', minutes: 150, activity: 'moderate', terminal: true, outcomes: toNoon, ambientDuring: frost30,
-        text: 'В пожарной части наматывают тряпки на палки и макают в солярку. Тобиас показывает тебе карту: впадина, край, где под снегом лёд, ручей у насыпи, мост. Обводит пальцем места, куда не наступать. «Merk dir das. Nachts sieht alles gleich aus». Запомни. Ночью всё выглядит одинаково.', effects: [set30('mn', 'fire'), set30('plan', true), npc('c15_tobias', 1), until30(30, 11, 30)] },
+        text: 'В пожарной части наматывают тряпки на палки и макают в солярку. Тобиас показывает тебе карту: впадина, край, где под снегом лёд, ручей у насыпи, мост. Обводит пальцем места, куда не наступать. «Merk dir das. Nachts sieht alles gleich aus». Запомни. Ночью всё выглядит одинаково.', effects: [set30('mn', 'fire'), set30('plan', true), npc('c15_tobias', 1), until30(30, 10, 45)] },
     ] }),
 
   X({ id: 'c30_a_noon', title: 'Полдень', camp: yard14, ambient: frost30, onEnter: [until30(30, 11, 30)],
