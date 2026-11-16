@@ -4,7 +4,7 @@ import { yard14 } from './point14';
 import { any, v } from './point18';
 import { npc } from './point19';
 import {
-  S33, brothersAlive, brothersCome, deniz33, frost33, henrike33, set33, tractor33, until33, ute33, w33, yardDry33,
+  S33, brothersAlive, brothersCome, deniz33, eldersCome, frost33, henrike33, set33, tractor33, until33, ute33, w33, yardDry33,
 } from './point33';
 
 // Участок 33, линия A: вода (одна возможность), братья Айдын, вечер у приёмника.
@@ -67,13 +67,13 @@ export const day33AScenes: Scene[] = [
       { when: v('$.c33_ap2', 'mattress'), text: 'Колонка во дворе стоит, обмотанная матрасом, как раненый в одеяле. Нина уже нарисовала на матрасе мелом глаза и улыбку.' },
     ],
     actions: [
-      { id: 'c33_ae_radio', label: 'Слушать сводку Красного Креста', when: radio, minutes: 30, terminal: true, goto: 'c33_x_a_axe', ambientDuring: frost33,
+      { id: 'c33_ae_radio', label: 'Слушать сводку Красного Креста', when: radio, minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_a_axe' }, { id: 'n', goto: 'c33_a_ole' }], ambientDuring: frost33,
         text: 'Сквозь треск — женский голос, медленно, по слогам, как диктовку. Пункты приёма. Номера колонн. «Kolonne nach Ahrensburg: zehnter Dezember, Abfahrt Geesthacht, sieben Uhr. Begleitpersonen mit Passierschein». Колонна на Аренсбург: десятого декабря, отправление из Гестхахта, семь утра. Сопровождающие — с пропуском.\n\nТы записываешь. Ты не знаешь, кому это нужно. Но записываешь.', effects: [set33('ae', 'radio'), w33('heard_column', true), until33(16, 15)] },
-      { id: 'c33_ae_henrike', label: 'Посидеть с Хенрике, пока она считает запасы', when: henrike33, minutes: 30, terminal: true, goto: 'c33_x_a_axe',
+      { id: 'c33_ae_henrike', label: 'Посидеть с Хенрике, пока она считает запасы', when: henrike33, minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_a_axe' }, { id: 'n', goto: 'c33_a_ole' }],
         text: 'Хенрике пишет в тетради цифры столбиком: картошка, мука, соль, яйца. Подчёркивает. Пересчитывает. Потом закрывает тетрадь и долго держит на ней ладонь.', effects: [set33('ae', 'henrike'), npc('henrike', 1), until33(16, 15)] },
-      { id: 'c33_ae_rest', label: 'Лечь на час', minutes: 30, terminal: true, goto: 'c33_x_a_axe',
+      { id: 'c33_ae_rest', label: 'Лечь на час', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_a_axe' }, { id: 'n', goto: 'c33_a_ole' }],
         text: 'Ты ложишься не раздеваясь и просыпаешься от голосов на кухне.', effects: [set33('ae', 'rest'), until33(16, 15, true)] },
-      { id: 'c33_ae_kids', label: 'Вывести Нину и Пауля кататься с горки за сараем', minutes: 30, terminal: true, goto: 'c33_x_a_axe', ambientDuring: frost33,
+      { id: 'c33_ae_kids', label: 'Вывести Нину и Пауля кататься с горки за сараем', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_a_axe' }, { id: 'n', goto: 'c33_a_ole' }], ambientDuring: frost33,
         text: 'Горка за сараем короткая, но крутая. Санки одни, на троих. Вы катаетесь по очереди, а потом все вместе, и санки переворачиваются в сугроб. Нина смеётся так, что икает. Пауль делает вид, что ему не смешно, а потом смеётся громче всех.', effects: [set33('ae', 'kids'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, { body: 'stress', delta: -4 }, until33(16, 15)] },
     ] }),
 ];

@@ -28,11 +28,11 @@ export const day33BScenes: Scene[] = [
       { when: eldersCome, text: 'Водитель торопится: до темноты у него ещё три адреса. Мотор он не глушит, и пока старики спускаются, двор затягивает сизым дымом выхлопа.' },
     ],
     actions: [
-      { id: 'c33_ba_case', label: 'Взять чемодан', minutes: 30, terminal: true, goto: 'c33_x_b_porch',
+      { id: 'c33_ba_case', label: 'Взять чемодан', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_b_porch' }, { id: 'n', goto: 'c33_b_case' }],
         text: 'Чемодан тяжёлый. Ты несёшь его в сени и ставишь на лавку. Тебе отдают связку ключей:\n\n— Найдите нужный. Она бы хотела, чтобы её вещи кому-то пригодились.', effects: [set33('ba', 'case'), until33(9, 35)] },
-      { id: 'c33_ba_help', label: 'Сначала помочь старикам устроиться', when: eldersCome, minutes: 60, activity: 'light', terminal: true, goto: 'c33_x_b_porch',
+      { id: 'c33_ba_help', label: 'Сначала помочь старикам устроиться', when: eldersCome, minutes: 60, activity: 'light', terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_b_porch' }, { id: 'n', goto: 'c33_b_case' }],
         text: 'Сумки, подушки, грелки. Фрау Кёрнер просит поставить её фотографию так, чтобы видеть с кровати. Ты ставишь. Петерсен благодарит тебя три раза и каждый раз по-разному. Чемодан ждёт в сенях.', effects: [set33('ba', 'help'), until33(10, 5)] },
-      { id: 'c33_ba_tea', label: 'Сначала напоить всех горячим: они с дороги', minutes: 40, terminal: true, goto: 'c33_x_b_porch',
+      { id: 'c33_ba_tea', label: 'Сначала напоить всех горячим: они с дороги', minutes: 40, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_b_porch' }, { id: 'n', goto: 'c33_b_case' }],
         text: 'Ты ставишь самый большой чайник и разливаешь по всем кружкам, какие есть, и ещё по двум банкам. Старики держат их двумя руками и молчат. Фрау Кёрнер говорит: «Wie zu Hause». Как дома. Хотя дома у неё был фарфор, а здесь — банка из-под огурцов.', effects: [set33('ba', 'tea'), until33(9, 45)] },
     ] }),
 
@@ -121,11 +121,11 @@ export const day33BScenes: Scene[] = [
       { when: ute33, text: 'Колодец у неё глубокий, и он один на всю колонию не замёрз. Об этом она говорит, когда снимает валенки у печи, коротко, как о погоде. И ещё о том, что воду за деньги не продают.' },
     ],
     actions: [
-      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 30, terminal: true, goto: 'c33_y_b_radio',
+      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_radio' }, { id: 'n', goto: 'c33_b_nina' }],
         text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(15, 30)] },
-      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 30, terminal: true, goto: 'c33_y_b_radio', ambientDuring: frost33,
+      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_radio' }, { id: 'n', goto: 'c33_b_nina' }], ambientDuring: frost33,
         text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(15, 30)] },
-      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 30, terminal: true, goto: 'c33_y_b_radio',
+      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_radio' }, { id: 'n', goto: 'c33_b_nina' }],
         text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(15, 30, true)] },
     ] }),
 ];

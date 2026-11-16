@@ -1,9 +1,9 @@
 import type { Scene } from '../../engine/content-types';
 import { house14, kitchen14, yard14 } from './point14';
 import { npc } from './point19';
-import { S33, frost33, set33, until33 } from './point33';
+import { S33, eldersCome, frost33, set33, until33 } from './point33';
 
-// Участок 33, третий круг (16.11). B: правила дома; Петерсен и приёмник; письмо фрау Хаберланд. A: колонка к вечеру; дрова для дружины.
+// Участок 33, третий круг (16.11). B: правила дома; Петерсен и приёмник; письмо фрау Кёрнер. A: колонка к вечеру; дрова для дружины.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S33({ ...scene, for: 'any', chapter: 'ch3' });
 
 export const day33YScenes: Scene[] = [
@@ -61,7 +61,7 @@ export const day33YScenes: Scene[] = [
 
   X({ id: 'c33_y_b_letter', title: 'Письмо', camp: kitchen14,
     text: [
-      { text: 'Фрау Хаберланд подзывает тебя к своей кровати. Очки у неё разбились в дороге, одно стекло в трещинах.' },
+      { text: 'Фрау Кёрнер подзывает тебя к своей кровати. Очки у неё разбились в дороге, одно стекло в трещинах.' },
       { text: '— Schreiben Sie für mich? An meinen Sohn. In Schwerin. Ich sehe die Zeilen nicht mehr.\n\nНапишете за меня? Сыну. В Шверин. Строчек я уже не вижу.' },
     ],
     actions: [
@@ -69,10 +69,10 @@ export const day33YScenes: Scene[] = [
         text: 'Она диктует медленно, с паузами, по-старомодному: «Lieber Matthias». Про дорогу, про хутор, про то, что кормят хорошо и что она не жалуется. Про то, что ей страшно, — ни слова. В конце: «Deine Mutter». Ты отдаёшь письмо ей в руки, и она прячет его под подушку.',
         effects: [set33('yl', 'dictate'), until33(17, 0)] },
       { id: 'c33_yl_address', label: 'Написать и добавить адрес хутора для ответа', minutes: 30, terminal: true, goto: 'c33_b_nina',
-        text: 'Внизу, после «Deine Mutter», ты пишешь печатными: «Antwort an: Hof Lüdemann bei Jesteburg». Фрау Хаберланд просит прочитать ей это вслух дважды. «Dann kann er schreiben», — говорит она. Тогда он сможет ответить. Ей это важнее всего письма.',
+        text: 'Внизу, после «Deine Mutter», ты пишешь печатными: «Antwort an: Hof Lüdemann bei Jesteburg». Фрау Кёрнер просит прочитать ей это вслух дважды. «Dann kann er schreiben», — говорит она. Тогда он сможет ответить. Ей это важнее всего письма.',
         effects: [set33('yl', 'address'), until33(17, 0)] },
       { id: 'c33_yl_glasses', label: 'Сначала поискать ей очки: у Хенрике были запасные', minutes: 30, terminal: true, goto: 'c33_b_nina',
-        text: 'В ящике комода у Хенрике трое очков, старых, в футлярах. Вторые подходят почти. Фрау Хаберланд надевает их, смотрит на свою ладонь, на тебя, на окно. «Ach». И пишет письмо сама, крупно, наискосок, через всю страницу.',
+        text: 'В ящике комода у Хенрике трое очков, старых, в футлярах. Вторые подходят почти. Фрау Кёрнер надевает их, смотрит на свою ладонь, на тебя, на окно. «Ach». И пишет письмо сама, крупно, наискосок, через всю страницу.',
         effects: [set33('yl', 'glasses'), npc('henrike', 1), until33(17, 0)] },
     ] }),
 
@@ -97,7 +97,8 @@ export const day33YScenes: Scene[] = [
     text: [
       { text: 'К воротам подъезжают двое из дружины на телеге. Один из них с бумагой.' },
       { text: '— Brandt sagt: jeder Hof gibt zwei Raummeter für die Wache und die Schule. Die Kinder frieren da.\n\nБрандт говорит: каждый двор даёт по два кубометра на караулку и школу. Дети там мёрзнут.' },
-      { text: 'Поленница у вас на месяц. Если отдать два куба, хватит недели на три. Стариков в доме прибавилось трое.' },
+      { text: 'Поленница у вас на месяц. Если отдать два куба, хватит недели на три.' },
+      { when: eldersCome, text: 'А стариков в доме прибавилось трое.' },
     ],
     actions: [
       { id: 'c33_yw_give', label: 'Отдать два куба: в школе дети', minutes: 30, activity: 'moderate', terminal: true, goto: 'c33_a_eve', ambientDuring: frost33,

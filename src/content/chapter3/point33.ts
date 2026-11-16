@@ -77,11 +77,11 @@ export const shared33: Scene[] = [
       { text: 'Хенрике пробует ещё раз, двумя руками, всем весом. Рычаг стоит.\n\n— Fünfzig Jahre, — говорит она. — Fünfzig Jahre ist die nicht eingefroren.\n\nПятьдесят лет она не замерзала.\n\nОна говорит это так, будто колонка её предала.' },
     ],
     actions: [
-      { id: 'c33_da_a', label: 'Взяться за колонку', when: A33, minutes: 30, terminal: true, goto: 'c33_x_a_heat',
+      { id: 'c33_da_a', label: 'Взяться за колонку', when: A33, minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_a_heat' }, { id: 'n', goto: 'c33_a_pump' }],
         text: 'Ты обходишь колонку, трогаешь трубу. Холодная, как рельс. Хенрике смотрит на тебя и ждёт.', effects: [set33('da', 'pump'), until33(7, 30)] },
       { id: 'c33_da_b', label: 'Помочь Хенрике готовить комнаты к приезду', when: B33, minutes: 30, terminal: true, goto: 'c33_b_rooms',
         text: 'Ты выносишь из комнаты наверху лишнее, сдвигаешь кровати. Хенрике считает вслух, загибая пальцы: одеяла, подушки, тарелки.', effects: [set33('da', 'rooms'), until33(8, 0)] },
-      { id: 'c33_da_a2', label: 'Сначала растопить печь и поставить вёдра со снегом на плиту', when: A33, minutes: 40, terminal: true, goto: 'c33_x_a_heat',
+      { id: 'c33_da_a2', label: 'Сначала растопить печь и поставить вёдра со снегом на плиту', when: A33, minutes: 40, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_x_a_heat' }, { id: 'n', goto: 'c33_a_pump' }],
         text: 'Ты набиваешь снегом все вёдра, какие есть, и ставишь на плиту. Снег оседает, тает, превращается в воду на донышке. Из ведра снега выходит четверть ведра воды. Хотя бы на чай и на умыться. Колонка подождёт час.', effects: [set33('da', 'snow'), until33(7, 30)] },
       { id: 'c33_da_b2', label: 'Сначала сходить к колонке посмотреть, что с ней', when: B33, minutes: 30, terminal: true, goto: 'c33_b_rooms', ambientDuring: frost33,
         text: 'Колонка обросла льдом, как сосулька. Рычаг не двигается совсем. Ты дышишь на него, бесполезно. Внизу, у основания, трещина во льду: значит, внутри тоже лёд. Без огня тут не обойдётся. Ты возвращаешься к Хенрике с этой новостью.', effects: [set33('da', 'look'), until33(8, 0)] },

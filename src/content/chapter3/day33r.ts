@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import { not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { S33, frost33, oleHome33, pumpFixed, set33, until33, w33 } from './point33';
+import { S33, eldersCome, frost33, oleHome33, pumpFixed, set33, until33, w33 } from './point33';
 
 // Участок 33, переработка 16.11 (до уровня 17–20). Обе новые сцены — про воду этого дня.
 // A: корова без воды в хлеву (поилка замёрзла) → чем поить. B: старикам с дороги нужна горячая вода, а воды сегодня нет.
@@ -34,13 +34,13 @@ export const day33RScenes: Scene[] = [
       { when: pumpFixed, text: 'Воды теперь достаточно, но греть её — дрова. Дров ушло сегодня вдвое.' },
     ],
     actions: [
-      { id: 'c33_bb5_feet', label: 'Греть воду и сажать их по очереди ногами в таз', minutes: 50, terminal: true, goto: 'c33_y_b_letter',
+      { id: 'c33_bb5_feet', label: 'Греть воду и сажать их по очереди ногами в таз', minutes: 50, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_letter' }, { id: 'n', goto: 'c33_b_nina' }],
         text: 'Таз, чайник, полотенце. Фрау Кёрнер опускает ноги в воду и закрывает глаза. Через пять минут губы у неё розовые. Петерсен сначала отказывается, потом сидит дольше всех. Воды на ужин теперь на две кружки меньше.',
         effects: [set33('bb5', 'feet'), w33('elders_warmed', true), until33(16, 30)] },
-      { id: 'c33_bb5_tea', label: 'Только горячий чай: вода нужна на ужин', minutes: 20, terminal: true, goto: 'c33_y_b_letter',
+      { id: 'c33_bb5_tea', label: 'Только горячий чай: вода нужна на ужин', minutes: 20, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_letter' }, { id: 'n', goto: 'c33_b_nina' }],
         text: 'Ты наливаешь каждому по кружке, самого горячего, какой можно держать. Старики пьют маленькими глотками. Фрау Кёрнер так и сидит в пальто до ужина.',
         effects: [set33('bb5', 'tea'), until33(16, 0)] },
-      { id: 'c33_bb5_bricks', label: 'Положить им в постели кирпичи из печи, в полотенцах', minutes: 30, terminal: true, goto: 'c33_y_b_letter',
+      { id: 'c33_bb5_bricks', label: 'Положить им в постели кирпичи из печи, в полотенцах', minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c33_y_b_letter' }, { id: 'n', goto: 'c33_b_nina' }],
         text: 'Кирпичи из печи, завёрнутые в полотенца, под одеяла, к ногам. Старый способ, который ты {m:видел|видела} только в кино. Работает. Фрау Кёрнер ложится и через десять минут уже спит. Воды ты не {m:потратил|потратила} ни капли.',
         effects: [set33('bb5', 'bricks'), w33('elders_warmed', true), { if: { npc: 'okafor', alive: true }, then: [{ npc: 'okafor', trust: 1 }] }, until33(16, 15)] },
     ] }),

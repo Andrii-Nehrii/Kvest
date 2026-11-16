@@ -3,7 +3,7 @@ import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { any, ninaFarm, v } from './point18';
 import { npc } from './point19';
-import { brothersCome, okaforComes, oleHome33 } from './point33';
+import { brothersCome, eldersCome, okaforComes, oleHome33 } from './point33';
 import {
   S35, frost35, hall35, henrike35, own35, jannik35, jannikRefused, jannikTaken, jest35, kasia35, lea35, set35, tobias35, until35, ute35, w35,
 } from './point35';
@@ -129,13 +129,13 @@ export const day35Scenes: Scene[] = [
       { when: not(henrike35), text: 'Дома тихо. Хенрике уехала в Йестебург к пастору и до вечера не вернётся. На столе записка её почерком: «Vor dem Säen. Nicht danach». До сева. Не после.' },
     ],
     actions: [
-      { id: 'c35_bh_promise', label: 'Пообещать: до сева скажем', when: henrike35, minutes: 60, terminal: true, goto: 'c35_x_b_elders',
+      { id: 'c35_bh_promise', label: 'Пообещать: до сева скажем', when: henrike35, minutes: 60, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c35_x_b_elders' }, { id: 'n', goto: 'c35_b_dusk' }],
         text: 'Хенрике кивает один раз, коротко. Потом встаёт и начинает мыть чистую посуду. Спиной к тебе.', effects: [set35('bh', 'promise'), w35('henrike_promise', true), npc('henrike', 2, 'c35_promised_spring'), until35(14, 0)] },
-      { id: 'c35_bh_why', label: 'Спросить: почему нам?', when: henrike35, minutes: 60, terminal: true, goto: 'c35_x_b_elders',
+      { id: 'c35_bh_why', label: 'Спросить: почему нам?', when: henrike35, minutes: 60, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c35_x_b_elders' }, { id: 'n', goto: 'c35_b_dusk' }],
         text: '— Weil ihr geblieben seid, als ihr gehen konntet. — Она пожимает плечами. — Und weil ihr meine Hühner nicht gegessen habt, als ihr Hunger hattet. Die meisten hätten.\n\nПотому что вы остались, когда могли уйти. И потому что вы не съели моих кур, когда были голодны. Большинство бы съели.', effects: [set35('bh', 'why'), npc('henrike', 1), until35(14, 0)] },
-      { id: 'c35_bh_hug', label: 'Обнять её', when: henrike35, minutes: 45, terminal: true, goto: 'c35_x_b_elders',
+      { id: 'c35_bh_hug', label: 'Обнять её', when: henrike35, minutes: 45, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c35_x_b_elders' }, { id: 'n', goto: 'c35_b_dusk' }],
         text: 'Хенрике каменеет на секунду. Потом гладит тебя по спине, неловко, как гладят чужого ребёнка, который вдруг оказался своим.', effects: [set35('bh', 'hug'), npc('henrike', 2), until35(14, 0)] },
-      { id: 'c35_bh_note', label: 'Убрать записку в карман', when: not(henrike35), minutes: 30, terminal: true, goto: 'c35_x_b_elders',
+      { id: 'c35_bh_note', label: 'Убрать записку в карман', when: not(henrike35), minutes: 30, terminal: true, outcomes: [{ id: 'e', when: eldersCome, goto: 'c35_x_b_elders' }, { id: 'n', goto: 'c35_b_dusk' }],
         text: 'Ты складываешь записку вчетверо. До сева. До сева четыре месяца.', effects: [set35('bh', 'note'), until35(14, 0)] },
     ] }),
 
