@@ -55,12 +55,12 @@ export const day35EScenes: Scene[] = [
       { when: not(okaforComes), text: 'На крыльце пункта тебя догоняет Зандер.\n\n— Wenn Sie fahren, fahren Sie mit Fremden. Zwei Wochen. Überlegen Sie das nicht im Kopf. Überlegen Sie es im Bauch.\n\nЕсли поедете, поедете с чужими. Две недели. Решайте это не головой. Животом.' },
     ],
     actions: [
-      { id: 'c35_bo2_go', label: 'Сказать: я поеду. Если {partner} отпустит', minutes: 60, terminal: true, goto: 'c35_b_henrike',
-        text: 'Тебе кивают. Без улыбки. Как кивают человеку, который сказал что-то, что потом придётся сделать. Ты идёшь домой и всю дорогу повторяешь про себя: «если отпустит».', effects: [set35('bo2', 'go'), w35('b_will', 'go'), until35(12, 30)] },
-      { id: 'c35_bo2_unsure', label: 'Сказать честно: не знаю. Мне страшно', minutes: 60, terminal: true, goto: 'c35_b_henrike',
-        text: '— Страшно — это правильно, — отвечают тебе. — Кому не страшно, тех я бы не взял.\n\nДомой ты идёшь медленно, по самой кромке дороги, где снег не укатан.', effects: [set35('bo2', 'unsure'), w35('b_will', 'unsure'), until35(12, 30)] },
-      { id: 'c35_bo2_other', label: 'Сказать: пусть поедет кто-то другой. Я {m:нужен|нужна} здесь', minutes: 45, terminal: true, goto: 'c35_b_henrike',
-        text: 'Тебе не возражают. Только кивают и говорят: «Тогда найдём другого». Ты знаешь, что другого нет. Они тоже знают.', effects: [set35('bo2', 'other'), w35('b_will', 'stay'), until35(12, 15)] },
+      { id: 'c35_bo2_go', label: 'Сказать: я поеду. Если {partner} отпустит', minutes: 60, terminal: true, goto: 'c35_b_sled',
+        text: 'Тебе кивают. Без улыбки. Как кивают человеку, который сказал что-то, что потом придётся сделать. Ты идёшь домой и всю дорогу повторяешь про себя: «если отпустит».', effects: [set35('bo2', 'go'), w35('b_will', 'go'), until35(12, 0)] },
+      { id: 'c35_bo2_unsure', label: 'Сказать честно: не знаю. Мне страшно', minutes: 60, terminal: true, goto: 'c35_b_sled',
+        text: '— Страшно — это правильно, — отвечают тебе. — Кому не страшно, тех я бы не взял.\n\nДомой ты идёшь медленно, по самой кромке дороги, где снег не укатан.', effects: [set35('bo2', 'unsure'), w35('b_will', 'unsure'), until35(12, 0)] },
+      { id: 'c35_bo2_other', label: 'Сказать: пусть поедет кто-то другой. Я {m:нужен|нужна} здесь', minutes: 45, terminal: true, goto: 'c35_b_sled',
+        text: 'Тебе не возражают. Только кивают и говорят: «Тогда найдём другого». Ты знаешь, что другого нет. Они тоже знают.', effects: [set35('bo2', 'other'), w35('b_will', 'stay'), until35(12, 0)] },
     ] }),
 
   X({ id: 'c35_b_kasia', title: 'Кася', camp: yard14, ambient: frost35, onEnter: [until35(15, 30)],

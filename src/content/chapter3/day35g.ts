@@ -25,6 +25,8 @@ export const day35GScenes: Scene[] = [
         text: 'Солдат смотрит на тебя, потом на сарай, потом снова на тебя. «Schade», — говорит он. Жаль. И уходит. Ты не понимаешь, что это значило.', effects: [set35('as2', 'lie'), w35('gun_told', 'lie'), until35(9, 30)] },
       { id: 'c35_as2_ask', label: 'Спросить: а почему через неделю?', minutes: 20, terminal: true, outcomes: [{ id: 'a', goto: 'c35_a_tobias' }],
         text: 'Солдат молчит. Потом говорит, глядя мимо: «Weil dann keiner mehr kommt, wenn ihr ruft». Потому что тогда никто не приедет, если позовёте. Хаазе сигналит из машины. Солдат бежит.', effects: [set35('as2', 'ask'), w35('gun_told', 'hint'), until35(9, 30)] },
+      { id: 'c35_as_show', label: 'Показать ему сарай и трактор: пусть пишет, что видит', minutes: 20, terminal: true, outcomes: [{ id: 'a', goto: 'c35_a_tobias' }],
+        text: 'Ты открываешь сарай. Солдат смотрит на трактор, на канистры, на пустую бочку. Пишет. Потом поднимает глаза: «Und das Auto?» А машина? Ты киваешь на навес. Он пишет и это. Всё, что он видит, теперь в его списке. Всё, чего не видит, — нет.', effects: [set35('as', 'show'), w35('a_showed_all', true), until35(9, 30)] },
     ] }),
 
   X({ id: 'c35_b_soldier', title: 'Медики', camp: kitchen14,
