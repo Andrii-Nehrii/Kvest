@@ -116,7 +116,7 @@ export const day31AScenes: Scene[] = [
       { id: 'c31_ac_tomorrow', label: 'Сказать Лукасу: завтра. Сегодня ноги не держат', minutes: 10, terminal: true, goto: 'c31_a_yard',
         text: 'Лукас кивает и уезжает. Машина постоит ещё день у пожарной части. Ничего с ней не будет. Наверное.', effects: [set31('ac', 'tomorrow'), w31('car_tomorrow', true), until31(15, 10)] },
       { id: 'c31_ac_nina', label: 'Взять с собой Нину: пусть прокатится обратно', minutes: 50, activity: 'moderate', terminal: true, goto: 'c31_a_brandt', ambientDuring: frost31,
-        text: 'Нина одевается за две минуты и идёт рядом, подпрыгивая, чтобы не отстать. Всю дорогу она говорит о том, как поедет обратно на переднем сиденье и будет переключать радио, хотя радио не ловит ничего, кроме шипения.', effects: [set31('ac', 'nina'), { npc: 'c7_nina', trust: 1 }, until31(16, 0)] },
+        text: 'Нина одевается за две минуты и идёт рядом, подпрыгивая, чтобы не отстать. Всю дорогу она говорит о том, как поедет обратно на переднем сиденье и будет переключать радио, хотя радио не ловит ничего, кроме шипения.', effects: [set31('ac', 'nina'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until31(16, 0)] },
     ] }),
 
   A({ id: 'c31_a_brandt', title: 'Брандт', location: jest31, camp: { at: jest31, stock: 'c3_farm_stock', rest: false }, safe: false, ambient: { tempC: 8, outdoor: false, wet: false },

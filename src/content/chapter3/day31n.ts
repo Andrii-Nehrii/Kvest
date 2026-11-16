@@ -75,10 +75,10 @@ export const day31NScenes: Scene[] = [
     actions: [
       { id: 'c31_bb4_fix', label: 'Заклеить камеру вдвоём, при свечке', minutes: 45, terminal: true, goto: 'c31_b_pack',
         text: 'Камеру вы проверяете в тазу с водой: пузырьки идут из двух мест. Клей густой, но клеит. Нина держит заплатку пальцем, пока ты считаешь до шестидесяти. Колесо держит. Нина катает велосипед по сеням туда и обратно, звеня звонком, пока Хенрике не говорит «Genug». Хватит.',
-        effects: [set31('bb4', 'fix'), w31('bike_fixed', true), { npc: 'c7_nina', trust: 1 }, until31(17, 0)] },
+        effects: [set31('bb4', 'fix'), w31('bike_fixed', true), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until31(17, 0)] },
       { id: 'c31_bb4_deniz', label: 'Попросить Дениза: у него есть насос и руки', minutes: 20, terminal: true, goto: 'c31_b_pack',
         text: 'Дениз приходит с насосом и с Керемом. Через десять минут колесо накачано, через двадцать — заклеено и накачано снова. Керем учит Нину переворачивать велосипед и снимать колесо. «Dann brauchst du keinen von uns». Тогда тебе никто из нас не понадобится.',
-        effects: [set31('bb4', 'deniz'), w31('bike_fixed', true), { npc: 'deniz', trust: 1 }, until31(17, 0)] },
+        effects: [set31('bb4', 'deniz'), w31('bike_fixed', true), { if: { npc: 'deniz', alive: true }, then: [{ npc: 'deniz', trust: 1 }] }, until31(17, 0)] },
       { id: 'c31_bb4_no', label: 'Сказать: в декабре по снегу на велосипеде нельзя', minutes: 10, terminal: true, goto: 'c31_b_pack',
         text: 'Нина смотрит на снег за окном, потом на велосипед, потом на тебя. «Весной», — говорит она. Не спрашивает, а договаривается. Велосипед остаётся в сенях, на спущенном колесе.',
         effects: [set31('bb4', 'no'), until31(16, 50)] },

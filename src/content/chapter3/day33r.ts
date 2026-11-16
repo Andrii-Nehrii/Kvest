@@ -42,6 +42,6 @@ export const day33RScenes: Scene[] = [
         effects: [set33('bb5', 'tea'), until33(16, 0)] },
       { id: 'c33_bb5_bricks', label: 'Положить им в постели кирпичи из печи, в полотенцах', minutes: 30, terminal: true, goto: 'c33_b_nina',
         text: 'Кирпичи из печи, завёрнутые в полотенца, под одеяла, к ногам. Старый способ, который ты {m:видел|видела} только в кино. Работает. Фрау Кёрнер ложится и через десять минут уже спит. Воды ты не {m:потратил|потратила} ни капли.',
-        effects: [set33('bb5', 'bricks'), w33('elders_warmed', true), { npc: 'okafor', trust: 1 }, until33(16, 15)] },
+        effects: [set33('bb5', 'bricks'), w33('elders_warmed', true), { if: { npc: 'okafor', alive: true }, then: [{ npc: 'okafor', trust: 1 }] }, until33(16, 15)] },
     ] }),
 ];

@@ -17,15 +17,15 @@ export const day35RScenes: Scene[] = [
     actions: [
       { id: 'c35_ad4_go', label: 'Пойти с ним', minutes: 90, activity: 'heavy', risky: true, terminal: true, goto: 'c35_a_brandt', ambientDuring: frost35,
         outcomes: [
-          { id: 'ok', check: { traits: ['agility', 'strength'], difficulty: 3, uses: ['mobility'] }, text: 'Вы идёте вдоль отбойника, мимо чёрных пятен кострищ. Трое вялых стоят у кювета и не поворачиваются. Третий грузовик: тент сорван, бочки на месте. Шланг, канистры, сорок литров на двоих. Обратно идёте быстро, не разговаривая. У пожарной части Янник ставит канистры и протягивает тебе руку. В первый раз.', effects: [set35('ad4', 'go'), w35('jannik_diesel', 'together'), { npc: 'jannik', trust: 3 }] },
-          { id: 'grab', text: 'У грузовика один из вялых, которого вы приняли за мёртвого, хватает Янника за штанину из-под колеса. Ты бьёшь канистрой, ещё, ещё, пока рука не разжимается. Янник сидит в снегу белый. Канистры вы наполняете всё равно. Обратно он идёт, держась за твоё плечо.', effects: [set35('ad4', 'grab'), w35('jannik_diesel', 'together'), { npc: 'jannik', trust: 4 }, { injure: 'bruise', site: 'hands', severity: 1 }, { body: 'stress', delta: 6 }] },
+          { id: 'ok', check: { traits: ['agility', 'strength'], difficulty: 3, uses: ['mobility'] }, text: 'Вы идёте вдоль отбойника, мимо чёрных пятен кострищ. Трое вялых стоят у кювета и не поворачиваются. Третий грузовик: тент сорван, бочки на месте. Шланг, канистры, сорок литров на двоих. Обратно идёте быстро, не разговаривая. У пожарной части Янник ставит канистры и протягивает тебе руку. В первый раз.', effects: [set35('ad4', 'go'), w35('jannik_diesel', 'together'), { if: { npc: 'jannik', alive: true }, then: [{ npc: 'jannik', trust: 3 }] }] },
+          { id: 'grab', text: 'У грузовика один из вялых, которого вы приняли за мёртвого, хватает Янника за штанину из-под колеса. Ты бьёшь канистрой, ещё, ещё, пока рука не разжимается. Янник сидит в снегу белый. Канистры вы наполняете всё равно. Обратно он идёт, держась за твоё плечо.', effects: [set35('ad4', 'grab'), w35('jannik_diesel', 'together'), { if: { npc: 'jannik', alive: true }, then: [{ npc: 'jannik', trust: 4 }] }, { injure: 'bruise', site: 'hands', severity: 1 }, { body: 'stress', delta: 6 }] },
         ], effects: [until35(12, 50)] },
       { id: 'c35_ad4_tell', label: 'Рассказать, где бочки и как подойти, но не идти', minutes: 20, terminal: true, goto: 'c35_a_brandt',
         text: 'Ты рисуешь ему на снегу палкой: отбойник, три грузовика, тент у третьего, подходить с леса. Янник смотрит на рисунок, потом на тебя. «Danke». Уходит один. Через два часа ты видишь его у колонны с полными канистрами.',
-        effects: [set35('ad4', 'tell'), w35('jannik_diesel', 'told'), { npc: 'jannik', trust: 1 }, until35(11, 40)] },
+        effects: [set35('ad4', 'tell'), w35('jannik_diesel', 'told'), { if: { npc: 'jannik', alive: true }, then: [{ npc: 'jannik', trust: 1 }] }, until35(11, 40)] },
       { id: 'c35_ad4_no', label: 'Отказать: туда больше не ходят', minutes: 10, terminal: true, goto: 'c35_a_brandt',
         text: 'Янник кивает. Он не удивлён. «Wie damals auf der Autobahn». Как тогда на автобане. И уходит искать кого-нибудь другого.',
-        effects: [set35('ad4', 'no'), w35('jannik_diesel', 'refused'), { npc: 'jannik', trust: -1 }, until35(11, 30)] },
+        effects: [set35('ad4', 'no'), w35('jannik_diesel', 'refused'), { if: { npc: 'jannik', alive: true }, then: [{ npc: 'jannik', trust: -1 }] }, until35(11, 30)] },
     ] }),
 
   X({ id: 'c35_b_radio', title: 'Радио', location: jest35, camp: { at: jest35, stock: 'c3_farm_stock', rest: false }, ambient: { tempC: 14, outdoor: false, wet: false },
@@ -43,7 +43,7 @@ export const day35RScenes: Scene[] = [
         effects: [set35('br2', 'alive'), w35('merle_knows_where', true), until35(10, 45)] },
       { id: 'c35_br2_okafor', label: 'Пусть передаст Окафор: он лучше знает, что ей сказать', minutes: 15, terminal: true, goto: 'c35_b_okafor2',
         text: 'Окафор думает секунду и говорит в микрофон: «Merle, hier Okafor. Iss regelmäßig. Spar nicht am Essen, spar am Laufen». Мерле, это Окафор. Ешь регулярно. Экономь не на еде, на беготне. Ты не понимаешь, почему именно это. Он объясняет потом: сахар.',
-        effects: [set35('br2', 'okafor'), { npc: 'okafor', trust: 1 }, until35(10, 45)] },
+        effects: [set35('br2', 'okafor'), { if: { npc: 'okafor', alive: true }, then: [{ npc: 'okafor', trust: 1 }] }, until35(10, 45)] },
     ] }),
 
   X({ id: 'c35_b_sled', title: 'Санки', camp: yard14, ambient: frost35,

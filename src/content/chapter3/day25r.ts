@@ -144,13 +144,13 @@ export const day25RScenes: Scene[] = [
     actions: [
       { id: 'c25_bc_yes', label: 'Разрешить: пирог к пятнице, из последней муки', when: { stocked: 'c3_flour', qty: 1, at: 'c3_farm_stock' }, minutes: 20, terminal: true, goto: 'c25_b_room',
         text: 'Килограмм муки отсыпают в миску, банку яблок поднимают из погреба. Пирог будут печь в четверг вечером, чтобы к пятнице был мягкий. Хлеба на неделю будет меньше. Пирог будет один.',
-        effects: [set25('bc', 'yes'), w25('cake', true), { unstock: 'c3_flour', qty: 1, at: 'c3_farm_stock' }, { if: ninaFarm, then: [{ npc: 'c7_nina', trust: 2 }] }, until25(15, 20)] },
+        effects: [set25('bc', 'yes'), w25('cake', true), { unstock: 'c3_flour', qty: 1, at: 'c3_farm_stock' }, { if: ninaFarm, then: [{ if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 2 }] }] }, until25(15, 20)] },
       { id: 'c25_bc_small', label: 'Сказать: маленький, на полкило, без сахара', minutes: 20, terminal: true, goto: 'c25_b_room',
         text: 'Договорились на маленький, на сковороде, с одним яблоком. Это будет не пирог Хенрике. Но это будет пирог.',
         effects: [set25('bc', 'small'), w25('cake', 'small'), until25(15, 15)] },
       { id: 'c25_bc_no', label: 'Отказать: мука на хлеб, а Оле обрадуется и без пирога', minutes: 10, terminal: true, goto: 'c25_b_room',
         text: 'Крышка ларя закрывается. Ты права, и все это понимают. От этого не легче.',
-        effects: [set25('bc', 'no'), { if: ninaFarm, then: [{ npc: 'c7_nina', trust: -1 }] }, until25(15, 10)] },
+        effects: [set25('bc', 'no'), { if: ninaFarm, then: [{ if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: -1 }] }] }, until25(15, 10)] },
     ] }),
 
   // ═════════════ A: зал списков ═════════════

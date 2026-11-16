@@ -62,7 +62,7 @@ export const day32BScenes: Scene[] = [
       { id: 'c32_br_ask', label: 'Спросить солдата про колонны за Эльбу', minutes: 75, terminal: true, goto: 'c32_b_school',
         text: '— Über die Elbe? — Солдат пожимает плечами. — Das macht das DRK. Wenn sie fahren, dann um den Zehnten. Fragen Sie in der Schule.\n\nЗа Эльбу? Это Красный Крест. Если поедут, то около десятого. Спросите в школе.', effects: [set32('br', 'ask'), set32('heard_column', true), { move: winsen32 }, until32(32, 9, 0)] },
       { id: 'c32_br_nina', label: 'Отдать Нине свой шарф: она дрожит', minutes: 105, terminal: true, goto: 'c32_b_school', ambientDuring: frost32,
-        text: 'Ты наматываешь Нине свой шарф поверх её. Она не спорит. Через полчаса она засыпает, привалившись к твоему плечу, и просыпается только на въезде в Винзен, когда грузовик подпрыгивает на трамвайных рельсах.', effects: [set32('br', 'nina'), { npc: 'c7_nina', trust: 1 }, until32(32, 9, 0)] },
+        text: 'Ты наматываешь Нине свой шарф поверх её. Она не спорит. Через полчаса она засыпает, привалившись к твоему плечу, и просыпается только на въезде в Винзен, когда грузовик подпрыгивает на трамвайных рельсах.', effects: [set32('br', 'nina'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until32(32, 9, 0)] },
     ] }),
 
   B({ id: 'c32_b_school', title: 'Школа', location: winsen32, camp: trip(winsen32), ambient: hall,
@@ -223,6 +223,6 @@ export const day32BScenes: Scene[] = [
       { id: 'c32_bh_tea', label: 'Отогреться на кухне', minutes: 50, terminal: true, goto: 'c32_checkpoint',
         text: 'Хенрике наливает тебе чаю. Ты рассказываешь ей про Окафора, про стариков. Она слушает, не перебивая, и в конце говорит только: «Wir werden sehen». Посмотрим.', effects: [set32('bh', 'tea'), ...fed32(15), finish32, until32(33, 18, 0)] },
       { id: 'c32_bh3_eggs', label: 'Пересчитать с Хенрике, что привезла и что осталось', minutes: 40, terminal: true, goto: 'c32_checkpoint',
-        text: 'Хенрике считает быстро, шевеля губами: коробки для пункта отдельно, свитер Нине отдельно, яйца, которые не ушли в обмен, обратно в миску. Получается неплохо. Хенрике говорит «Gut gemacht». Молодец. Первый раз так, вслух.', effects: [set32('bh3', 'eggs'), { npc: 'henrike', trust: 1 }, until32(33, 18, 0)] },
+        text: 'Хенрике считает быстро, шевеля губами: коробки для пункта отдельно, свитер Нине отдельно, яйца, которые не ушли в обмен, обратно в миску. Получается неплохо. Хенрике говорит «Gut gemacht». Молодец. Первый раз так, вслух.', effects: [set32('bh3', 'eggs'), { if: { npc: 'henrike', alive: true }, then: [{ npc: 'henrike', trust: 1 }] }, until32(33, 18, 0)] },
     ] }),
 ];
