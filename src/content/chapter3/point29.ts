@@ -39,7 +39,6 @@ export const frost29 = { tempC: -6, outdoor: true, wet: false };
 export const day29 = { tempC: -2, outdoor: true, wet: false };
 const finish: Effect = { set: '$.c29_finished', value: true };
 const coopFacts: Effect[] = [{ if: roofLoss, then: [w29('coop_roof', 'fallen'), w29('hens_lost', 3)] }, w29('pump_frozen', true)];
-const toChurch = [{ id: 'a', when: A29, goto: 'c29_a_church' }, { id: 'b', goto: 'c29_b_church' }];
 
 export const shared29: Scene[] = [
   S29({ id: 'c29_night', for: 'any', chapter: 'ch3', title: 'Ночь на воскресенье', camp: house14, ambient: indoor16,
@@ -69,12 +68,12 @@ export const shared29: Scene[] = [
       { when: all(v('$.c29_n', 'out'), roofLoss), text: 'Ночью ты {m:выходил|выходила} на треск с фонарём. Теперь, при свете, видно то, что ночью было только тенями.' },
     ],
     actions: [
-      { id: 'c29_c_church', label: 'Собираться в церковь: в десять собрание', minutes: 60, terminal: true, outcomes: toChurch, ambientDuring: day29,
-        text: 'Четыре километра по снегу. Идут все, кто может: Хенрике, Нина, Эва. Кто не может, остаётся у печи.', effects: [set29('c', 'church'), { move: jest29 }, until29(29, 9, 50)] },
-      { id: 'c29_c_hens', label: 'Сначала разобрать курятник и унести мёртвых кур', when: roofLoss, minutes: 70, activity: 'moderate', terminal: true, outcomes: toChurch, ambientDuring: day29,
-        text: 'Три курицы. Хенрике ощипывает их сама, быстро, на кухне: суп. Ничего не пропадёт. Потом вы идёте в церковь, опаздывая.', effects: [set29('c', 'hens'), { place: 'c29_hen', at: 'c3_farm_stock', qty: 3 }, { move: jest29 }, until29(29, 10, 0)] },
-      { id: 'c29_c_nina', label: 'Оставить Нину дома за старшую и идти', minutes: 15, terminal: true, outcomes: toChurch,
-        text: 'Нина кивает, будто ей поручили крепость. «Я закрою ворота и никому не открою». Ты знаешь, что откроет Кёлер. Но это тоже правильно.', effects: [set29('c', 'nina'), until29(29, 9, 30)] },
+      { id: 'c29_c_church', label: 'Собираться в церковь: в десять собрание', minutes: 60, terminal: true, goto: 'c29_x_road', ambientDuring: day29,
+        text: 'Четыре километра по снегу. Идут все, кто может: Хенрике, Нина, Эва. Кто не может, остаётся у печи.', effects: [set29('c', 'church'), { move: jest29 }, until29(29, 8, 50)] },
+      { id: 'c29_c_hens', label: 'Сначала разобрать курятник и унести мёртвых кур', when: roofLoss, minutes: 70, activity: 'moderate', terminal: true, goto: 'c29_x_road', ambientDuring: day29,
+        text: 'Три курицы. Хенрике ощипывает их сама, быстро, на кухне: суп. Ничего не пропадёт. Потом вы идёте в церковь, опаздывая.', effects: [set29('c', 'hens'), { place: 'c29_hen', at: 'c3_farm_stock', qty: 3 }, { move: jest29 }, until29(29, 9, 0)] },
+      { id: 'c29_c_nina', label: 'Оставить Нину дома за старшую и идти', minutes: 15, terminal: true, goto: 'c29_x_road',
+        text: 'Нина кивает, будто ей поручили крепость. «Я закрою ворота и никому не открою». Ты знаешь, что откроет Кёлер. Но это тоже правильно.', effects: [set29('c', 'nina'), until29(29, 8, 30)] },
     ] }),
 
   S29({ id: 'c29_assembly', for: 'any', chapter: 'ch3', title: 'Собрание', location: jest29, camp: { at: jest29, stock: 'c3_farm_stock', rest: false }, safe: false, ambient: { tempC: 4, outdoor: false, wet: false },
@@ -124,12 +123,12 @@ export const shared29: Scene[] = [
       { when: not(oleAlive29), text: 'На лавке у печи лежит шапка Оле. Хенрике её не убирает.' },
     ],
     actions: [
-      { id: 'c29_h_eat', label: 'Пообедать со всеми', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_pastor' }], ...tableOnly,
-        text: 'Суп из кур, если они погибли ночью, или картошка с солониной. Хенрике режет хлеб толсто, по-воскресному.', effects: [set29('h', 'eat'), meal('eat'), until29(29, 14, 0)] },
-      { id: 'c29_h_rest', label: 'Лечь на час: ноги не держат', minutes: 5, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_pastor' }],
-        text: 'Ты засыпаешь, едва коснувшись подушки.', effects: [set29('h', 'rest'), until29(29, 14, 30, true)] },
-      { id: 'c29_ho_grave', label: 'Отнести свою свечу на могилу под грушей', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: { me: 'A' }, goto: 'c29_a_uwe' }, { id: 'b', goto: 'c29_b_pastor' }], ambientDuring: frost29,
-        text: 'Ты ставишь свечу в банку и несёшь к груше. Снег вокруг холмика утоптан: кто-то уже приходил. Свеча горит ровно, без ветра. Ты стоишь, пока не начинают мёрзнуть ноги.', effects: [set29('ho', 'grave'), { body: 'stress', delta: -2 }, until29(29, 15, 0)] },
+      { id: 'c29_h_eat', label: 'Пообедать со всеми', minutes: 40, terminal: true, goto: 'c29_x_hill', ...tableOnly,
+        text: 'Суп из кур, если они погибли ночью, или картошка с солониной. Хенрике режет хлеб толсто, по-воскресному.', effects: [set29('h', 'eat'), meal('eat'), until29(29, 13, 20)] },
+      { id: 'c29_h_rest', label: 'Лечь на час: ноги не держат', minutes: 5, terminal: true, goto: 'c29_x_hill',
+        text: 'Ты засыпаешь, едва коснувшись подушки.', effects: [set29('h', 'rest'), until29(29, 13, 50, true)] },
+      { id: 'c29_ho_grave', label: 'Отнести свою свечу на могилу под грушей', minutes: 30, terminal: true, goto: 'c29_x_hill', ambientDuring: frost29,
+        text: 'Ты ставишь свечу в банку и несёшь к груше. Снег вокруг холмика утоптан: кто-то уже приходил. Свеча горит ровно, без ветра. Ты стоишь, пока не начинают мёрзнуть ноги.', effects: [set29('ho', 'grave'), { body: 'stress', delta: -2 }, until29(29, 14, 20)] },
     ] }),
 
   S29({ id: 'c29_evening', for: 'any', chapter: 'ch3', title: 'Вечер адвента', camp: house14,
