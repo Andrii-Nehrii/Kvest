@@ -103,6 +103,8 @@ export const shared28: Scene[] = [
         text: 'Ты идёшь за ней. У каждой двери она останавливается, и ты объясняешь. Чьи куртки. Куда делись куры. Кто спал на лавке у печи. Она слушает, кивает и идёт дальше. Ни разу не перебивает.', effects: [set28('he', 'follow'), npc('henrike', 2), until28(13, 0)] },
       { id: 'c28_he_leave', label: 'Оставить её одну: это её дом', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_ole' }, { id: 'b', goto: 'c28_b_henrike' }],
         text: 'Ты уходишь на кухню. Сверху слышно, как она ходит по комнатам. Останавливается. Снова ходит. Долго стоит в комнате Оле.', effects: [set28('he', 'leave'), npc('henrike', 1), until28(12, 50)] },
+      { id: 'c28_hk_coat', label: 'Взять у неё сумку и пальто и молча повесить на её гвоздь', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_ole' }, { id: 'b', goto: 'c28_b_henrike' }],
+        text: 'Ты берёшь у неё сумку и пальто. На её гвозде у двери висит чья-то куртка. Ты перевешиваешь куртку на соседний и вешаешь пальто Хенрике туда, где оно висело всегда. Хенрике смотрит на гвоздь. Потом на тебя. «Danke». Это первое слово, которое она говорит в доме.', effects: [set28('hk', 'coat'), npc('henrike', 1, 'c28_coat'), until28(12, 50)] },
     ] }),
 
   S28({ id: 'c28_supper', for: 'any', chapter: 'ch3', title: 'Поминальный стол', camp: kitchen14,
@@ -145,6 +147,8 @@ export const shared28: Scene[] = [
         text: '— Bis morgen früh, — говорит Хенрике. До утра. — Länger warte ich nicht. Ich bin alt.\n\nДольше не жду. Я старая.', effects: [set28('ev', 'think'), finish, until28(19, 30)] },
       { id: 'c28_ev_thank', label: 'Сказать: спасибо, что спрашиваете', minutes: 20, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_night' }, { id: 'b', goto: 'c28_b_late' }],
         text: 'Хенрике смотрит на тебя поверх очков.\n\n— Ich habe es von Werner gelernt. Er hat immer gefragt. Und dann hat er gemacht, was er wollte.\n\nЯ научилась у Вернера. Он всегда спрашивал. А потом делал, как хотел.\n\nОна почти улыбается.', effects: [set28('ev', 'thank'), npc('henrike', 1), finish, until28(19, 30)] },
+      { id: 'c28_ev_ask', label: 'Спросить, чего хочет она сама', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A28, goto: 'c28_a_night' }, { id: 'b', goto: 'c28_b_late' }],
+        text: 'Хенрике отвечает не сразу. Смотрит на стол, на Нину, на пустой стул, где сидел бы муж.\n\n— Ich will, dass im März einer pflügt. Wer, ist mir fast egal. Fast.\n\nЯ хочу, чтобы в марте кто-то пахал. Кто — мне почти всё равно. Почти.', effects: [set28('ev', 'ask'), w28('henrike_wants_plough', true), until28(19, 30)] },
     ] }),
 
   S28({ id: 'c28_checkpoint', for: 'any', chapter: 'ch3', title: 'Пятница, восемь вечера', checkpoint: 28, universal: false, camp: house14,

@@ -407,6 +407,7 @@ describe('участок 29: первый адвент, собрание', () =>
     it(`правда ${truth}, смена ${duty}: два дня проходятся, миры сходятся`, () => {
       const b28 = after28(truth, duty);
       b28.vars['A.c18_kn'] = 'water'; b28.vars['A.met.c18_volker'] = true; delete b28.vars['w.c18_lodger'];
+      delete b28.vars['w.c28_coop_cleared']; // крышу в 28-й не чистили — проверяем ночь, когда она рушится
       for (const p of P) expect(b28.chars[p].scene).toBe('c29_start');
       const a = leg(b28, 'A', { c29_a_church: 'c29_ac_speak' }), b = leg(b28, 'B');
       expect(a.vars['w.c29_coop_roof']).toBe('fallen'); expect(b.vars['w.c29_coop_roof']).toBe('fallen');

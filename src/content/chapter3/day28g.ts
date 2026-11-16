@@ -67,6 +67,8 @@ export const day28GScenes: Scene[] = [
         text: 'Камни из старой кладки у сарая, по одному, в темноте. Ты обкладываешь холмик кругом, плотно, как Кая у насыпи. Утром Кася видит камни и ничего не говорит. Но приносит туда ещё один, белый, с ручья.', effects: [set28('an3', 'stones'), w28('grave_stones', true), npc('kasia', 2, 'c28_stones'), until28(20, 0)] },
       { id: 'c28_an3_back', label: 'Вернуться в дом', when: not(wessel), minutes: 10, terminal: true, goto: 'c28_checkpoint',
         text: 'Ты возвращаешься. Лиса придёт снова. Или не придёт.', effects: [set28('an3', 'back'), until28(19, 40)] },
+      { id: 'c28_an2_ole', label: 'Посидеть с Оле у печи, пока он не уснёт', when: { npc: 'ole', alive: true, at: 'hof_luedemann' }, minutes: 30, terminal: true, goto: 'c28_checkpoint',
+        text: 'Оле не спит. Вы сидите у печи вдвоём, и он рассказывает про Асту, собаку с фотографии: как она приносила из леса ежей и клала на крыльцо, живых, и смотрела, как все бегают. Потом замолкает на полуслове. Спит сидя.', effects: [set28('an2', 'ole'), npc('ole', 1), until28(20, 0)] },
     ] }),
 
   X({ id: 'c28_b_eva', title: 'Поминки', camp: kitchen14,
@@ -75,11 +77,11 @@ export const day28GScenes: Scene[] = [
       { text: 'Передник у Эвы накрахмален, хотя никто не знает, когда она успела. Она стоит посреди кухни и ждёт ответа, держа в руках половник.' },
     ],
     actions: [
-      { id: 'c28_be2_all', label: 'Звать всех соседей: Кёлер, Уте, колонию', minutes: 40, terminal: true, goto: 'c28_b_afternoon',
+      { id: 'c28_be2_all', label: 'Звать всех соседей: Кёлер, Уте, колонию', minutes: 40, terminal: true, goto: 'c28_b_army',
         text: 'К трём приходят девять человек. Кёлер приносит пирог, Уте — банку мёда, Яннес — бутылку, которую никто не открывает. Сидят недолго, говорят мало. Перед уходом каждый жмёт Касе руку. Кася держится до последнего гостя, потом уходит в сарай.', effects: [set28('be2', 'all'), w28('wake', 'all'), npc('c3_koehler', 1), npc('c14_ute', 1), until28(15, 30)] },
-      { id: 'c28_be2_close', label: 'Только своих: дом и Уте', minutes: 30, terminal: true, goto: 'c28_b_afternoon',
+      { id: 'c28_be2_close', label: 'Только своих: дом и Уте', minutes: 30, terminal: true, goto: 'c28_b_army',
         text: 'Стол небольшой. Уте приносит мёд и садится рядом с Касей. Говорят по-польски, по-немецки, по-русски, кто как может. Кася впервые за два дня ест.', effects: [set28('be2', 'close'), w28('wake', 'close'), npc('kasia', 1), until28(15, 15)] },
-      { id: 'c28_be2_none', label: 'Сказать Эве: не надо стола, Касе не до гостей', minutes: 20, terminal: true, goto: 'c28_b_afternoon',
+      { id: 'c28_be2_none', label: 'Сказать Эве: не надо стола, Касе не до гостей', minutes: 20, terminal: true, goto: 'c28_b_army',
         text: 'Эва снимает передник. «Vielleicht hast du recht. Vielleicht nicht». Может, ты {m:прав|права}. Может, нет. Вечером Кёлер всё равно приходит с пирогом, стоит у калитки и не заходит.', effects: [set28('be2', 'none'), w28('wake', 'none'), until28(14, 30)] },
     ] }),
 

@@ -27,6 +27,8 @@ export const day28AScenes: Scene[] = [
         text: 'Вы сидите. Небо на востоке сереет. Где-то за лесополосой каркает ворона. {B} кладёт голову тебе на плечо, на минуту, и поднимается.', effects: [set28('ad', 'sit'), until28(6, 0)] },
       { id: 'c28_ad_gate', label: 'Идти к воротам: встретить патруль первым', minutes: 20, terminal: true, goto: 'c28_a_patrol', ambientDuring: snow28,
         text: 'Ты идёшь к воротам. Отодвигаешь засов. Стоишь. Дорога пустая. Пока.', effects: [set28('ad', 'gate'), until28(6, 0)] },
+      { id: 'c28_ad3_fire', label: 'Растопить печь и поставить воду: утром понадобится много горячей', minutes: 30, terminal: true, goto: 'c28_a_patrol',
+        text: 'Ты растапливаешь печь в темноте, на ощупь. Бак, вёдра, чайник. Когда начинает светать, на плите всё кипит. Горячая вода сегодня понадобится всем: обмыть, согреться, заварить. Хотя бы это ты можешь.', effects: [set28('ad3', 'fire'), until28(6, 0)] },
     ] }),
 
   A({ id: 'c28_a_patrol', title: 'Шесть утра', camp: yard14, ambient: snow28,
@@ -68,6 +70,10 @@ export const day28AScenes: Scene[] = [
         text: 'Вессель уходит к дороге пешком, с рюкзаком. Ушанку он надевает у ворот. На повороте оборачивается и машет.', effects: [set28('aw', 'go'), { npc: 'c27_wessel', moveTo: 'c15_winsen' }, until28(10, 50)] },
       { id: 'c28_aw_thanks', label: 'Сказать ему: ничего не было. Спасибо', when: all(vanHidden, not(wesselFired)), minutes: 20, terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }],
         text: '— Nichts, — повторяет Вессель. Ничего. — Gut.\n\nФургон уезжает. В зеркале он не смотрит на дом.', effects: [set28('aw', 'thanks'), { npc: 'c27_wessel', moveTo: 'c18_lueneburg' }, until28(10, 50)] },
+      { id: 'c28_aw_food', label: 'Собрать ему еды в дорогу: хлеб, яблоки, бутылку воды', when: all(vanHidden, not(wesselFired)), minutes: 25, terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }],
+        text: 'Вессель смотрит на свёрток долго, потом кладёт его на сиденье рядом с банкой леденцов. «Meine Frau hätte das auch gemacht». Моя жена сделала бы так же. Фургон выезжает из-за сеновала, оставляя в снегу колею, и сворачивает к Люнебургу.', effects: [set28('aw', 'food'), until28(10, 50)] },
+      { id: 'c28_aw_lt', label: 'Спросить, что он скажет лейтенанту', when: all(vanHidden, not(wesselFired)), minutes: 20, terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }],
+        text: '— Dass ich Wäsche gefahren habe. Wie jeden Tag. — Вессель заводит мотор. — Wäsche ist Wäsche. Was zwischen den Säcken liegt, sieht keiner.\n\nЧто возил бельё. Как каждый день. Бельё есть бельё. Что лежит между мешками, никто не видит.\n\nОн уезжает, не оглядываясь.', effects: [set28('aw', 'lt'), w28('wessel_story', 'laundry'), until28(10, 50)] },
       { id: 'c28_aw_yard', label: 'Взяться за двор: дела не ждут', when: not(vanHidden), minutes: 60, activity: 'moderate', terminal: true, outcomes: [{ id: 'c', when: timFarm, goto: 'c28_a_cross' }, { id: 'h', goto: 'c28_henrike' }], ambientDuring: snow28,
         text: 'Дрова, вода, куры. Руки делают сами. До полудня ты не думаешь ни о чём. Почти.', effects: [set28('aw', 'yard'), until28(10, 50)] },
     ] }),
@@ -103,7 +109,7 @@ export const day28AScenes: Scene[] = [
         text: 'Хенрике складывает рубашки Оле стопкой. Кубки за футбол оставляет на полке. Плакат с трактором — на стене. Шкаф наверху она закрывает и долго держит руку на дверце.', effects: [set28('aa', 'ole_room'), npc('henrike', 2), until28(15, 30)] },
       { id: 'c28_aa_wood', label: 'Колоть дрова', minutes: 80, activity: 'heavy', terminal: true, goto: 'c28_a_roof', ambientDuring: snow28,
         text: 'Колун поднимается и падает. Поленница растёт. К сумеркам у тебя болят плечи, и это хорошо: болит что-то, что можно назвать.', effects: [set28('aa', 'wood'), { body: 'fatigue', delta: 10 }, { body: 'stress', delta: -3 }, until28(15, 30)] },
-      { id: 'c28_aa_brandt', label: 'Сходить к Брандту поговорить про список', when: hostile28, minutes: 150, terminal: true, goto: 'c28_supper', ambientDuring: snow28,
+      { id: 'c28_aa_brandt', label: 'Сходить к Брандту поговорить про список', when: hostile28, minutes: 150, terminal: true, goto: 'c28_a_coop', ambientDuring: snow28,
         text: 'Брандт принимает тебя в караулке, стоя. Слушает, не перебивая.\n\n— Ich habe gesagt: wer lügt, fliegt. Ihr habt gelogen oder nicht?\n\nЯ сказал: кто врёт, вылетает. Вы врали или нет?\n\nОн отворачивается к окну. Разговор окончен. Домой ты идёшь в темноте.', effects: [set28('aa', 'brandt'), { body: 'fatigue', delta: 4 }, until28(17, 55)] },
     ] }),
 ];

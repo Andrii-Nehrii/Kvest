@@ -21,7 +21,7 @@ export const oleAlive29: Cond = all({ npc: 'ole', alive: true }, not(flag('w.c27
 export const brandt29 = (x: string): Cond => v('w.c26_brandt', x);
 export const place29 = (x: string): Cond => v('w.c28_place', x);
 /** Потеря-эхо: Фолькеру в 18-й дали воды и не пустили — кровельщика на хуторе нет. */
-export const roofLoss: Cond = all(v('A.c18_kn', 'water'), not(flag('w.c18_lodger')));
+export const roofLoss: Cond = all(v('A.c18_kn', 'water'), not(flag('w.c18_lodger')), not(flag('w.c28_coop_cleared')));
 export const volkerSeen: Cond = any(flag('A.met.c18_volker'), flag('B.met.c18_volker'));
 export const dutyB29: Cond = v('w.c24_duty', 'b');
 
