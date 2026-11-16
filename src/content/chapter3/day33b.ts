@@ -32,6 +32,8 @@ export const day33BScenes: Scene[] = [
         text: 'Чемодан тяжёлый. Ты несёшь его в сени и ставишь на лавку. Тебе отдают связку ключей:\n\n— Найдите нужный. Она бы хотела, чтобы её вещи кому-то пригодились.', effects: [set33('ba', 'case'), until33(10, 0)] },
       { id: 'c33_ba_help', label: 'Сначала помочь старикам устроиться', when: eldersCome, minutes: 60, activity: 'light', terminal: true, goto: 'c33_b_case',
         text: 'Сумки, подушки, грелки. Фрау Кёрнер просит поставить её фотографию так, чтобы видеть с кровати. Ты ставишь. Петерсен благодарит тебя три раза и каждый раз по-разному. Чемодан ждёт в сенях.', effects: [set33('ba', 'help'), until33(10, 30)] },
+      { id: 'c33_ba_tea', label: 'Сначала напоить всех горячим: они с дороги', minutes: 40, terminal: true, goto: 'c33_b_case',
+        text: 'Ты ставишь самый большой чайник и разливаешь по всем кружкам, какие есть, и ещё по двум банкам. Старики держат их двумя руками и молчат. Фрау Кёрнер говорит: «Wie zu Hause». Как дома. Хотя дома у неё был фарфор, а здесь — банка из-под огурцов.', effects: [set33('ba', 'tea'), until33(10, 15)] },
     ] }),
 
   B({ id: 'c33_b_case', title: 'Чемодан', camp: kitchen14,
@@ -66,6 +68,8 @@ export const day33BScenes: Scene[] = [
         text: 'Ты поддеваешь замок ножом Хенрике, раскачиваешь, пока латунь не отходит от кожи. Крышка отскакивает. Внутри что-то звякает, тонко, стеклом.', effects: [set33('bb', 'knife'), ...opened('forced'), until33(11, 30)] },
       { id: 'c33_bb_leave', label: 'Оставить как есть', minutes: 10, terminal: true, goto: 'c33_b_korner',
         text: 'Ты ставишь чемодан в угол. Обломок ключа так и торчит из замка.', effects: [set33('bb', 'leave'), w33('case', 'left'), until33(11, 0)] },
+      { id: 'c33_bb_okafor', label: 'Отнести чемодан Окафору: пусть решит, это его соседка', minutes: 20, terminal: true, goto: 'c33_b_korner',
+        text: 'Окафор смотрит на чемодан долго. Потом достаёт из кармана связку и пробует сам, ключ за ключом. Не подходит ни один. Он ставит чемодан под свою раскладушку. «Später. Wenn ich weiß, wem es gehört». Потом. Когда буду знать, кому это теперь принадлежит.', effects: [set33('bb', 'okafor'), until33(11, 10)] },
     ] }),
 
   B({ id: 'c33_b_open', title: 'Что внутри', camp: kitchen14,
@@ -86,6 +90,10 @@ export const day33BScenes: Scene[] = [
     actions: [
       { id: 'c33_bf_take', label: 'Собрать уцелевшее', minutes: 20, terminal: true, goto: 'c33_b_korner',
         text: 'Ты выбираешь целые ампулы по одной, осторожно, из осколков. Девять штук. Шерсть и кофе не пострадали.', effects: [set33('bf', 'take'), { give: 'c33_wool' }, { give: 'c33_coffee' }, { give: 'c33_saline', qty: 9 }, until33(11, 50)] },
+      { id: 'c33_bf_ute', label: 'Отложить шерсть для Уте, остальное отдать Окафору', minutes: 15, terminal: true, goto: 'c33_b_korner',
+        text: 'Шерсть и спицы ты откладываешь отдельно: Уте вяжет для всей колонии. Остальное, что уцелело, относишь Окафору. Он перебирает и откладывает фотографию женщины в шляпе. «Frau Haberland. Von oben». Фрау Хаберланд. Сверху.', effects: [set33('bf', 'ute'), until33(11, 50)] },
+      { id: 'c33_bf_close', label: 'Закрыть, что осталось, и ничего не брать', minutes: 10, terminal: true, goto: 'c33_b_korner',
+        text: 'Ты складываешь всё обратно, как было, и закрываешь крышку, насколько она закрывается после ножа. Чужое. Даже если хозяйки больше нет.', effects: [set33('bf', 'close'), until33(11, 40)] },
     ] }),
 
   B({ id: 'c33_b_ole', title: 'Окафор', camp: kitchen14, onEnter: [until33(13, 0)],
@@ -113,11 +121,11 @@ export const day33BScenes: Scene[] = [
       { when: ute33, text: 'Колодец у неё глубокий, и он один на всю колонию не замёрз. Об этом она говорит, когда снимает валенки у печи, коротко, как о погоде. И ещё о том, что воду за деньги не продают.' },
     ],
     actions: [
-      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 60, terminal: true, goto: 'c33_b_nina',
-        text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(16, 30)] },
-      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 60, terminal: true, goto: 'c33_b_nina', ambientDuring: frost33,
-        text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(16, 30)] },
-      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 60, terminal: true, goto: 'c33_b_nina',
-        text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(16, 30, true)] },
+      { id: 'c33_bu_wool', label: 'Отдать Уте шерсть из чемодана', when: all(ute33, wool), minutes: 60, terminal: true, goto: 'c33_b_bath',
+        text: 'Уте разглядывает клубки на свету, нюхает, мнёт пальцами.\n\n— Gute Wolle. Von früher. — Она убирает в карман фартука. — Bis Weihnachten hat jeder Alte Socken.\n\nХорошая шерсть. Из прежних времён. К Рождеству у каждого старика будут носки.', effects: [set33('bu', 'wool'), { take: 'c33_wool' }, npc('c14_ute', 2, 'c33_got_wool'), until33(15, 40)] },
+      { id: 'c33_bu_walk', label: 'Проводить её до колонии', when: ute33, minutes: 60, terminal: true, goto: 'c33_b_bath', ambientDuring: frost33,
+        text: 'Вы идёте медленно, по скрипучему снегу. Уте рассказывает про каждый домик, мимо которого вы проходите: кто здесь жил, где он сейчас. Про половину она не знает.', effects: [set33('bu', 'walk'), npc('c14_ute', 1), until33(15, 40)] },
+      { id: 'c33_bu_rest', label: 'Отдохнуть до вечера', minutes: 60, terminal: true, goto: 'c33_b_bath',
+        text: 'Ты ложишься на час. В доме теперь всё время кто-то говорит, шуршит, кашляет. Ты засыпаешь под это, как под дождь.', effects: [set33('bu', 'rest'), until33(15, 40, true)] },
     ] }),
 ];

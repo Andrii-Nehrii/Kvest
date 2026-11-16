@@ -51,11 +51,11 @@ export const day33AScenes: Scene[] = [
       { when: all(brothersCome, deniz33('near')), text: 'Дом у насыпи стоит пустым с ноября: хозяева уехали к дочери в Шлезвиг ещё до того, как закрыли дороги. На двери записка выцветшим фломастером: «Bitte nichts kaputt machen». Пожалуйста, ничего не ломайте.\n\nКерем читает её вслух и аккуратно убирает в карман.' },
     ],
     actions: [
-      { id: 'c33_ab_help', label: 'Помочь им устроиться', when: brothersCome, minutes: 90, activity: 'moderate', terminal: true, outcomes: [{ id: 't', when: brothersAlive, goto: 'c33_a_torch' }, { id: 'e', goto: 'c33_a_eve' }],
+      { id: 'c33_ab_help', label: 'Помочь им устроиться', when: brothersCome, minutes: 90, activity: 'moderate', terminal: true, outcomes: [{ id: 't', when: brothersAlive, goto: 'c33_a_torch' }, { id: 'e', goto: 'c33_a_trough' }],
         text: 'Раскладушки, буржуйка, труба в окно. Керем развешивает над дверью турецкий оберег, синий глаз на нитке. Дениз прибивает полку. К четырём это похоже на жильё.', effects: [set33('ab', 'help'), npc('deniz', 1), npc('kerem', 1), until33(14, 30)] },
-      { id: 'c33_ab_tools', label: 'Разобрать с Денизом ящики с инструментом', when: brothersAlive, minutes: 90, terminal: true, outcomes: [{ id: 't', when: brothersAlive, goto: 'c33_a_torch' }, { id: 'e', goto: 'c33_a_eve' }],
+      { id: 'c33_ab_tools', label: 'Разобрать с Денизом ящики с инструментом', when: brothersAlive, minutes: 90, terminal: true, outcomes: [{ id: 't', when: brothersAlive, goto: 'c33_a_torch' }, { id: 'e', goto: 'c33_a_trough' }],
         text: 'Головки, ключи, домкрат, сварочный аппарат без тока. Дениз раскладывает и говорит, что чем. Слушать его как слушать музыку на чужом языке: понятно не всё, но красиво.', effects: [set33('ab', 'tools'), w33('tools', true), npc('deniz', 1), until33(14, 30)] },
-      { id: 'c33_ab_wood', label: 'Колоть дрова: их сегодня ушло много', minutes: 90, activity: 'heavy', terminal: true, outcomes: [{ id: 't', when: brothersAlive, goto: 'c33_a_torch' }, { id: 'e', goto: 'c33_a_eve' }], ambientDuring: frost33,
+      { id: 'c33_ab_wood', label: 'Колоть дрова: их сегодня ушло много', minutes: 90, activity: 'heavy', terminal: true, outcomes: [{ id: 't', when: brothersAlive, goto: 'c33_a_torch' }, { id: 'e', goto: 'c33_a_trough' }], ambientDuring: frost33,
         text: 'Ты колешь, пока не перестаёшь чувствовать плечи. Поленница растёт обратно.', effects: [set33('ab', 'wood'), { body: 'fatigue', delta: 8 }, until33(14, 30)] },
     ] }),
 
@@ -73,5 +73,7 @@ export const day33AScenes: Scene[] = [
         text: 'Хенрике пишет в тетради цифры столбиком: картошка, мука, соль, яйца. Подчёркивает. Пересчитывает. Потом закрывает тетрадь и долго держит на ней ладонь.', effects: [set33('ae', 'henrike'), npc('henrike', 1), until33(16, 30)] },
       { id: 'c33_ae_rest', label: 'Лечь на час', minutes: 60, terminal: true, goto: 'c33_a_ole',
         text: 'Ты ложишься не раздеваясь и просыпаешься от голосов на кухне.', effects: [set33('ae', 'rest'), until33(16, 30, true)] },
+      { id: 'c33_ae_kids', label: 'Вывести Нину и Пауля кататься с горки за сараем', minutes: 60, terminal: true, goto: 'c33_a_ole', ambientDuring: frost33,
+        text: 'Горка за сараем короткая, но крутая. Санки одни, на троих. Вы катаетесь по очереди, а потом все вместе, и санки переворачиваются в сугроб. Нина смеётся так, что икает. Пауль делает вид, что ему не смешно, а потом смеётся громче всех.', effects: [set33('ae', 'kids'), { npc: 'c7_nina', trust: 1 }, { body: 'stress', delta: -4 }, until33(16, 30)] },
     ] }),
 ];

@@ -97,8 +97,12 @@ export const day33GScenes: Scene[] = [
     actions: [
       { id: 'c33_bl2_sit', label: 'Сидеть с фрау Кёрнер, пока не отпустит', when: eldersCome, minutes: 40, terminal: true, goto: 'c33_checkpoint',
         text: 'Ты подкладываешь ей подушки повыше, открываешь форточку на щель, держишь за руку. Считаешь её дыхание по часам Хенрике. Через сорок минут оно становится реже. Она засыпает сидя. Ты остаёшься до полуночи.', effects: [set33('bl2', 'sit'), w33('korner_night', 'sat'), { body: 'fatigue', delta: 5 }, until33(20, 0)] },
-      { id: 'c33_bl2_okafor', label: 'Бежать в колонию за Окафором', when: all(eldersCome, okaforComes), minutes: 40, terminal: true, goto: 'c33_checkpoint', ambientDuring: frost33,
-        text: 'Ты бежишь по снегу через поле. Окафор одевается молча и идёт с тобой. У постели фрау Кёрнер он делает то же, что сделала бы ты, только спокойнее. Потом говорит: «В следующий раз — не бегите. Сидите. Вы умеете». ', effects: [set33('bl2', 'okafor'), w33('korner_night', 'okafor'), npc('okafor', 1), until33(20, 0)] },
+      { id: 'c33_bl2_okafor', risky: true, label: 'Бежать в колонию за Окафором', when: all(eldersCome, okaforComes), minutes: 40, terminal: true, goto: 'c33_checkpoint', ambientDuring: frost33,
+        
+        outcomes: [
+          { id: 'ok', check: { traits: ['agility'], difficulty: 3, uses: ['mobility'] }, text: 'Ты бежишь по снегу через поле. Окафор одевается молча и идёт с тобой. У постели фрау Кёрнер он делает то же, что сделала бы ты, только спокойнее. Потом говорит: «В следующий раз — не бегите. Сидите. Вы умеете». ' },
+          { id: 'slip', text: 'На полпути к колонии ты поскальзываешься на дороге и падаешь на руки. Фонарь гаснет. Ты встаёшь и бежишь дальше в темноте, на огонь в окне домика. Ладони содраны. Окафор выходит с сумкой ещё до того, как ты успеваешь постучать: видел, как ты бежишь.', effects: [{ injure: 'scratch', site: 'hands', severity: 1 }, { body: 'stress', delta: 4 }] },
+        ], effects: [set33('bl2', 'okafor'), w33('korner_night', 'okafor'), npc('okafor', 1), until33(20, 0)] },
       { id: 'c33_bl2_tea', label: 'Заварить ей мяту и разбудить Хенрике', when: eldersCome, minutes: 40, terminal: true, goto: 'c33_checkpoint',
         text: 'Хенрике встаёт без слов, будто ждала. Мята, тёплое одеяло на плечи, разговор вполголоса по-немецки, про сороковые годы. Фрау Кёрнер засыпает под этот разговор.', effects: [set33('bl2', 'tea'), w33('korner_night', 'henrike'), npc('henrike', 1), until33(19, 50)] },
       { id: 'c33_bl2_nina', label: 'Сесть к Нине и рассказать что-нибудь хорошее', when: all(not(eldersCome), ninaFarm), minutes: 40, terminal: true, goto: 'c33_checkpoint',
