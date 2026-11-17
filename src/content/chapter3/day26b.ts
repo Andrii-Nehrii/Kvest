@@ -4,7 +4,7 @@ import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { any, ninaFarm, v } from './point18';
-import { npc, tableOnly } from './point19';
+import { evaHere, npc, tableOnly } from './point19';
 import {
   S26, brandtAlly, brandtHostile, carLoss, dayFacts, dutyB, farm26, jest26, leaFarm26, oleNow, plasmaSpoils, set26, snow26, until26, w26,
 } from './point26';
@@ -124,12 +124,28 @@ export const day26BScenes: Scene[] = [
       { text: 'Нина смотрит в пол.\n\n— В ящике под лестницей осталось на четыре дня. Я посчитала. А тут их сотни.' },
     ],
     actions: [
-      { id: 'c26_bs_back', label: 'Сказать Нине: положи обратно. Это весна', minutes: 20, terminal: true, goto: 'c26_b_attic',
-        text: 'Нина кладёт картофелины обратно по одной, аккуратно, как яйца.\n\n— Весна, — повторяет она. — Если мы до неё доживём.', effects: [set26('bs', 'back'), w26('seed_kept', true), until26(10, 0)] },
-      { id: 'c26_bs_six', label: 'Сказать: эти шесть — сегодня. Остальное не трогать', minutes: 20, terminal: true, goto: 'c26_b_attic',
-        text: 'Эва поджимает губы, но молчит. Нина уносит миску на кухню. Шесть картофелин из весны. Сегодня это суп.', effects: [set26('bs', 'six'), w26('seed_used', true), npc('c8_eva', -1), until26(10, 0)] },
-      { id: 'c26_bs_count', label: 'Спуститься и пересчитать, сколько там всего', minutes: 40, terminal: true, goto: 'c26_b_attic',
-        text: 'Восемь ящиков. Примерно по двадцать кило. Сто шестьдесят кило. Если сажать — гектар. Если есть — две недели на всех. Ты записываешь цифры на стене мелом, под надписью «Saat».', effects: [set26('bs', 'count'), w26('seed_counted', true), until26(10, 20)] },
+      { id: 'c26_bs_back', label: 'Сказать Нине: положи обратно. Это весна', minutes: 20, terminal: true, goto: 'c26_b_yard',
+        text: 'Нина кладёт картофелины обратно по одной, аккуратно, как яйца.\n\n— Весна, — повторяет она. — Если мы до неё доживём.', effects: [set26('bs', 'back'), w26('seed_kept', true), until26(8, 15)] },
+      { id: 'c26_bs_six', label: 'Сказать: эти шесть — сегодня. Остальное не трогать', minutes: 20, terminal: true, goto: 'c26_b_yard',
+        text: 'Эва поджимает губы, но молчит. Нина уносит миску на кухню. Шесть картофелин из весны. Сегодня это суп.', effects: [set26('bs', 'six'), w26('seed_used', true), npc('c8_eva', -1), until26(8, 15)] },
+      { id: 'c26_bs_count', label: 'Спуститься и пересчитать, сколько там всего', minutes: 40, terminal: true, goto: 'c26_b_yard',
+        text: 'Восемь ящиков. Примерно по двадцать кило. Сто шестьдесят кило. Если сажать — гектар. Если есть — две недели на всех. Ты записываешь цифры на стене мелом, под надписью «Saat».', effects: [set26('bs', 'count'), w26('seed_counted', true), until26(8, 35)] },
+    ] }),
+
+  B({ id: 'c26_b_yard', title: 'Снег', camp: yard14, ambient: snow26,
+    text: [
+      { text: 'За ночь насыпало по колено. Дорожка к колодцу, к курятнику, к калитке — всё под снегом.' },
+      { when: evaHere, text: 'Эва уже стоит на крыльце с лопатой и смотрит на двор, как на поле боя.' },
+    ],
+    actions: [
+      { id: 'c26_by_paths', label: 'Расчистить дорожки к колодцу, курятнику и калитке', minutes: 90, activity: 'heavy', terminal: true, goto: 'c26_b_attic', ambientDuring: snow26,
+        text: 'Колодец, курятник, калитка, сарай. Лопата тяжёлая, снег мокрый снизу. К десяти двор похож на план: прямые тропы, сугробы по краям. Спина гудит, но ходить теперь можно.', effects: [set26('by', 'paths'), { body: 'fatigue', delta: 8 }, until26(10, 0)] },
+      { id: 'c26_by_sled', label: 'Сделать с Ниной санки из старого корыта: возить воду', when: ninaFarm, minutes: 90, activity: 'moderate', terminal: true, goto: 'c26_b_attic', ambientDuring: snow26,
+        text: 'Цинковое корыто, верёвка через ручки, две доски снизу вместо полозьев. Первую поездку от колодца Нина переворачивает. Вторую довозит. К десяти у крыльца стоят четыре полных ведра.', effects: [set26('by', 'sled'), w26('water_sled', true), npc('c7_nina', 1), until26(10, 0)] },
+      { id: 'c26_by_ute', label: 'Протоптать тропу к колонии: как там Уте', minutes: 90, activity: 'moderate', terminal: true, goto: 'c26_b_attic', ambientDuring: snow26,
+        text: 'Снег по колено, потом по бедро у канавы. У Уте дым из трубы, сама она откапывает дверь сарая. Ты помогаешь, она даёт тебе с собой яиц. Обратно идёшь по своей же тропе, уже легче.', effects: [set26('by', 'ute'), npc('c14_ute', 1), until26(10, 0)] },
+      { id: 'c26_by_ice', label: 'Сбить сосульки над крыльцом, пока никого не пришибло', minutes: 60, terminal: true, goto: 'c26_b_attic', ambientDuring: snow26,
+        text: 'Черенок от граблей, шапка поглубже. Сосульки падают с хрустом, одна втыкается в сугроб, как копьё. Самые длинные ты ставишь в ведро у двери: растают — будет вода.', effects: [set26('by', 'ice'), until26(9, 45)] },
     ] }),
 
   B({ id: 'c26_b_afternoon', title: 'После обеда', camp: kitchen14,

@@ -97,7 +97,7 @@ export const shared41: Scene[] = [
   S41({ id: 'c41_brandt', for: 'any', chapter: 'ch3', title: 'Брандт', camp: yard14, ambient: wet41, onEnter: [until41(15, 30)],
     text: [
       { text: 'В половине четвёртого у ворот джип пожарной части. Брандт объезжает дворы. Небритый, глаза красные.' },
-      { text: '— Siebzehn bei uns an den Bächen. Zwei Höfe haben es nicht geschafft: die Schulzes an der Brücke und der Alte bei Hanstedt. Wir sind trotzdem mehr, als ich dachte.\n\nСемнадцать у нас на ручьях. Два двора не выдержали: Шульцы у моста и старик под Ханштедтом. Нас всё равно больше, чем я думал.' },
+      { text: '— Siebzehn bei uns an den Bächen. Zwei Höfe haben es nicht geschafft: die Behrens an der Brücke und der Alte bei Hanstedt. Wir sind trotzdem mehr, als ich dachte.\n\nСемнадцать у нас на ручьях. Два двора не выдержали: Беренсы у моста и старик под Ханштедтом. Нас всё равно больше, чем я думал.' },
       { when: gerdesDead41, text: 'Он снимает шапку перед фрау Ханзен и долго держит её в руках.' },
       { when: flag('w.c40_patrol_came'), text: 'Он кивает тебе: «Die Rakete. Gut gemacht». Ракета. Правильно сделал{m:|а}.' },
     ],

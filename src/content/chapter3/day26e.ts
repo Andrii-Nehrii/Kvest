@@ -4,7 +4,7 @@ import { flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { any, ninaFarm, v } from './point18';
 import { npc } from './point19';
-import { S26, jest26, set26, snow26, until26, w26 } from './point26';
+import { S26, dutyA, jest26, set26, snow26, until26, w26 } from './point26';
 
 // Участок 26, дополнение (проверка объёма 15.11). A: у ворот фрау Тимм — отклик дороги из 25-й; Нина просит научить стрелять.
 // B: утро после человека у ворот; ребёнок с жаром в пункте (Зандер у Брандта); банки на чердаке, если день дома.
@@ -45,15 +45,15 @@ export const day26EScenes: Scene[] = [
       { text: 'Из кармана у неё торчит угол тетради. Ты знаешь, что там: она записывает всё, что видела в колонии, по дням, мелким почерком. Однажды ты {m:видел|видела} страницу. На ней было только число и слово «Zaun». Забор.' },
     ],
     actions: [
-      { id: 'c26_ni_teach', label: 'Научить: заряжать, держать, стрелять по мишени за хлевом', when: gun, minutes: 60, terminal: true, goto: 'c26_y_a_light', ambientDuring: snow26,
+      { id: 'c26_ni_teach', label: 'Научить: заряжать, держать, стрелять по мишени за хлевом', when: gun, minutes: 60, terminal: true, outcomes: [{ id: 'd', when: dutyA, goto: 'c26_a_lamp' }, { id: 'l', goto: 'c26_y_a_light' }], ambientDuring: snow26,
         text: 'Два патрона из четырёх. Ты ставишь на пень за хлевом пустую банку. Показываешь, как переламывать стволы, как прижимать приклад, чтобы не выбило плечо. Первый выстрел Нина делает с закрытыми глазами. Второй — с открытыми. Банка падает. Нина не радуется. Она очень серьёзно кивает сама себе.', effects: [set26('ni', 'teach'), w26('nina_gun', 'taught'), { unstock: 'c19_shells', qty: 2, at: 'c3_farm_stock' }, npc('c7_nina', 2, 'c26_taught_gun'), until26(16, 50)] },
-      { id: 'c26_ni_safe', label: 'Показать только, как его не трогать и где патроны', when: gun, minutes: 40, terminal: true, goto: 'c26_y_a_light',
+      { id: 'c26_ni_safe', label: 'Показать только, как его не трогать и где патроны', when: gun, minutes: 40, terminal: true, outcomes: [{ id: 'd', when: dutyA, goto: 'c26_a_lamp' }, { id: 'l', goto: 'c26_y_a_light' }],
         text: 'Ты объясняешь: ружьё всегда разряжено, патроны отдельно, ствол — в пол. Если придут — не стрелять, а звонить в колокол у ворот и бежать на чердак. Нина слушает, запоминает. Ей этого мало. Но она кивает.', effects: [set26('ni', 'safe'), w26('nina_gun', 'safety'), until26(16, 30)] },
-      { id: 'c26_ni_no', label: 'Отказать: тебе пятнадцать', minutes: 20, terminal: true, goto: 'c26_y_a_light',
+      { id: 'c26_ni_no', label: 'Отказать: тебе пятнадцать', minutes: 20, terminal: true, outcomes: [{ id: 'd', when: dutyA, goto: 'c26_a_lamp' }, { id: 'l', goto: 'c26_y_a_light' }],
         text: '— Мне пятнадцать, — повторяет Нина. — А им сколько было, тем, на заборе в колонии?\n\nОна уходит в дом и до ужина не разговаривает ни с кем.', effects: [set26('ni', 'no'), w26('nina_gun', 'no'), npc('c7_nina', -2), until26(16, 10)] },
-      { id: 'c26_ni_axe', label: 'Показать, как держать топор и куда бить', when: not(gun), minutes: 40, terminal: true, goto: 'c26_y_a_light', ambientDuring: snow26,
+      { id: 'c26_ni_axe', label: 'Показать, как держать топор и куда бить', when: not(gun), minutes: 40, terminal: true, outcomes: [{ id: 'd', when: dutyA, goto: 'c26_a_lamp' }, { id: 'l', goto: 'c26_y_a_light' }], ambientDuring: snow26,
         text: 'Ты ставишь у сарая чурбак и рисуешь на нём углём круг. Показываешь: двумя руками, ноги шире, не замахиваться из-за головы, бить коротко. Нина бьёт десять раз. На десятый попадает в круг.\n\n— А если это человек? — спрашивает она.\n\n— Это уже не человек, — говоришь ты. И сам{m:|а} не уверен{m:|а}, что это правильный ответ для пятнадцати лет.', effects: [set26('ni', 'axe'), w26('nina_axe', true), npc('c7_nina', 2, 'c26_axe'), until26(16, 30)] },
-      { id: 'c26_ni_plan', label: 'Договориться: если придут — она с Эвой запирается наверху', when: not(gun), minutes: 25, terminal: true, goto: 'c26_y_a_light',
+      { id: 'c26_ni_plan', label: 'Договориться: если придут — она с Эвой запирается наверху', when: not(gun), minutes: 25, terminal: true, outcomes: [{ id: 'd', when: dutyA, goto: 'c26_a_lamp' }, { id: 'l', goto: 'c26_y_a_light' }],
         text: 'Вы проходите по дому вдвоём: какую дверь запереть, где ключ, какое окно выходит на крышу сарая. Нина запоминает, шевеля губами. Ей это не нравится. Но это лучше, чем ничего, и она это понимает.', effects: [set26('ni', 'plan'), w26('house_plan', true), npc('c7_nina', 1), until26(16, 15)] },
     ] }),
 

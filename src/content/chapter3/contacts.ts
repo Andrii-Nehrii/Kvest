@@ -52,17 +52,17 @@ export const contacts3: Record<string, ContactDef> = {
     knownWhen: { any: [{ all: [{ visited: 'c40_m_neighbor' }, { not: { flag: 'w.c37_neighbor_saved' } }] }, { visited: 'c40_b_neighbor' }, { visited: 'c41_b_gerdes' }, { visited: 'c42_a_hansen' }, { visited: 'c42_b_hansen' }] },
   },
   c42_jonas: {
-    id: 'c42_jonas', name: 'Йонас Ридель', fromCheckpoint: 41,
+    id: 'c42_jonas', name: 'Феликс Ридель', fromCheckpoint: 41,
     intro: 'Солдат-срочник, девятнадцать лет. С ноября жил в яме под поваленным дубом в лесополосе за полем.',
     knownWhen: { visited: 'c42_a_jonas' },
   },
   c42_bahr: {
     id: 'c42_bahr', name: 'Коринна Бар', fromCheckpoint: 41,
-    intro: 'Мать двоих маленьких детей, Пауля и Мии. Последний дом у Люллау. Хенрике кормила их по понедельникам.',
+    intro: 'Мать двоих маленьких детей, Эрика и Мии. Последний дом у Люллау. Хенрике кормила их по понедельникам.',
     knownWhen: { flag: '$.met.c42_bahr' },
   },
   c42_lars: {
-    id: 'c42_lars', name: 'Ларс', fromCheckpoint: 41,
+    id: 'c42_lars', name: 'Юлиан', fromCheckpoint: 41,
     intro: 'Сын обходчика, одиннадцать лет. Живёт с бабушкой в будке у переезда. Хенрике кормила его по понедельникам.',
     knownWhen: { flag: '$.met.c42_lars' },
   },

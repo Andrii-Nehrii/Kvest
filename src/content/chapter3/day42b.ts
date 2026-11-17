@@ -13,7 +13,7 @@ import {
 
 // Участок 42, линия B. Четверг: Мерле и счёт инсулина (или Нина, или Хенрике), выпечка, разговор наедине, школа в Винзене, звёзды
 // из соломы, Уте и приглашение, Ханзены, Лея (письмо) или открытки, свечи. Пятница: Мерле без ужина (или замёрзший колодец),
-// тетрадь понедельников Хенрике, дорога, Бары или Ларс у переезда, подарок, портрет или велосипед Нины, баня, гости на адвент.
+// тетрадь понедельников Хенрике, дорога, Бары или Юлиан у переезда, подарок, портрет или велосипед Нины, баня, гости на адвент.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S42({ ...scene, for: 'any', chapter: 'ch3' });
 const petersFarm: Cond = v('w.c40_peters', 'farm');
 const leaGone42: Cond = flag('w.c41_lea_gone');
@@ -252,16 +252,16 @@ export const day42BScenes: Scene[] = [
       { when: flag('$.c16_cel_all'), text: 'Ты видел{m:|а} её в подвале в ноябре. «Если меня не будет — продолжайте».' },
       { text: '«Montags». По понедельникам. Двенадцать лет она кормила по понедельникам тех, кому не хватало: одиноких стариков, многодетных, мальчишку обходчика. Против каждого — даты и пометки: «Suppe», «Brot», «Eier».' },
       { text: '— Wer lebt noch? Ich weiß es nicht. Ich habe Angst nachzusehen.\n\nКто ещё жив? Я не знаю. Мне страшно проверять.' },
-      { text: 'Три адреса рядом. Кёлер в пункте Йестебурга жива, это вы знаете. Семья Бар у Люллау: мать и двое маленьких. Мальчишка обходчика у переезда, Ларс, одиннадцать лет, живёт с бабушкой.' },
+      { text: 'Три адреса рядом. Кёлер в пункте Йестебурга жива, это вы знаете. Семья Бар у Люллау: мать и двое маленьких. Мальчишка обходчика у переезда, Юлиан, одиннадцать лет, живёт с бабушкой.' },
     ],
     actions: [
       { id: 'c42_bnb_bahr', label: 'Пойти к Барам: там маленькие дети', minutes: 40, terminal: true, goto: 'c42_b_pack',
-        text: 'Хенрике кивает. Показывает на карте в тетради: Люллау, последний дом у леса. «Corinna. Und Paul und Mia». Коринна. И Пауль, и Миа.', effects: [set42('bnb', 'bahr'), w42('visit', 'bahr'), until42(48, 8, 50)] },
-      { id: 'c42_bnb_lars', label: 'Пойти к Ларсу у переезда', minutes: 40, terminal: true, goto: 'c42_b_pack',
+        text: 'Хенрике кивает. Показывает на карте в тетради: Люллау, последний дом у леса. «Corinna. Und Erik und Mia». Коринна. И Эрик, и Миа.', effects: [set42('bnb', 'bahr'), w42('visit', 'bahr'), until42(48, 8, 50)] },
+      { id: 'c42_bnb_lars', label: 'Пойти к Юлиану у переезда', minutes: 40, terminal: true, goto: 'c42_b_pack',
         text: 'Хенрике кивает. «Der Junge hat immer die Schüssel zurückgebracht. Gespült». Мальчишка всегда возвращал миску. Вымытую.', effects: [set42('bnb', 'lars'), w42('visit', 'lars'), until42(48, 8, 50)] },
       { id: 'c42_bnb_both', label: 'Успеть к обоим, пусть и ненадолго', minutes: 40, terminal: true, goto: 'c42_b_pack',
         text: 'Хенрике смотрит на часы, потом на тебя. «Dann schnell». Тогда быстро. Пять километров по кругу, до обеда.', effects: [set42('bnb', 'both'), w42('visit', 'both'), until42(48, 8, 50)] },
-      { id: 'c42_bnb_henrike', label: 'Уговорить Хенрике пойти с тобой к Ларсу', when: henrike42, minutes: 40, terminal: true, goto: 'c42_b_pack',
+      { id: 'c42_bnb_henrike', label: 'Уговорить Хенрике пойти с тобой к Юлиану', when: henrike42, minutes: 40, terminal: true, goto: 'c42_b_pack',
         text: 'Хенрике отказывается. Потом молча снимает фартук. «Wenn er tot ist, will ich es selbst sehen». Если он умер, хочу увидеть сама.', effects: [set42('bnb', 'henrike'), set42('with_henrike', true), w42('visit', 'lars'), npc('henrike', 2), until42(48, 8, 50)] },
     ] }),
 
@@ -302,7 +302,7 @@ export const day42BScenes: Scene[] = [
       { when: bahr, text: 'Дом Баров — последний у Люллау, ставни закрыты. Дверь открывает мальчик лет шести. За ним мать, худая, в двух свитерах, с девочкой на руках.\n\n— Frau Lüdemann schickt Sie? Montags kam sie immer. Dann nicht mehr.\n\nВас прислала фрау Людеман? Она всегда приходила по понедельникам. Потом перестала.' },
       { when: visit('lars'), text: 'Будка обходчика у переезда, из трубы дым. Мальчишка колет дрова колуном больше себя. В окне — бабушка в платке.' },
       { when: all(visit('lars'), not(withHenrike)), text: '— Die Frau mit der Suppe ist tot, oder?\n\nТётя с супом умерла, да?' },
-      { when: all(visit('lars'), withHenrike), text: 'Ларс видит Хенрике и роняет колун. Потом подходит и молча утыкается ей в куртку. Хенрике гладит его по шапке.' },
+      { when: all(visit('lars'), withHenrike), text: 'Юлиан видит Хенрике и роняет колун. Потом подходит и молча утыкается ей в куртку. Хенрике гладит его по шапке.' },
     ],
     actions: [
       { id: 'c42_bv_mondays', label: 'Отдать всё и сказать: по понедельникам кто-то будет приходить снова', minutes: 30, terminal: true, goto: 'c42_b_visit2', ambientDuring: fri42,
@@ -312,26 +312,26 @@ export const day42BScenes: Scene[] = [
       { id: 'c42_bv_need', label: 'Спросить, что им нужнее всего', minutes: 30, terminal: true, goto: 'c42_b_visit2', ambientDuring: fri42,
         outcomes: [
           { id: 'bahr', when: bahr, text: '— Holz. Und dass jemand weiß, dass wir hier sind.\n\nДрова. И чтобы кто-то знал, что мы здесь.\n\nТы записываешь в тетрадь Хенрике: «Bahr — Holz». Первая новая строчка за месяц.', effects: [set42('bv', 'need'), w42('bahr_wood', true), until42(48, 10, 45)] },
-          { id: 'lars', text: '— Batterien. Für Omas Hörgerät.\n\nБатарейки. Для бабушкиного слухового аппарата.\n\nТы записываешь в тетрадь Хенрике: «Lars — Batterien, klein, rund». Первая новая строчка за месяц.', effects: [set42('bv', 'need'), w42('lars_batteries', true), until42(48, 10, 45)] },
+          { id: 'lars', text: '— Batterien. Für Omas Hörgerät.\n\nБатарейки. Для бабушкиного слухового аппарата.\n\nТы записываешь в тетрадь Хенрике: «Julian — Batterien, klein, rund». Первая новая строчка за месяц.', effects: [set42('bv', 'need'), w42('lars_batteries', true), until42(48, 10, 45)] },
         ] },
     ] }),
 
   X({ id: 'c42_b_visit2', title: 'Перед уходом', camp: yard14, ambient: fri42,
     text: [
-      { when: bahr, text: 'Пауль дёргает тебя за рукав.\n\n— Kommt der Weihnachtsmann trotzdem? Auch wenn alles kaputt ist?\n\nДед Мороз всё равно придёт? Даже если всё сломалось?' },
-      { when: visit('both'), text: 'К переезду ты успеваешь ненадолго. Ларс колет дрова колуном больше себя и, увидев бидон, роняет колун. Провожая тебя до насыпи, он просит:' },
-      { when: visit('lars'), text: 'Ларс провожает тебя до насыпи. У рельсов он останавливается:' },
+      { when: bahr, text: 'Эрик дёргает тебя за рукав.\n\n— Kommt der Weihnachtsmann trotzdem? Auch wenn alles kaputt ist?\n\nДед Мороз всё равно придёт? Даже если всё сломалось?' },
+      { when: visit('both'), text: 'К переезду ты успеваешь ненадолго. Юлиан колет дрова колуном больше себя и, увидев бидон, роняет колун. Провожая тебя до насыпи, он просит:' },
+      { when: visit('lars'), text: 'Юлиан провожает тебя до насыпи. У рельсов он останавливается:' },
       { when: lars, text: '— Kann ich bei euch arbeiten? Für Essen. Oma bleibt hier, die geht nicht weg.\n\nМожно я буду у вас работать? За еду. Бабушка останется здесь, она никуда не уйдёт.' },
     ],
     actions: [
-      { id: 'c42_bv2_yes', label: 'Сказать Паулю: придёт обязательно', when: bahr, minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
-        text: 'Пауль кивает очень серьёзно и бежит рассказать сестре. Мать смотрит на тебя поверх его головы. Теперь это и твоё дело.', effects: [set42('bv2', 'yes'), w42('weihnachtsmann', true), until42(48, 11, 15)] },
-      { id: 'c42_bv2_instead', label: 'Сказать Паулю: в этом году придёт кто-то вместо него', when: bahr, minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
-        text: 'Пауль думает. «Du?» Ты? Ты пожимаешь плечами. Он принимает это как «да».', effects: [set42('bv2', 'instead'), w42('weihnachtsmann', true), until42(48, 11, 15)] },
-      { id: 'c42_bv2_work', label: 'Сказать Ларсу: приходи в понедельник, работа найдётся', when: lars, minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
-        text: 'Ларс кивает и сразу спрашивает, во сколько. В семь, говоришь ты. Он повторяет: «Sieben». Семь. Как будто записывает.', effects: [set42('bv2', 'work'), w42('lars_work', true), until42(48, 11, 15)] },
-      { id: 'c42_bv2_ask', label: 'Сказать Ларсу: спрошу у Хенрике', when: all(lars, not(withHenrike)), minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
-        text: 'Ларс кивает: взрослые всегда спрашивают у кого-то ещё. Он возвращается к дровам раньше, чем ты успеваешь отойти.', effects: [set42('bv2', 'ask'), until42(48, 11, 15)] },
+      { id: 'c42_bv2_yes', label: 'Сказать Эрику: придёт обязательно', when: bahr, minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
+        text: 'Эрик кивает очень серьёзно и бежит рассказать сестре. Мать смотрит на тебя поверх его головы. Теперь это и твоё дело.', effects: [set42('bv2', 'yes'), w42('weihnachtsmann', true), until42(48, 11, 15)] },
+      { id: 'c42_bv2_instead', label: 'Сказать Эрику: в этом году придёт кто-то вместо него', when: bahr, minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
+        text: 'Эрик думает. «Du?» Ты? Ты пожимаешь плечами. Он принимает это как «да».', effects: [set42('bv2', 'instead'), w42('weihnachtsmann', true), until42(48, 11, 15)] },
+      { id: 'c42_bv2_work', label: 'Сказать Юлиану: приходи в понедельник, работа найдётся', when: lars, minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
+        text: 'Юлиан кивает и сразу спрашивает, во сколько. В семь, говоришь ты. Он повторяет: «Sieben». Семь. Как будто записывает.', effects: [set42('bv2', 'work'), w42('lars_work', true), until42(48, 11, 15)] },
+      { id: 'c42_bv2_ask', label: 'Сказать Юлиану: спрошу у Хенрике', when: all(lars, not(withHenrike)), minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
+        text: 'Юлиан кивает: взрослые всегда спрашивают у кого-то ещё. Он возвращается к дровам раньше, чем ты успеваешь отойти.', effects: [set42('bv2', 'ask'), until42(48, 11, 15)] },
       { id: 'c42_bv2_hare', label: 'Отдать плюшевого зайца из машины', when: flag('$.c42_hare'), minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
         text: 'Ты достаёшь зайца из кармана. Его берут осторожно, как живого, и сразу проверяют, на месте ли второй глаз. Глаза нет. Зайца это не портит.', effects: [set42('bv2', 'hare'), until42(48, 11, 15)] },
       { id: 'c42_bv2_list', label: 'Записать в тетрадь Хенрике, что видел{m:|а}', minutes: 30, terminal: true, goto: 'c42_b_back',

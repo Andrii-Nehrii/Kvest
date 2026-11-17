@@ -10,9 +10,9 @@ import {
   S42, fri42, hansenDead42, hansenHere42, henrike42, jonasMet42, nina42, own42, set42, thu42, tree42, until42, w42,
 } from './point42';
 
-// Участок 42, линия A. Четверг: лесополоса и ёлка, следы со стоптанным каблуком (курятник с 19-й), землянка и Йонас, что ему
+// Участок 42, линия A. Четверг: лесополоса и ёлка, следы со стоптанным каблуком (курятник с 19-й), землянка и Феликс, что ему
 // сказать, ёлка дома, объявления Красного Креста (служба в сочельник, школа в Винзене, Томас), ружьё на стражу, Ханзены, партнёр,
-// вечерние дела. Пятница: ров у Зеве, Брандт и облава с собаками, работа на рву, снова Йонас (письмо матери) или венок, подарок,
+// вечерние дела. Пятница: ров у Зеве, Брандт и облава с собаками, работа на рву, снова Феликс (письмо матери) или венок, подарок,
 // баня, звезда, эфир.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S42({ ...scene, for: 'any', chapter: 'ch3' });
 const jonas = (x: string) => v('w.c42_jonas', x);
@@ -72,29 +72,29 @@ export const day42AScenes: Scene[] = [
         text: 'Ты отступаешь и молчишь. Минута. Он первым опускает топорик.\n\n— Habt ihr… Brot?\n\nУ вас… есть хлеб?', effects: [set42('ad', 'wait'), until42(47, 9, 10)] },
     ] }),
 
-  X({ id: 'c42_a_jonas', title: 'Йонас', camp: yard14, ambient: thu42,
+  X({ id: 'c42_a_jonas', title: 'Феликс', camp: yard14, ambient: thu42,
     text: [
-      { text: '— Jonas. Jonas Riedel.\n\nОн говорит быстро, будто боится не успеть. Девятнадцать лет, срочная служба с июля. Четырнадцатого ноября их отделение держало дорогу у ложбины под Гарльсторфом.' },
+      { text: '— Felix. Felix Riedel.\n\nОн говорит быстро, будто боится не успеть. Девятнадцать лет, срочная служба с июля. Четырнадцатого ноября их отделение держало дорогу у ложбины под Гарльсторфом.' },
       { text: '— Dann kamen sie aus dem Tal. Haller hat geschrien, wir sollen laufen. Ich bin gelaufen. Die anderen nicht.\n\nПотом они пришли из ложбины. Халлер кричал, чтобы мы бежали. Я побежал. Остальные нет.' },
       { text: 'С тех пор он здесь. Месяц. Ночью — к курятникам, днём — в яме. Фельдъегерей он боится больше, чем мёртвых: за дезертирство — трибунал.' },
       { when: flag('w.c21_haller_told'), text: 'Ты помнишь ранец с выжженной фамилией и солдата у колонны, которому ты рассказал{m:|а} про ложбину.' },
     ],
     actions: [
       { id: 'c42_aj_army', label: 'Сказать: армии нет, искать его некому', when: not(flag('w.c42_jonas_knows')), minutes: 30, terminal: true, goto: 'c42_a_offer', ambientDuring: thu42,
-        text: '«Keiner sucht dich. Die sind über die Elbe». Тебя никто не ищет. Они за Эльбой.\n\nЙонас смеётся, коротко и странно. Потом плачет, не закрывая лица. Ты ждёшь.', effects: [set42('aj', 'army'), w42('jonas_knows', true), until42(47, 9, 40)] },
+        text: '«Keiner sucht dich. Die sind über die Elbe». Тебя никто не ищет. Они за Эльбой.\n\nФеликс смеётся, коротко и странно. Потом плачет, не закрывая лица. Ты ждёшь.', effects: [set42('aj', 'army'), w42('jonas_knows', true), until42(47, 9, 40)] },
       { id: 'c42_aj_eggs', label: 'Спросить про яйца из курятников', when: not(v('w.c19_coop', 'gift')), minutes: 30, terminal: true, goto: 'c42_a_offer', ambientDuring: thu42,
         text: '— Das war ich. Tut mir leid. Immer nur eins.\n\nЭто был я. Простите. Всегда только одно.\n\nОн говорит, что ни разу не взял курицу, хотя мог. «Dann merkt man es». Тогда заметят.', effects: [set42('aj', 'eggs'), until42(47, 9, 40)] },
       { id: 'c42_aj_gift', label: 'Спросить, нашёл ли он тогда два яйца на столбе', when: v('w.c19_coop', 'gift'), minutes: 30, terminal: true, goto: 'c42_a_offer', ambientDuring: thu42,
         text: 'Он поднимает глаза.\n\n— Das warst du? Ich dachte, das ist eine Falle. Ich habe sie trotzdem gegessen.\n\nЭто был{m:|а} ты? Я думал, это ловушка. Всё равно съел.\n\nПервый раз за разговор он улыбается.', effects: [set42('aj', 'gift'), until42(47, 9, 40)] },
       { id: 'c42_aj_haller', label: 'Спросить про Халлера', minutes: 30, terminal: true, goto: 'c42_a_offer', ambientDuring: thu42,
-        text: '— Er hatte zwei Kinder. Jeden Abend hat er Fotos gezeigt. — Йонас смотрит в костёр. — Ich hätte bleiben sollen.\n\nУ него было двое детей. Каждый вечер показывал фотографии. Мне надо было остаться.\n\nТы говоришь: «Dann wärst du tot». Тогда тебя бы уже не было. Он не отвечает.', effects: [set42('aj', 'haller'), until42(47, 9, 40)] },
+        text: '— Er hatte zwei Kinder. Jeden Abend hat er Fotos gezeigt. — Феликс смотрит в костёр. — Ich hätte bleiben sollen.\n\nУ него было двое детей. Каждый вечер показывал фотографии. Мне надо было остаться.\n\nТы говоришь: «Dann wärst du tot». Тогда тебя бы уже не было. Он не отвечает.', effects: [set42('aj', 'haller'), until42(47, 9, 40)] },
       { id: 'c42_aj_bread', label: 'Отдать ему хлеб из кармана', minutes: 30, terminal: true, goto: 'c42_a_offer', ambientDuring: thu42,
         text: 'Он ест так, что тебе приходится отвернуться. Крошки собирает с ладони. Потом говорит «danke» и долго смотрит на пустую ладонь.', effects: [set42('aj', 'bread'), until42(47, 9, 40)] },
     ] }),
 
   X({ id: 'c42_a_offer', title: 'Что дальше', camp: yard14, ambient: thu42,
     text: [
-      { text: 'Йонас спрашивает, что ты будешь делать. Скажешь кому-нибудь? Позовёшь людей?' },
+      { text: 'Феликс спрашивает, что ты будешь делать. Скажешь кому-нибудь? Позовёшь людей?' },
       { text: 'Здесь ему до весны не дотянуть: ночью опять морозы, дым видно с дороги, а у каждого двора теперь свои люди с вилами.' },
     ],
     actions: [
@@ -103,7 +103,7 @@ export const day42AScenes: Scene[] = [
       { id: 'c42_ao_promise', label: 'Обещать прийти завтра с одеялом и едой', minutes: 20, terminal: true, goto: 'c42_a_tree', ambientDuring: thu42,
         text: 'Он кивает. «Morgen. Mittags». Завтра. В обед. Ты запоминаешь место: дуб, яма, тропа от канавы.', effects: [set42('ao', 'promise'), w42('jonas', 'promise'), w42('jonas_met', true), until42(47, 10, 0)] },
       { id: 'c42_ao_brandt', label: 'Сказать: в пожарной части записывают всех, пусть придёт сам', minutes: 20, terminal: true, goto: 'c42_a_tree', ambientDuring: thu42,
-        text: '— Brandt?\n\nОн бледнеет. Ты объясняешь: Брандт не армия, Брандт пожарный. Ему нужны руки на рву, а не дезертиры. Йонас молчит. «Ich überlege». Я подумаю.', effects: [set42('ao', 'brandt'), w42('jonas', 'brandt'), w42('jonas_met', true), until42(47, 10, 0)] },
+        text: '— Brandt?\n\nОн бледнеет. Ты объясняешь: Брандт не армия, Брандт пожарный. Ему нужны руки на рву, а не дезертиры. Феликс молчит. «Ich überlege». Я подумаю.', effects: [set42('ao', 'brandt'), w42('jonas', 'brandt'), w42('jonas_met', true), until42(47, 10, 0)] },
       { id: 'c42_ao_secret', label: 'Пообещать молчать и уйти', minutes: 20, terminal: true, goto: 'c42_a_tree', ambientDuring: thu42,
         text: '«Ich sage keinem was». Я никому не скажу. Он смотрит долго, потом кивает. Ты уходишь и не оборачиваешься, чтобы ему было спокойнее.', effects: [set42('ao', 'secret'), w42('jonas', 'secret'), w42('jonas_met', true), until42(47, 10, 0)] },
     ] }),
@@ -182,7 +182,7 @@ export const day42AScenes: Scene[] = [
 
   X({ id: 'c42_a_bring', title: 'Узел', camp: kitchen14,
     text: [
-      { when: all(jonasMet42, any(jonas('promise'), jonas('invited'))), text: 'Ты собираешь для Йонаса: старое одеяло из сарая, шерстяные носки, хлеб, кусок сала. Узел получается заметный.' },
+      { when: all(jonasMet42, any(jonas('promise'), jonas('invited'))), text: 'Ты собираешь для Феликса: старое одеяло из сарая, шерстяные носки, хлеб, кусок сала. Узел получается заметный.' },
       { when: all(jonasMet42, henrike42, any(jonas('promise'), jonas('invited'))), text: 'Хенрике смотрит, как ты складываешь носки в мешок.' },
       { when: not(all(jonasMet42, any(jonas('promise'), jonas('invited')))), text: 'Хенрике просит наколоть лучины на все праздники и сложить в сенях.' },
     ],
@@ -207,7 +207,7 @@ export const day42AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c42_ah_cross', label: 'Сделать крест из дубовых досок', when: hansenDead42, minutes: 60, activity: 'moderate', terminal: true, goto: 'c42_a_partner', ambientDuring: thu42,
-        text: 'Две доски, гвозди, нож. Ты вырезаешь имя, которое она диктует по буквам: «K-L-A-U-S». Крест встаёт под яблоней. Фрау Ханзен трогает его ладонью и уходит в дом, не прощаясь. Это у неё вместо «спасибо».', effects: [set42('ah', 'cross'), w42('hansen_cross', true), until42(47, 15, 30)] },
+        text: 'Две доски, гвозди, нож. Ты вырезаешь имя, которое она диктует по буквам: «O-T-T-O». Крест встаёт под яблоней. Фрау Ханзен трогает его ладонью и уходит в дом, не прощаясь. Это у неё вместо «спасибо».', effects: [set42('ah', 'cross'), w42('hansen_cross', true), until42(47, 15, 30)] },
       { id: 'c42_ah_coffee', label: 'Посидеть с ней на кухне', when: hansenDead42, minutes: 60, terminal: true, goto: 'c42_a_partner',
         text: 'Цикорий, пирог, который она испекла мужу к Рождеству и теперь не знает, для кого. Ты съедаешь кусок. Она смотрит, как ты ешь, и ей от этого легче.', effects: [set42('ah', 'coffee'), { body: 'hunger', delta: -10 }, until42(47, 15, 30)] },
       { id: 'c42_ah_shave', label: 'Побрить старика', when: all(not(hansenDead42), hansenHere42), minutes: 60, terminal: true, goto: 'c42_a_partner',
@@ -231,7 +231,7 @@ export const day42AScenes: Scene[] = [
         text: '{partner} смотрит вверх, на ветку с белыми ягодами, потом на тебя. «Это что?» Ты объясняешь. {pm:Он|Она} смеётся. Потом перестаёт смеяться.', effects: [set42('ap', 'mistle'), { body: 'stress', delta: -6 }, until42(47, 16, 0)] },
       { id: 'c42_ap_walk', label: 'Пройтись вдвоём вдоль изгороди до канавы', minutes: 30, terminal: true, goto: 'c42_a_barn', ambientDuring: thu42,
         text: 'До канавы и обратно, медленно. Вы говорите о пустяках: какие были ёлки в детстве, кто какой подарок помнит. Лучшие полчаса за неделю.', effects: [set42('ap', 'walk'), { body: 'stress', delta: -4 }, until42(47, 16, 0)] },
-      { id: 'c42_ap_jonas', label: 'Рассказать про Йонаса', when: jonasMet42, minutes: 30, terminal: true, goto: 'c42_a_barn', ambientDuring: thu42,
+      { id: 'c42_ap_jonas', label: 'Рассказать про Феликса', when: jonasMet42, minutes: 30, terminal: true, goto: 'c42_a_barn', ambientDuring: thu42,
         text: '{partner} слушает и спрашивает одно: «Ему есть где спать?» Ты отвечаешь честно: в яме под дубом. {partner} долго смотрит на лесополосу.', effects: [set42('ap', 'jonas'), until42(47, 16, 0)] },
       { id: 'c42_ap_tea', label: 'Забрать кастрюлю и поставить чайник', minutes: 30, terminal: true, goto: 'c42_a_barn',
         text: 'Чайник закипает, пока {partner} снимает сапоги. Вы пьёте у печи плечом к плечу, пока вас не зовут.', effects: [set42('ap', 'tea'), until42(47, 16, 0)] },
@@ -272,11 +272,11 @@ export const day42AScenes: Scene[] = [
   X({ id: 'c42_a_brandt', title: 'Брандт', camp: yard14, ambient: fri42,
     text: [
       { text: 'В перерыв Брандт садится рядом на перевёрнутую тачку. Говорит тихо, только тебе.' },
-      { text: '— Bei Meyers und bei Hansens fehlen Eier. Seit Wochen. Die Spuren gehen in den Windschutzstreifen. Am Samstag gehen die Männer mit Hunden durch.\n\nУ Майеров и у Ханзенов пропадают яйца. Неделями. Следы ведут в лесополосу. В субботу мужики пройдут её с собаками.' },
-      { when: jonasMet42, text: 'Ты думаешь о Йонасе в яме под дубом.' },
+      { text: '— Bei Beckers und bei Hansens fehlen Eier. Seit Wochen. Die Spuren gehen in den Windschutzstreifen. Am Samstag gehen die Männer mit Hunden durch.\n\nУ Беккеров и у Ханзенов пропадают яйца. Неделями. Следы ведут в лесополосу. В субботу мужики пройдут её с собаками.' },
+      { when: jonasMet42, text: 'Ты думаешь о Феликсе в яме под дубом.' },
     ],
     actions: [
-      { id: 'c42_abt_vouch', label: 'Рассказать про Йонаса и поручиться за него', when: jonasMet42, minutes: 30, terminal: true, goto: 'c42_a_dig', ambientDuring: fri42,
+      { id: 'c42_abt_vouch', label: 'Рассказать про Феликса и поручиться за него', when: jonasMet42, minutes: 30, terminal: true, goto: 'c42_a_dig', ambientDuring: fri42,
         text: '— Ein Soldat? — Брандт молчит долго. — Gut. Kein Hund. Aber am Montag steht er hier am Graben. Sonst gehen wir doch.\n\nСолдат? Хорошо. Без собак. Но в понедельник он стоит здесь, на рву. Иначе всё-таки пойдём.', effects: [set42('abt', 'vouch'), w42('brandt_jonas', 'vouch'), until42(48, 9, 30)] },
       { id: 'c42_abt_silent', label: 'Промолчать', when: jonasMet42, minutes: 30, terminal: true, goto: 'c42_a_dig', ambientDuring: fri42,
         text: 'Ты киваешь и молчишь. Брандт смотрит на тебя чуть дольше, чем нужно. Потом встаёт: «Weiter». Дальше.', effects: [set42('abt', 'silent'), w42('brandt_jonas', 'silent'), until42(48, 9, 30)] },
@@ -308,15 +308,15 @@ export const day42AScenes: Scene[] = [
     text: [
       { text: 'После обеда ты идёшь в лесополосу. Иней на ветках растаял, с елей капает.' },
       { when: jonas('invited'), text: 'Ты надеял{m:ся|ась}, что он придёт сам. Он не пришёл.' },
-      { text: 'У дуба никого, брезент откинут. Потом шорох, и Йонас выходит из-за ёлок: проверял, один ли ты.' },
+      { text: 'У дуба никого, брезент откинут. Потом шорох, и Феликс выходит из-за ёлок: проверял, один ли ты.' },
     ],
     actions: [
       { id: 'c42_aj2_give', label: 'Отдать одеяло, носки и еду', minutes: 40, terminal: true, goto: 'c42_a_letter', ambientDuring: fri42,
         text: 'Он раскладывает всё на брезенте, как в магазине. Носки надевает сразу, поверх своих. «Danke». Потом достаёт из кармана сложенный листок.', effects: [set42('aj2', 'give'), w42('jonas_kit', true), until42(48, 14, 0)] },
       { id: 'c42_aj2_brandt', label: 'Рассказать про Брандта и понедельник', when: toldBrandt, minutes: 40, terminal: true, goto: 'c42_a_letter', ambientDuring: fri42,
-        text: 'Йонас слушает про собак и про ров. «Also Graben oder Hunde». Значит, ров или собаки. Он почти улыбается. «Dann Graben». Тогда ров. Потом достаёт из кармана сложенный листок.', effects: [set42('aj2', 'brandt'), w42('jonas_ditch', true), until42(48, 14, 0)] },
+        text: 'Феликс слушает про собак и про ров. «Also Graben oder Hunde». Значит, ров или собаки. Он почти улыбается. «Dann Graben». Тогда ров. Потом достаёт из кармана сложенный листок.', effects: [set42('aj2', 'brandt'), w42('jonas_ditch', true), until42(48, 14, 0)] },
       { id: 'c42_aj2_warn', label: 'Предупредить: в субботу пройдут с собаками', when: not(toldBrandt), minutes: 40, terminal: true, goto: 'c42_a_letter', ambientDuring: fri42,
-        text: 'Йонас бледнеет. «Morgen?» Завтра? Ты киваешь. Он смотрит на яму, на брезент, на дорогу. Идти ему некуда. Потом достаёт из кармана сложенный листок.', effects: [set42('aj2', 'warn'), w42('jonas_warned', true), until42(48, 14, 0)] },
+        text: 'Феликс бледнеет. «Morgen?» Завтра? Ты киваешь. Он смотрит на яму, на брезент, на дорогу. Идти ему некуда. Потом достаёт из кармана сложенный листок.', effects: [set42('aj2', 'warn'), w42('jonas_warned', true), until42(48, 14, 0)] },
       { id: 'c42_aj2_bring', label: 'Позвать с собой прямо сейчас', minutes: 40, terminal: true, goto: 'c42_a_letter', ambientDuring: fri42,
         text: 'Он стоит долго. Потом сворачивает брезент, засыпает костёр землёй и достаёт из кармана сложенный листок, прежде чем идти.', effects: [set42('aj2', 'bring'), w42('jonas_came', true), until42(48, 14, 0)] },
     ] }),
@@ -328,7 +328,7 @@ export const day42AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c42_al_take', label: 'Взять письмо и пообещать отправить', minutes: 20, terminal: true, goto: 'c42_a_gift', ambientDuring: fri42,
-        text: 'Ты кладёшь письмо во внутренний карман, к телефону. Йонас смотрит, куда ты его убираешь, и кивает.', effects: [set42('al', 'take'), w42('jonas_letter', true), until42(48, 14, 30)] },
+        text: 'Ты кладёшь письмо во внутренний карман, к телефону. Феликс смотрит, куда ты его убираешь, и кивает.', effects: [set42('al', 'take'), w42('jonas_letter', true), until42(48, 14, 30)] },
       { id: 'c42_al_ask', label: 'Спросить, что он написал', minutes: 20, terminal: true, goto: 'c42_a_gift', ambientDuring: fri42,
         text: '— Dass ich lebe. Und dass ich weggelaufen bin. Beides.\n\nЧто я жив. И что я сбежал. И то и другое.\n\nТы берёшь письмо.', effects: [set42('al', 'ask'), w42('jonas_letter', true), until42(48, 14, 30)] },
       { id: 'c42_al_self', label: 'Сказать: отнеси сам, в Винзене есть пункт', minutes: 20, terminal: true, goto: 'c42_a_gift', ambientDuring: fri42,
