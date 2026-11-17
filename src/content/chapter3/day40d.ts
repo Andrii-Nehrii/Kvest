@@ -206,15 +206,15 @@ export const day40DScenes: Scene[] = [
   X({ id: 'c40_m_neighbor', title: 'Соседи', camp: yard14, ambient: frost40,
     text: [
       { when: flag('w.c37_neighbor_saved'), text: 'В полдень приходит жена соседа, которому ты остановил{m:|а} кровь. Приносит десяток яиц в платке и стоит у ворот, не зная, как сказать спасибо.' },
-      { when: not(flag('w.c37_neighbor_saved')), text: 'В полдень приходит фрау Гердес с насыпи. Муж у неё лежачий, после удара. Она спрашивает, можно ли, если что, прибежать к вам ночью.' },
+      { when: not(flag('w.c37_neighbor_saved')), text: 'В полдень приходит фрау Ханзен с насыпи. Муж у неё лежачий, после удара. Она спрашивает, можно ли, если что, прибежать к вам ночью.' },
     ],
     actions: [
       { id: 'c40_mn_eggs', label: 'Взять яйца и позвать её на чай', when: flag('w.c37_neighbor_saved'), minutes: 60, terminal: true, goto: 'c40_m_brandt',
         text: 'Она пьёт чай и рассказывает: муж ходит с палкой, но ходит. «Wenn ihr nachts Hilfe braucht — wir sind da. Er kann schießen. Mit dem Bein oder ohne». Если ночью нужна помощь — мы тут. Он стреляет. С ногой или без.', effects: [set40('mn', 'eggs'), w40('neighbor_ally', true), until40(44, 13, 30)] },
-      { id: 'c40_mn_yes', label: 'Сказать фрау Гердес: прибегайте, дверь откроем', when: not(flag('w.c37_neighbor_saved')), minutes: 45, terminal: true, goto: 'c40_m_brandt',
-        text: 'Фрау Гердес кивает. «Mein Mann kann nicht laufen». Мой муж не может ходить. Она говорит это тихо, глядя в землю. Что это значит, понятно без слов.', effects: [set40('mn', 'yes'), w40('gerdes_door', true), until40(44, 13, 30)] },
+      { id: 'c40_mn_yes', label: 'Сказать фрау Ханзен: прибегайте, дверь откроем', when: not(flag('w.c37_neighbor_saved')), minutes: 45, terminal: true, goto: 'c40_m_brandt',
+        text: 'Фрау Ханзен кивает. «Mein Mann kann nicht laufen». Мой муж не может ходить. Она говорит это тихо, глядя в землю. Что это значит, понятно без слов.', effects: [set40('mn', 'yes'), w40('gerdes_door', true), until40(44, 13, 30)] },
       { id: 'c40_mn_move', label: 'Предложить перевезти их к вам заранее, на санях', when: not(flag('w.c37_neighbor_saved')), minutes: 60, terminal: true, goto: 'c40_m_brandt',
-        text: 'Фрау Гердес плачет, потом соглашается. Вечером Оле или Дениз везёт старика Гердеса на санях через поле, укрытого двумя одеялами. Его кладут в комнате стариков. В доме ещё теснее.', effects: [set40('mn', 'move'), w40('gerdes_moved', true), until40(44, 13, 30)] },
+        text: 'Фрау Ханзен плачет, потом соглашается. Вечером Оле или Дениз везёт старика Ханзена на санях через поле, укрытого двумя одеялами. Его кладут в комнате стариков. В доме ещё теснее.', effects: [set40('mn', 'move'), w40('gerdes_moved', true), until40(44, 13, 30)] },
     ] }),
 
   X({ id: 'c40_m_brandt', title: 'Лист', camp: yard14, ambient: frost40,
@@ -227,7 +227,7 @@ export const day40DScenes: Scene[] = [
       { id: 'c40_mbr_sign', label: 'Расписаться в листе', minutes: 30, terminal: true, goto: 'c40_m_wait', ambientDuring: frost40,
         text: 'Ты ставишь подпись. Лукас кивает и уезжает к следующему двору. Лист с вашим участком он оставляет на гвозде у двери.', effects: [set40('mbr', 'sign'), until40(44, 15, 0)] },
       { id: 'c40_mbr_ask', label: 'Спросить, кто дежурит у соседей справа и слева', minutes: 30, terminal: true, goto: 'c40_m_wait', ambientDuring: frost40,
-        text: 'Лукас показывает на листе: справа Гердесы — некому; слева колония — Уте и Яннес. «Gerdes ist ein Loch», говорит он. У Гердесов дыра.', effects: [set40('mbr', 'ask'), w40('knows_gap', true), until40(44, 15, 0)] },
+        text: 'Лукас показывает на листе: справа Ханзены — некому; слева колония — Уте и Яннес. «Bei Hansens ist ein Loch», говорит он. У Ханзенов дыра.', effects: [set40('mbr', 'ask'), w40('knows_gap', true), until40(44, 15, 0)] },
       { id: 'c40_mbr_flare', label: 'Попросить у Лукаса ракету: на случай, если колокол не услышат', minutes: 30, terminal: true, goto: 'c40_m_wait', ambientDuring: frost40,
         text: 'Лукас роется в кабине и отдаёт тебе одну красную ракету. «Nur wenn es brennt». Только если горит. Ты прячешь её в карман.', effects: [set40('mbr', 'flare'), { give: 'c38_flares' }, until40(44, 15, 0)] },
     ] }),

@@ -11,7 +11,7 @@ import {
 } from './point40';
 
 // Участок 40, линия A: вторник (вода во дворе, Брандт, снаряжение, Зеве днём) и ночь оттепели снаружи — пост у Зеве или забор
-// хутора. Цепочка: один к воде без света → один у забора / бежать к Гердесам в темноте → через двор в темноте. Предупреждения:
+// хутора. Цепочка: один к воде без света → один у забора / бежать к Ханзенам в темноте → через двор в темноте. Предупреждения:
 // напарник на посту («не ходи один к воде»), потом крик «к дому!». Осторожный путь есть всегда и стоит своего.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S40({ ...scene, for: 'any', chapter: 'ch3' });
 const rope = flag('$.c40_rope');
@@ -46,10 +46,10 @@ export const day40AScenes: Scene[] = [
       { text: 'В девять у ворот джип пожарной части. Брандт в плащ-палатке, вода течёт с капюшона.' },
       { when: v('w.c26_brandt', 'ally'), text: 'Он выходит из машины и жмёт тебе руку. Мокрую, грязную. Не замечает.' },
       { when: v('w.c26_brandt', 'hostile'), text: 'Он не выходит. Говорит через опущенное стекло, коротко.' },
-      { text: '— Heute Nacht. Die Seeve geht auf. Bei Gerdes ist niemand, der wach bleibt. Wenn sie da durchkommen, sind sie bei euch.\n\nСегодня ночью. Зеве вскроется. У Гердесов некому не спать. Если пройдут там, будут у вас.' },
+      { text: '— Heute Nacht. Die Seeve geht auf. Bei Hansens ist niemand, der wach bleibt. Wenn sie da durchkommen, sind sie bei euch.\n\nСегодня ночью. Зеве вскроется. У Ханзенов некому не спать. Если пройдут там, будут у вас.' },
     ],
     actions: [
-      { id: 'c40_ab_gap', label: 'Сказать: Гердесов возьмём на себя', minutes: 45, terminal: true, goto: 'c40_a_gear', ambientDuring: thaw40,
+      { id: 'c40_ab_gap', label: 'Сказать: Ханзенов возьмём на себя', minutes: 45, terminal: true, goto: 'c40_a_gear', ambientDuring: thaw40,
         text: 'Брандт кивает. «Dann habt ihr zwei Stellen. Schafft ihr das?» Тогда у вас два места. Справитесь? Ты не знаешь. Ты говоришь «да».', effects: [set40('ab', 'gap'), w40('took_gap', true), npc('c16_brandt', 1), until40(45, 10, 30)] },
       { id: 'c40_ab_men', label: 'Попросить у Брандта одного человека на ночь', minutes: 45, terminal: true, goto: 'c40_a_gear', ambientDuring: thaw40,
         text: '— Hab keinen. — Брандт смотрит на дорогу. Нет у меня. — Aber der Junge, Lukas, läuft heute die Bäche ab. Ich sag ihm, er soll bei euch zweimal vorbei.\n\nНо мальчишка, Лукас, сегодня обходит ручьи. Скажу ему, чтобы заглянул к вам дважды.', effects: [set40('ab', 'men'), w40('lukas_round', true), until40(45, 10, 30)] },
@@ -132,16 +132,16 @@ export const day40AScenes: Scene[] = [
           { id: 'ok', check: { traits: ['strength', 'melee'], difficulty: 3, uses: ['strength'] }, text: 'Лом входит. Он падает назад, на тех, кто за ним. Второй, третий. Забор держит. Ты стоишь, тяжело дыша, и не чувствуешь рук.', effects: [set40('an2', 'hold'), w40('fence_held', true)] },
           { id: 'hurt2', text: 'Лом застревает в сетке. Тебя тянут через неё за рукав, проволока рвёт руку. Ты вырываешься, оставив рукав. Кровь.', effects: [set40('an2', 'hold'), ...hurt2] },
         ], effects: [until40(46, 0, 30)] },
-      { id: 'c40_an2_gerdes', label: 'Бежать к Гердесам предупредить: у них дыра', when: gap, minutes: 45, risky: true, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
+      { id: 'c40_an2_gerdes', label: 'Бежать к Ханзенам предупредить: у них дыра', when: gap, minutes: 45, risky: true, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
         outcomes: [
           { id: 'ok', when: torch40, check: { traits: ['agility', 'endurance'], difficulty: 3, uses: ['mobility'] },
-            text: 'Ты бежишь через поле, светя под ноги. У Гердесов темно. Ты колотишь в дверь, пока фрау Гердес не открывает. Вдвоём вы тащите старика в погреб и закрываете люк. Потом ты бежишь обратно.',
+            text: 'Ты бежишь через поле, светя под ноги. У Ханзенов темно. Ты колотишь в дверь, пока фрау Ханзен не открывает. Вдвоём вы тащите старика в погреб и закрываете люк. Потом ты бежишь обратно.',
             effects: [set40('an2', 'gerdes'), w40('warned', true), { body: 'fatigue', delta: 8 }, until40(46, 0, 30)] },
           { id: 'fall', when: worse1,
-            text: 'В темноте ты не видишь канавы. Падаешь в воду, лицом вниз, руками в ледяную жижу. Выбираешься, {m:мокрый|мокрая} целиком. До Гердесов ты всё-таки добегаешь и колотишь в дверь, пока не открывают. Обратно ты идёшь, шатаясь.',
+            text: 'В темноте ты не видишь канавы. Падаешь в воду, лицом вниз, руками в ледяную жижу. Выбираешься, {m:мокрый|мокрая} целиком. До Ханзенов ты всё-таки добегаешь и колотишь в дверь, пока не открывают. Обратно ты идёшь, шатаясь.',
             effects: [set40('an2', 'gerdes'), w40('warned', true), ...hurt2, until40(46, 0, 30)] },
           { id: 'slip',
-            text: 'Ты бежишь без света, наугад. Падаешь дважды. До Гердесов добегаешь, {m:мокрый|мокрая} и в грязи, и колотишь в дверь. Фрау Гердес открывает с кочергой в руках.',
+            text: 'Ты бежишь без света, наугад. Падаешь дважды. До Ханзенов добегаешь, {m:мокрый|мокрая} и в грязи, и колотишь в дверь. Фрау Ханзен открывает с кочергой в руках.',
             effects: [set40('an2', 'gerdes'), w40('warned', true), ...hurt1('bruise'), until40(46, 0, 30)] },
         ] },
       { id: 'c40_an2_flare', label: 'Пустить красную ракету', when: flares40, minutes: 30, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,

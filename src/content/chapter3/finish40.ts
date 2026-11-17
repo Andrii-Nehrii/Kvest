@@ -9,7 +9,7 @@ export const finished40: Cond = all(P40, any(flag('A.c40_finished'), flag('B.c40
 const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished40, when), text });
 const meA: Cond = { me: 'A' };
 const home: Cond = not(flag('w.c40_left_army'));
-/** Старик Гердес не пережил ночь: совет разошёлся, никто не предупредил, не перевёз, не дал сигнала. */
+/** Старик Ханзен не пережил ночь: совет разошёлся, никто не предупредил, не перевёз, не дал сигнала. */
 const gerdesDies: Cond = all(home, v('w.c39_council', 'yards'), not(flag('w.c40_warned')), not(flag('w.c40_gerdes_moved')), not(flag('w.c40_a_signal_early')), not(flag('w.c40_patrol_came')));
 
 // Сверка в среду утром, после первой ночи без армии.
@@ -36,9 +36,9 @@ export const point40Notes: MergeNote[] = [
   N('c40_runner', flag('w.c40_runner_saved'), 'Ночью кто-то из домашних выбежал во двор. Его вернули.'),
   N('c40_henrike', flag('w.c40_henrike_hurt'), 'Хенрике выбежала во двор сама и поскользнулась на крыльце. Запястье распухло: возможно, перелом.'),
   N('c40_cow', v('w.c40_cow', 'lost'), 'Корова погибла: хлев не был закрыт. Молока больше не будет.'),
-  N('c40_gerdes_moved', flag('w.c40_gerdes_moved'), 'Старика Гердеса до темноты перевезли на хутор. Он жив.'),
-  N('c40_gerdes_warned', all(flag('w.c40_warned'), not(flag('w.c40_gerdes_moved'))), 'Гердесов успели предупредить. Они пересидели ночь в погребе.'),
-  N('c40_gerdes_dead', v('w.c40_neighbor', 'dead'), 'Старик Гердес не пережил ночь. До них не дошёл никто.'),
+  N('c40_gerdes_moved', flag('w.c40_gerdes_moved'), 'Старика Ханзена до темноты перевезли на хутор. Он жив.'),
+  N('c40_gerdes_warned', all(flag('w.c40_warned'), not(flag('w.c40_gerdes_moved'))), 'Ханзенов успели предупредить. Они пересидели ночь в погребе.'),
+  N('c40_gerdes_dead', v('w.c40_neighbor', 'dead'), 'Старик Ханзен не пережил ночь. До них не дошёл никто.'),
   N('c40_left', flag('w.c40_left_army'), 'Вы ушли с армией за Эльбу.'),
 ];
 

@@ -22,6 +22,7 @@ import { point38Available, prepare38 } from './point38';
 import { point39Available, prepare39 } from './point39';
 import { point40Available, prepare40 } from './point40';
 import { point41Available, prepare41 } from './point41';
+import { point42Available, prepare42 } from './point42';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1132,4 +1133,16 @@ export const newEntry41: Scene = {
   actions: ([
     { id: 'c41_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c41_dawn', effects: [prepare41, { restUntil: at(46, 7, 0) }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point41Available, a.when ?? { always: true }) })),
+};
+
+// ───────────── Вход в участок 42 ─────────────
+export const newEntry42: Scene = {
+  id: 'c42_start', for: 'any', chapter: 'ch3', title: 'Четверг', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point42Available, text: 'Ты просыпаешься затемно. В доме тихо, только внизу Хенрике гремит кастрюлей.\n\nДо Рождества неделя.' },
+    { when: not(point42Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c42_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c42_dawn', effects: [prepare42, { restUntil: at(47, 7, 0) }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point42Available, a.when ?? { always: true }) })),
 };

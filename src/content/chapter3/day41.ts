@@ -14,7 +14,7 @@ import {
 
 // Участок 41. A: тела у ручья, ружьё, костёр, брошенный пост (находка — ящик связиста, 1512), день по КТ40, братья, ремонт, трактор,
 // Лея (по КТ40) или Фолькер, Йорг, Зеве в сумерках, дрова, приёмник. B: раны, Хенрике, корова (мясо, если погибла), Мерле, день по КТ40,
-// фрау Петерс, Йорг и дети, Гердесы, дети после ночи, Зандер, стирка, письмо. R (спасение): тепло, доктор Зандер, полдень, гости,
+// фрау Петерс, Йорг и дети, Ханзены, дети после ночи, Зандер, стирка, письмо. R (спасение): тепло, доктор Зандер, полдень, гости,
 // перевязка, сумерки, пробуждение.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S41({ ...scene, for: 'any', chapter: 'ch3' });
 const treat = (how: 'basic' | 'proper'): Effect => ({ treat: how, target: '@partner' });
@@ -116,14 +116,14 @@ export const day41Scenes: Scene[] = [
   X({ id: 'c41_a_after', title: 'День', camp: yard14, ambient: wet41,
     text: [
       { when: after41('farm'), text: 'Утром решили: сначала свой двор. Забор у сарая сломан, проволока порвана, дверь хлева висит на одной петле.' },
-      { when: after41('neighbors'), text: 'Утром решили: сначала соседи. У Уте в колонии сорвало дверь сарая. У Гердесов выбиты окна.' },
+      { when: after41('neighbors'), text: 'Утром решили: сначала соседи. У Уте в колонии сорвало дверь сарая. У Ханзенов выбиты окна.' },
       { when: after41('council'), text: 'Утром решили: совет. В полдень в пожарной части собираются те, кто может.' },
     ],
     actions: [
       { id: 'c41_aa_fix', label: 'Чинить: забор, дверь, проволоку', when: after41('farm'), minutes: 45, activity: 'heavy', terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
         text: 'Молоток, гвозди, проволока. Дверь хлева на место, забор подпёрт, проволока с банками заново. К полудню двор снова похож на двор.', effects: [set41('aa', 'fix'), w41('yard_fixed', true), { body: 'fatigue', delta: 8 }, until41(11, 35)] },
-      { id: 'c41_aa_ute', label: 'Идти к Уте и Гердесам: чинить у них', when: after41('neighbors'), minutes: 45, activity: 'heavy', terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
-        text: 'Дверь сарая Уте на петли, окна Гердесов досками. Яннес помогает, молча. Уте приносит тебе кружку горячего: «Ihr seid gute Nachbarn». Вы хорошие соседи.', effects: [set41('aa', 'ute'), npc('c14_ute', 2), w41('helped_neighbors', true), until41(11, 35)] },
+      { id: 'c41_aa_ute', label: 'Идти к Уте и Ханзенам: чинить у них', when: after41('neighbors'), minutes: 45, activity: 'heavy', terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
+        text: 'Дверь сарая Уте на петли, окна Ханзенов досками. Яннес помогает, молча. Уте приносит тебе кружку горячего: «Ihr seid gute Nachbarn». Вы хорошие соседи.', effects: [set41('aa', 'ute'), npc('c14_ute', 2), w41('helped_neighbors', true), until41(11, 35)] },
       { id: 'c41_aa_council', label: 'Идти на совет в пожарную часть', when: after41('council'), minutes: 45, terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
         text: 'В пожарной части человек тридцать. Брандт говорит коротко: ров вдоль ручьёв, общая стража, ракеты — каждому двору. Голосуют руками. Ты поднимаешь руку вместе со всеми.', effects: [set41('aa', 'council'), w41('council_ditch', true), until41(11, 35)] },
       { id: 'c41_aa_walk', label: 'Сначала обойти всё и записать, что чинить', minutes: 45, terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
@@ -206,7 +206,7 @@ export const day41Scenes: Scene[] = [
       { id: 'c41_al_volker', label: 'Пустить Фолькера: в сарае есть место', when: all(not(leaHere), volkerYard), minutes: 25, terminal: true, goto: 'c41_a_jorg', ambientDuring: wet41,
         text: 'Фолькер кивает, ставит тележку у сарая и сразу идёт смотреть крышу. «Die Rinne ist hin». Желоб сломан. К вечеру желоб висит на месте. В ноябре вы его не пустили. Теперь он кроет вам крышу.', effects: [set41('al', 'volker'), w41('volker_here', true), until41(14, 45)] },
       { id: 'c41_al_send', label: 'Сказать Фолькеру: места нет, но еды дадим', when: all(not(leaHere), volkerYard), minutes: 25, terminal: true, goto: 'c41_a_jorg', ambientDuring: wet41,
-        text: 'Фолькер берёт хлеб и кивает. «Dann Gerdes. Die brauchen einen Mann». Тогда к Гердесам. Им нужен мужчина. Он уходит через поле с тележкой.', effects: [set41('al', 'send'), w41('volker_gerdes', true), until41(14, 45)] },
+        text: 'Фолькер берёт хлеб и кивает. «Dann Gerdes. Die brauchen einen Mann». Тогда к Ханзенам. Им нужен мужчина. Он уходит через поле с тележкой.', effects: [set41('al', 'send'), w41('volker_gerdes', true), until41(14, 45)] },
       { id: 'c41_al_water', label: 'Дать прохожему воды', when: all(not(leaHere), not(volkerYard)), minutes: 25, terminal: true, goto: 'c41_a_jorg', ambientDuring: wet41,
         text: 'Ведро из колодца, кружка. Мужчина пьёт, его дети тоже. Он говорит, что в Люнебурге после армии остались одни старики и пожарные. Все, кто может, уходят на запад.', effects: [set41('al', 'water'), until41(14, 45)] },
       { id: 'c41_al_work', label: 'Кивнуть издалека и не бросать работу', minutes: 25, terminal: true, goto: 'c41_a_jorg', ambientDuring: wet41,
@@ -283,7 +283,7 @@ export const day41Scenes: Scene[] = [
     actions: [
       { id: 'c41_ar2_winsen', label: 'Слушать Красный Крест Винзена', minutes: 25, terminal: true, goto: 'c41_evening',
         text: 'Голос координатора с седой косой, ты узнаёшь его: «…für alle Höfe: Medizin in der Schule, Dienstag und Freitag. Wer Insulin hat, bitte melden…» Для всех дворов: лекарства в школе, вторник и пятница. У кого есть инсулин — сообщите.', effects: [set41('ar2', 'winsen'), w41('winsen_news', true), until41(18, 0)] },
-      { id: 'c41_ar2_toronto', label: 'Искать Торонто на частоте, которую записал Уве', when: flag('w.c39_toronto_freq'), minutes: 25, terminal: true, goto: 'c41_evening',
+      { id: 'c41_ar2_toronto', label: 'Искать Торонто на приёмнике Хенрике, на частоте Уве', when: flag('w.c39_toronto_freq'), minutes: 25, terminal: true, goto: 'c41_evening',
         text: 'Треск, свист, треск. Потом далёкий мужской голос по-английски: «…Thomas, VE3, calling Germany, Lüneburg district…» Связь рвётся. Но он там. Он зовёт.', effects: [set41('ar2', 'toronto'), w41('thomas_voice', true), until41(18, 0)] },
       { id: 'c41_ar2_off', label: 'Выключить: батарейки поберечь', minutes: 15, terminal: true, goto: 'c41_evening',
         text: 'Ты выключаешь. Тишина. За окном капает. Новости подождут до завтра.', effects: [set41('ar2', 'off'), until41(17, 45)] },
@@ -367,7 +367,7 @@ export const day41Scenes: Scene[] = [
   X({ id: 'c41_b_after', title: 'День', camp: kitchen14,
     text: [
       { when: after41('farm'), text: 'Утром решили: сначала свой двор. В доме всё вверх дном: матрасы на полу, стол у двери, кровь в сенях.' },
-      { when: after41('neighbors'), text: 'Утром решили: сначала соседи. У Гердесов и в колонии нужны руки и бинты.' },
+      { when: after41('neighbors'), text: 'Утром решили: сначала соседи. У Ханзенов и в колонии нужны руки и бинты.' },
       { when: after41('council'), text: 'Утром решили: совет. Брандт просил прийти и медиков: составить список раненых по дворам.' },
     ],
     actions: [
@@ -425,23 +425,23 @@ export const day41Scenes: Scene[] = [
         text: 'Женщина кивает и идёт дальше. Ты смотришь ей вслед. Сироп у тебя есть. Одна бутылка. Своим.', effects: [set41('bj', 'none'), until41(13, 25)] },
     ] }),
 
-  X({ id: 'c41_b_gerdes', title: 'Гердесы', camp: yard14, ambient: wet41,
+  X({ id: 'c41_b_gerdes', title: 'Ханзены', camp: yard14, ambient: wet41,
     text: [
-      { when: gerdesDead41, text: 'Фрау Гердес хочет похоронить мужа сегодня, у себя в саду, под яблоней. Ей нужны руки. И кто-то, кто постоит рядом.' },
-      { when: all(not(gerdesDead41), flag('w.c40_gerdes_moved')), text: 'Старик Гердес пережил ночь в комнате стариков. Утром он попросил отвезти его домой. Фрау Гердес не знает, что сказать.' },
-      { when: all(not(gerdesDead41), not(flag('w.c40_gerdes_moved'))), text: 'Фрау Гердес приходит из-за поля: ночь в погребе пережили. Старик кашляет. Она просит посмотреть.' },
+      { when: gerdesDead41, text: 'Фрау Ханзен хочет похоронить мужа сегодня, у себя в саду, под яблоней. Ей нужны руки. И кто-то, кто постоит рядом.' },
+      { when: all(not(gerdesDead41), flag('w.c40_gerdes_moved')), text: 'Старик Ханзен пережил ночь в комнате стариков. Утром он попросил отвезти его домой. Фрау Ханзен не знает, что сказать.' },
+      { when: all(not(gerdesDead41), not(flag('w.c40_gerdes_moved'))), text: 'Фрау Ханзен приходит из-за поля: ночь в погребе пережили. Старик кашляет. Она просит посмотреть.' },
     ],
     actions: [
       { id: 'c41_bg_bury', label: 'Пойти на похороны', when: gerdesDead41, minutes: 40, terminal: true, goto: 'c41_b_zander', ambientDuring: wet41,
-        text: 'Мокрая земля, яблоня, несколько человек. Фрау Гердес читает молитву по памяти, сбивается, начинает снова. Ты стоишь рядом и держишь её под руку.', effects: [set41('bg', 'bury'), w41('gerdes_funeral', true), until41(14, 20)] },
+        text: 'Мокрая земля, яблоня, несколько человек. Фрау Ханзен читает молитву по памяти, сбивается, начинает снова. Ты стоишь рядом и держишь её под руку.', effects: [set41('bg', 'bury'), w41('gerdes_funeral', true), until41(14, 20)] },
       { id: 'c41_bg_stay', label: 'Уговорить оставить старика у вас до весны', when: all(not(gerdesDead41), flag('w.c40_gerdes_moved')), minutes: 40, terminal: true, goto: 'c41_b_zander',
-        text: 'Фрау Гердес соглашается быстрее, чем ты {m:ожидал|ожидала}. Ей страшно одной. Старик ворчит, но остаётся. В доме ещё на двоих больше.', effects: [set41('bg', 'stay'), w41('gerdes_stay', true), until41(14, 20)] },
+        text: 'Фрау Ханзен соглашается быстрее, чем ты {m:ожидал|ожидала}. Ей страшно одной. Старик ворчит, но остаётся. В доме ещё на двоих больше.', effects: [set41('bg', 'stay'), w41('gerdes_stay', true), until41(14, 20)] },
       { id: 'c41_bg_home', label: 'Отвезти их домой на санях, как просит старик', when: all(not(gerdesDead41), flag('w.c40_gerdes_moved')), minutes: 40, terminal: true, goto: 'c41_b_zander', ambientDuring: wet41,
-        text: 'Сани через поле, по мокрому снегу. Старик дома, в своей кровати. Он улыбается впервые за два дня. Ты оставляешь фрау Гердес ракету: если что.', effects: [set41('bg', 'home'), until41(14, 20)] },
+        text: 'Сани через поле, по мокрому снегу. Старик дома, в своей кровати. Он улыбается впервые за два дня. Ты оставляешь фрау Ханзен ракету: если что.', effects: [set41('bg', 'home'), until41(14, 20)] },
       { id: 'c41_bg_look', label: 'Посмотреть старика', when: all(not(gerdesDead41), not(flag('w.c40_gerdes_moved'))), minutes: 40, terminal: true, goto: 'c41_b_zander', ambientDuring: wet41,
-        text: 'Кашель влажный, температура. Простуда после ночи в сыром погребе, похоже. Ты оставляешь жаропонижающее и велишь поить. Фрау Гердес кивает на каждое слово.', effects: [set41('bg', 'look'), until41(14, 20)] },
-      { id: 'c41_bg_soup', label: 'Отправить Гердесам кастрюлю горячего супа с Яннесом', when: not(gerdesDead41), minutes: 25, terminal: true, goto: 'c41_b_zander',
-        text: 'Кастрюля, обёрнутая полотенцем, крышка привязана бечёвкой. Яннес несёт её через поле осторожно, как вазу. Возвращается с пустой кастрюлей и банкой варенья от фрау Гердес.', effects: [set41('bg', 'soup'), until41(14, 10)] },
+        text: 'Кашель влажный, температура. Простуда после ночи в сыром погребе, похоже. Ты оставляешь жаропонижающее и велишь поить. Фрау Ханзен кивает на каждое слово.', effects: [set41('bg', 'look'), until41(14, 20)] },
+      { id: 'c41_bg_soup', label: 'Отправить Ханзенам кастрюлю горячего супа с Яннесом', when: not(gerdesDead41), minutes: 25, terminal: true, goto: 'c41_b_zander',
+        text: 'Кастрюля, обёрнутая полотенцем, крышка привязана бечёвкой. Яннес несёт её через поле осторожно, как вазу. Возвращается с пустой кастрюлей и банкой варенья от фрау Ханзен.', effects: [set41('bg', 'soup'), until41(14, 10)] },
       { id: 'c41_bg_home2', label: 'Не ходить: на похороны пойдут соседи, а тут раненые', when: gerdesDead41, minutes: 25, terminal: true, goto: 'c41_b_zander',
         text: 'Ты остаёшься с аптечкой. Из окна видно, как по полю к яблоне идут несколько тёмных фигур. Ты смотришь, пока они не останавливаются. Потом снова берёшь бинт.', effects: [set41('bg', 'home2'), until41(14, 10)] },
     ] }),

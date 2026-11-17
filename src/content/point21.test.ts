@@ -7,6 +7,7 @@ import { canAct } from '../engine/body';
 import type { GameState, PlayerId } from '../engine/types';
 import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
 import { canon21, point21Available, stageC, stageF, stageL, stageR } from './chapter3/point21';
+import { point42Available } from './chapter3/point42';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -864,8 +865,39 @@ describe('участок 30: мороз — опасная ночь по трё�
         expect(canAct(s41.chars[pid].body), `${JSON.stringify(forced)} blood=${s41.chars[pid].body.bloodLoss}`).toBe(true);
         const out = completeCheckpoint(c, s41, kt41(s41)).state;
         for (const p of P) { expect(out.chars[p].controlledBy).toBe(p); expect(out.chars[p].scene).toBe('c42_start'); }
+        if (process.env.KVEST_DEBUG) console.log(pid, JSON.stringify(out.chars[pid].body), out.chars[pid].location, out.chars[pid].controlledBy);
+        for (const p of P) expect(evalCond({ s: out, c, pid: p }, point42Available), `${p} может играть 42-ю`).toBe(true);
       }
     }, 200000);
+
+  // ───────────── Участок 42 ─────────────
+  const kt42 = (s: GameState) => Object.fromEntries(P.map(p => [p, {
+    c3_new_church42: 'some',
+    ...(s.vars['w.c42_jonas_met'] ? { c3_new_jonas42: 'take' } : {}),
+    ...(s.vars['w.c42_school_known'] && s.npcs.c7_nina?.alive && s.npcs.c7_nina.location === 'hof_luedemann' ? { c3_new_school42: 'herself' } : {}),
+  }]));
+  const b41std = () => { const b40 = b40std(); const s41 = mergeCp(b40, 41, leg(b40, 'A'), leg(b40, 'B')); return completeCheckpoint(c, s41, kt41(s41)).state; };
+
+  it('участок 42: два дня до адвента — Йонас, тетрадь понедельников; миры сходятся; дальше заглушка', () => {
+    const b41 = b41std();
+    for (const p of P) expect(b41.chars[p].scene).toBe('c42_start');
+    const variants: [Record<string, string>, Record<string, string>][] = [
+      [{}, {}],
+      [{ c42_a_tracks: 'c42_at_back' }, { c42_b_notebook: 'c42_bnb_both' }],
+      [{ c42_a_offer: 'c42_ao_promise', c42_a_brandt: 'c42_abt_vouch' }, { c42_b_notebook: 'c42_bnb_lars' }],
+    ];
+    for (const [fa, fb] of variants) {
+      const a = leg(b41, 'A', fa), b = leg(b41, 'B', fb);
+      for (const [pid, l] of [['A', a], ['B', b]] as const) expect(l.vars[`${pid}.c42_finished`], JSON.stringify([fa, fb])).toBe(true);
+      expect(a.vars['w.c42_jonas_met'] ?? false).toBe(fa.c42_a_tracks !== 'c42_at_back');
+      const s42 = mergeCp(b41, 42, a, b);
+      expect(s42.chars.A.time).toBe(s42.chars.B.time);
+      const out = completeCheckpoint(c, s42, kt42(s42)).state;
+      expect(out.vars['w.c42_church']).toBe('some');
+      if (fa.c42_a_tracks !== 'c42_at_back') expect(out.vars['w.c42_jonas_fate']).toBe('take');
+      for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c43_start'); }
+    }
+  }, 300000);
 
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
