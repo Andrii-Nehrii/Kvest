@@ -348,6 +348,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       if (option.id === 'guard') s.vars['w.c3_f7_shed_lost'] = true;
       if (option.id === 'boards') s.vars['w.c3_f8_window_broken'] = true;
       if (id === 'c3_new_north35' && option.id === 'together') s.vars['w.c35_jannik'] = true;
+      if (id === 'c3_new_leave37' && option.id === 'pawel') { s.vars['w.c35_way'] = 'east'; s.vars['A.met.pawel'] = true; s.npcs.pawel.alive = true; }
+      if (id === 'c3_new_leave37' && option.id === 'army') { s.vars['w.c35_east'] = 'yes'; s.npcs.c15_tobias ??= introducedPerson(c.npcs.c15_tobias, 0); s.npcs.c15_tobias.alive = true; }
       s.vars['w.c3_koehler_met'] = s.vars['w.c3_guest_checked'] = true;
       s.npcs.c3_koehler.location = 'hof_luedemann'; s.npcs.henrike.trust.A = 40;
       for (const pid of P) {

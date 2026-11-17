@@ -41,7 +41,9 @@ export const insulinHome36: Cond = { stocked: 'c21_insulin', qty: 1, at: 'c3_far
 export const ninaWinsen36: Cond = v('w.c32_nina', 'winsen');
 export const kasiaGoes36: Cond = any(v('w.c35_kasia_east', 'promised'), east36('give'));
 
-export const frost36 = { tempC: -12, outdoor: true, wet: false };
+export const frost36 = { tempC: -8, outdoor: true, wet: false };
+/** Кузов под брезентом: ветра нет, но холодно. */
+export const tarp36 = { tempC: -2, outdoor: false, wet: false };
 export const hall36 = { tempC: 11, outdoor: false, wet: false };
 export const cab36 = { tempC: 4, outdoor: false, wet: false };
 

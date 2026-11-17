@@ -6,7 +6,7 @@ import { any, v } from './point18';
 import { evaHere, npc } from './point19';
 import { brothersCome } from './point33';
 import {
-  S36, cab36, east36, farm36, fed36, frost36, hall36, jest36, kasiaGoes36, lea36, lue36, set36, tobias36, until36, w36,
+  S36, cab36, tarp36, east36, farm36, fed36, frost36, hall36, jest36, kasiaGoes36, lea36, lue36, set36, tobias36, until36, w36,
 } from './point36';
 
 // Участок 36, линия A: Йестебург (ответ Тобиасу) → Люнебург (казарма пустеет; кейс Ройтера; списки Хаазе; склад) → обратно.
@@ -78,7 +78,7 @@ export const day36AScenes: Scene[] = [
     actions: [
       { id: 'c36_ar_cab', label: 'Сесть в кабину рядом с Тобиасом', when: tobias36, minutes: 50, terminal: true, goto: 'c36_a_cab',
         text: 'В кабине пахнет мокрой шерстью и дизелем. Тобиас ведёт сам. Печка гудит, но греет только ноги.', effects: [set36('ar', 'cab'), until36(9, 10)] },
-      { id: 'c36_ar_back', label: 'Ехать в кузове с солдатами', minutes: 50, terminal: true, goto: 'c36_a_soldiers', ambientDuring: frost36,
+      { id: 'c36_ar_back', label: 'Ехать в кузове с солдатами', minutes: 50, terminal: true, goto: 'c36_a_soldiers', ambientDuring: tarp36,
         text: 'Брезент хлопает на ветру. В кузове шестеро солдат на ящиках, все молодые. Тебе освобождают место у борта.', effects: [set36('ar', 'back'), until36(9, 10)] },
       { id: 'c36_ar_corsa', label: 'Ехать следом на своей Corsa', when: all(carJest, { fuelFor: 'opel_corsa', km: 54 }), minutes: 50, terminal: true, goto: 'c36_a_ice',
         text: 'Ты едешь за грузовиком метрах в тридцати. Брезент впереди качается, из-под колёс летит снежная пыль. Своя машина — свой час обратно, когда захочешь.', effects: [set36('ar', 'corsa'), set36('car_lue', true), { drive: 'opel_corsa', km: 25, to: lue36 }, until36(9, 10)] },
@@ -99,7 +99,7 @@ export const day36AScenes: Scene[] = [
         text: 'Поля, лесополоса, замёрзшая канава. У Тосштедта на обочине стоит брошенный автобус с выбитыми стёклами, в окнах снег. Тобиас тоже молчит. Так легче вам обоим.', effects: [set36('ac', 'quiet'), { body: 'stress', delta: -2 }, until36(10, 0)] },
     ] }),
 
-  X({ id: 'c36_a_soldiers', title: 'Кузов', location: 'c7_farm_lane', camp: jestCamp, ambient: frost36,
+  X({ id: 'c36_a_soldiers', title: 'Кузов', location: 'c7_farm_lane', camp: jestCamp, ambient: tarp36,
     text: [
       { text: 'Солдаты говорят о пятнадцатом так, будто это отпуск. Кто-то уже знает, что их отводят за Эльбу. Кто-то не верит.' },
       { text: 'Рядом с тобой парень лет девятнадцати, с обветренными губами. Он слышит, как ты говоришь солдату про Бухгольц, и спрашивает, не оттуда ли ты.' },

@@ -6,7 +6,7 @@ import { any, ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { okaforComes } from './point33';
 import {
-  S36, bNorth36, cab36, fed36, frost36, hall36, insulinHome36, jest36, kasiaGoes36, lea36, ninaWinsen36, pawel36, set36,
+  S36, bNorth36, cab36, tarp36, fed36, frost36, hall36, insulinHome36, jest36, kasiaGoes36, lea36, ninaWinsen36, pawel36, set36,
   until36, w36, way36, winsen36,
 } from './point36';
 
@@ -38,17 +38,17 @@ export const day36BScenes: Scene[] = [
         text: 'Ты выходишь раньше всех. Над полем розовое небо, снег звенит. Пятнадцать минут тишины, которых сегодня больше не будет.', effects: [set36('bg', 'alone'), { body: 'stress', delta: -2 }, until36(8, 0)] },
     ] }),
 
-  X({ id: 'c36_b_truck', title: 'Пикап', location: 'c7_farm_lane', camp: winCamp, ambient: frost36,
+  X({ id: 'c36_b_truck', title: 'Пикап', location: 'c7_farm_lane', camp: winCamp, ambient: tarp36,
     text: [
       { text: 'Открытый кузов пикапа, брезент от ветра. Шесть человек на скамейках, ящики под ногами. Водитель — пожилой, в куртке Красного Креста поверх тулупа.' },
       { when: ninaFarm, text: 'Нина садится у борта и сразу открывает учебник: проверочная по немецкому.' },
     ],
     actions: [
-      { id: 'c36_bt_nina', label: 'Помочь Нине с немецким', when: all(ninaFarm, ninaAlive), minutes: 60, terminal: true, goto: 'c36_b_desk', ambientDuring: frost36,
+      { id: 'c36_bt_nina', label: 'Помочь Нине с немецким', when: all(ninaFarm, ninaAlive), minutes: 60, terminal: true, goto: 'c36_b_desk', ambientDuring: tarp36,
         text: 'Ты спрашиваешь слова, Нина отвечает. «Der Abschied». Прощание. «Die Heimat». Родина. «Die Brücke». Мост. На последнем слове она поднимает глаза и спрашивает, правда ли мост закроют. Ты говоришь: правда.', effects: [set36('bt', 'nina'), npc('c7_nina', 1), until36(9, 0)] },
       { id: 'c36_bt_driver', label: 'Пересесть к водителю в кабину: расспросить про десятое', minutes: 60, terminal: true, goto: 'c36_b_desk', ambientDuring: cab36,
         text: 'Водитель рад собеседнику. В Аренсбурге в спортзале четыреста человек, говорит он. Кормят раз в день. Инсулина нет с прошлой среды. «Und am Zehnten, um sechs am Abend, macht die Bundeswehr die Brücke zu. Wer dann noch drüben ist, bleibt drüben». А десятого в шесть вечера бундесвер закрывает мост. Кто тогда ещё на том берегу, там и останется.', effects: [set36('bt', 'driver'), w36('knows_ahrensburg', true), until36(9, 0)] },
-      { id: 'c36_bt_doze', label: 'Задремать, прижавшись к ящикам', minutes: 60, activity: 'rest', terminal: true, goto: 'c36_b_desk', ambientDuring: frost36,
+      { id: 'c36_bt_doze', label: 'Задремать, прижавшись к ящикам', minutes: 60, activity: 'rest', terminal: true, goto: 'c36_b_desk', ambientDuring: tarp36,
         text: 'Ты засыпаешь под качку и просыпаешься от толчка уже в Винзене. Шея затекла, ноги замёрзли. Но голова яснее.', effects: [set36('bt', 'doze'), { body: 'fatigue', delta: -4 }, until36(9, 0)] },
     ] }),
 
@@ -126,7 +126,7 @@ export const day36BScenes: Scene[] = [
   X({ id: 'c36_b_pawel', title: 'Школьный двор', location: winsen36, camp: winCamp, ambient: frost36,
     text: [
       { text: 'На школьном дворе собирается колонна на восток: одиннадцать легковушек, микроавтобус, грузовичок с прицепом. Люди говорят по-польски, грузят мешки на крыши.' },
-      { when: pawel36, text: 'Павел замечает тебя первым. Он похудел, борода с проседью. Обнимает осторожно, как будто боится помять.\n\n— Pani! Dobrze, że jesteś.\n\nХорошо, что ты пришла.' },
+      { when: pawel36, text: 'Павел замечает тебя первым. Он похудел, борода с проседью. Обнимает осторожно, как будто боится помять.\n\n— Pani! Dobrze, że jesteś.\n\nХорошо, что ты {m:пришёл|пришла}.' },
       { when: all(pawel36, way36('east')), text: '— Miejsce dla dwojga jest. W moim samochodzie. — Он кивает на серый «Пассат» с мешками на крыше. — Dziesiątego, siódma.\n\nМесто для двоих есть. В моей машине. Десятого, в семь.' },
       { when: all(pawel36, not(way36('east'))), text: '— Słyszałem, że zostajecie. — Он не спрашивает, говорит. — Dobrze. Pani Henrike potrzebuje rąk.\n\nСлышал, вы остаётесь. Хорошо. Пани Хенрике нужны руки.' },
       { when: not(pawel36), text: 'Тот, кого называют старшим, — мужчина в оранжевой куртке дорожного рабочего — пересчитывает машины по пальцам и ругается.' },
@@ -237,7 +237,7 @@ export const day36BScenes: Scene[] = [
         text: 'Учительница говорит, что после пятнадцатого школа, наверное, закроется. Дети живут по всему округу, без машин их не собрать. Она бросает окурок в снег и долго на него смотрит.', effects: [set36('bb', 'teacher'), until36(15, 0)] },
     ] }),
 
-  X({ id: 'c36_b_back', title: 'Обратно', location: 'c7_farm_lane', camp: winCamp, safe: false, ambient: frost36,
+  X({ id: 'c36_b_back', title: 'Обратно', location: 'c7_farm_lane', camp: winCamp, safe: false, ambient: tarp36,
     text: [
       { text: 'Пикап выезжает из Винзена в три. Солнце уже низко, тени длинные и синие.' },
       { text: 'На полдороге, у поворота на Ханштедт, на обочине стоит легковушка с открытым капотом. Женщина машет обеими руками. На заднем сиденье — двое детей в одеялах.' },
@@ -260,8 +260,8 @@ export const day36BScenes: Scene[] = [
       { when: v('w.c36_nurse', 'none'), text: '— Okafor fährt allein? — Зандер поджимает губы. — Er schafft das. Aber nicht gern.\n\nОкафор поедет один? Справится. Но без удовольствия.' },
     ],
     actions: [
-      { id: 'c36_bz_lea', label: 'Поговорить с Леей: ты не спросила её', when: v('w.c36_nurse', 'lea'), minutes: 25, terminal: true, goto: 'c36_b_path',
-        text: '— Du hast mich nicht gefragt. — Лея говорит ровно. — Ich fahre. Aber du hast mich nicht gefragt.\n\nТы меня не спросила. Я поеду. Но ты меня не спросила.\n\nЭто не прощение. Это договор.', effects: [set36('bz', 'lea'), npc('c21_lea', -1, 'c36_b_chose_for_me'), w36('lea_goes_north', true), until36(16, 40)] },
+      { id: 'c36_bz_lea', label: 'Поговорить с Леей: её ведь не спросили', when: v('w.c36_nurse', 'lea'), minutes: 25, terminal: true, goto: 'c36_b_path',
+        text: '— Du hast mich nicht gefragt. — Лея говорит ровно. — Ich fahre. Aber du hast mich nicht gefragt.\n\nТы меня не {m:спросил|спросила}. Я поеду. Но ты меня не {m:спросил|спросила}.\n\nЭто не прощение. Это договор.', effects: [set36('bz', 'lea'), npc('c21_lea', -1, 'c36_b_chose_for_me'), w36('lea_goes_north', true), until36(16, 40)] },
       { id: 'c36_bz_report', label: 'Рассказать Зандер про спортзал: что нужно, кому плохо', minutes: 25, terminal: true, goto: 'c36_b_path',
         text: 'Зандер слушает, записывает: девочка с пальцами, старик со ступеньками, инсулин — ноль. «Danke. Das ist mehr wert als zwei Kisten». Спасибо. Это дороже двух ящиков.', effects: [set36('bz', 'report'), w36('zander_report', true), until36(16, 40)] },
       { id: 'c36_bz_rest', label: 'Посидеть пять минут в тепле', minutes: 20, terminal: true, goto: 'c36_b_path',

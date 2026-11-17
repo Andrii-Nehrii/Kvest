@@ -164,7 +164,7 @@ export const day37AScenes: Scene[] = [
 
   X({ id: 'c37_a_noon', title: 'Полдень', camp: yard14, ambient: frost37,
     text: [
-      { when: all(lea36, flag('w.c36_lea_promise')), text: 'К воротам подходит Лея, из пункта. Она не заходит во двор, ждёт у калитки.\n\n— Du hast gesagt, du hilfst. Wann?\n\nТы сказал, что поможешь. Когда?' },
+      { when: all(lea36, flag('w.c36_lea_promise')), text: 'К воротам подходит Лея, из пункта. Она не заходит во двор, ждёт у калитки.\n\n— Du hast gesagt, du hilfst. Wann?\n\nТы {m:сказал|сказала}, что поможешь. Когда?' },
       { when: all(not(all(lea36, flag('w.c36_lea_promise'))), brothersCome), text: 'Керем зовёт тебя к фургону. Он хочет завтра поехать в Винзен со всеми: говорят, на рынке меняют бензин на работу.\n\n— Fährst du mit? Zu zweit kriegen wir mehr.\n\nПоедешь со мной? Вдвоём больше выменяем.' },
       { when: all(not(all(lea36, flag('w.c36_lea_promise'))), not(brothersCome)), text: 'Хенрике зовёт тебя в подвал: надо переложить картошку, чтобы нижние мешки не подмёрзли от стены.' },
     ],

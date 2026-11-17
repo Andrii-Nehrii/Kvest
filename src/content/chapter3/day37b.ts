@@ -210,7 +210,7 @@ export const day37BScenes: Scene[] = [
       { id: 'c37_bw_merle', label: 'Написать Мерле: всё, что не влезло в десять слов', minutes: 30, terminal: true, goto: 'c37_b_bread',
         text: 'Ты пишешь две страницы. Про хутор, про корову, про то, как скучаешь. В конце: «Приезжай. Или не приезжай. Но береги себя». Складываешь вчетверо, надписываешь: «Merle H., Ahrensburg, Sporthalle».', effects: [set37('bw', 'merle'), { give: 'c32_merle_letter' }, until37(15, 15)] },
       { id: 'c37_bw_bergen', label: 'Написать в Берген, матери Леи: что Лея жива и где она', when: flag('w.c36_lea_list'), minutes: 30, terminal: true, goto: 'c37_b_bread',
-        text: '«Frau Hartmann, Ihre Tochter Lea lebt. Sie ist in Jesteburg, beim Doktor Sander». Фрау Хартман, ваша дочь Лея жива. Она в Йестебурге, у доктора Зандер. Ты не спросила Лею. Но некоторые письма лучше отправить, чем обсуждать.', effects: [set37('bw', 'bergen'), w37('bergen_letter', true), until37(15, 15)] },
+        text: '«Frau Hartmann, Ihre Tochter Lea lebt. Sie ist in Jesteburg, beim Doktor Sander». Фрау Хартман, ваша дочь Лея жива. Она в Йестебурге, у доктора Зандер. Ты не {m:спросил|спросила} Лею. Но некоторые письма лучше отправить, чем обсуждать.', effects: [set37('bw', 'bergen'), w37('bergen_letter', true), until37(15, 15)] },
       { id: 'c37_bw_none', label: 'Не писать: что ни напиши, всё не то', minutes: 20, terminal: true, goto: 'c37_b_bread',
         text: 'Ты берёшь лист, пишешь первую строчку и зачёркиваешь. Вторую тоже. Лист уходит в печку.', effects: [set37('bw', 'none'), until37(15, 5)] },
     ] }),
