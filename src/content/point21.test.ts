@@ -10,6 +10,7 @@ import { canon21, point21Available, stageC, stageF, stageL, stageR } from './cha
 import { point42Available } from './chapter3/point42';
 import { point43Available } from './chapter3/point43';
 import { point44Available } from './chapter3/point44';
+import { point45Available } from './chapter3/point45';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -948,6 +949,38 @@ describe('участок 30: мороз — опасная ночь по трё�
       expect(out.vars['w.c44_eve']).toBe('near');
       expect(out.vars['w.c44_post']).toBe('a');
       for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c45_start'); }
+    }
+  }, 400000);
+
+  // ───────────── Участок 45 ─────────────
+  it('участок 45: порознь на два дня, Эльбмарш и Винзен; встреча у калитки; Нильс; дальше заглушка', () => {
+    const b42 = b42std();
+    const s43 = mergeCp(b42, 43, leg(b42, 'A'), leg(b42, 'B'));
+    const merleHere = s43.vars['w.c38_merle'] === 'farm';
+    const b43 = completeCheckpoint(c, s43, { A: merleHere ? { c3_new_convoy43: 'go' } : { c3_new_job43: 'no' }, B: { c3_new_council43: 'truth' } }).state;
+    const s44 = mergeCp(b43, 44, leg(b43, 'A'), leg(b43, 'B'));
+    const b44 = completeCheckpoint(c, s44, both({ c3_new_eve44: 'near', c3_new_post44: 'other' }, { c3_new_eve44: 'near', c3_new_post44: 'other' })).state;
+    for (const p of P) { expect(b44.chars[p].scene).toBe('c45_start'); expect(evalCond({ s: b44, c, pid: p }, point45Available)).toBe(true); }
+    const variants: [Record<string, string>, Record<string, string>][] = [
+      [{}, {}],
+      [{ c45_a_marsh: 'c45_mr_reeds', c45_a_fokken: 'c45_fk_help', c45_a_ferry: 'c45_fr_boy' }, { c45_b_cabinet: 'c45_bc_drawer', c45_b_search: 'c45_bs_all', c45_b_pharm: 'c45_bh_rush' }],
+      [{ c45_a_fokken: 'c45_fk_list', c45_a_hiker: 'c45_hk_take' }, { c45_b_cabinet: 'c45_bc_pot', c45_b_pharm: 'c45_bh_slow' }],
+    ];
+    for (const [fa, fb] of variants) {
+      const a = leg(b44, 'A', fa), b = leg(b44, 'B', fb);
+      for (const [pid, l] of [['A', a], ['B', b]] as const) {
+        expect(l.vars[`${pid}.c45_finished`], JSON.stringify([fa, fb])).toBe(true);
+        expect(l.chars[pid].location).toBe('hof_luedemann');
+        expect(canAct(l.chars[pid].body)).toBe(true);
+      }
+      expect(a.vars['w.c45_nils_offer']).toBe(true);
+      if (fb.c45_b_cabinet) expect(b.vars['w.c45_cabinet']).toBe('key');
+      const s45 = mergeCp(b44, 45, a, b);
+      expect(s45.chars.A.time).toBe(s45.chars.B.time);
+      const out = completeCheckpoint(c, s45, both({ c3_new_nils45: 'yes', c3_new_guest45: 'night' }, { c3_new_nils45: 'no', c3_new_guest45: 'night' })).state;
+      expect(out.vars['w.c45_nils']).toBe('once');
+      expect(out.vars['w.c45_guest']).toBe('night');
+      for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c46_start'); }
     }
   }, 400000);
 

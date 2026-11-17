@@ -25,6 +25,7 @@ import { point41Available, prepare41 } from './point41';
 import { point42Available, prepare42 } from './point42';
 import { point43Available, prepare43 } from './point43';
 import { point44Available, prepare44 } from './point44';
+import { point45Available, prepare45 } from './point45';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1171,4 +1172,15 @@ export const newEntry44: Scene = {
   actions: ([
     { id: 'c44_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c44_dawn', effects: [prepare44, { restUntil: at(51, 6, 30) }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point44Available, a.when ?? { always: true }) })),
+};
+
+export const newEntry45: Scene = {
+  id: 'c45_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point45Available, text: 'В десятом часу вечера в калитку стучит Лукас: записка из пожарной части, для вас обоих. Читаете вдвоём при лампе. Завтра каждый едет в свою сторону.' },
+    { when: not(point45Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c45_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c45_dawn', effects: [prepare45, { restUntil: at(53, 5, 45), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point45Available, a.when ?? { always: true }) })),
 };

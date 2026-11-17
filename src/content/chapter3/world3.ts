@@ -53,6 +53,8 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
     { id: 'c38_bridge', name: 'Мост через Эльбу у Гестхахта', region: 'lk', indoor: false, media: ['people'] },
     { id: 'c38_ahrensburg', name: 'Аренсбург, спортзал', region: 'stormarn', indoor: true, media: ['people'] },
     { id: 'c38_moelln', name: 'Мёльн, школа', region: 'stormarn', indoor: true, media: ['people'] },
+    { id: 'c45_marsch', name: 'Эльбмарш, деревни у дамбы', region: 'lk', indoor: false, media: ['people'] },
+    { id: 'c45_drage', name: 'Драге, пожарная часть', region: 'lk', indoor: true, media: ['people'] },
     { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
     {

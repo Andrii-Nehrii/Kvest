@@ -43,6 +43,7 @@ import { point41Available } from './chapter3/point41';
 import { point42Available } from './chapter3/point42';
 import { point43Available } from './chapter3/point43';
 import { point44Available } from './chapter3/point44';
+import { point45Available } from './chapter3/point45';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -422,7 +423,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 41 || P.every(pid => evalCond({ s: out.state, c, pid }, point41Available)))
       && (n + 1 !== 42 || P.every(pid => evalCond({ s: out.state, c, pid }, point42Available)))
       && (n + 1 !== 43 || P.every(pid => evalCond({ s: out.state, c, pid }, point43Available)))
-      && (n + 1 !== 44 || P.every(pid => evalCond({ s: out.state, c, pid }, point44Available)))) {
+      && (n + 1 !== 44 || P.every(pid => evalCond({ s: out.state, c, pid }, point44Available)))
+      && (n + 1 !== 45 || P.every(pid => evalCond({ s: out.state, c, pid }, point45Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);
