@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import type { Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { any } from './point18';
+import { any, v } from './point18';
 import { evaHere, npc } from './point19';
 import { brothersCome, oleHome33 } from './point33';
 import { aNorth36, bNorth36, east36, lea36, tobias36, way36 } from './point36';
@@ -49,9 +49,9 @@ export const day37AScenes: Scene[] = [
       { id: 'c37_at_receipt', label: 'Потребовать расписку: что, сколько, кто взял', minutes: 35, terminal: true, goto: 'c37_a_haase',
         text: 'Хаазе смотрит на тебя поверх очков, потом отрывает листок и пишет. «Quittung». Расписка. Номер части, подпись, печать. «Bringt euch nichts. Aber bitte». Толку вам от неё никакого. Но пожалуйста.', effects: [set37('at', 'receipt'), w37('receipt', true), ...loss, until37(8, 40)] },
       { id: 'c37_at_argue', label: 'Спорить: дому зимовать, без этого нельзя', minutes: 35, terminal: true, goto: 'c37_a_haase',
-        text: 'Ты говоришь долго. Хаазе слушает, не перебивая. Потом говорит: «Ich verstehe. Ändert nichts». Я понимаю. Это ничего не меняет. Солдаты грузят, пока ты говоришь. Хенрике на крыльце качает головой: не надо.', effects: [set37('at', 'argue'), ...loss, { body: 'stress', delta: 5 }, until37(8, 40)] },
+        text: 'Ты говоришь долго. Хаазе слушает, не перебивая. Потом говорит.\n\n— Ich verstehe. Ändert nichts.\n\nЯ понимаю. Это ничего не меняет. Солдаты грузят, пока ты говоришь. Хенрике на крыльце качает головой: не надо.', effects: [set37('at', 'argue'), ...loss, { body: 'stress', delta: 5 }, until37(8, 40)] },
       { id: 'c37_at_tobias', label: 'Назвать Тобиаса: ты ему помогал{m:|а}, он за вас поручится', when: tobias36, minutes: 35, terminal: true, goto: 'c37_a_haase',
-        text: 'Хаазе кивает: он знает. «Feldwebel Tobias hat für euch gebürgt. Deshalb nehmen wir nur das». Фельдфебель Тобиас за вас поручился. Поэтому берём только это. Ты понимаешь, что без Тобиаса взяли бы больше.', effects: [set37('at', 'tobias'), ...loss, w37('tobias_vouched', true), until37(8, 40)] },
+        text: 'Хаазе кивает: он знает.\n\n— Feldwebel Tobias hat für euch gebürgt. Deshalb nehmen wir nur das.\n\nФельдфебель Тобиас за вас поручился. Поэтому берём только это. Ты понимаешь, что без Тобиаса взяли бы больше.', effects: [set37('at', 'tobias'), ...loss, w37('tobias_vouched', true), until37(8, 40)] },
     ] }),
 
   X({ id: 'c37_a_haase', title: 'Бумага', camp: yard14, ambient: frost37,
@@ -89,7 +89,7 @@ export const day37AScenes: Scene[] = [
             effects: [set37('as', 'push'), { injure: 'bruise', site: 'torso', severity: 1 }, { body: 'stress', delta: 6 }, until37(9, 40)] },
         ] },
       { id: 'c37_as_haase', label: 'Позвать Хаазе', minutes: 20, terminal: true, goto: 'c37_a_after',
-        text: 'Ты окликаешь Хаазе. Он смотрит из кабины, потом на рыжего. Одно слово: «Zurück». Назад. Курица летит в снег. Рыжий проходит мимо тебя и тихо говорит: «Petze». Стукач.', effects: [set37('as', 'haase'), until37(9, 40)] },
+        text: 'Ты окликаешь Хаазе. Он смотрит из кабины, потом на рыжего. Одно слово: «Zurück». Назад. Курица летит в снег. Рыжий проходит мимо тебя и тихо говорит.\n\n— Petze.\n\nСтукач.', effects: [set37('as', 'haase'), until37(9, 40)] },
       { id: 'c37_as_let', label: 'Пусть берёт: одна курица — не война', minutes: 15, terminal: true, goto: 'c37_a_after',
         text: 'Ты отворачиваешься. Хенрике останавливается на ступеньке и смотрит на тебя. Ничего не говорит. Курица уезжает в кузове.', effects: [set37('as', 'let'), w37('hen_lost', true), npc('henrike', -1, 'c37_let_hen_go'), until37(9, 40)] },
     ] }),
@@ -106,7 +106,7 @@ export const day37AScenes: Scene[] = [
       { id: 'c37_af_plan', label: 'Сказать: четырнадцатого со склада казармы будут раздавать. Вернём', when: flag('w.c36_depot_seen'), minutes: 30, terminal: true, goto: 'c37_a_wood',
         text: 'Хенрике слушает и кивает медленно. «Am Vierzehnten. Gut. Dann fährt einer». Четырнадцатого. Хорошо. Значит, кто-то поедет. Она записывает в тетрадь на полях: «14 — Kaserne».', effects: [set37('af', 'plan'), w37('depot_plan', true), until37(10, 15)] },
       { id: 'c37_af_henrike', label: 'Сесть рядом с Хенрике', when: henrike37, minutes: 30, terminal: true, goto: 'c37_a_wood',
-        text: 'Хенрике сидит у стола и разглаживает ладонью клеёнку. Ты садишься рядом. Она говорит, не глядя: «Mein Vater hat das neunzehnhundertfünfundvierzig auch erlebt. Die einen nehmen, die anderen nehmen. Der Hof bleibt». Мой отец это пережил в сорок пятом. Одни берут, другие берут. Хутор остаётся.', effects: [set37('af', 'henrike'), npc('henrike', 1), { body: 'stress', delta: -2 }, until37(10, 15)] },
+        text: 'Хенрике сидит у стола и разглаживает ладонью клеёнку. Ты садишься рядом. Она говорит, не глядя.\n\n— Mein Vater hat das neunzehnhundertfünfundvierzig auch erlebt. Die einen nehmen, die anderen nehmen. Der Hof bleibt.\n\nМой отец это пережил в сорок пятом. Одни берут, другие берут. Хутор остаётся.', effects: [set37('af', 'henrike'), npc('henrike', 1), { body: 'stress', delta: -2 }, until37(10, 15)] },
       { id: 'c37_af_work', label: 'Ничего не говорить, просто взяться за работу', minutes: 25, terminal: true, goto: 'c37_a_wood',
         text: 'Говорить нечего. Работы много. Ты берёшь колун.', effects: [set37('af', 'work'), until37(10, 15)] },
     ] }),
@@ -137,6 +137,7 @@ export const day37AScenes: Scene[] = [
       { text: 'В одиннадцать к воротам подъезжает на тракторе Лукас, сын пожарного. Привёз от Брандта лист: дежурства по дворам после пятнадцатого.' },
       { when: flag('w.c36_seeve_watch'), text: 'Ваш хутор в листе первым: «Seeve — Lüdemann-Hof». Рядом твоё имя.' },
       { when: not(flag('w.c36_seeve_watch')), text: 'Ваш хутор в листе где-то в середине. Ночи распределены: по одной в неделю на двор.' },
+      { when: v('w.c26_brandt', 'hostile'), text: 'Лукас мнётся: Брандт сначала не хотел вписывать ваш двор. Отец уговорил.' },
       { text: 'Лукас ждёт, что ты скажешь. Брандту нужно знать, какой сигнал будет у вашего двора.' },
     ],
     actions: [
@@ -170,13 +171,13 @@ export const day37AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c37_an_after15', label: 'Сказать Лее: после пятнадцатого, когда станет ясно, что на дорогах', when: all(lea36, flag('w.c36_lea_promise')), minutes: 30, terminal: true, goto: 'c37_lunch',
-        text: 'Лея кивает. «Gut. Ich zähle». Хорошо. Я считаю. Она уходит. Ты понимаешь: она будет считать дни, и каждый будет на твоей совести.', effects: [set37('an', 'after15'), w37('lea_date', 'after15'), until37(13, 0)] },
+        text: 'Лея кивает.\n\n— Gut. Ich zähle.\n\nХорошо. Я считаю. Она уходит. Ты понимаешь: она будет считать дни, и каждый будет на твоей совести.', effects: [set37('an', 'after15'), w37('lea_date', 'after15'), until37(13, 0)] },
       { id: 'c37_an_now', label: 'Сказать: если очень надо — завтра, с колонной Павла до Гестхахта, а дальше сама', when: all(lea36, flag('w.c36_lea_promise')), minutes: 30, terminal: true, goto: 'c37_lunch',
-        text: 'Лея смотрит на тебя долго. «Bergen liegt im Osten. Nicht im Norden». Берген на востоке. Не на севере. Потом добавляет: «Aber danke, dass du nicht lügst». Но спасибо, что не врёшь.', effects: [set37('an', 'now'), until37(13, 0)] },
+        text: 'Лея смотрит на тебя долго. «Bergen liegt im Osten. Nicht im Norden». Берген на востоке. Не на севере. Потом добавляет.\n\n— Aber danke, dass du nicht lügst.\n\nНо спасибо, что не врёшь.', effects: [set37('an', 'now'), until37(13, 0)] },
       { id: 'c37_an_kerem', label: 'Согласиться: поехать с Керемом', when: all(not(all(lea36, flag('w.c36_lea_promise'))), brothersCome, not(aNorth36)), minutes: 30, terminal: true, goto: 'c37_lunch',
         text: 'Керем хлопает тебя по плечу. «Morgen um sechs». Завтра в шесть. Он уже прикидывает, что можно предложить за бензин: руки, инструмент, свечи.', effects: [set37('an', 'kerem'), w37('with_kerem', true), until37(13, 0)] },
       { id: 'c37_an_no', label: 'Отказаться: завтра и так длинный день', when: all(not(all(lea36, flag('w.c36_lea_promise'))), brothersCome), minutes: 20, terminal: true, goto: 'c37_lunch',
-        text: 'Керем пожимает плечами: «Dann allein». Тогда один.', effects: [set37('an', 'no'), until37(13, 0)] },
+        text: 'Керем пожимает плечами.\n\n— Dann allein.\n\nТогда один.', effects: [set37('an', 'no'), until37(13, 0)] },
       { id: 'c37_an_cellar', label: 'Перекладывать картошку в подвале', when: not(all(lea36, flag('w.c36_lea_promise'))), minutes: 40, activity: 'moderate', terminal: true, goto: 'c37_lunch', ambientDuring: barn37,
         text: 'Мешок за мешком, от стены к середине. Нижние и правда подмёрзли с одного бока. Хенрике отбирает подмёрзшую картошку в отдельное ведро: на ужин, пока не сгнила.', effects: [set37('an', 'cellar'), { body: 'fatigue', delta: 6 }, npc('henrike', 1), until37(13, 0)] },
     ] }),
@@ -190,11 +191,11 @@ export const day37AScenes: Scene[] = [
       { id: 'c37_a2_register', label: 'Записаться у Янника', when: aNorth36, minutes: 30, terminal: true, goto: 'c37_a_car',
         text: 'Янник пишет на колене, на обороте накладной. «Zweiter Wagen, Beifahrer. Sechs Uhr. Und — danke, dass ihr mitkommt». Вторая машина, рядом с водителем. В шесть. И — спасибо, что едете.', effects: [set37('a2', 'register'), w37('a_registered', true), npc('jannik', 1), until37(14, 45)] },
       { id: 'c37_a2_talk', label: 'Записаться и спросить, как там, на том берегу', when: aNorth36, minutes: 40, terminal: true, goto: 'c37_a_car',
-        text: 'Янник курит в открытое окно. Аренсбург — спортзал на четыреста человек, говорит он. Солдаты на въезде, проверка, у всех температуру меряют. Люди спят на матах. Кто болен — в отдельном корпусе, оттуда никто не выходит. «Holt sie raus, wenn ihr könnt». Забирайте её, если можете.', effects: [set37('a2', 'talk'), w37('a_registered', true), w37('ahrensburg_known', true), until37(14, 45)] },
+        text: 'Янник курит в открытое окно. Аренсбург — спортзал на четыреста человек, говорит он. Солдаты на въезде, проверка, у всех температуру меряют. Люди спят на матах. Кто болен — в отдельном корпусе, оттуда никто не выходит.\n\n— Holt sie raus, wenn ihr könnt.\n\nЗабирайте её, если можете.', effects: [set37('a2', 'talk'), w37('a_registered', true), w37('ahrensburg_known', true), until37(14, 45)] },
       { id: 'c37_a2_keep', label: 'Сказать: семенную не трогать', when: not(aNorth36), minutes: 30, terminal: true, goto: 'c37_a_car',
-        text: 'Хенрике кивает, будто ждала. «Recht hast du. Ohne Saat kein Herbst». Правильно. Без семян нет осени. Солярки не будет. Зато будет весна.', effects: [set37('a2', 'keep'), npc('henrike', 1), until37(14, 45)] },
+        text: 'Хенрике кивает, будто ждала.\n\n— Recht hast du. Ohne Saat kein Herbst.\n\nПравильно. Без семян нет осени. Солярки не будет. Зато будет весна.', effects: [set37('a2', 'keep'), npc('henrike', 1), until37(14, 45)] },
       { id: 'c37_a2_trade', label: 'Сказать: один мешок, не два', when: not(aNorth36), minutes: 30, terminal: true, goto: 'c37_a_car',
-        text: 'Хенрике думает долго. Потом кивает: «Einer. Und er gibt zehn Liter, nicht fünf». Один. И пусть даёт десять литров, не пять. Вечером сосед привозит канистру. Мешок уходит на его тачке.', effects: [set37('a2', 'trade'), w37('seed_traded', true), until37(14, 45)] },
+        text: 'Хенрике думает долго. Потом кивает.\n\n— Einer. Und er gibt zehn Liter, nicht fünf.\n\nОдин. И пусть даёт десять литров, не пять. Вечером сосед привозит канистру. Мешок уходит на его тачке.', effects: [set37('a2', 'trade'), w37('seed_traded', true), until37(14, 45)] },
       { id: 'c37_a2_two', label: 'Сказать: два, без солярки трактор встал', when: not(aNorth36), minutes: 30, terminal: true, goto: 'c37_a_car',
         text: 'Хенрике смотрит на мешки, потом на тебя. «Zwei. Wenn du meinst». Два. Если ты так считаешь. Голос ровный. Ты не уверен{m:|а}, что она согласна.', effects: [set37('a2', 'two'), w37('seed_traded', 'two'), npc('henrike', -1), until37(14, 45)] },
     ] }),
@@ -221,9 +222,9 @@ export const day37AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c37_ab2_truth', label: 'Сказать: правда, пятнадцатого. Готовьтесь', minutes: 30, terminal: true, goto: 'c37_a_dusk',
-        text: 'Сосед кивает, будто так и думал. «Dann muss ich die Tochter holen. Die ist allein in Hanstedt». Тогда надо забрать дочь. Она одна в Ханштедте. Он уходит быстро, почти бегом.', effects: [set37('ab2', 'truth'), w37('neighbor_warned', true), until37(16, 0)] },
+        text: 'Сосед кивает, будто так и думал.\n\n— Dann muss ich die Tochter holen. Die ist allein in Hanstedt.\n\nТогда надо забрать дочь. Она одна в Ханштедте. Он уходит быстро, почти бегом.', effects: [set37('ab2', 'truth'), w37('neighbor_warned', true), until37(16, 0)] },
       { id: 'c37_ab2_brandt', label: 'Сказать: в воскресенье совет у Брандта, там всё скажут', minutes: 25, terminal: true, goto: 'c37_a_dusk',
-        text: 'Сосед морщится: «Brandt». Но кивает. «Sonntag. Gut». Воскресенье. Хорошо.', effects: [set37('ab2', 'brandt'), until37(16, 0)] },
+        text: 'Сосед морщится: «Brandt». Но кивает.\n\n— Sonntag. Gut.\n\nВоскресенье. Хорошо.', effects: [set37('ab2', 'brandt'), until37(16, 0)] },
       { id: 'c37_ab2_dunno', label: 'Сказать: не знаю', minutes: 20, terminal: true, goto: 'c37_a_dusk',
         text: 'Сосед смотрит на тебя внимательно. Он тебе не верит. Уходит, не прощаясь.', effects: [set37('ab2', 'dunno'), until37(15, 55)] },
     ] }),
@@ -231,6 +232,8 @@ export const day37AScenes: Scene[] = [
   X({ id: 'c37_a_dusk', title: 'Ручей', camp: yard14, safe: false, ambient: frost37,
     text: [
       { text: 'Смеркается. Ты идёшь к ручью Зеве за сараем: посмотреть, как он выглядит перед твоими будущими ночами.' },
+      { when: v('w.c29_sweep', 'join'), text: 'Ты был{m:|а} у впадины в ту ночь, при минус десяти. Ты знаешь, как они двигаются на морозе: медленно, но идут.' },
+      { when: v('w.c29_sweep', 'guard'), text: 'В ночь на первое ты держал{m:|а} дворы у насыпи и видел{m:|а}, как они шли по льду ручья к домам.' },
       { text: 'Лёд на ручье серый, в снегу. У камышей, вмёрзший по пояс, стоит обращённый. Неподвижный, с открытыми глазами. Иней на ресницах. Мёртвый ли — не понять.' },
     ],
     actions: [
@@ -246,7 +249,7 @@ export const day37AScenes: Scene[] = [
       { id: 'c37_ad_mark', label: 'Не подходить, вбить на берегу палку с тряпкой: отметить', minutes: 20, terminal: true, goto: 'c37_a_ole', ambientDuring: frost37,
         text: 'Палка с красной тряпкой на берегу. Издалека её видно с крыльца. Если он стоит там завтра так же — мёртвый. Если нет — значит, нет.', effects: [set37('ad', 'mark'), w37('reeds_marked', true), until37(16, 30)] },
       { id: 'c37_ad_back', label: 'Уйти тихо, рассказать дома', minutes: 15, terminal: true, goto: 'c37_a_ole', ambientDuring: frost37,
-        text: 'Ты уходишь, не поворачиваясь к ручью спиной, пока не скрывается за сараем. Дома рассказываешь. Хенрике говорит: «Im Frühjahr taut er auf». Весной оттает.', effects: [set37('ad', 'back'), until37(16, 25)] },
+        text: 'Ты уходишь, не поворачиваясь к ручью спиной, пока не скрывается за сараем. Дома рассказываешь. Хенрике говорит.\n\n— Im Frühjahr taut er auf.\n\nВесной оттает.', effects: [set37('ad', 'back'), until37(16, 25)] },
     ] }),
 
   X({ id: 'c37_a_ole', title: 'Разговор', camp: kitchen14,
@@ -257,13 +260,13 @@ export const day37AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c37_ao_take', label: 'Взять ружьё и проверить, как ходит курок', when: oleHome33, minutes: 25, terminal: true, goto: 'c37_radio',
-        text: 'Ружьё тяжёлое, приклад гладкий от рук. Ты переламываешь, смотришь стволы на свет, закрываешь. Оле кивает: «Gut. Jetzt weißt du, wo es steht». Хорошо. Теперь ты знаешь, где оно стоит.', effects: [set37('ao', 'take'), w37('gun_shown', true), { if: { npc: 'ole', alive: true }, then: [{ npc: 'ole', trust: 2 }] }, until37(17, 0)] },
+        text: 'Ружьё тяжёлое, приклад гладкий от рук. Ты переламываешь, смотришь стволы на свет, закрываешь. Оле кивает.\n\n— Gut. Jetzt weißt du, wo es steht.\n\nХорошо. Теперь ты знаешь, где оно стоит.', effects: [set37('ao', 'take'), w37('gun_shown', true), { if: { npc: 'ole', alive: true }, then: [{ npc: 'ole', trust: 2 }] }, until37(17, 0)] },
       { id: 'c37_ao_ole', label: 'Сказать Оле: ты сможешь сам', when: oleHome33, minutes: 25, terminal: true, goto: 'c37_radio',
         text: 'Оле усмехается краем рта. «Vielleicht». Может быть. Он уносит ружьё обратно за шкаф. Но на пороге оборачивается: «Trotzdem. Du weißt jetzt, wo es steht». Всё равно. Ты теперь знаешь, где оно.', effects: [set37('ao', 'ole'), w37('gun_shown', true), { if: { npc: 'ole', alive: true }, then: [{ npc: 'ole', trust: 1 }] }, until37(17, 0)] },
       { id: 'c37_ao_eva_stay', label: 'Сказать Эве: оставайся, здесь ты не одна', when: all(not(oleHome33), evaHere), minutes: 25, terminal: true, goto: 'c37_radio',
         text: 'Эва долго смотрит в окно. Потом расстёгивает верхнюю пуговицу пальто. «Gut. Dann bleibe ich. Aber ich koche». Хорошо. Тогда остаюсь. Но готовлю я.', effects: [set37('ao', 'eva_stay'), w37('eva', 'stay'), { if: { npc: 'c8_eva', alive: true }, then: [{ npc: 'c8_eva', trust: 2 }] }, until37(17, 0)] },
       { id: 'c37_ao_eva_go', label: 'Сказать Эве: поезжай, за Эльбой безопаснее', when: all(not(oleHome33), evaHere, east36('give')), minutes: 25, terminal: true, goto: 'c37_radio',
-        text: 'Эва кивает, как будто ты подтвердил{m:|а} то, что она уже решила. «Dann fahre ich. Am Fünfzehnten». Тогда поеду. Пятнадцатого. Пальто она так и не расстёгивает.', effects: [set37('ao', 'eva_go'), w37('eva', 'army'), until37(17, 0)] },
+        text: 'Эва кивает, как будто ты подтвердил{m:|а} то, что она уже решила.\n\n— Dann fahre ich. Am Fünfzehnten.\n\nТогда поеду. Пятнадцатого. Пальто она так и не расстёгивает.', effects: [set37('ao', 'eva_go'), w37('eva', 'army'), until37(17, 0)] },
       { id: 'c37_ao_book', label: 'Посмотреть тетрадь Хенрике', when: all(not(oleHome33), not(evaHere)), minutes: 25, terminal: true, goto: 'c37_radio',
         text: 'Столбики, даты, цифры. В конце страницы Хенрике написала: «Bis März, wenn keiner kommt». До марта, если никто не придёт. И ниже, мельче: «Es kommt immer einer». Кто-нибудь всегда приходит.', effects: [set37('ao', 'book'), npc('henrike', 1), until37(17, 0)] },
     ] }),

@@ -36,6 +36,8 @@ export const point37Notes: MergeNote[] = [
   N('c37_eva', v('w.c37_eva', 'stay'), 'Эва остаётся на хуторе.'),
   N('c37_eva_army', v('w.c37_eva', 'army'), 'Эва решила: пятнадцатого поедет с армией за Эльбу.'),
   N('c37_bergen', flag('w.c37_bergen_letter'), '{B} написала в Берген, матери Леи: что Лея жива и где её искать.'),
+  N('c37_neighbor', any(flag('w.c37_neighbor_saved'), v('w.c37_neighbor_saved', 'late'), v('w.c37_neighbor_saved', 'zander')), 'Сосед с насыпи рубил ольху у ручья и попал топором в ногу. {B} остановила кровь. Он жив.'),
+  N('c37_soldier', any(flag('w.c37_soldier_helped'), flag('w.c37_soldier_kit')), '{B} отогрела пальцы молодому солдату из команды Хаазе. Взамен — бинты из армейской аптечки.'),
 ];
 
 export const point37Leave: JointDecision = {

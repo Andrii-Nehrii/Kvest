@@ -50,6 +50,7 @@ const list: ItemType[] = [
   { id: 'c39_crank_torch', name: 'фонарик с ручкой-динамо', weight: 250, tags: ['light'], description: 'Из сундука Оле. Крутишь ручку — светит, без батареек.' },
   { id: 'c39_candles', name: 'коробка свечей', weight: 600, tags: ['light'], description: 'Из сундука Оле. Белые, хозяйственные, двенадцать штук.' },
   { id: 'c39_point_key', name: 'ключ от шкафа в пункте Зандер', weight: 10, tags: ['note'], description: 'Второй ключ. Раньше был у Леи.' },
+  { id: 'c38_flares', name: 'сигнальная ракета', weight: 150, tags: ['light'], description: 'Армейская, красная. С брошенного поста у Гарльсторфа.' },
   { id: 'c35_keepsake', name: 'вещь в дорогу от Людеманов', weight: 150, tags: ['note'], description: 'Отданная со словами «если пойдёте». Её надо будет вернуть. Или не надо.' },
   { id: 'c26_rieger_card', name: 'корочка дружинника из Ханштедта и повязка', weight: 20, tags: ['note'], description: '«Freiwillige Feuerwehr Hanstedt. Klaus Rieger». Фотография, печать.' },
   { id: 'c31_socks', name: 'шерстяные носки двойной вязки', weight: 150, tags: ['clothing'], description: 'Толстые, серые. Связаны матерью для сына, отданы тебе.' },

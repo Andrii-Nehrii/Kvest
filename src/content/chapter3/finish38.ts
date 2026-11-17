@@ -42,6 +42,7 @@ export const point38Notes: MergeNote[] = [
   N('c38_room', any(flag('w.c38_attic_ready'), flag('w.c38_own_room_ready')), 'К приезду Мерле на хуторе приготовили место.'),
   N('c38_zander', any(v('B.c38_fbp', 'work'), v('B.c38_fbp', 'ask')), '{B} полдня помогала Зандер в пункте: Зандер сегодня была одна.'),
   N('c38_reuter', flag('w.c38_reuter_posted'), 'Письмо Ройтера жене отдано на почту Красного Креста в Винзене.'),
+  N('c38_flares', any(v('A.c38_fap', 'flares'), v('A.c38_fap', 'look')), 'С брошенного поста у Гарльсторфа {A} привёз три сигнальные ракеты и мешки для песка.'),
 ];
 
 export const point38Bed: JointDecision = {

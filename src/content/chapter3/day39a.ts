@@ -6,6 +6,7 @@ import { any, v } from './point18';
 import { npc } from './point19';
 import { brothersCome, oleHome33 } from './point33';
 import { east36, lea36, tobias36 } from './point36';
+import { tractorRuns } from './point38';
 import { S39, army39, frost39, merleFarm39, parents39, set39, until39, w39 } from './point39';
 
 // Участок 39, линия A. Пятница: дела по двору, Тобиас прощается, Уве (или Дениз) и зарядка без генератора, вмёрзший у камышей,
@@ -47,9 +48,9 @@ export const day39AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c39_at_hand', label: 'Пожать руку и поблагодарить', when: tobias36, minutes: 40, terminal: true, goto: 'c39_a_uwe', ambientDuring: frost39,
-        text: 'Рукопожатие долгое. Тобиас говорит: «Ihr habt mir geholfen, Mensch zu bleiben. Das ist mehr, als ich euch gegeben habe». Вы помогли мне остаться человеком. Это больше, чем я вам дал. Он уезжает, не оглядываясь.', effects: [set39('at', 'hand'), npc('c15_tobias', 2, 'c39_farewell'), until39(41, 10, 0)] },
+        text: 'Рукопожатие долгое. Тобиас говорит.\n\n— Ihr habt mir geholfen, Mensch zu bleiben. Das ist mehr, als ich euch gegeben habe.\n\nВы помогли мне остаться человеком. Это больше, чем я вам дал. Он уезжает, не оглядываясь.', effects: [set39('at', 'hand'), npc('c15_tobias', 2, 'c39_farewell'), until39(41, 10, 0)] },
       { id: 'c39_at_gift', label: 'Отдать ему что-нибудь на память: от хутора', when: tobias36, minutes: 40, terminal: true, goto: 'c39_a_uwe', ambientDuring: frost39,
-        text: 'Хенрике выносит банку мёда, завёрнутую в газету. Тобиас держит её в руках, как гранату. Потом смеётся, впервые за всё время. «Für die Kaserne in Mölln. Die werden neidisch». Для казармы в Мёльне. Обзавидуются.', effects: [set39('at', 'gift'), npc('c15_tobias', 2), npc('henrike', 1), until39(41, 10, 0)] },
+        text: 'Хенрике выносит банку мёда, завёрнутую в газету. Тобиас держит её в руках, как гранату. Потом смеётся, впервые за всё время.\n\n— Für die Kaserne in Mölln. Die werden neidisch.\n\nДля казармы в Мёльне. Обзавидуются.', effects: [set39('at', 'gift'), npc('c15_tobias', 2), npc('henrike', 1), until39(41, 10, 0)] },
       { id: 'c39_at_ask', label: 'Спросить, что он оставит округу', when: tobias36, minutes: 40, terminal: true, goto: 'c39_a_uwe', ambientDuring: frost39,
         text: 'Тобиас перечисляет: склад — Брандту, две рации — пожарным, бензовоз — нет, бензовоз уходит. «Und meine Telefonnummer, die keiner anrufen kann». И мой номер, по которому никто не дозвонится. Он пишет его на твоей ладони. На всякий случай.', effects: [set39('at', 'ask'), w39('tobias_number', true), until39(41, 10, 0)] },
       { id: 'c39_at_lukas', label: 'Расспросить Лукаса', when: not(tobias36), minutes: 40, terminal: true, goto: 'c39_a_uwe', ambientDuring: frost39,
@@ -104,18 +105,33 @@ export const day39AScenes: Scene[] = [
       { id: 'c39_al_wait', label: 'Уговорить подождать: после пятнадцатого вместе решим, как', when: leaPromise, minutes: 60, terminal: true, goto: 'c39_a_neighbors',
         text: 'Лея слушает. Потом снимает рюкзак и ставит его на снег. «Bis Mittwoch. Dann gehe ich. Mit euch oder allein». До среды. Потом ухожу. С вами или одна.', effects: [set39('al', 'wait'), w39('lea_date', 'wednesday'), npc('c21_lea', 1), until39(41, 14, 45)] },
       { id: 'c39_al_bike', label: 'Предложить ей велосипед Нины до Целле: восемьдесят километров', when: all(leaPromise, v('w.c36_nina_bike', 'farm')), minutes: 60, terminal: true, goto: 'c39_a_neighbors',
-        text: 'Лея смотрит на синий велосипед, на тебя. «Das ist Ninas». Это Нинин. Ты говоришь: спросим. Нина, услышав, молчит минуту, потом кивает: «Пусть едет. Только вернёт». Лея обещает вернуть. Все знают, что не вернёт.', effects: [set39('al', 'bike'), w39('lea_bike', true), npc('c21_lea', 3, 'c39_got_bike'), npc('c7_nina', 1), until39(41, 14, 45)] },
-      { id: 'c39_al_go', label: 'Сказать: если решила — иди. Дать еды на дорогу', when: leaPromise, minutes: 45, terminal: true, goto: 'c39_a_neighbors',
+        text: 'Лея смотрит на синий велосипед, на тебя. «Das ist Ninas». Это Нинин. Ты говоришь: спросим. Нина, услышав, молчит минуту, потом кивает.\n\n— Пусть едет. Только вернёт.\n\nЛея обещает вернуть. Все знают, что не вернёт.', effects: [set39('al', 'bike'), w39('lea_bike', true), npc('c21_lea', 3, 'c39_got_bike'), npc('c7_nina', 1), until39(41, 14, 45)] },
+      { id: 'c39_al_go', label: 'Сказать: если решила — иди. Дать еды на дорогу', when: leaPromise, minutes: 45, terminal: true, goto: 'c39_a_road',
         text: 'Хенрике заворачивает хлеб и сало. Лея берёт, не благодаря: так проще обеим. Она уходит по дороге на восток пешком. Ты смотришь, пока её не скрывает лес.', effects: [set39('al', 'go'), w39('lea_left', true), until39(41, 14, 30)] },
       { id: 'c39_al_tea', label: 'Позвать её в дом погреться', when: all(lea36, not(leaPromise)), minutes: 45, terminal: true, goto: 'c39_a_neighbors',
-        text: 'Лея пьёт чай у печки и молчит. Потом говорит: «Mein Bruder hätte euch gemocht». Мой брат бы вас полюбил. И уходит в пункт.', effects: [set39('al', 'tea'), npc('c21_lea', 1), until39(41, 14, 30)] },
+        text: 'Лея пьёт чай у печки и молчит. Потом говорит.\n\n— Mein Bruder hätte euch gemocht.\n\nМой брат бы вас полюбил. И уходит в пункт.', effects: [set39('al', 'tea'), npc('c21_lea', 1), until39(41, 14, 30)] },
       { id: 'c39_al_neighbor', label: 'Дать соседу молока и сказать про совет', when: not(lea36), minutes: 40, terminal: true, goto: 'c39_a_neighbors',
         text: 'Сосед берёт банку и кивает. «Sonntag. Ich komme». В воскресенье. Приду. У ворот оборачивается: «Und ihr?» А вы?', effects: [set39('al', 'neighbor'), until39(41, 14, 30)] },
+    ] }),
+
+  X({ id: 'c39_a_road', title: 'Развилка', location: 'c7_farm_lane', camp: yard14, safe: false, ambient: frost39,
+    text: [
+      { text: 'Ты провожаешь Лею до развилки за Йестебургом. Дальше дорога на восток, на Ханштедт, потом на Целле. Восемьдесят километров по снегу, который во вторник начнёт таять.' },
+      { text: 'У развилки Лея останавливается и достаёт из кармана фотографию: рыжий кот на подоконнике.\n\n— Moses. Falls du nach Hannover kommst. Er beißt.\n\nМозес. Если попадёшь в Ганновер. Он кусается.' },
+    ],
+    actions: [
+      { id: 'c39_ar_photo', label: 'Взять фотографию', minutes: 60, terminal: true, goto: 'c39_a_corsa', ambientDuring: frost39,
+        text: 'Ты прячешь фотографию во внутренний карман. Лея кивает и уходит, не оглядываясь, ровным шагом. Ты смотришь, пока дорога не поворачивает за лес.', effects: [set39('ar', 'photo'), w39('moses_photo', true), until39(41, 15, 45)] },
+      { id: 'c39_ar_knife', label: 'Отдать ей свой нож: в дороге нужнее', minutes: 60, terminal: true, goto: 'c39_a_corsa', ambientDuring: frost39,
+        text: 'Лея взвешивает нож на ладони, проверяет лезвие ногтем. «Danke. Ich bringe ihn zurück». Спасибо. Я его верну. Вы оба знаете, что это значит: она собирается вернуться.', effects: [set39('ar', 'knife'), w39('lea_knife', true), npc('c21_lea', 2), until39(41, 15, 45)] },
+      { id: 'c39_ar_walk', label: 'Пройти с ней ещё до Ханштедта', minutes: 75, activity: 'moderate', terminal: true, goto: 'c39_a_corsa', ambientDuring: frost39,
+        text: 'Ещё шесть километров вдвоём. Вы почти не говорите. У Ханштедта она останавливается и толкает тебя в плечо: иди обратно, темнеет. Ты возвращаешься уже в сумерках.', effects: [set39('ar', 'walk'), { body: 'fatigue', delta: 8 }, npc('c21_lea', 2), until39(41, 16, 15)] },
     ] }),
 
   X({ id: 'c39_a_neighbors', title: 'Соседи', camp: yard14, ambient: frost39,
     text: [
       { text: 'Брандт хочет на совете знать, что думают дворы. Ты обходишь соседей у насыпи: три двора, полчаса пешком.' },
+      { when: v('w.c25_truth', 'all'), text: 'Про плазму и списки здесь знают все: с ноября. Кто-то из-за этого вам до сих пор не здоровается.' },
       { text: 'У Гердесов спорят: одни хотят общую стражу, другие говорят, что каждый двор сам за себя. У соседа с дочерью боятся Брандта больше, чем впадины.' },
     ],
     actions: [
@@ -174,10 +190,11 @@ export const day39AScenes: Scene[] = [
   X({ id: 'c39_a_sat', title: 'К понедельнику', camp: yard14, ambient: frost39,
     text: [
       { text: 'В понедельник склад казармы. Брандт делит по дворам, но везти своё каждый будет сам. Тридцать километров туда и обратно, по снегу, который начнёт таять.' },
-      { when: flag('w.c16_tractor'), text: 'Трактор с прицепом — это много. Если есть солярка.' },
+      { when: tractorRuns, text: 'Трактор с прицепом — это много. Солярки хватит на один такой рейс.' },
+      { when: all(flag('w.c16_tractor'), not(tractorRuns)), text: 'Трактор стоит: то в кювете с той морозной ночи, то без солярки. На него в понедельник не рассчитывать.' },
     ],
     actions: [
-      { id: 'c39_as_tractor', label: 'Готовить трактор и прицеп: борта, цепи, брезент', when: flag('w.c16_tractor'), minutes: 75, activity: 'moderate', terminal: true, goto: 'c39_a_seeve', ambientDuring: frost39,
+      { id: 'c39_as_tractor', label: 'Готовить трактор и прицеп: борта, цепи, брезент', when: tractorRuns, minutes: 75, activity: 'moderate', terminal: true, goto: 'c39_a_seeve', ambientDuring: frost39,
         text: 'Цепи на колёса, борта на прицеп, брезент поверх. Ты лежишь под прицепом на снегу и затягиваешь болты. Если солярки хватит, в понедельник увезёте втрое больше, чем на машине.', effects: [set39('as', 'tractor'), w39('tractor_ready', true), { body: 'fatigue', delta: 6 }, until39(42, 10, 30)] },
       { id: 'c39_as_sled', label: 'Сколотить большие сани: тянуть за машиной или руками', minutes: 75, activity: 'moderate', terminal: true, goto: 'c39_a_seeve', ambientDuring: frost39,
         text: 'Две доски от старых ворот, полозья из жердей, верёвка. Сани выходят тяжёлые, но крепкие. Хенрике говорит: её отец возил на таких молоко на станцию.', effects: [set39('as', 'sled'), w39('big_sled', true), { body: 'fatigue', delta: 6 }, until39(42, 10, 30)] },
@@ -209,11 +226,14 @@ export const day39AScenes: Scene[] = [
   X({ id: 'c39_a_council', title: 'Брандт', camp: yard14, ambient: frost39,
     text: [
       { text: 'После обеда к воротам приезжает Брандт на джипе пожарной части. Не выходит: опускает стекло.' },
+      { when: v('w.c26_brandt', 'ally'), text: 'Он кивает тебе, как кивают своим. Вы давно по одну сторону.' },
+      { when: v('w.c26_brandt', 'hostile'), text: 'Он смотрит на тебя без тепла. Между вами всё ещё ноябрь. Но он приехал сам.' },
+      { when: flag('w.c34_brandt_owes'), text: 'Брандт помнит, что должен {partner.dat}. Это видно по тому, что он вообще остановился.' },
       { text: '— Morgen nach dem Gottesdienst. Ich will wissen, wo ihr steht. Gemeinsame Wache, jeder für sich, oder einer sagt, wo es langgeht. Ich sage dir ehrlich: ich will der eine sein.\n\nЗавтра после службы. Я хочу знать, где вы. Общая стража, каждый сам по себе, или один говорит, куда идти. Скажу честно: я хочу быть этим одним.' },
     ],
     actions: [
       { id: 'c39_aco2_guard', label: 'Сказать: общая стража, но решаем вместе', minutes: 45, terminal: true, goto: 'c39_a_army', ambientDuring: frost39,
-        text: 'Брандт кивает медленно. «Gemeinsam ist langsam». Вместе — медленно. Потом пожимает плечами: «Aber vielleicht richtig». Но, может, правильно. Стекло поднимается.', effects: [set39('aco2', 'guard'), w39('told_brandt', 'guard'), until39(42, 14, 45)] },
+        text: 'Брандт кивает медленно. «Gemeinsam ist langsam». Вместе — медленно. Потом пожимает плечами.\n\n— Aber vielleicht richtig.\n\nНо, может, правильно. Стекло поднимается.', effects: [set39('aco2', 'guard'), w39('told_brandt', 'guard'), until39(42, 14, 45)] },
       { id: 'c39_aco2_brandt', label: 'Сказать: пусть командует он, кто-то должен', minutes: 45, terminal: true, goto: 'c39_a_army', ambientDuring: frost39,
         text: 'Брандт смотрит на тебя долго. «Danke. Das sagen nicht viele». Спасибо. Немногие так говорят. Ты не уверен{m:|а}, что сказал{m:|а} правильно. Но он уезжает довольный.', effects: [set39('aco2', 'brandt'), w39('told_brandt', 'brandt'), until39(42, 14, 45)] },
       { id: 'c39_aco2_yards', label: 'Сказать: каждый двор за себя, сигналы — общие', minutes: 45, terminal: true, goto: 'c39_a_army', ambientDuring: frost39,

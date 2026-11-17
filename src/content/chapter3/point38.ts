@@ -6,8 +6,8 @@ import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
 import { any, ninaFarm, v } from './point18';
-import { evaHere, npc, tableOnly } from './point19';
-import { okaforComes, oleHome33 } from './point33';
+import { npc, tableOnly } from './point19';
+import { okaforComes, oleHome33, tractor33 } from './point33';
 import { aNorth36, bNorth36, jannikYes, kasia36, kasiaGoes36, pawel36 } from './point36';
 
 // Участок 38: четверг 10.12, 04:30 → КТ38 23:30. Жребий: порознь на часть. План — STOCK_PLAN.md §10.4.
@@ -43,6 +43,8 @@ export const parentsCome38: Cond = all(merleComes38, v('w.c36_merle', 'all'), an
 export const kasiaDeparts38: Cond = all(kasia36, kasiaGoes36, pawel36, any(flag('w.c36_kasia_listed'), flag('w.c36_kasia_seat')));
 export const henrike38: Cond = { npc: 'henrike', alive: true, at: farm38 };
 export const pensFarm38: Cond = { stocked: 'c21_insulin', qty: 1, at: 'c3_farm_stock' };
+/** Трактор на ходу: не в кювете с 30-й (или вытащен) и с соляркой (не отдана на реквизиции 37-й или добыта снова). */
+export const tractorRuns: Cond = all(tractor33, any(not(v('w.c37_lost', 'diesel')), flag('w.c37_seed_traded'), flag('w.c38_diesel_from_army')));
 
 export const frost38 = { tempC: -7, outdoor: true, wet: false };
 export const barn38 = { tempC: 6, outdoor: false, wet: false };
@@ -177,8 +179,8 @@ export const shared38: Scene[] = [
       { when: all(merleComes38, pensFarm38), text: 'Хенрике приносит из кладовки коробку из-под чая и ставит перед Мерле. Мерле открывает её и долго не может ничего сказать.' },
       { when: all(merleComes38, not(pensFarm38)), text: 'Мерле говорит, что ручек у неё на неделю. Может, на девять дней. Она шутит про это, и никто не смеётся.' },
       { when: ninaFarm, text: 'Нина сидит рядом с Мерле и смотрит на неё во все глаза: новенькая.' },
-      { when: evaHere, text: 'Эва подкладывает приехавшим, не спрашивая. Как Биргит. Они переглядываются и всё понимают друг про друга.' },
-      { when: oleHome33, text: 'Оле пересчитывает приехавших, кивает и уходит спать раньше всех. «Morgen reden wir über Holz». Завтра поговорим про дрова.' },
+      { when: v('w.c27_tim', 'farm'), text: 'Кто-то ставит на подоконник тарелку с хлебом, как каждый вечер с тех пор, как под яблоней похоронен Тим. Мерле не спрашивает зачем. Потом спросит.' },
+      { when: oleHome33, text: 'Оле пересчитывает приехавших, кивает и уходит спать раньше всех.\n\n— Morgen reden wir über Holz.\n\nЗавтра поговорим про дрова.' },
     ],
     actions: [
       { id: 'c38_la_eat', label: 'Есть и слушать рассказы с той стороны', minutes: 60, terminal: true, goto: 'c38_night', ...tableOnly,
@@ -188,7 +190,7 @@ export const shared38: Scene[] = [
       { id: 'c38_la_tea', label: 'Сесть с краю с кружкой чая', minutes: 60, terminal: true, goto: 'c38_night',
         text: 'Ты сидишь с краю, греешь руки о кружку и слушаешь. Голоса, смех, звон ложек. Дом полный.', effects: [set38('la', 'tea'), { body: 'stress', delta: -3 }, until38(22, 30)] },
       { id: 'c38_la_serve', label: 'Помогать Хенрике у плиты', when: henrike38, minutes: 60, terminal: true, goto: 'c38_night',
-        text: 'Ты подливаешь, режешь хлеб, моешь кружки, потому что кружек меньше, чем людей. Хенрике шепчет тебе: «Wie Weihnachten. Nur ohne Baum». Как Рождество. Только без ёлки.', effects: [set38('la', 'serve'), meal('eat'), npc('henrike', 1), until38(22, 30)] },
+        text: 'Ты подливаешь, режешь хлеб, моешь кружки, потому что кружек меньше, чем людей. Хенрике шепчет тебе.\n\n— Wie Weihnachten. Nur ohne Baum.\n\nКак Рождество. Только без ёлки.', effects: [set38('la', 'serve'), meal('eat'), npc('henrike', 1), until38(22, 30)] },
     ] }),
 
   S38({ id: 'c38_night', for: 'any', chapter: 'ch3', title: 'Ночь', camp: house14,

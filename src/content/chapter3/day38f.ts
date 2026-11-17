@@ -8,7 +8,7 @@ import { evaHere, npc, tableOnly } from './point19';
 import { brothersCome, eldersCome, oleHome33 } from './point33';
 import { bNorth36 } from './point36';
 import {
-  A38, S38, cab38, frost38, hall38, henrike38, kasiaDeparts38, merleComes38, northPartner38, parentsCome38, send38, set38, until38, w38, winsen38,
+  A38, S38, tractorRuns, cab38, frost38, hall38, henrike38, kasiaDeparts38, merleComes38, northPartner38, parentsCome38, send38, set38, until38, w38, winsen38,
 } from './point38';
 
 // Участок 38, кто остаётся: A — хутор снаружи (Брандт, Зеве, сосед, комната для Мерле, армейские грузовики на дороге, Оле);
@@ -31,7 +31,7 @@ export const day38FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c38_faq_henrike', label: 'Подойти к Хенрике', when: henrike38, minutes: 45, terminal: true, goto: 'c38_fa_milk', ambientDuring: frost38,
-        text: 'Вы стоите рядом и смотрите на дорогу вместе. Хенрике говорит: «So war es, als Ole zur Bundeswehr ging. Man steht und guckt». Так было, когда Оле уходил в армию. Стоишь и смотришь. Потом она хлопает тебя по плечу и идёт в дом.', effects: [set38('faq', 'henrike'), npc('henrike', 1), until38(9, 15)] },
+        text: 'Вы стоите рядом и смотрите на дорогу вместе. Хенрике говорит.\n\n— So war es, als Ole zur Bundeswehr ging. Man steht und guckt.\n\nТак было, когда Оле уходил в армию. Стоишь и смотришь. Потом она хлопает тебя по плечу и идёт в дом.', effects: [set38('faq', 'henrike'), npc('henrike', 1), until38(9, 15)] },
       { id: 'c38_faq_work', label: 'Сразу взяться за дела: дрова, вода', minutes: 45, activity: 'moderate', terminal: true, goto: 'c38_fa_milk', ambientDuring: frost38,
         text: 'Колун, вёдра, снова колун. Работа съедает время. Через час ты замечаешь, что ни разу не посмотрел{m:|а} на часы.', effects: [set38('faq', 'work'), { body: 'fatigue', delta: 6 }, until38(9, 30)] },
       { id: 'c38_faq_rest', label: 'Посидеть на кухне с кофе', minutes: 45, terminal: true, goto: 'c38_fa_milk',
@@ -41,13 +41,13 @@ export const day38FScenes: Scene[] = [
   X({ id: 'c38_fa_milk', title: 'Корова', camp: yard14, safe: false, ambient: { tempC: 6, outdoor: false, wet: false },
     text: [
       { text: 'Корова мычит в хлеву: её не подоили. Обычно доит Хенрике или кто-то из женщин. Сегодня Хенрике возится с печью, а рук не хватает.' },
-      { when: henrike38, text: 'Хенрике кричит из кухни: «Kannst du das? Von links, und nicht zögern!» Сможешь? Слева, и не тянуть!' },
+      { when: henrike38, text: 'Хенрике кричит из кухни.\n\n— Kannst du das? Von links, und nicht zögern!\n\nСможешь? Слева, и не тянуть!' },
     ],
     actions: [
       { id: 'c38_fam_milk', label: 'Сесть доить самому', minutes: 40, risky: true, terminal: true, goto: 'c38_fa_brandt',
         outcomes: [
           { id: 'ok', check: { traits: ['agility', 'technical'], difficulty: 3, uses: ['focus'] },
-            text: 'Сначала не выходит ничего, потом струйка, потом ровнее. Корова косится, но стоит. Полподойника. Хенрике заглядывает и кивает: «Na also». Ну вот.',
+            text: 'Сначала не выходит ничего, потом струйка, потом ровнее. Корова косится, но стоит. Полподойника. Хенрике заглядывает и кивает.\n\n— Na also.\n\nНу вот.',
             effects: [set38('fam', 'milk'), w38('a_milked', true), npc('henrike', 1), until38(10, 0)] },
           { id: 'kick',
             text: 'Корова переступает и бьёт задней ногой. Подойник летит, копыто задевает бедро. Ты сидишь в соломе, молоко растекается вокруг. Хенрике приходит и доит сама, не говоря ни слова.',
@@ -84,8 +84,30 @@ export const day38FScenes: Scene[] = [
         text: 'Лукас записывает в блокнот: «Lüdemann — ab Freitag». С пятницы. Он кивает и разворачивает трактор. Ты стоишь у ворот и думаешь, кто будет спать днём.', effects: [set38('fab', 'yes'), w38('a_watch_early', true), until38(10, 30)] },
       { id: 'c38_fab_later', label: 'Сказать: решим вечером, когда все вернутся', minutes: 30, terminal: true, goto: 'c38_fa_seeve', ambientDuring: frost38,
         text: '— Gut. Morgen früh sag ich Brandt Bescheid. — Лукас уезжает. Хорошо. Завтра утром скажу Брандту.', effects: [set38('fab', 'later'), until38(10, 30)] },
-      { id: 'c38_fab_ask', label: 'Спросить, что видели у съезда', minutes: 30, terminal: true, goto: 'c38_fa_seeve', ambientDuring: frost38,
+      { id: 'c38_fab_ask', label: 'Спросить, что видели у съезда', minutes: 30, terminal: true, goto: 'c38_fa_post', ambientDuring: frost38,
         text: 'Лукас мнётся. «Spuren. Im Schnee. Vom Tal zur Straße. Langsam, aber viele». Следы. В снегу. Из впадины к дороге. Медленные, но много. Он не смотрит тебе в глаза.', effects: [set38('fab', 'ask'), w38('tracks_known', true), until38(10, 30)] },
+    ] }),
+
+  X({ id: 'c38_fa_post', title: 'Брошенный пост', location: 'c7_farm_lane', camp: yard14, safe: false, ambient: frost38,
+    text: [
+      { text: 'Ты едешь с Лукасом на тракторе к съезду у Гарльсторфа. Пост пустой: бетонные блоки, бочка с золой, под мостом автобана — чёрный круг от костра.' },
+      { text: 'Следы в снегу идут из лесополосы к дороге и обратно. Под мостом в тени что-то лежит. Или кто-то.' },
+      { text: 'На блоке оставлен армейский ящик с откинутой крышкой: в нём три сигнальные ракеты и пачка мешков для песка.' },
+    ],
+    actions: [
+      { id: 'c38_fap_flares', label: 'Забрать ракеты и мешки и сразу назад', minutes: 60, terminal: true, goto: 'c38_fa_neighbor', ambientDuring: frost38,
+        text: 'Ракеты — в карман куртки, мешки — в кабину. Лукас разворачивает трактор, не дожидаясь, пока ты сядешь как следует. Под мостом так никто и не шевелится.', effects: [set38('fap', 'flares'), { give: 'c38_flares', qty: 3 }, until38(11, 30)] },
+      { id: 'c38_fap_look', label: 'Подойти посмотреть, что под мостом', minutes: 60, risky: true, terminal: true, goto: 'c38_fa_neighbor', ambientDuring: frost38,
+        outcomes: [
+          { id: 'ok', check: { traits: ['stealth', 'agility'], difficulty: 3, uses: ['focus'] },
+            text: 'Под мостом обращённый: сидит, прислонившись к опоре, иней на лице. Не двигается. Мёртв или почти. Ты отходишь, не поворачиваясь спиной. Ракеты ты всё-таки забираешь.',
+            effects: [set38('fap', 'look'), { give: 'c38_flares', qty: 3 }, w38('bridge_seen', true), until38(11, 30)] },
+          { id: 'grab',
+            text: 'Ты подходишь, и он поднимает голову. Медленно, но рука хватает тебя за штанину. Ты бьёшь ногой, вырываешься, падаешь на бетон локтем. Лукас кричит от трактора. Ты бежишь. Ракеты остаются на блоке.',
+            effects: [set38('fap', 'grab'), { injure: 'bruise', site: 'rightArm', severity: 1 }, { body: 'stress', delta: 8 }, until38(11, 30)] },
+        ] },
+      { id: 'c38_fap_mark', label: 'Ничего не трогать, отметить следы для Брандта', minutes: 50, terminal: true, goto: 'c38_fa_neighbor', ambientDuring: frost38,
+        text: 'Ты рисуешь на обороте листа: пост, мост, откуда следы и куда. Лукас отвезёт Брандту. Ящик остаётся на блоке: пусть возьмёт дружина.', effects: [set38('fap', 'mark'), w38('tracks_marked', true), until38(11, 20)] },
     ] }),
 
   X({ id: 'c38_fa_seeve', title: 'Зеве', camp: yard14, safe: false, ambient: frost38,
@@ -179,7 +201,7 @@ export const day38FScenes: Scene[] = [
       { text: 'На повороте у вашего поля последний грузовик съезжает колесом в кювет и садится на брюхо. Солдаты вылезают, ругаются, смотрят на твой двор, где стоит трактор.' },
     ],
     actions: [
-      { id: 'c38_faa_tractor', label: 'Выгнать трактор и вытащить их тросом', when: flag('w.c16_tractor'), minutes: 40, risky: true, terminal: true, goto: 'c38_fa_ole', ambientDuring: frost38,
+      { id: 'c38_faa_tractor', label: 'Выгнать трактор и вытащить их тросом', when: tractorRuns, minutes: 40, risky: true, terminal: true, goto: 'c38_fa_ole', ambientDuring: frost38,
         outcomes: [
           { id: 'ok', check: { traits: ['driving', 'technical'], difficulty: 3, uses: ['focus'] },
             text: 'Трос, натяг, трактор упирается всеми колёсами. Грузовик выползает из кювета с рёвом. Сержант спрыгивает и суёт тебе в руки канистру: «Für den Traktor. Zwanzig Liter». Для трактора. Двадцать литров.',
@@ -189,7 +211,7 @@ export const day38FScenes: Scene[] = [
             effects: [set38('faa', 'snap'), { body: 'stress', delta: 8 }, until38(16, 30)] },
         ] },
       { id: 'c38_faa_shovel', label: 'Вынести лопату и золу: пусть откапываются сами', minutes: 40, activity: 'moderate', terminal: true, goto: 'c38_fa_ole', ambientDuring: frost38,
-        text: 'Солдаты откапывают колесо, сыплют золу. Ты помогаешь. Через полчаса грузовик выезжает. Сержант кивает и кидает тебе пачку галет: «Danke». Колонна уходит на север.', effects: [set38('faa', 'shovel'), { body: 'fatigue', delta: 5 }, until38(16, 30)] },
+        text: 'Солдаты откапывают колесо, сыплют золу. Ты помогаешь. Через полчаса грузовик выезжает. Сержант кивает и кидает тебе пачку галет.\n\n— Danke.\n\nКолонна уходит на север.', effects: [set38('faa', 'shovel'), { body: 'fatigue', delta: 5 }, until38(16, 30)] },
       { id: 'c38_faa_watch', label: 'Смотреть из-за ворот и не вмешиваться', minutes: 30, terminal: true, goto: 'c38_fa_ole', ambientDuring: frost38,
         text: 'Солдаты возятся полчаса, потом их вытаскивает тягач. Колонна уходит. На повороте остаётся колея и чёрное пятно масла на снегу. Через неделю здесь не будет никого в форме.', effects: [set38('faa', 'watch'), until38(16, 20)] },
     ] }),
@@ -306,7 +328,7 @@ export const day38FScenes: Scene[] = [
       { id: 'c38_fbp_work', label: 'Взяться за работу', minutes: 45, terminal: true, goto: 'c38_fb_patient',
         text: 'Халат великоват, перчатки малы. Женщина с рукой: порезалась косой, глубоко. Ты промываешь, Зандер шьёт. Потом ребёнок с кашлем, старик с давлением. Время идёт быстро.', effects: [set38('fbp', 'work'), until38(15, 15)] },
       { id: 'c38_fbp_ask', label: 'Сначала спросить про своих стариков', minutes: 40, terminal: true, goto: 'c38_fb_patient',
-        text: 'Зандер слушает на ходу, кивает: «Kühlen, hochlegen, und wenn Fieber kommt — holen Sie mich». Холод, держать выше, а если будет жар — зовите меня. Потом показывает на приёмную: работа.', effects: [set38('fbp', 'ask'), w38('zander_advice', true), until38(15, 15)] },
+        text: 'Зандер слушает на ходу, кивает.\n\n— Kühlen, hochlegen, und wenn Fieber kommt — holen Sie mich.\n\nХолод, держать выше, а если будет жар — зовите меня. Потом показывает на приёмную: работа.', effects: [set38('fbp', 'ask'), w38('zander_advice', true), until38(15, 15)] },
     ] }),
 
   X({ id: 'c38_fb_patient', title: 'Мальчик', location: 'c16_jesteburg', camp: jestCamp, ambient: hall38,
@@ -315,7 +337,7 @@ export const day38FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c38_fbpt_cool', label: 'Холодная вода, пятнадцать минут, потом чистая повязка', minutes: 40, terminal: true, goto: 'c38_fb_walk',
-        text: 'Таз с холодной водой. Мальчик плачет, потом перестаёт: холод снимает боль. Пузыри ты не трогаешь, повязку кладёшь свободно. Зандер заглядывает, кивает: «Gut gemacht». Хорошо сделано.', effects: [set38('fbpt', 'cool'), w38('burn_ok', true), until38(16, 0)] },
+        text: 'Таз с холодной водой. Мальчик плачет, потом перестаёт: холод снимает боль. Пузыри ты не трогаешь, повязку кладёшь свободно. Зандер заглядывает, кивает.\n\n— Gut gemacht.\n\nХорошо сделано.', effects: [set38('fbpt', 'cool'), w38('burn_ok', true), until38(16, 0)] },
       { id: 'c38_fbpt_butter', label: 'Мазь с жиром, как мама мазала', minutes: 35, terminal: true, goto: 'c38_fb_walk',
         text: 'Зандер видит банку у тебя в руке и забирает её. «Kein Fett. Nie. Wasser». Никакого жира. Никогда. Вода. Она делает сама. Ты стоишь рядом и учишься.', effects: [set38('fbpt', 'butter'), { body: 'stress', delta: 3 }, until38(16, 0)] },
       { id: 'c38_fbpt_pop', label: 'Вскрыть пузыри, чтобы не мешали', minutes: 35, terminal: true, goto: 'c38_fb_walk',

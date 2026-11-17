@@ -143,7 +143,7 @@ export const day36AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c36_aa_in', label: 'Пройти внутрь, не останавливаясь', minutes: 20, terminal: true, goto: 'c36_a_carry',
-        text: 'Ты проходишь в ворота следом за грузовиком. Кто-то из-за забора кричит тебе в спину: «Was ist hier los? Haut ihr ab?» Что тут происходит? Вы сматываетесь? Ты не оборачиваешься.', effects: [set36('aa', 'in'), until36(10, 40)] },
+        text: 'Ты проходишь в ворота следом за грузовиком. Кто-то из-за забора кричит тебе в спину.\n\n— Was ist hier los? Haut ihr ab?\n\nЧто тут происходит? Вы сматываетесь? Ты не оборачиваешься.', effects: [set36('aa', 'in'), until36(10, 40)] },
       { id: 'c36_aa_fence', label: 'Подойти к людям у забора', minutes: 30, terminal: true, goto: 'c36_a_fence', ambientDuring: frost36,
         text: 'Ты подходишь к забору. Люди сразу поворачиваются к тебе: на тебе нет формы, значит, ты свой. Значит, скажешь правду.', effects: [set36('aa', 'fence'), until36(10, 30)] },
       { id: 'c36_aa_haase', label: 'Спросить Хаазе, зачем жгут папки', minutes: 20, terminal: true, goto: 'c36_a_carry',
@@ -162,7 +162,7 @@ export const day36AScenes: Scene[] = [
       { id: 'c36_af_lie', label: 'Сказать: перегруппировка, ничего не знаю', minutes: 20, terminal: true, goto: 'c36_a_carry',
         text: '— Umgruppierung, — говоришь ты слово, которое слышал{m:|а} от солдат. Перегруппировка. Женщина смотрит тебе в глаза и отпускает рукав. Она тебе не верит. Но остаётся у забора ждать.', effects: [set36('af', 'lie'), { body: 'stress', delta: 3 }, until36(10, 45)] },
       { id: 'c36_af_advice', label: 'Не говорить дату, но сказать: запасайте дрова и воду, держитесь соседей', minutes: 25, terminal: true, goto: 'c36_a_carry',
-        text: 'Женщина слушает, кивает медленно. «Also doch». Значит, всё-таки. Она не плачет и не кричит. Просто уходит к городу, на ходу пересчитывая что-то на пальцах. Двое идут за ней.', effects: [set36('af', 'advice'), w36('fence_warned', true), until36(10, 45)] },
+        text: 'Женщина слушает, кивает медленно.\n\n— Also doch.\n\nЗначит, всё-таки. Она не плачет и не кричит. Просто уходит к городу, на ходу пересчитывая что-то на пальцах. Двое идут за ней.', effects: [set36('af', 'advice'), w36('fence_warned', true), until36(10, 45)] },
     ] }),
 
   X({ id: 'c36_a_carry', title: 'Медпункт', location: lue36, camp: lueCamp, ambient: hall36,
@@ -205,7 +205,7 @@ export const day36AScenes: Scene[] = [
     text: [
       { text: 'В углу пустого кабинета Алерс стоит коричневый кожаный кейс, старый, с латунными уголками. На ручке бирка: «OStArzt Dr. Reuter».' },
       { when: tobias36, text: '— Reuters Koffer, — говорит Тобиас с порога. — Kam mit den Papieren von der Kolonne. Seitdem steht er hier. Keiner kennt die Zahlen. Wenn du ihn aufkriegst — was drin ist, gehört dir. Er braucht es nicht mehr.\n\nКейс Ройтера. Приехал с бумагами из колонны. С тех пор так и стоит. Никто не знает цифр. Откроешь — всё, что внутри, твоё. Ему уже не нужно.' },
-      { when: not(tobias36), text: 'Ефрейтор у двери пожимает плечами: «Der Koffer vom toten Doktor. Keiner kennt die Zahlen. Mach, was du willst». Кейс мёртвого доктора. Никто не знает цифр. Делай что хочешь.' },
+      { when: not(tobias36), text: 'Ефрейтор у двери пожимает плечами.\n\n— Der Koffer vom toten Doktor. Keiner kennt die Zahlen. Mach, was du willst.\n\nКейс мёртвого доктора. Никто не знает цифр. Делай что хочешь.' },
       { text: 'Замок на три колёсика с цифрами. Три цифры.' },
     ],
     actions: [
@@ -344,7 +344,7 @@ export const day36AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c36_al2_help', label: 'Пообещать помочь ей добраться, когда станет ясно, как', minutes: 30, terminal: true, goto: 'c36_a_home',
-        text: 'Лея кивает, не отвечая. Убирает листок в нагрудный карман халата, под ручку. Когда ты уходишь, она говорит тебе в спину: «Danke». Первый раз за всё время ты слышишь от неё это слово.', effects: [set36('al2', 'help'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, npc('c21_lea', 3, 'c36_a_brought_bergen'), w36('lea_promise', true), until36(16, 0)] },
+        text: 'Лея кивает, не отвечая. Убирает листок в нагрудный карман халата, под ручку. Когда ты уходишь, она говорит тебе в спину.\n\n— Danke.\n\nПервый раз за всё время ты слышишь от неё это слово.', effects: [set36('al2', 'help'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, npc('c21_lea', 3, 'c36_a_brought_bergen'), w36('lea_promise', true), until36(16, 0)] },
       { id: 'c36_al2_wait', label: 'Сказать: не ходи одна, сначала дождись, что будет после пятнадцатого', minutes: 30, terminal: true, goto: 'c36_a_home',
         text: '— Ich bin keine Idiotin, — говорит Лея. Я не дура. — Aber danke.\n\nОна складывает листок вчетверо и прячет. Ты видишь: она уже считает дни.', effects: [set36('al2', 'wait'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, npc('c21_lea', 2, 'c36_a_brought_bergen'), until36(16, 0)] },
       { id: 'c36_al2_leave', label: 'Ничего не говорить: пусть побудет одна', minutes: 20, terminal: true, goto: 'c36_a_home',
@@ -354,13 +354,16 @@ export const day36AScenes: Scene[] = [
   X({ id: 'c36_a_brandt', title: 'Брандт', location: jest36, camp: jestCamp, ambient: frost36,
     text: [
       { text: '— Der Fünfzehnte, — говорит Брандт без предисловий. Пятнадцатое. Он, похоже, уже знает, что ты знаешь. — Danach sind wir allein. Ich brauche an jedem Bach einen, der nachts guckt. An der Seeve, hinter eurem Hof, brauche ich einen, der den Weg kennt.\n\nПосле него мы одни. Мне нужен на каждом ручье человек, который смотрит ночью. На Зеве, за вашим хутором, — тот, кто знает дорогу.' },
+      { when: v('w.c26_brandt', 'ally'), text: 'С той среды, когда вы пришли на его собрание, Брандт говорит с тобой, как со своим. Без предисловий.' },
+      { when: v('w.c26_brandt', 'hostile'), text: 'Брандт не забыл, как вы разошлись в ноябре. Говорит ровно, по делу. Руки не подаёт.' },
+      { when: flag('w.c34_brandt_owes'), text: 'Он добавляет, не глядя.\n\n— Und sag ihr: ich hab’s nicht vergessen.\n\nИ скажи ей: я не забыл.' },
       { when: flag('w.c36_ditch_marked'), text: 'Ты показываешь ему ладонь с записью: съезд у Гарльсторфа, правая канава. Брандт смотрит и кивает: «Gut. Genau so was».' },
     ],
     actions: [
       { id: 'c36_ab2_yes', label: 'Согласиться: Зеве — твой участок', minutes: 30, terminal: true, goto: 'c36_a_home',
         text: 'Брандт протягивает руку. Рукопожатие короткое и крепкое. «Ein Signal: drei Schüsse oder die Glocke an der Feuerwehr». Сигнал: три выстрела или колокол на пожарной части. Ты повторяешь, чтобы запомнить.', effects: [set36('ab2', 'yes'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, w36('seeve_watch', true), until36(16, 0)] },
       { id: 'c36_ab2_yard', label: 'Сказать: свой двор — да, за весь ручей не отвечаю', minutes: 30, terminal: true, goto: 'c36_a_home',
-        text: 'Брандт молчит, потом кивает. «Ehrlich. Ist mir lieber als ein Versprechen, das keiner hält». Честно. Мне это лучше, чем обещание, которое никто не сдержит.', effects: [set36('ab2', 'yard'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, until36(16, 0)] },
+        text: 'Брандт молчит, потом кивает.\n\n— Ehrlich. Ist mir lieber als ein Versprechen, das keiner hält.\n\nЧестно. Мне это лучше, чем обещание, которое никто не сдержит.', effects: [set36('ab2', 'yard'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, until36(16, 0)] },
       { id: 'c36_ab2_think', label: 'Сказать, что решишь вместе с {partner.ins}', minutes: 30, terminal: true, goto: 'c36_a_home',
         text: '— Bis Sonntag, — говорит Брандт. До воскресенья. — Dann ist Rat. Bei der Feuerwehr, nach dem Gottesdienst.\n\nПотом совет. В пожарной части, после службы.', effects: [set36('ab2', 'think'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, w36('council_sunday', true), until36(16, 0)] },
     ] }),
@@ -377,6 +380,6 @@ export const day36AScenes: Scene[] = [
       { id: 'c36_ah_car', label: 'Проверить Corsa: аккумулятор, масло, бензин', minutes: 40, terminal: true, goto: 'c36_yard', ambientDuring: frost36,
         text: 'Ты поднимаешь капот. Масло в норме, аккумулятор крутит бодро. Бензина в баке на донышке больше, чем ты думал{m:|а}, но меньше, чем хочется перед десятым.', effects: [set36('ah', 'car'), w36('car_checked', true), until36(17, 0)] },
       { id: 'c36_ah_henrike', label: 'Рассказать Хенрике про склад казармы и четырнадцатое', minutes: 40, terminal: true, goto: 'c36_yard',
-        text: 'Хенрике слушает, вытирая руки о фартук. Потом говорит: «Am Vierzehnten fährt Ole mit dem Trecker. Oder du. Aber einer fährt». Четырнадцатого Оле поедет на тракторе. Или ты. Но кто-то поедет.', effects: [set36('ah', 'henrike'), w36('henrike_depot', true), npc('henrike', 1), until36(17, 0)] },
+        text: 'Хенрике слушает, вытирая руки о фартук. Потом говорит.\n\n— Am Vierzehnten fährt Ole mit dem Trecker. Oder du. Aber einer fährt.\n\nЧетырнадцатого Оле поедет на тракторе. Или ты. Но кто-то поедет.', effects: [set36('ah', 'henrike'), w36('henrike_depot', true), npc('henrike', 1), until36(17, 0)] },
     ] }),
 ];
