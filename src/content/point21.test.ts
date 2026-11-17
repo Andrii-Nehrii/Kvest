@@ -705,6 +705,67 @@ describe('участок 30: мороз — опасная ночь по трё�
     }
   }, 90000);
 
+  // ───────────── Участок 38 ─────────────
+  const after37 = (ans: Record<string, string>, merle: string, kt37: Record<string, string>) => {
+    const b35 = after35(ans);
+    const s36 = fresh(mergeCp(b35, 36, leg(b35, 'A'), leg(b35, 'B')));
+    const b36 = completeCheckpoint(c, s36, both({ c3_new_merle36: merle, c3_new_gift36: 'potatoes' })).state;
+    const s37 = fresh(mergeCp(b36, 37, leg(b36, 'A'), leg(b36, 'B')));
+    if (kt37.c3_new_leave37 === 'pawel') { s37.vars['A.met.pawel'] = true; s37.npcs.pawel.alive = true; }
+    const kt = Object.fromEntries(Object.entries(kt37).filter(([id]) => id !== 'c3_new_leave37' || s37.vars['w.c35_way'] === 'east' || s37.vars['w.c35_east'] === 'yes'));
+    return completeCheckpoint(c, s37, both(kt)).state;
+  };
+
+  it('участок 38: север, хутор, Винзен, уход с Павлом — порознь на часть; миры сходятся', () => {
+    const routes: [Record<string, string>, string, Record<string, string>, string, string][] = [
+      [{ north: 'go', east: 'no', way: 'stay' }, 'merle', { c3_new_send37: 'both' }, 'farm', 'hof_luedemann'],
+      [{ north: 'together', east: 'give', way: 'north' }, 'all', { c3_new_send37: 'none' }, 'farm', 'hof_luedemann'],
+      [{ north: 'no', east: 'no', way: 'stay' }, 'stay', { c3_new_send37: 'none' }, 'north', 'hof_luedemann'],
+      [{ north: 'no', east: 'no', way: 'east' }, 'merle', { c3_new_leave37: 'pawel', c3_new_send37: 'morning' }, '', 'c38_moelln'],
+    ];
+    for (const [ans, merle, kt37, merleAt, place] of routes) {
+      const b37 = after37(ans, merle, kt37);
+      for (const p of P) expect(b37.chars[p].scene).toBe('c38_start');
+      if (place === 'c38_moelln') expect(b37.vars['w.c37_leave']).toBe('pawel');
+      const a = leg(b37, 'A'), b = leg(b37, 'B');
+      const s38 = mergeCp(b37, 38, a, b);
+      expect(s38.chars.A.time).toBe(s38.chars.B.time);
+      for (const p of P) { expect(s38.chars[p].location).toBe(place); expect(canAct(s38.chars[p].body)).toBe(true); }
+      if (merleAt) expect(s38.vars['w.c38_merle']).toBe(merleAt);
+      if (merleAt === 'farm') expect(s38.npcs.merle.location).toBe('hof_luedemann');
+      const kt = place === 'hof_luedemann' ? { c3_new_watch38: 'tomorrow', ...(merleAt === 'farm' ? { c3_new_bed38: 'room' } : {}) } : {};
+      const out = completeCheckpoint(c, s38, both(kt)).state;
+      if (place === 'hof_luedemann') expect(out.vars['w.c38_watch']).toBe('tomorrow');
+      for (const p of P) expect(out.chars[p].scene).toBe('c39_start');
+    }
+  }, 120000);
+
+  // ───────────── Участок 39 ─────────────
+  it('участок 39: дом после десятого — дежурство, сундук Оле, совет; миры сходятся', () => {
+    const routes: [Record<string, string>, string, Record<string, string>, Record<string, string>, Record<string, string>, Record<string, string>][] = [
+      [{ north: 'go', east: 'no', way: 'stay' }, 'merle', { c3_new_send37: 'both' }, { c3_new_watch38: 'tomorrow', c3_new_bed38: 'attic' }, { c39_b_attic: 'c39_ba_073' }, { c3_new_council39: 'guard', c3_new_depot39: 'both' }],
+      [{ north: 'no', east: 'no', way: 'stay' }, 'stay', { c3_new_send37: 'none' }, { c3_new_watch38: 'no', c3_new_bed38: 'room' }, { c39_b_attic: 'c39_ba_703', c39_b_attic2: 'c39_b2_hammer' }, { c3_new_council39: 'yards', c3_new_depot39: 'none' }],
+      [{ north: 'no', east: 'yes', way: 'stay' }, 'merle', { c3_new_leave37: 'army', c3_new_send37: 'morning' }, { c3_new_watch38: 'from15', c3_new_bed38: 'colony' }, {}, { c3_new_council39: 'brandt', c3_new_depot39: 'one', c3_new_army39: 'stay' }],
+    ];
+    for (const [ans, merle, kt37, kt38, br, kt39] of routes) {
+      const b37 = after37(ans, merle, kt37);
+      const s38 = fresh(mergeCp(b37, 38, leg(b37, 'A'), leg(b37, 'B')));
+      const k38 = Object.fromEntries(Object.entries(kt38).filter(([id]) => id !== 'c3_new_bed38' || s38.vars['w.c38_merle'] === 'farm'));
+      const b38 = completeCheckpoint(c, s38, both(k38)).state;
+      for (const p of P) expect(b38.chars[p].scene).toBe('c39_start');
+      const a = leg(b38, 'A'), b = leg(b38, 'B', br);
+      if (br.c39_b_attic === 'c39_ba_073') expect(Object.values(b.items).some(i => i.type === 'c39_crank_torch' && i.qty > 0)).toBe(true);
+      const s39 = mergeCp(b38, 39, a, b);
+      expect(s39.chars.A.time).toBe(s39.chars.B.time);
+      for (const p of P) { expect(s39.chars[p].location).toBe('hof_luedemann'); expect(canAct(s39.chars[p].body)).toBe(true); }
+      const k39 = Object.fromEntries(Object.entries(kt39).filter(([id]) => id !== 'c3_new_army39' || s39.vars['w.c37_leave'] === 'army'));
+      const out = completeCheckpoint(c, s39, both(k39)).state;
+      expect(out.vars['w.c39_council']).toBe(kt39.c3_new_council39);
+      expect(out.vars['w.c39_depot']).toBe(kt39.c3_new_depot39);
+      for (const p of P) expect(out.chars[p].scene).toBe('c40_start');
+    }
+  }, 150000);
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'

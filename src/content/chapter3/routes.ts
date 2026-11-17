@@ -18,6 +18,8 @@ import { point34Available, prepare34 } from './point34';
 import { point35Available, prepare35 } from './point35';
 import { point36Available, prepare36 } from './point36';
 import { point37Available, prepare37 } from './point37';
+import { point38Available, prepare38 } from './point38';
+import { point39Available, prepare39 } from './point39';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1080,4 +1082,28 @@ export const newEntry37: Scene = {
   actions: ([
     { id: 'c37_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c37_dawn', effects: [prepare37, { restUntil: at(39, 6, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point37Available, a.when ?? { always: true }) })),
+};
+
+// ───────────── Вход в участок 38 ─────────────
+export const newEntry38: Scene = {
+  id: 'c38_start', for: 'any', chapter: 'ch3', title: 'Десятое', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point38Available, text: 'Ночь на четверг. Мороз крепчает, стёкла звенят, если тронуть. Дом спит плохо: каждый раз, когда кто-то переворачивается, кто-то другой просыпается.\n\nТы лежишь и слушаешь, как тикают часы на кухне. Будильник Хенрике заведён на половину пятого.' },
+    { when: not(point38Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c38_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c38_dawn', effects: [prepare38, { restUntil: at(40, 4, 30), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point38Available, a.when ?? { always: true }) })),
+};
+
+// ───────────── Вход в участок 39 ─────────────
+export const newEntry39: Scene = {
+  id: 'c39_start', for: 'any', chapter: 'ch3', title: 'Пятница', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point39Available, text: 'Ночь на пятницу. Дом полон дыхания: на лавках, на чердаке, в комнатах. Кто-то бормочет во сне по-немецки, кто-то по-русски.\n\nМост закрыт. Все, кто вернулся, здесь. Ты засыпаешь, считая их по именам.' },
+    { when: not(point39Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c39_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c39_dawn', effects: [prepare39, { restUntil: at(41, 7, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point39Available, a.when ?? { always: true }) })),
 };
