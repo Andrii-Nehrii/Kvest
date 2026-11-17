@@ -38,6 +38,8 @@ import { point36Available } from './chapter3/point36';
 import { point37Available } from './chapter3/point37';
 import { point38Available } from './chapter3/point38';
 import { point39Available } from './chapter3/point39';
+import { point40Available } from './chapter3/point40';
+import { point41Available } from './chapter3/point41';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -351,6 +353,9 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       if (option.id === 'boards') s.vars['w.c3_f8_window_broken'] = true;
       if (id === 'c3_new_north35' && option.id === 'together') s.vars['w.c35_jannik'] = true;
       if (id === 'c3_new_leave37' && option.id === 'pawel') { s.vars['w.c35_way'] = 'east'; s.vars['A.met.pawel'] = true; s.npcs.pawel.alive = true; }
+      if (id === 'c3_new_lea40') { s.vars['w.c39_lea_date'] = 'wednesday'; s.npcs.c21_lea ??= introducedPerson(c.npcs.c21_lea, 0); s.npcs.c21_lea.alive = true; s.npcs.c21_lea.location = 'hof_luedemann'; }
+      if (id === 'c3_new_jorg41') s.vars['w.c39_strangers'] = 'barn';
+      if (id === 'c3_new_vet41') { s.vars['w.c38_merle'] = 'farm'; s.npcs.merle.alive = true; }
       if (id === 'c3_new_army39') { s.vars['w.c37_leave'] = 'army'; s.npcs.c15_tobias ??= introducedPerson(c.npcs.c15_tobias, 0); s.npcs.c15_tobias.alive = true; }
       if (id === 'c3_new_bed38') { s.vars['w.c36_merle'] = 'merle'; s.vars['w.c36_merle_seat'] = true; s.npcs.merle.alive = true; }
       if (id === 'c3_new_leave37' && option.id === 'army') { s.vars['w.c35_east'] = 'yes'; s.npcs.c15_tobias ??= introducedPerson(c.npcs.c15_tobias, 0); s.npcs.c15_tobias.alive = true; }
@@ -405,7 +410,9 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 36 || P.every(pid => evalCond({ s: out.state, c, pid }, point36Available)))
       && (n + 1 !== 37 || P.every(pid => evalCond({ s: out.state, c, pid }, point37Available)))
       && (n + 1 !== 38 || P.every(pid => evalCond({ s: out.state, c, pid }, point38Available)))
-      && (n + 1 !== 39 || P.every(pid => evalCond({ s: out.state, c, pid }, point39Available)))) {
+      && (n + 1 !== 39 || P.every(pid => evalCond({ s: out.state, c, pid }, point39Available)))
+      && (n + 1 !== 40 || P.every(pid => evalCond({ s: out.state, c, pid }, point40Available)))
+      && (n + 1 !== 41 || P.every(pid => evalCond({ s: out.state, c, pid }, point41Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

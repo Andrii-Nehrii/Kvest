@@ -766,6 +766,107 @@ describe('участок 30: мороз — опасная ночь по трё�
     }
   }, 150000);
 
+  // ───────────── Участок 40 ─────────────
+  const after39 = (ans: Record<string, string>, kt37: Record<string, string>, kt38: Record<string, string>, kt39: Record<string, string>) => {
+    const b37 = after37(ans, 'merle', kt37);
+    const s38 = fresh(mergeCp(b37, 38, leg(b37, 'A'), leg(b37, 'B')));
+    const k38 = Object.fromEntries(Object.entries(kt38).filter(([id]) => id !== 'c3_new_bed38' || s38.vars['w.c38_merle'] === 'farm'));
+    const b38 = completeCheckpoint(c, s38, both(k38)).state;
+    const s39 = fresh(mergeCp(b38, 39, leg(b38, 'A'), leg(b38, 'B')));
+    const k39 = Object.fromEntries(Object.entries(kt39).filter(([id]) => id !== 'c3_new_army39' || s39.vars['w.c37_leave'] === 'army'));
+    return completeCheckpoint(c, s39, both(k39)).state;
+  };
+  const b39std = () => after39({ north: 'go', east: 'no', way: 'stay' }, { c3_new_send37: 'both' }, { c3_new_watch38: 'tomorrow', c3_new_bed38: 'attic' }, { c3_new_council39: 'yards', c3_new_depot39: 'one' });
+  const kt40 = (s: GameState, who: readonly PlayerId[] = P) => Object.fromEntries(who.map(p => [p, { c3_new_after40: 'neighbors', ...(s.vars['w.c39_lea_date'] === 'wednesday' ? { c3_new_lea40: 'go' } : {}) }]));
+
+  it('участок 40: оттепель — осторожные дома, склад, армия уходит; миры сходятся', () => {
+    const b39 = b39std();
+    for (const p of P) expect(b39.chars[p].scene).toBe('c40_start');
+    const careful: Record<string, string> = { c40_a_n1: 'c40_an1_bell', c40_a_n2: 'c40_an2_back', c40_a_n3: 'c40_an3_shout', c40_b_n1: 'c40_bn1_call', c40_b_n2: 'c40_bn2_table', c40_b_n3: 'c40_bn3_stay' };
+    const a = leg(b39, 'A', careful), b = leg(b39, 'B', careful);
+    for (const [pid, l] of [['A', a], ['B', b]] as const) { expect(l.vars[`${pid}.c40_down`]).toBeUndefined(); expect(canAct(l.chars[pid].body)).toBe(true); }
+    expect(Object.values(a.items).some(i => i.type === 'c16_flour' && i.qty >= 10 && i.at.kind === 'char')).toBe(true);
+    const s40 = mergeCp(b39, 40, a, b);
+    expect(s40.chars.A.time).toBe(s40.chars.B.time);
+    const out = completeCheckpoint(c, s40, kt40(s40)).state;
+    expect(out.vars['w.c40_after']).toBe('neighbors');
+    expect(out.vars['w.c40_neighbor']).toBeUndefined();
+    for (const p of P) expect(out.chars[p].scene).toBe('c41_start');
+  }, 150000);
+
+  const downIn40 = (pid: PlayerId) => {
+    const b39 = b39std();
+    const forced: Record<string, string> = pid === 'A'
+      ? { c40_a_n1: 'c40_an1_look', c40_a_n2: 'c40_an2_hold', c40_a_n3: 'c40_an3_run' }
+      : { c40_b_n1: 'c40_bn1_go', c40_b_n2: 'c40_bn2_hold', c40_b_n3: 'c40_bn3_run' };
+    for (let i = 0; i < 10; i++) {
+      const base = structuredClone(b39) as GameState; base.seed = `${base.seed}-down40-${i}`;
+      const d = leg(base, pid, forced, 'c40_night_end');
+      if (segmentFinished(c, d, pid) !== 'incapacitated') continue;
+      const rescuer = pid === 'A' ? 'B' : 'A';
+      const s40 = mergeSegments(c, base, { [pid]: d, [rescuer]: leg(base, rescuer) });
+      syncClocks(c, s40, c.checkpoints.find(x => x.index === 40)!.syncNotBefore); mergeNotes(c, s40, 40);
+      return completeCheckpoint(c, s40, kt40(s40, [rescuer])).state;
+    }
+    return undefined;
+  };
+  for (const pid of P)
+    it(`участок 40: безрассудная ночь — выбыл ${pid}, второй доигрывает, смерти нет`, () => {
+      const out = downIn40(pid);
+      expect(out, 'безрассудная цепочка должна приводить к выбыванию').toBeDefined();
+      const rescuer = pid === 'A' ? 'B' : 'A';
+      expect(out!.chars[pid].controlledBy).toBe(rescuer);
+      expect(out!.chars[pid].body.consciousness).not.toBe('dead');
+      expect(out!.chars[pid].location).toBe('hof_luedemann');
+      expect(out!.chars[rescuer].scene).toBe('c41_start');
+    }, 150000);
+
+  it('участок 40: уход с армией — понедельник и казарма, дальше заглушка', () => {
+    const b39 = after39({ north: 'no', east: 'yes', way: 'stay' }, { c3_new_leave37: 'army', c3_new_send37: 'morning' }, { c3_new_watch38: 'from15', c3_new_bed38: 'colony' }, { c3_new_council39: 'guard', c3_new_depot39: 'none', c3_new_army39: 'go' });
+    if (b39.vars['w.c39_army'] !== 'go') return; // Тобиаса в этой сборке нет — ветка недостижима
+    const a = leg(b39, 'A'), b = leg(b39, 'B');
+    for (const [pid, l] of [['A', a], ['B', b]] as const) expect(l.chars[pid].location).toBe('c18_lueneburg');
+    const out = completeCheckpoint(c, mergeCp(b39, 40, a, b), {}).state;
+    for (const p of P) expect(out.chars[p].scene).toBe('c41_start');
+  }, 150000);
+
+  // ───────────── Участок 41 ─────────────
+  const b40std = () => { const b39 = b39std(); const s40 = mergeCp(b39, 40, leg(b39, 'A'), leg(b39, 'B')); return completeCheckpoint(c, s40, kt40(s40)).state; };
+  const kt41 = (s: GameState, who: readonly PlayerId[] = P) => Object.fromEntries(who.map(p => [p, {
+    c3_new_xmas41: 'quiet',
+    ...(s.vars['w.c39_strangers'] === 'barn' ? { c3_new_jorg41: 'stay' } : {}),
+    ...(s.vars['w.c38_merle'] === 'farm' ? { c3_new_vet41: 'one' } : {}),
+  }]));
+
+  it('участок 41: после ночи — пост, корова, Йорг; миры сходятся; дальше заглушка', () => {
+    const b40 = b40std();
+    for (const p of P) expect(b40.chars[p].scene).toBe('c41_start');
+    for (const code of [{}, { c41_a_post: 'c41_ap2_1215' }, { c41_a_post: 'c41_ap2_leave' }] as Record<string, string>[]) {
+      const a = leg(b40, 'A', code), b = leg(b40, 'B');
+      const s41 = mergeCp(b40, 41, a, b);
+      expect(s41.chars.A.time).toBe(s41.chars.B.time);
+      const out = completeCheckpoint(c, s41, kt41(s41)).state;
+      expect(out.vars['w.c41_xmas']).toBe('quiet');
+      for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c42_start'); }
+    }
+  }, 200000);
+
+  for (const pid of P)
+    it(`участок 41: выбыл ${pid} в 40-й — второй выхаживает, к вечеру оба на ногах`, () => {
+      const b40 = downIn40(pid);
+      expect(b40).toBeDefined();
+      const rescuer = pid === 'A' ? 'B' : 'A';
+      for (const forced of [{}, { c41_r_bed: 'c41_rb_stove', c41_r_doc: 'c41_rd_out', c41_r_noon: 'c41_rn_sit', c41_r_visit: 'c41_rv_back' }] as Record<string, string>[]) {
+        const r = leg(b40!, rescuer, forced);
+        expect(r.chars[pid].body.consciousness).not.toBe('dead');
+        const s41 = mergeSegments(c, b40!, { [rescuer]: r });
+        syncClocks(c, s41, c.checkpoints.find(x => x.index === 41)!.syncNotBefore); mergeNotes(c, s41, 41);
+        expect(canAct(s41.chars[pid].body), `${JSON.stringify(forced)} blood=${s41.chars[pid].body.bloodLoss}`).toBe(true);
+        const out = completeCheckpoint(c, s41, kt41(s41)).state;
+        for (const p of P) { expect(out.chars[p].controlledBy).toBe(p); expect(out.chars[p].scene).toBe('c42_start'); }
+      }
+    }, 200000);
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'
