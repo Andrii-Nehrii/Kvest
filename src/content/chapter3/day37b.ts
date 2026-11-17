@@ -40,6 +40,10 @@ export const day37BScenes: Scene[] = [
         text: 'Эва складывает, ты держишь углы. В узле фотография в рамке, без стекла: Хельмут, молодой, у машины. Эва кладёт её лицом вниз, между двумя кофтами.', effects: [set37('bk', 'eva'), { if: { npc: 'c8_eva', alive: true }, then: [{ npc: 'c8_eva', trust: 1 }] }, until37(7, 30)] },
       { id: 'c37_bk_chest', label: 'Разобрать с Хенрике тёплые вещи', when: all(not(kasia36), not(evaHere)), minutes: 40, terminal: true, outcomes: toGrave,
         text: 'Носки на всех, рукавицы на всех, кроме одной пары. Хенрике отдаёт свою: «Ich bleibe ja drinnen». Я-то в доме остаюсь.', effects: [set37('bk', 'chest'), npc('henrike', 1), until37(7, 30)] },
+      { id: 'c37_bk_tea', label: 'Принести чаю и посидеть рядом молча', minutes: 30, terminal: true, outcomes: toGrave,
+        text: 'Две кружки, табурет. Ты садишься рядом и ничего не говоришь. Через какое-то время руки рядом с тобой перестают перекладывать вещи с места на место.', effects: [set37('bk', 'tea'), { body: 'stress', delta: -3 }, until37(7, 30)] },
+      { id: 'c37_bk_piles', label: 'Разложить вещи по стопкам: нужное, лишнее, чужое', minutes: 30, terminal: true, outcomes: toGrave,
+        text: 'Три стопки на кровати: нужное, лишнее, чужое. Чужого оказывается больше всего: вещи тех, кого нет. Над этой стопкой вы долго молчите.', effects: [set37('bk', 'piles'), until37(7, 30)] },
     ] }),
 
   X({ id: 'c37_b_grave', title: 'Яблоня', camp: yard14, ambient: frost37,
@@ -139,6 +143,8 @@ export const day37BScenes: Scene[] = [
         text: 'Просроченное в сторону, остальное по кучкам: от боли, от жара, от живота, для ран. Ты подписываешь каждую кучку на клочке картона. Хенрике смотрит и говорит.\n\n— Ordnung.\n\nПорядок.', effects: [set37('bb', 'sort'), w37('farm_kit', true), until37(11, 0)] },
       { id: 'c37_bb_okafor', label: 'Собрать сумку для Окафора: ему ехать одному', when: all(not(bNorth36), okaforComes), minutes: 40, terminal: true, goto: 'c37_b_pens',
         text: 'Бинты, жаропонижающее, термоодеяло, хлеб. Ты завязываешь сумку и пишешь на бирке: «Okafor». Он поймёт.', effects: [set37('bb', 'okafor'), w37('okafor_bag', true), until37(11, 0)] },
+      { id: 'c37_bb_label', label: 'Подписать все пузырьки и пачки, чтобы понял кто угодно', minutes: 40, terminal: true, goto: 'c37_b_pens',
+        text: 'Пластырь, ручка, крупные буквы: от чего, сколько, когда. Если что-то случится с тобой, разберётся любой.', effects: [set37('bb', 'label'), until37(11, 0)] },
     ] }),
 
   X({ id: 'c37_b_pens', title: 'Ручки', camp: kitchen14,
@@ -161,6 +167,8 @@ export const day37BScenes: Scene[] = [
         text: 'Хенрике отсыпает в бумажку восемь кусков. «Für das Mädchen». Для девочки. Ты сворачиваешь кулёк и кладёшь в карман.', effects: [set37('bp', 'sugar'), w37('sugar_merle', true), until37(11, 30)] },
       { id: 'c37_bp_note', label: 'Записать для Мерле, где искать инсулин: аптеки, ветклиники', when: not(insulinHome36), minutes: 25, terminal: true, outcomes: toLea,
         text: 'Ты пишешь на листке всё, что знаешь: аптеки Аренсбурга, больница, армейский медпункт. В конце, подумав, добавляешь: «Ветклиника. Для собак тоже бывает инсулин». Сама не знаешь, откуда это помнишь.', effects: [set37('bp', 'note'), w37('vet_idea', true), until37(11, 30)] },
+      { id: 'c37_bp_sweet', label: 'Сложить в пакет для Мерле сахар, сок и печенье', when: not(insulinHome36), minutes: 25, terminal: true, outcomes: toLea,
+        text: 'Всё сладкое, что нашлось в доме, в один пакет: кусковой сахар, банка сока, пачка печенья. Если сахар упадёт в дороге, это главное.', effects: [set37('bp', 'sweet'), until37(11, 30)] },
     ] }),
 
   X({ id: 'c37_b_lea', title: 'Лея', camp: kitchen14,
@@ -180,6 +188,8 @@ export const day37BScenes: Scene[] = [
         text: 'Лея рассказывает: как Мозес однажды съел полкило фарша и ничуть не раскаялся. Как спал у Финна на голове. Она говорит о брате впервые. Потом замолкает и уходит за бинтами.', effects: [set37('bl', 'moses'), npc('c21_lea', 1), until37(12, 5)] },
       { id: 'c37_bl_tea', label: 'Налить ей чаю и не расспрашивать', minutes: 25, terminal: true, goto: 'c37_b_henrike',
         text: 'Лея пьёт чай обеими руками. Молчит. Уходит, кивнув. Иногда это лучшее, что можно сделать.', effects: [set37('bl', 'tea'), until37(12, 0)] },
+      { id: 'c37_bl_kit', label: 'Попросить её помочь с аптечкой на завтра', when: not(v('w.c36_nurse', 'lea')), minutes: 25, terminal: true, goto: 'c37_b_henrike',
+        text: 'Лея раскладывает бинты по пакетам быстрее тебя и подписывает каждый. Пока руки заняты, говорить легче, и она рассказывает больше, чем собиралась.', effects: [set37('bl', 'kit'), until37(12, 0)] },
     ] }),
 
   X({ id: 'c37_b_henrike', title: 'Хенрике', camp: kitchen14,
@@ -214,6 +224,8 @@ export const day37BScenes: Scene[] = [
         text: 'Нина смотрит на тебя подозрительно, потом соглашается. «За старшую — это хорошо». Она уже прикидывает, кому что поручит.', effects: [set37('bn', 'task'), npc('c7_nina', 1), npc('henrike', 1), until37(14, 45)] },
       { id: 'c37_bn_note', label: 'Написать Нине записку: передать завтра у школы', when: not(ninaFarm), minutes: 30, terminal: true, goto: 'c37_b_letter',
         text: 'Ты пишешь коротко, по-русски: что всё в порядке, что Хенрике передаёт привет, что корова дала сегодня полный подойник. Нине будет приятно, что про корову.', effects: [set37('bn', 'note'), w37('nina_note', true), until37(14, 40)] },
+      { id: 'c37_bn_bed', label: 'Поправить её постель и положить на подушку яблоко', when: not(ninaFarm), minutes: 30, terminal: true, goto: 'c37_b_letter',
+        text: 'Ты разглаживаешь одеяло и кладёшь на подушку яблоко из погреба, красное. Когда Нина вернётся, оно будет её ждать.', effects: [set37('bn', 'bed'), until37(14, 40)] },
     ] }),
 
   X({ id: 'c37_b_letter', title: 'Письмо', camp: kitchen14,
@@ -228,6 +240,8 @@ export const day37BScenes: Scene[] = [
         text: '«Frau Hartmann, Ihre Tochter Lea lebt. Sie ist in Jesteburg, beim Doktor Sander». Фрау Хартман, ваша дочь Лея жива. Она в Йестебурге, у доктора Зандер. Ты не {m:спросил|спросила} Лею. Но некоторые письма лучше отправить, чем обсуждать.', effects: [set37('bw', 'bergen'), w37('bergen_letter', true), until37(15, 15)] },
       { id: 'c37_bw_none', label: 'Не писать: что ни напиши, всё не то', minutes: 20, terminal: true, goto: 'c37_b_bread',
         text: 'Ты берёшь лист, пишешь первую строчку и зачёркиваешь. Вторую тоже. Лист уходит в печку.', effects: [set37('bw', 'none'), until37(15, 5)] },
+      { id: 'c37_bw_koehler', label: 'Написать Кёлер в пункт: спасибо за всё с ноября', minutes: 20, terminal: true, goto: 'c37_b_bread',
+        text: 'Полстраницы для Кёлер: спасибо за муку, за письма, за то, что не задавала лишних вопросов. Завтра в Винзене отдашь в почту Красного Креста.', effects: [set37('bw', 'koehler'), until37(15, 5)] },
     ] }),
 
   X({ id: 'c37_b_bread', title: 'Хлеб', camp: kitchen14,
@@ -250,7 +264,7 @@ export const day37BScenes: Scene[] = [
       { when: okaforComes, text: 'Окафор пришёл из колонии к вечеру. Стоит у колодца в длинной куртке, руки в карманах.' },
       { when: all(okaforComes, bNorth36), text: '— Tomorrow you and I. First car. I will do the old ones, you the young ones. Agreed?\n\nЗавтра ты и я. Первая машина. Я беру стариков, ты — молодых. Договорились?' },
       { when: all(okaforComes, not(bNorth36)), text: '— Tomorrow I go alone. If I am not back by seven in the evening, the bridge is closed. Then I stay there. Tell Mrs Lüdemann.\n\nЗавтра я еду один. Если к семи вечера меня нет, мост закрыт. Тогда я остаюсь там. Скажи фрау Людеман.' },
-      { when: not(okaforComes), text: 'Окафор далеко, в колонии у Уте, или уже в Винзене. Завтра он поедет на север. Ты стоишь у колодца и думаешь, что ему сказать, если увидишь.' },
+      { when: not(okaforComes), text: 'Окафора здесь нет. Завтра он поедет на север. Ты стоишь у колодца и думаешь, что ему сказать, если увидишь.' },
     ],
     actions: [
       { id: 'c37_bo_agree', label: 'Договориться: кто что делает в машине', when: all(okaforComes, bNorth36), minutes: 30, terminal: true, goto: 'c37_b_neighbor', ambientDuring: frost37,
@@ -261,6 +275,10 @@ export const day37BScenes: Scene[] = [
         text: 'Окафор кивает.\n\n— I will tell her. In German, so she believes.\n\nСкажу. По-немецки, чтобы поверила.', effects: [set37('bo', 'merle'), w37('merle_waited', true), until37(16, 30)] },
       { id: 'c37_bo_note', label: 'Написать Окафору записку и передать через Кёлер', when: not(okaforComes), minutes: 25, terminal: true, goto: 'c37_b_neighbor', ambientDuring: frost37,
         text: 'Ты пишешь коротко, по-английски: удачи, береги себя, привези её, если сможешь. Кёлер завтра едет в Винзен, она передаст.', effects: [set37('bo', 'note'), until37(16, 25)] },
+      { id: 'c37_bo_tea', label: 'Вынести ему горячего чаю', when: okaforComes, minutes: 25, terminal: true, goto: 'c37_b_neighbor',
+        text: 'Окафор берёт кружку двумя руками. «Thank you. In Hamburg I drank coffee. Now tea is a luxury». В Гамбурге я пил кофе. Теперь и чай — роскошь. Он смеётся, впервые за неделю.', effects: [set37('bo', 'tea'), until37(16, 25)] },
+      { id: 'c37_bo_parcel', label: 'Собрать для Окафора свёрток: шарф, перчатки, хлеб', when: not(okaforComes), minutes: 25, terminal: true, goto: 'c37_b_neighbor',
+        text: 'Свёрток с запиской «Okafor». Утром его отнесут к школе в Винзене вместе с почтой.', effects: [set37('bo', 'parcel'), until37(16, 25)] },
     ] }),
 
     X({ id: 'c37_b_neighbor', title: 'Топор', camp: yard14, safe: false, ambient: frost37,

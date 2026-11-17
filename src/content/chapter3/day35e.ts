@@ -99,7 +99,7 @@ export const day35LateScenes: Scene[] = [
       { id: 'c35_al_dry', label: 'Взять полотенце и вытирать посуду молча', minutes: 40, terminal: true, goto: 'c35_checkpoint',
         text: 'Вы стоите рядом. Она моет, ты вытираешь. Ни слова. Когда последняя кружка на полке, Хенрике кладёт ладонь тебе на щёку, на секунду, и уходит спать.', effects: [set35('al', 'dry'), npc('henrike', 1), until35(21, 0)] },
       { id: 'c35_al_out', label: 'Выйти во двор, к колонке, подышать', minutes: 40, terminal: true, goto: 'c35_checkpoint', ambientDuring: frost35,
-        text: 'Звёзды. Мороз. Колонка, укутанная или нет. Окна дома светятся одно за другим и гаснут. Ты стоишь, пока не гаснет последнее.', effects: [set35('al', 'out'), until35(21, 0)] },
+        text: 'Звёзды. Мороз. Колонка у крыльца в инее. Окна дома светятся одно за другим и гаснут. Ты стоишь, пока не гаснет последнее.', effects: [set35('al', 'out'), until35(21, 0)] },
     ] }),
 
   X({ id: 'c35_b_late', title: 'Поздно вечером', camp: kitchen14, onEnter: [until35(20, 0)],

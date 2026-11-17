@@ -130,6 +130,8 @@ export const day37AScenes: Scene[] = [
         text: 'Поставить, прицелиться, ударить. Поставить. Медленнее, зато ни одного скользящего удара. Куча растёт не так быстро, как хотелось бы.', effects: [set37('aw', 'slow'), { body: 'fatigue', delta: 8 }, until37(11, 0)] },
       { id: 'c37_aw_saw', label: 'Попросить у Хенрике пилу: распилить, а не колоть', when: { has: 'c32_saw' }, minutes: 45, terminal: true, goto: 'c37_a_brandt', ambientDuring: frost37,
         text: 'Пила визжит на весь двор. Чурбаки ложатся ровными кругами. Колоть их после пилы — одно удовольствие.', effects: [set37('aw', 'saw'), { body: 'fatigue', delta: 6 }, until37(11, 0)] },
+      { id: 'c37_aw_kids', label: 'Поставить детей складывать поленья', minutes: 45, terminal: true, goto: 'c37_a_brandt',
+        text: 'Дети таскают поленья по два, по три и спорят, кто больше. Поленница растёт быстрее, а ты колешь и слушаешь их спор.', effects: [set37('aw', 'kids'), until37(11, 0)] },
     ] }),
 
   X({ id: 'c37_a_brandt', title: 'Дежурства', camp: yard14, ambient: frost37,
@@ -269,6 +271,8 @@ export const day37AScenes: Scene[] = [
         text: 'Эва кивает, как будто ты подтвердил{m:|а} то, что она уже решила.\n\n— Dann fahre ich. Am Fünfzehnten.\n\nТогда поеду. Пятнадцатого. Пальто она так и не расстёгивает.', effects: [set37('ao', 'eva_go'), w37('eva', 'army'), until37(17, 0)] },
       { id: 'c37_ao_book', label: 'Посмотреть тетрадь Хенрике', when: all(not(oleHome33), not(evaHere)), minutes: 25, terminal: true, goto: 'c37_radio',
         text: 'Столбики, даты, цифры. В конце страницы Хенрике написала: «Bis März, wenn keiner kommt». До марта, если никто не придёт. И ниже, мельче: «Es kommt immer einer». Кто-нибудь всегда приходит.', effects: [set37('ao', 'book'), npc('henrike', 1), until37(17, 0)] },
+      { id: 'c37_ao_show', label: 'Показать всем, кто остаётся, где лежат патроны и ракеты', minutes: 25, terminal: true, goto: 'c37_radio',
+        text: 'Банка с патронами на верхней полке шкафа, ракеты в ящике под лавкой, фонарь у двери. Ты показываешь это каждому, кто остаётся. Пусть знают и без тебя.', effects: [set37('ao', 'show'), until37(17, 0)] },
     ] }),
 
   X({ id: 'c37_a_pack', title: 'Сборы', camp: kitchen14,

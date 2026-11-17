@@ -48,6 +48,8 @@ export const day42BScenes: Scene[] = [
         text: 'Свечи, курица, мука, яблоки. Хенрике вычёркивает то, чего нет, и пишет рядом, чем заменить. Список остаётся таким же длинным.', effects: [set42('bc', 'list'), until42(47, 8, 20)] },
       { id: 'c42_bc_tea', label: 'Принести всем чаю и уйти к делам', minutes: 30, terminal: true, goto: 'c42_b_bake',
         text: 'Кружки на поднос, по кружке каждому. Спасибо говорят все, даже те, кто обычно молчит.', effects: [set42('bc', 'tea'), until42(47, 8, 10)] },
+      { id: 'c42_bc_stove', label: 'Растопить печь наверху, пока все внизу', minutes: 30, terminal: true, goto: 'c42_b_bake',
+        text: 'Сухие поленья, растопка, спичка. Через полчаса наверху можно сидеть без куртки, и туда сразу перебирается кто-то с книгой.', effects: [set42('bc', 'stove'), until42(47, 8, 10)] },
     ] }),
 
   X({ id: 'c42_b_bake', title: 'Тесто', camp: kitchen14,
@@ -65,6 +67,8 @@ export const day42BScenes: Scene[] = [
         text: 'Хенрике соглашается: хлеб важнее. Печенья будет одна маленькая партия, для детей. Ты месишь хлебное тесто, пока не начинают болеть запястья.', effects: [set42('bb', 'save'), until42(47, 9, 30)] },
       { id: 'c42_bb_bread', label: 'Месить хлеб с Хенрике', when: not(tree42), minutes: 60, terminal: true, goto: 'c42_b_talk',
         text: 'Вы месите в четыре руки. Хенрике говорит, что в детстве на Рождество пекли штоллен на всю деревню. «Und jetzt Brot. Ist auch gut». А теперь хлеб. Тоже хорошо.', effects: [set42('bb', 'bread'), npc('henrike', 1), until42(47, 9, 30)] },
+      { id: 'c42_bb_kids', label: 'Позвать детей месить и лепить', minutes: 60, terminal: true, goto: 'c42_b_talk',
+        text: 'Мука на полу, на носах, на рукавах. Дети лепят кривые звёзды и свои инициалы. Хенрике делает вид, что сердится.', effects: [set42('bb', 'kids'), until42(47, 9, 30)] },
     ] }),
 
   X({ id: 'c42_b_talk', title: 'Наедине', camp: house14,
@@ -89,6 +93,8 @@ export const day42BScenes: Scene[] = [
         text: 'Хенрике кивает, как будто подписала договор. Потом достаёт из ящика пакет с семенами и раскладывает его на столе: морковь, свёкла, лук. «Dann planen wir». Тогда планируем.', effects: [set42('bt', 'stay'), npc('henrike', 2), until42(47, 10, 30)] },
       { id: 'c42_bt_unsure', label: 'Сказать честно: пока не знаем', when: all(not(merle42), not(nina42)), minutes: 60, terminal: true, goto: 'c42_b_school',
         text: 'Хенрике не обижается. «Ehrlich ist besser». Честно — лучше. Но пакет с семенами она так и не достаёт.', effects: [set42('bt', 'unsure'), until42(47, 10, 30)] },
+      { id: 'c42_bt_hug', label: 'Обнять и ничего не говорить', when: not(merle42), minutes: 60, terminal: true, goto: 'c42_b_school',
+        text: 'Ты обнимаешь, крепко, и молчишь. Слов не нужно. Через минуту тебя отпускают первыми.', effects: [set42('bt', 'hug'), until42(47, 10, 30)] },
     ] }),
 
   X({ id: 'c42_b_school', title: 'Школа', camp: kitchen14,
@@ -161,6 +167,8 @@ export const day42BScenes: Scene[] = [
         text: 'Хрипов меньше, жара нет. Ты оставляешь жаропонижающее на всякий случай и объясняешь фрау Ханзен, когда давать. Она записывает на обороте конверта.', effects: [set42('bh', 'med'), until42(47, 15, 30)] },
       { id: 'c42_bh_sit', label: 'Посидеть с фрау Ханзен у окна', when: all(not(hansenDead42), not(hansenHere42)), minutes: 60, terminal: true, goto: 'c42_b_lea',
         text: 'Она штопает, ты держишь моток. Она рассказывает про внуков в Бремене, от которых ничего с ноября. Потом замолкает, и вы просто сидите.', effects: [set42('bh', 'sit'), until42(47, 15, 30)] },
+      { id: 'c42_bh_card', label: 'Оставить им открытку и горсть печенья', minutes: 60, terminal: true, goto: 'c42_b_lea',
+        text: 'Открытка с кривой звездой, печенье в бумаге. Фрау Ханзен ставит открытку на буфет, на самое видное место.', effects: [set42('bh', 'card'), until42(47, 15, 30)] },
     ] }),
 
   X({ id: 'c42_b_lea', title: 'Письма', camp: kitchen14,
@@ -183,6 +191,8 @@ export const day42BScenes: Scene[] = [
         text: 'Ты пишешь коротко: живы, хутор держится, спасибо за всё с ноября. Открытку отнесёт Лукас в понедельник.', effects: [set42('bl', 'koehler'), until42(47, 16, 30)] },
       { id: 'c42_bl_diary', label: 'Записать в тетрадь этот день', when: all(not(leaGone42), not(leaHome42)), minutes: 45, terminal: true, goto: 'c42_b_dusk',
         text: '«17 декабря. Печенье. Звёзды. Уте зовёт на Рождество». Первая запись за месяц, в которой никто не умер.', effects: [set42('bl', 'diary'), until42(47, 16, 30)] },
+      { id: 'c42_bl_window', label: 'Посидеть с письмом у окна, ничего не делая', minutes: 45, terminal: true, goto: 'c42_b_dusk',
+        text: 'Поле, лесополоса, дым над колонией. Бумага лежит на коленях. Полчаса ты просто сидишь, и никто тебя не трогает.', effects: [set42('bl', 'window'), until42(47, 16, 30)] },
     ] }),
 
   X({ id: 'c42_b_dusk', title: 'Свечи', camp: kitchen14,
@@ -202,7 +212,7 @@ export const day42BScenes: Scene[] = [
   X({ id: 'c42_b_night', title: 'Чердак', camp: house14,
     text: [
       { when: merle42, text: 'Мерле не спустилась к завтраку. Ты поднимаешься на чердак. Она сидит на кровати мокрая от пота, руки трясутся. Говорит медленно, путает слова.' },
-      { when: merle42, text: 'На табурете нетронутая тарелка со вчерашнего ужина.' },
+      { when: merle42, text: 'На табурете нетронутая тарелка со вчерашнего ужина. Второй раз за неделю.' },
       { when: not(merle42), text: 'Колодец за ночь затянуло льдом. Хенрике стоит над ним с ведром и ломом и не знает, с какой стороны начать.' },
     ],
     actions: [
@@ -216,6 +226,10 @@ export const day42BScenes: Scene[] = [
         text: 'Лом, удар, ещё удар. Лёд толстый, в палец. Ведро уходит вниз с плеском. Хенрике держит верёвку и кивает тебе: «Danke. Ich wollte dich was fragen». Спасибо. Я хотела тебя кое о чём спросить.', effects: [set42('bn', 'ice'), until42(48, 7, 40)] },
       { id: 'c42_bn_kettle', label: 'Принести с плиты кипятку и растопить лёд', when: not(merle42), minutes: 30, terminal: true, goto: 'c42_b_notebook', ambientDuring: fri42,
         text: 'Чайник кипятку в лунку. Лёд шипит и проседает. Хенрике смеётся: «Klug». Умно. Потом говорит, что хотела тебя кое о чём спросить.', effects: [set42('bn', 'kettle'), until42(48, 7, 40)] },
+      { id: 'c42_bn_stay', label: 'Сесть рядом и ждать, держа за руку', when: merle42, minutes: 30, terminal: true, goto: 'c42_b_notebook',
+        text: 'Ты сидишь рядом и не уходишь. Потом приносишь сахар. Потом снова сидишь. Мерле приходит в себя медленнее, чем могла бы, но приходит.', effects: [set42('bn', 'stay'), until42(48, 7, 40)] },
+      { id: 'c42_bn_well', label: 'Набрать воды из бочки под водостоком', when: not(merle42), minutes: 30, terminal: true, goto: 'c42_b_notebook',
+        text: 'Бочка под желобом тоже замёрзла сверху, но тонко. Ты пробиваешь корку кулаком и набираешь два ведра. Хенрике смотрит и смеётся: «So geht das auch». И так можно.', effects: [set42('bn', 'well'), until42(48, 7, 40)] },
     ] }),
 
   X({ id: 'c42_b_portion', title: 'Порция', camp: house14,
@@ -320,6 +334,8 @@ export const day42BScenes: Scene[] = [
         text: 'Ларс кивает: взрослые всегда спрашивают у кого-то ещё. Он возвращается к дровам раньше, чем ты успеваешь отойти.', effects: [set42('bv2', 'ask'), until42(48, 11, 15)] },
       { id: 'c42_bv2_hare', label: 'Отдать плюшевого зайца из машины', when: flag('$.c42_hare'), minutes: 30, terminal: true, goto: 'c42_b_back', ambientDuring: fri42,
         text: 'Ты достаёшь зайца из кармана. Его берут осторожно, как живого, и сразу проверяют, на месте ли второй глаз. Глаза нет. Зайца это не портит.', effects: [set42('bv2', 'hare'), until42(48, 11, 15)] },
+      { id: 'c42_bv2_list', label: 'Записать в тетрадь Хенрике, что видел{m:|а}', minutes: 30, terminal: true, goto: 'c42_b_back',
+        text: 'Ты пишешь коротко: кто живёт, сколько их, что нужно. Под последней строчкой Хенрике ставишь дату. Тетрадь снова в работе.', effects: [set42('bv2', 'list'), until42(48, 11, 15)] },
     ] }),
 
   X({ id: 'c42_b_back', title: 'Обратно', camp: yard14, ambient: fri42,

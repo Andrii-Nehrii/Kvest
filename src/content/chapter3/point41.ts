@@ -71,6 +71,8 @@ export const shared41: Scene[] = [
         text: 'Ты садишься рядом. Плечо к плечу. Ничего не говоришь. Или держишь руку, которая лежит поверх одеяла, холодная и неподвижная.', effects: [set41('dw', 'partner'), { body: 'stress', delta: -4 }, { body: 'hunger', delta: -10 }, until41(7, 40)] },
       { id: 'c41_dw_henrike', label: 'Помочь Хенрике у плиты', when: henrike41, minutes: 40, terminal: true, outcomes: fromDawn,
         text: 'Ты раздаёшь миски. Хенрике говорит, не глядя: «Wir leben. Das ist heute alles». Мы живы. Сегодня это всё.', effects: [set41('dw', 'henrike'), meal('eat'), npc('henrike', 1), until41(7, 40)] },
+      { id: 'c41_dw_porch', label: 'Выйти на крыльцо подышать: в доме тяжело', minutes: 40, terminal: true, outcomes: fromDawn, ambientDuring: wet41,
+        text: 'Туман, капель, мокрая земля. На лугу у ручья тёмные пятна, к ним не хочется присматриваться. Ты дышишь, пока не начинают мёрзнуть руки, и возвращаешься.', effects: [set41('dw', 'porch'), until41(7, 40)] },
     ] }),
 
   S41({ id: 'c41_lunch', for: 'any', chapter: 'ch3', title: 'Обед', camp: kitchen14, onEnter: [until41(12, 15)],
@@ -83,9 +85,13 @@ export const shared41: Scene[] = [
       { id: 'c41_lu_eat', label: 'Есть и слушать', minutes: 45, terminal: true, outcomes: fromLunch, ...tableOnly,
         text: 'Ты слушаешь, как каждый рассказывает свою ночь. Ни одна не похожа на твою. Все похожи друг на друга.', effects: [set41('lu', 'eat'), meal('eat'), until41(13, 0)] },
       { id: 'c41_lu_tell', label: 'Рассказать свою ночь', minutes: 45, terminal: true, outcomes: fromLunch, ...tableOnly,
-        text: 'Ты рассказываешь. За столом тихо. Когда заканчиваешь, Нина или кто-то молча пододвигает тебе хлеб.', effects: [set41('lu', 'tell'), meal('eat'), { body: 'stress', delta: -3 }, until41(13, 0)] },
+        text: 'Ты рассказываешь. За столом тихо. Когда заканчиваешь, кто-то молча пододвигает тебе хлеб.', effects: [set41('lu', 'tell'), meal('eat'), { body: 'stress', delta: -3 }, until41(13, 0)] },
       { id: 'c41_lu_bread', label: 'Взять хлеб и уйти к делам', minutes: 30, terminal: true, outcomes: fromLunch,
         text: 'Хлеб в карман, кружку залпом. Дела не ждут, и думать о ночи не хочется.', effects: [set41('lu', 'bread'), { body: 'hunger', delta: -12 }, until41(13, 0)] },
+      { id: 'c41_lu_window', label: 'Посидеть у окна с кружкой: есть не хочется', minutes: 45, terminal: true, outcomes: fromLunch,
+        text: 'Кружка тёплая, в окне поле. Есть не хочется. Хенрике ставит рядом хлеб и не уходит, пока ты не откусываешь.', effects: [set41('lu', 'window'), until41(13, 0)] },
+      { id: 'c41_lu_kids', label: 'Посидеть с детьми, пока взрослые едят', minutes: 45, terminal: true, outcomes: fromLunch,
+        text: 'Дети едят на лавке у печи и задают вопросы, на которые за столом не отвечают. Ты отвечаешь на один, самый простой. Остальные пусть подождут.', effects: [set41('lu', 'kids'), until41(13, 0)] },
     ] }),
 
   S41({ id: 'c41_brandt', for: 'any', chapter: 'ch3', title: 'Брандт', camp: yard14, ambient: wet41, onEnter: [until41(15, 30)],
@@ -118,6 +124,10 @@ export const shared41: Scene[] = [
         text: 'Все говорят сразу: ёлка из лесополосы, свечи из сундука, гусь, которого нет, курица, которая есть. Хенрике смеётся. В первый раз за неделю.', effects: [set41('ev', 'xmas'), meal('eat'), { body: 'stress', delta: -5 }, until41(19, 30)] },
       { id: 'c41_ev_rest', label: 'Поесть у печи и молчать', minutes: 45, terminal: true, goto: 'c41_night',
         text: 'Ты сидишь у печи с миской на коленях. Голоса за столом. Это и есть отдых.', effects: [set41('ev', 'rest'), { body: 'hunger', delta: -20 }, until41(19, 30)] },
+      { id: 'c41_ev_dishes', label: 'Мыть посуду, пока все едят', minutes: 45, terminal: true, goto: 'c41_night',
+        text: 'Таз, горячая вода, мыло. За спиной говорят о Рождестве, о ёлке, о курице. Ты слушаешь спиной и моешь одну и ту же миску дольше, чем нужно.', effects: [set41('ev', 'dishes'), until41(19, 30)] },
+      { id: 'c41_ev_wood', label: 'Принести дров на ночь, пока все за столом', minutes: 45, terminal: true, goto: 'c41_night',
+        text: 'Три охапки из сеней к печи, ещё одна про запас. Когда ты возвращаешься, за столом спорят о ёлке, и тебе оставлена миска.', effects: [set41('ev', 'wood'), until41(19, 30)] },
     ] }),
 
   S41({ id: 'c41_night', for: 'any', chapter: 'ch3', title: 'Ночь', camp: house14,
@@ -129,6 +139,8 @@ export const shared41: Scene[] = [
         text: 'Шёпотом, лицом к лицу. О ночи, о тех, кого не стало, о том, что вы оба здесь. Потом молчите. Потом спите.', effects: [set41('ni', 'talk'), finish, until41(20, 0)] },
       { id: 'c41_ni_sleep', label: 'Уснуть сразу', minutes: 30, terminal: true, goto: 'c41_checkpoint',
         text: 'Ты засыпаешь, не успев раздеться. Без снов.', effects: [set41('ni', 'sleep'), { body: 'fatigue', delta: -8 }, finish, until41(20, 0)] },
+      { id: 'c41_ni_check', label: 'Проверить засов и окна, прежде чем лечь', minutes: 30, terminal: true, goto: 'c41_checkpoint',
+        text: 'Засов, ставни, проволока с банками. Всё на месте. Ты возвращаешься в постель и засыпаешь, едва коснувшись подушки.', effects: [set41('ni', 'check'), until41(20, 0)] },
     ] }),
 
   S41({ id: 'c41_checkpoint', for: 'any', chapter: 'ch3', title: 'Среда, вечер', checkpoint: 41, universal: false, camp: house14,

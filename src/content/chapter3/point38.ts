@@ -83,6 +83,8 @@ export const shared38: Scene[] = [
         text: 'Каша, хлеб, кофе. Ешь быстро, обжигаясь. За окном ещё ночь, только над лесом чуть светлее.', effects: [set38('dw', 'eat'), meal('eat'), until38(5, 15)] },
       { id: 'c38_dw_pack', label: 'Взять еду с собой и проверить вещи ещё раз', minutes: 30, terminal: true, outcomes: fromDawn,
         text: 'Хлеб с салом в бумагу, термос, перчатки. Ты проверяешь карманы: всё на месте. Хенрике суёт тебе ещё два яйца, сваренных вкрутую: «Für unterwegs». В дорогу.', effects: [set38('dw', 'pack'), meal('pack'), until38(5, 15)] },
+      { id: 'c38_dw_coffee', label: 'Выпить кофе у печи, пока остальные собираются', minutes: 30, terminal: true, outcomes: fromDawn,
+        text: 'Кофе из последней банки, горький и крепкий. Ты пьёшь его стоя у печи и смотришь, как остальные ищут варежки.', effects: [set38('dw', 'coffee'), until38(5, 15)] },
       { id: 'c38_dw_henrike', label: 'Подойти к Хенрике и обнять её', when: henrike38, minutes: 30, terminal: true, outcomes: fromDawn,
         text: 'Хенрике замирает, потом обнимает тебя одной рукой: в другой половник. От неё пахнет дымом и молоком. «Ja, ja. Geht schon». Ну-ну. Идите уже.', effects: [set38('dw', 'henrike'), npc('henrike', 1), meal('eat'), until38(5, 15)] },
     ] }),

@@ -156,6 +156,8 @@ export const day36BScenes: Scene[] = [
         text: '— Dann stehen Sie an der Brücke und gucken, wie wir fahren. — Женщина не злая, она просто устала. Тогда будете стоять у моста и смотреть, как мы уезжаем.', effects: [set36('bl', 'ask'), until36(12, 15)] },
       { id: 'c36_bl_none', label: 'Никого не вписывать', minutes: 15, terminal: true, goto: 'c36_b_okafor',
         text: 'Ты отходишь от микроавтобуса. Женщина уже пишет следующего.', effects: [set36('bl', 'none'), until36(12, 10)] },
+      { id: 'c36_bl_help', label: 'Помочь ей диктовать: она не успевает', minutes: 15, terminal: true, goto: 'c36_b_okafor',
+        text: 'Ты читаешь имена из документов, она пишет. Очередь движется вдвое быстрее. В конце она говорит: «Danke. Ohne Sie säße ich bis Mitternacht». Без вас сидела бы до полуночи.', effects: [set36('bl', 'help'), until36(12, 10)] },
     ] }),
 
   X({ id: 'c36_b_okafor', title: 'Медицинский угол', location: winsen36, camp: winCamp, ambient: hall36,
@@ -266,6 +268,8 @@ export const day36BScenes: Scene[] = [
         text: 'Зандер слушает, записывает: девочка с пальцами, старик со ступеньками, инсулин — ноль. «Danke. Das ist mehr wert als zwei Kisten». Спасибо. Это дороже двух ящиков.', effects: [set36('bz', 'report'), w36('zander_report', true), until36(16, 40)] },
       { id: 'c36_bz_rest', label: 'Посидеть пять минут в тепле', minutes: 20, terminal: true, goto: 'c36_b_path',
         text: 'Ты садишься на лавку у печки и закрываешь глаза. Зандер ставит перед тобой кружку с чаем и ничего не говорит. Пять минут, и можно идти дальше.', effects: [set36('bz', 'rest'), { body: 'fatigue', delta: -3 }, { body: 'stress', delta: -2 }, until36(16, 40)] },
+      { id: 'c36_bz_help', label: 'Помочь Зандер с теми, кто в приёмной', minutes: 20, terminal: true, goto: 'c36_b_path',
+        text: 'Двое на лавке: старик с давлением и женщина с порезом. Ты меряешь, промываешь, бинтуешь. Зандер заглядывает и кивает: дальше справишься.', effects: [set36('bz', 'help'), until36(16, 40)] },
     ] }),
 
   X({ id: 'c36_b_path', title: 'Домой', location: 'c7_farm_lane', camp: jestCamp, safe: false, ambient: frost36,
@@ -285,6 +289,8 @@ export const day36BScenes: Scene[] = [
         ] },
       { id: 'c36_bh_road', label: 'По дороге, как все', minutes: 40, activity: 'moderate', terminal: true, goto: 'c36_yard', ambientDuring: frost36,
         text: 'Дорога длинная и белая. Сзади кто-то едет на тракторе, сигналит, но ты машешь: дойду. Когда ты входишь во двор, совсем темно.', effects: [set36('bh', 'road'), { body: 'fatigue', delta: 4 }, until36(17, 0)] },
+      { id: 'c36_bh_lift', label: 'Подождать попутку у пожарной части', minutes: 40, terminal: true, goto: 'c36_yard',
+        text: 'Через двадцать минут мимо едет трактор Лукаса. Ты сидишь на прицепе среди пустых канистр и смотришь, как темнеет поле.', effects: [set36('bh', 'lift'), until36(17, 0)] },
       { id: 'c36_bh_spikes', label: 'Надеть ледоступы и через поле', when: { has: 'c36_spikes' }, minutes: 25, terminal: true, goto: 'c36_yard', ambientDuring: frost36,
         text: 'Шипы впиваются в наст, как кошачьи когти. Через канаву ты переходишь, не думая о льде. Хорошая вещь. Через двадцать минут ты дома.', effects: [set36('bh', 'spikes'), until36(17, 0)] },
     ] }),

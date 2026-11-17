@@ -13,7 +13,7 @@ const jest = 'c16_jesteburg';
 export const day35YScenes: Scene[] = [
   X({ id: 'c35_y_b_queue', title: 'Очередь', location: jest, camp: { at: jest, stock: 'c3_farm_stock', rest: false }, safe: false,
     text: [
-      { when: flag('w.c30_sandra'), text: 'Чуть дальше в той же очереди стоит Сандра, с дочкой на руках. Девочка в твоих варежках или в своих, новых. Сандра замечает тебя и машет.' },
+      { when: flag('w.c30_sandra'), text: 'Чуть дальше в той же очереди стоит Сандра, с дочкой на руках. Девочка в варежках, тепло укутанная. Сандра замечает тебя и машет.' },
       { text: 'У стены пожарной части, где висит список на десятое, очередь. Женщина в вязаной шапке узнаёт тебя: ты {m:перевязывал|перевязывала} её мужу руку после той ночи.' },
       { text: '— Meine Mutter. Sie ist zweiundachtzig, sie liegt seit Oktober. Sie steht nicht drauf. Sie kennen doch die Frau Doktor. Bitte.\n\nМоя мать. Ей восемьдесят два, она лежит с октября. Её нет в списке. Вы же знаете фрау доктор. Пожалуйста.' },
     ],

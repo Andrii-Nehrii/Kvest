@@ -36,6 +36,21 @@ export const contacts3: Record<string, ContactDef> = {
     intro: 'Старая женщина в мужском свитере из третьего ряда женского корпуса. В казарме с тринадцатого.',
     knownWhen: { visited: 'c18_b_block' },
   },
+  c22_lukas: {
+    id: 'c22_lukas', name: 'Лукас', fromCheckpoint: 21,
+    intro: 'Сын пожарного, лет четырнадцати. Носит по дворам бумаги и поручения Брандта, водит трактор пожарной части.',
+    knownWhen: { any: [{ visited: 'c22_a_runner' }, { visited: 'c25_y_b_stove' }, { visited: 'c41_a_bodies' }, { visited: 'c41_r_doc' }, { visited: 'c42_a_gun' }, { visited: 'c42_a_trench' }] },
+  },
+  c39_jorg: {
+    id: 'c39_jorg', name: 'Йорг', fromCheckpoint: 38,
+    intro: 'Пришёл к воротам хутора с двумя детьми, просил ночлега. Младшая простужена.',
+    knownWhen: { any: [{ v: '$.c39_bg', op: '==', value: 'barn' }, { all: [{ v: 'w.c39_strangers', op: '==', value: 'barn' }, { any: [{ visited: 'c40_m_barn' }, { visited: 'c40_b_barn' }, { visited: 'c41_a_jorg' }, { visited: 'c41_b_jorg' }] }] }] },
+  },
+  c40_hansen: {
+    id: 'c40_hansen', name: 'Фрау Ханзен', fromCheckpoint: 39,
+    intro: 'Соседка за полем, у насыпи. Муж у неё лежачий после удара.',
+    knownWhen: { any: [{ all: [{ visited: 'c40_m_neighbor' }, { not: { flag: 'w.c37_neighbor_saved' } }] }, { visited: 'c40_b_neighbor' }, { visited: 'c41_b_gerdes' }, { visited: 'c42_a_hansen' }, { visited: 'c42_b_hansen' }] },
+  },
   c42_jonas: {
     id: 'c42_jonas', name: 'Йонас Ридель', fromCheckpoint: 41,
     intro: 'Солдат-срочник, девятнадцать лет. С ноября жил в яме под поваленным дубом в лесополосе за полем.',

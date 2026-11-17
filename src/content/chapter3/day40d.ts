@@ -88,11 +88,13 @@ export const day40DScenes: Scene[] = [
     ],
     actions: [
       { id: 'c40_ds_take', label: 'Взять, что дают, и поблагодарить', minutes: 60, terminal: true, goto: 'c40_d_lunch',
-        text: 'Ты расписываешься в листе. Два дружинника выносят мешки к вашей телеге или машине. Брандт уже вызывает следующий двор.', effects: [set40('ds', 'take'), share(1), until40(44, 11, 15)] },
+        text: 'Ты расписываешься в листе. Два дружинника выносят мешки к выходу и грузят. Брандт уже вызывает следующий двор.', effects: [set40('ds', 'take'), share(1), until40(44, 11, 15)] },
       { id: 'c40_ds_more', label: 'Попросить больше: у вас приезжие и диабетик', when: all(merleFarm39, not(v('w.c26_brandt', 'hostile'))), minutes: 60, terminal: true, goto: 'c40_d_lunch',
         text: 'Брандт слушает. Потом молча придвигает ещё мешок муки и коробку сахара. «Für das Mädchen. Sag ihr, sie soll leben». Для девушки. Скажи ей, пусть живёт.', effects: [set40('ds', 'more'), share(2), w40('sugar', true), until40(44, 11, 15)] },
       { id: 'c40_ds_trade', label: 'Взять долю и выменять часть муки на бензин у дружинников', minutes: 60, terminal: true, goto: 'c40_d_lunch',
         text: 'Дружинник с канистрой у ворот меняет литр на килограмм. Ты отдаёшь пять кило муки, получаешь пять литров. Хенрике будет ругаться. Или нет.', effects: [set40('ds', 'trade'), share(1), { if: A40, then: [{ give: 'can_petrol_10', fuel: 5 }] }, until40(44, 11, 15)] },
+      { id: 'c40_ds_old', label: 'Отсыпать часть доли старику без двора, что стоит за вами', minutes: 60, terminal: true, goto: 'c40_d_lunch',
+        text: 'Старик за вами — без двора и без списка. Ты отсыпаешь ему муки в его мешок, пару банок. Брандт видит и ничего не говорит.', effects: [set40('ds', 'old'), until40(44, 11, 15)] },
     ] }),
 
   X({ id: 'c40_d_lunch', title: 'Полевая кухня', location: lue40, camp: lueCamp, ambient: frost40,
@@ -127,7 +129,7 @@ export const day40DScenes: Scene[] = [
       { id: 'c40_dc_child', label: 'Вытащить из толпы упавшего ребёнка', minutes: 40, terminal: true, goto: 'c40_d_back', ambientDuring: frost40,
         text: 'Мальчик лет восьми лежит у дверей, на него наступают. Ты хватаешь его за куртку и вытаскиваешь к стене. Он цел, только ревёт. Мать находит его через минуту и уводит, не сказав ни слова. Склад к тому времени пустеет.', effects: [set40('dc', 'child'), w40('child_saved', true), until40(44, 13, 0)] },
       { id: 'c40_dc_leave', label: 'Уходить, пока не началось', minutes: 30, terminal: true, goto: 'c40_d_back', ambientDuring: frost40,
-        text: 'Ты уходишь к своей машине или телеге. За спиной крики, звон стекла, чей-то плач. Дениз был прав: никакая мука того не стоит.', effects: [set40('dc', 'leave'), until40(44, 12, 45)] },
+        text: 'Ты уходишь к своим. За спиной крики, звон стекла, чей-то плач. Дениз был прав: никакая мука того не стоит.', effects: [set40('dc', 'leave'), until40(44, 12, 45)] },
     ] }),
 
   X({ id: 'c40_d_back', title: 'Обратно', location: 'c7_farm_lane', camp: lueCamp, safe: false, ambient: cab40,
@@ -180,6 +182,8 @@ export const day40DScenes: Scene[] = [
         text: 'Йорг слушает и кивает. «Wenn die kommen, bin ich da. Mit der Axt». Если придут, я тут. С топором. Он не хвастает. Он говорит, как будет.', effects: [set40('mb', 'jorg'), w40('jorg_ready', true), until40(44, 10, 0)] },
       { id: 'c40_mb_sacks', label: 'Перенести мешки от лужи', minutes: 45, activity: 'moderate', terminal: true, goto: 'c40_m_prep',
         text: 'Мешок за мешком на сухое, к стене. Под дыру — ведро. Капли стучат в ведро, как часы.', effects: [set40('mb', 'sacks'), { body: 'fatigue', delta: 5 }, until40(44, 10, 0)] },
+      { id: 'c40_mb_hay', label: 'Проверить сено на сеновале: не промокло ли', minutes: 45, terminal: true, goto: 'c40_m_prep',
+        text: 'Наверху пахнет пылью и летом. С одного угла сено сырое: там течёт. Ты перекидываешь его вилами к сухой стене и подставляешь под капель ведро.', effects: [set40('mb', 'hay'), until40(44, 10, 0)] },
     ] }),
 
   X({ id: 'c40_m_prep', title: 'К оттепели', camp: yard14, safe: false, ambient: frost40,
@@ -214,7 +218,9 @@ export const day40DScenes: Scene[] = [
       { id: 'c40_mn_yes', label: 'Сказать фрау Ханзен: прибегайте, дверь откроем', when: not(flag('w.c37_neighbor_saved')), minutes: 45, terminal: true, goto: 'c40_m_brandt',
         text: 'Фрау Ханзен кивает. «Mein Mann kann nicht laufen». Мой муж не может ходить. Она говорит это тихо, глядя в землю. Что это значит, понятно без слов.', effects: [set40('mn', 'yes'), w40('gerdes_door', true), until40(44, 13, 30)] },
       { id: 'c40_mn_move', label: 'Предложить перевезти их к вам заранее, на санях', when: not(flag('w.c37_neighbor_saved')), minutes: 60, terminal: true, goto: 'c40_m_brandt',
-        text: 'Фрау Ханзен плачет, потом соглашается. Вечером Оле или Дениз везёт старика Ханзена на санях через поле, укрытого двумя одеялами. Его кладут в комнате стариков. В доме ещё теснее.', effects: [set40('mn', 'move'), w40('gerdes_moved', true), until40(44, 13, 30)] },
+        text: 'Фрау Ханзен плачет, потом соглашается. Вечером старика Ханзена везут на санях через поле, укрытого двумя одеялами. Его кладут в комнате стариков. В доме ещё теснее.', effects: [set40('mn', 'move'), w40('gerdes_moved', true), until40(44, 13, 30)] },
+      { id: 'c40_mn_walk', label: 'Проводить её до края поля', minutes: 45, terminal: true, goto: 'c40_m_brandt', ambientDuring: frost40,
+        text: 'Вы идёте по меже до края поля. Она говорит о погоде и о курах, о главном молчит. У межевого камня останавливается: «Danke fürs Begleiten». Спасибо, что проводил{m:|а}. Дальше идёт одна.', effects: [set40('mn', 'walk'), until40(44, 13, 30)] },
     ] }),
 
   X({ id: 'c40_m_brandt', title: 'Лист', camp: yard14, ambient: frost40,

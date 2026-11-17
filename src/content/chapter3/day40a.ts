@@ -1,9 +1,9 @@
 import type { Scene } from '../../engine/content-types';
-import { flag, not } from './world3';
+import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { v } from './point18';
 import { npc } from './point19';
-import { oleHome33 } from './point33';
+import { brothersCome, oleHome33 } from './point33';
 import { tractorRuns } from './point38';
 import {
   S40, alarm40, fence40, flares40, guardAll40, hurt1, hurt2, set40, strangers40, thaw40, torch40, until40, w40, watchSeeve40,
@@ -32,7 +32,7 @@ export const day40AScenes: Scene[] = [
             text: 'Лопата, мокрый снег, мёрзлая земля под ним. Через два часа вода уходит из-под двери хлева в канаву и дальше, в поле. Ты {m:мокрый|мокрая} насквозь, но хлев сухой.',
             effects: [set40('am', 'ditch'), w40('drain', true), { body: 'fatigue', delta: 12 }, until40(45, 9, 0)] },
           { id: 'back',
-            text: 'На втором часу лопата упирается в камень, ты дёргаешь, и в пояснице что-то стреляет. Канаву докапывают Дениз или Йорг. Ты стоишь, держась за забор, и не можешь разогнуться.',
+            text: 'На втором часу лопата упирается в камень, ты дёргаешь, и в пояснице что-то стреляет. Канаву докапывают без тебя. Ты стоишь, держась за забор, и не можешь разогнуться.',
             effects: [set40('am', 'back'), w40('drain', true), { injure: 'sprain', site: 'torso', severity: 1 }, { body: 'stress', delta: 4 }, until40(45, 9, 0)] },
         ] },
       { id: 'c40_am_tractor', label: 'Отогнать трактор на сухое, пока не засосало', when: tractorRuns, minutes: 60, terminal: true, goto: 'c40_a_brandt', ambientDuring: thaw40,
@@ -87,6 +87,8 @@ export const day40AScenes: Scene[] = [
         text: 'Проволока, банки, камешки. Поперёк тропы и вдоль берега. Ты задеваешь её нарочно: грохот слышен у дома даже сквозь дождь.', effects: [set40('ai', 'cans'), w40('cans_new', true), until40(45, 16, 0)] },
       { id: 'c40_ai_ford', label: 'Отметить брод, где они перейдут: там будешь смотреть ночью', minutes: 60, terminal: true, goto: 'c40_dusk', ambientDuring: thaw40,
         text: 'Ниже по течению, у старой ивы, ручей мелкий: там они и выйдут. Ты вбиваешь кол с белой тряпкой. Ночью он будет виден, если посветить.', effects: [set40('ai', 'ford'), w40('ford_marked', true), until40(45, 16, 0)] },
+      { id: 'c40_ai_poles', label: 'Воткнуть вешки с тряпками вдоль берега: ночью будет видно край', minutes: 60, terminal: true, goto: 'c40_dusk', ambientDuring: thaw40,
+        text: 'Шесть палок с белыми тряпками вдоль кромки. В темноте их будет видно с поста. Где вешка — там берег, дальше вода.', effects: [set40('ai', 'poles'), until40(45, 16, 0)] },
     ] }),
 
   // ═════════════ Ночь ═════════════
@@ -95,7 +97,9 @@ export const day40AScenes: Scene[] = [
       { when: watchSeeve40, text: 'Восемь вечера. Пост у Зеве: шалаш из веток, с которого течёт, и колокол на столбе. Дождь, темнота, грохот льда.' },
       { when: not(watchSeeve40), text: 'Восемь вечера. Ты у забора за сараем, с той стороны, где ручей. Дождь, темнота, грохот льда.' },
       { when: mate, text: 'Оле рядом, в плащ-палатке, с ружьём. Он говорит, не поворачивая головы: «Nicht allein ans Wasser. Egal, was du hörst». Не ходи к воде один. Что бы ни услышал{m:|а}.' },
-      { when: not(mate), text: 'Рядом Дениз или Йорг, кто вызвался. Он говорит: «Nicht allein ans Wasser». Не ходи к воде один.' },
+      { when: all(not(mate), brothersCome), text: 'Рядом Дениз: вызвался сам. Он говорит: «Nicht allein ans Wasser». Не ходи к воде один.' },
+      { when: all(not(mate), not(brothersCome), strangers40), text: 'Рядом Йорг: вызвался сам. Он говорит: «Nicht allein ans Wasser». Не ходи к воде один.' },
+      { when: all(not(mate), not(brothersCome), not(strangers40)), text: 'Рядом Яннес из колонии: Уте прислала. Он говорит: «Nicht allein ans Wasser». Не ходи к воде один.' },
       { text: 'Около девяти внизу у воды плеск. Не как от льдины. Мерный. Потом ещё.' },
     ],
     actions: [
@@ -125,7 +129,7 @@ export const day40AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c40_an2_back', label: 'Отступить к дому со всеми и запереть дверь', minutes: 45, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
-        text: 'Вы бежите к дому, Оле или напарник последним, спиной вперёд. Дверь, засов, стол к двери. Снаружи слышно, как ломается забор у сарая. Двор теперь их.', effects: [set40('an2', 'back'), w40('yard_lost', true), until40(46, 0, 30)] },
+        text: 'Вы бежите к дому, напарник последним, спиной вперёд. Дверь, засов, стол к двери. Снаружи слышно, как ломается забор у сарая. Двор теперь их.', effects: [set40('an2', 'back'), w40('yard_lost', true), until40(46, 0, 30)] },
       { id: 'c40_an2_hold', label: 'Держать забор: бить ломом тех, кто лезет', minutes: 45, risky: true, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
         outcomes: [
           { id: 'hurt', when: worse1, text: 'Ты замахиваешься, и мокрые пальцы разжимаются. Лом скользит. Тот, кто перевалился через сетку, хватает тебя за рукав и тянет. Ты падаешь на колени, и сетка рвёт тебе руку от локтя до кисти. Кровь горячая на холодной руке. Оле оттаскивает тебя за ворот.', effects: [set40('an2', 'hold'), ...hurt2, until40(46, 0, 30)] },
@@ -162,7 +166,7 @@ export const day40AScenes: Scene[] = [
       { id: 'c40_an3_run', label: 'Бежать через двор к сараю', minutes: 30, risky: true, terminal: true, goto: 'c40_a_after', ambientDuring: thaw40,
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты бежишь. Нога уходит в грязи. Раненая рука не успевает. Ты падаешь лицом вниз, виском о край корыта у колодца. Белая вспышка. Потом ничего.\n\nПоследнее, что ты слышишь, — кто-то кричит твоё имя.', effects: [set40('an3', 'run'), ...down40] },
-          { id: 'ok', check: { traits: ['agility', 'strength'], difficulty: 4, uses: ['mobility'] }, text: 'Ты добегаешь. В сарае двое: один у двери, второй тянется к сеновалу, где дети. Ты бьёшь первого, Йорг или кто-то — второго. Детей вы выносите в дом на руках.', effects: [set40('an3', 'run'), w40('barn_saved', true), w40('strangers_kid', 'safe')] },
+          { id: 'ok', check: { traits: ['agility', 'strength'], difficulty: 4, uses: ['mobility'] }, text: 'Ты добегаешь. В сарае двое: один у двери, второй тянется к сеновалу, где дети. Ты бьёшь первого, кто-то из мужчин — второго. Детей вы выносите в дом на руках.', effects: [set40('an3', 'run'), w40('barn_saved', true), w40('strangers_kid', 'safe')] },
           { id: 'slip', text: 'Ты падаешь на полпути, встаёшь, бежишь. В сарае уже справились без тебя: кто-то с вилами. Ты стоишь в дверях, задыхаясь, {m:весь|вся} в грязи.', effects: [set40('an3', 'run'), { body: 'fatigue', delta: 8 }, w40('strangers_kid', 'safe')] },
         ], effects: [until40(46, 2, 30)] },
       { id: 'c40_an3_light', label: 'Идти с фонарём и с кем-то вдвоём, не бегом', when: torch40, minutes: 30, terminal: true, goto: 'c40_a_after', ambientDuring: thaw40,
@@ -173,7 +177,7 @@ export const day40AScenes: Scene[] = [
 
   X({ id: 'c40_a_after', title: 'К утру', camp: kitchen14,
     text: [
-      { text: 'Половина третьего. Дождь слабеет. Во дворе тихо. У забора и у сарая лежат те, кто дошёл. Лукас или кто-то из дружины ходит с фонарём и считает.' },
+      { text: 'Половина третьего. Дождь слабеет. Во дворе тихо. У забора и у сарая лежат те, кто дошёл. Кто-то из дружины ходит с фонарём и считает.' },
       { when: worse2, text: 'Рука перевязана полотенцем Хенрике. Ты сидишь у печи и не можешь согреться.' },
       { when: guardAll40, text: 'Колокол у пожарной части бьёт отбой: три долгих удара. Значит, у других дворов тоже кончилось.' },
     ],

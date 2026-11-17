@@ -128,6 +128,8 @@ export const day41Scenes: Scene[] = [
         text: 'В пожарной части человек тридцать. Брандт говорит коротко: ров вдоль ручьёв, общая стража, ракеты — каждому двору. Голосуют руками. Ты поднимаешь руку вместе со всеми.', effects: [set41('aa', 'council'), w41('council_ditch', true), until41(11, 35)] },
       { id: 'c41_aa_walk', label: 'Сначала обойти всё и записать, что чинить', minutes: 45, terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
         text: 'Сарай, хлев, курятник, колодец, изгородь. Ты пишешь на картонке столбиком, что сломано. Список длинный. Ты прибиваешь его к двери сарая, чтобы видели все, и начинаешь сверху.', effects: [set41('aa', 'walk'), w41('repair_list', true), until41(11, 35)] },
+      { id: 'c41_aa_breath', label: 'Сначала посидеть пять минут на крыльце: руки ещё дрожат', minutes: 45, terminal: true, goto: 'c41_a_brothers', ambientDuring: wet41,
+        text: 'Ты садишься на мокрую ступеньку. Руки на коленях дрожат и не слушаются. Через пять минут перестают. Ты встаёшь и делаешь то, что решили утром, медленнее, чем мог{m:|ла} бы.', effects: [set41('aa', 'breath'), { body: 'stress', delta: -4 }, until41(11, 35)] },
     ] }),
 
   X({ id: 'c41_a_brothers', title: 'Двор у насыпи', camp: yard14, ambient: wet41,
@@ -144,6 +146,10 @@ export const day41Scenes: Scene[] = [
         text: 'В пустом доме — битое стекло, сырость, мыши. В сарае — два мешка угля и старая печка-буржуйка. Ты отмечаешь: взять, когда будет время.', effects: [set41('abr', 'look'), w41('empty_coal', true), until41(12, 15)] },
       { id: 'c41_abr_back', label: 'Вернуться домой', when: not(brothersCome), minutes: 30, terminal: true, goto: 'c41_lunch', ambientDuring: wet41,
         text: 'Ты идёшь домой вдоль насыпи. На ней следы ночи: сапоги, полосы, бурые пятна в снежной каше.', effects: [set41('abr', 'back'), until41(12, 10)] },
+      { id: 'c41_abr_lunch', label: 'Позвать их к вам на обед', when: brothersCome, minutes: 30, terminal: true, goto: 'c41_lunch', ambientDuring: wet41,
+        text: 'Дениз отказывается, Керем соглашается за обоих. Через полчаса они сидят у вас на лавке, мокрые, и Хенрике молча ставит им две лишние миски.', effects: [set41('abr', 'lunch'), npc('deniz', 1), until41(12, 15)] },
+      { id: 'c41_abr_board', label: 'Заколотить окна пустого дома, чтобы там никто не устроил логово', when: not(brothersCome), minutes: 40, activity: 'moderate', terminal: true, goto: 'c41_lunch', ambientDuring: wet41,
+        text: 'Доски от забора, гвозди, молоток. Три окна, дверь. Теперь пустой дом у насыпи не примет ни живых, ни мёртвых.', effects: [set41('abr', 'board'), w41('empty_boarded', true), until41(12, 15)] },
     ] }),
 
   X({ id: 'c41_a_repair', title: 'Хлев', camp: yard14, ambient: wet41,
@@ -177,7 +183,7 @@ export const day41Scenes: Scene[] = [
 
   X({ id: 'c41_a_tractor', title: 'Машины', camp: yard14, ambient: wet41,
     text: [
-      { text: 'Corsa под навесом, по колёса в жиже. Трактор на бугре или в грязи у сарая. Надо понять, что из этого ещё едет.' },
+      { text: 'Corsa под навесом, по колёса в жиже. Трактор стоит у сарая в грязи. Надо понять, что из этого ещё едет.' },
     ],
     actions: [
       { id: 'c41_at_car', label: 'Завести Corsa и вытащить на сухое', minutes: 20, terminal: true, goto: 'c41_a_lea',
@@ -211,6 +217,8 @@ export const day41Scenes: Scene[] = [
         text: 'Ведро из колодца, кружка. Мужчина пьёт, его дети тоже. Он говорит, что в Люнебурге после армии остались одни старики и пожарные. Все, кто может, уходят на запад.', effects: [set41('al', 'water'), until41(14, 45)] },
       { id: 'c41_al_work', label: 'Кивнуть издалека и не бросать работу', minutes: 25, terminal: true, goto: 'c41_a_jorg', ambientDuring: wet41,
         text: 'Ты поднимаешь руку от забора. У ворот поднимают руку в ответ. Сегодня каждый занят своим, и это тоже прощание.', effects: [set41('al', 'work'), until41(14, 45)] },
+      { id: 'c41_al_write', label: 'Записать в тетрадь: кто, когда, куда', minutes: 25, terminal: true, goto: 'c41_a_jorg', ambientDuring: wet41,
+        text: 'Дата, имя, куда. Ты пишешь коротко, карандашом. Если когда-нибудь кто-то придёт спрашивать, у хутора будет ответ.', effects: [set41('al', 'write'), until41(14, 45)] },
     ] }),
 
   X({ id: 'c41_a_jorg', title: 'Йорг', camp: yard14, ambient: wet41,
@@ -227,6 +235,8 @@ export const day41Scenes: Scene[] = [
         text: 'Яннес держит, ты прибиваешь. Он говорит мало. Перед уходом: «Uta sagt, ihr sollt Weihnachten kommen». Уте говорит, чтобы вы пришли на Рождество.', effects: [set41('aj', 'jannes'), w41('ute_xmas', true), until41(15, 30)] },
       { id: 'c41_aj_alone', label: 'Отпустить Яннеса: у Уте дел не меньше', when: not(jorg41), minutes: 25, terminal: true, goto: 'c41_brandt', ambientDuring: wet41,
         text: 'Яннес берёт гвозди и уходит через поле. Ты прибиваешь доски {m:один|одна}, придерживая коленом. Медленнее. Зато у Уте сегодня тоже будет крыша.', effects: [set41('aj', 'alone'), until41(15, 30)] },
+      { id: 'c41_aj_wood', label: 'Позвать колоть дрова вместе: за работой легче говорить', minutes: 25, activity: 'heavy', terminal: true, goto: 'c41_brandt', ambientDuring: wet41,
+        text: 'Два колуна, одна колода. Говорите мало, колете много. К половине четвёртого поленница выросла на целый ряд, и разговор, которого не было, вроде бы состоялся.', effects: [set41('aj', 'wood'), { body: 'fatigue', delta: 5 }, until41(15, 30)] },
     ] }),
 
   X({ id: 'c41_a_seeve', title: 'Зеве в сумерках', camp: yard14, safe: false, ambient: wet41,
@@ -287,6 +297,8 @@ export const day41Scenes: Scene[] = [
         text: 'Треск, свист, треск. Потом далёкий мужской голос по-английски: «…Thomas, VE3, calling Germany, Lüneburg district…» Связь рвётся. Но он там. Он зовёт.', effects: [set41('ar2', 'toronto'), w41('thomas_voice', true), until41(18, 0)] },
       { id: 'c41_ar2_off', label: 'Выключить: батарейки поберечь', minutes: 15, terminal: true, goto: 'c41_evening',
         text: 'Ты выключаешь. Тишина. За окном капает. Новости подождут до завтра.', effects: [set41('ar2', 'off'), until41(17, 45)] },
+      { id: 'c41_ar2_note', label: 'Записать частоты на стене у окна', minutes: 15, terminal: true, goto: 'c41_evening',
+        text: 'Карандашом по побелке: Красный Крест — 145,500, тревога округа — 147,300. Теперь их знает любой, кто подойдёт к окну.', effects: [set41('ar2', 'note'), until41(17, 45)] },
     ] }),
 
   // ═════════════ B ═════════════
@@ -302,6 +314,8 @@ export const day41Scenes: Scene[] = [
         text: 'Две дощечки от ящика, бинт, косынка. Девочка смотрит, как ты работаешь, и не шевелится. Йорг держит её за плечи и не может смотреть.', effects: [set41('bw', 'kid'), w41('kid_splint', true), until41(8, 20)] },
       { id: 'c41_bw_wash', label: 'Сначала вскипятить воду и прокипятить инструмент', minutes: 40, terminal: true, goto: 'c41_b_henrike',
         text: 'Кастрюля, ножницы, пинцет. Пока кипит, ты моешь руки до локтей. Зандер учила: грязь убивает чаще ран.', effects: [set41('bw', 'wash'), w41('clean_kit', true), until41(8, 20)] },
+      { id: 'c41_bw_list', label: 'Записать, кто чем ранен: Зандер спросит', minutes: 40, terminal: true, goto: 'c41_b_henrike',
+        text: 'Ты пишешь столбиком: имя, что, когда, чем обработано. Список получается длиннее, чем казалось. Зандер такое любит: не надо спрашивать каждого.', effects: [set41('bw', 'list'), until41(8, 20)] },
     ] }),
 
   X({ id: 'c41_b_henrike', title: 'Хенрике', camp: kitchen14,
@@ -316,6 +330,8 @@ export const day41Scenes: Scene[] = [
         text: 'Хенрике отдаёт ведро не сразу. Потом садится на лавку и смотрит, как ты моешь. «Danke». Спасибо. Это слово она говорит редко.', effects: [set41('bh', 'help'), npc('henrike', 1), until41(9, 0)] },
       { id: 'c41_bh_sit', label: 'Усадить её и налить чаю', minutes: 30, terminal: true, goto: 'c41_b_cow',
         text: 'Хенрике садится. Пьёт чай. Говорит, глядя в окно: «Mein Vater hat erzählt, wie es 45 war. Ich dachte, er übertreibt». Отец рассказывал, как было в сорок пятом. Я думала, он преувеличивает.', effects: [set41('bh', 'sit'), until41(8, 50)] },
+      { id: 'c41_bh_lunch', label: 'Взять обед на себя, чтобы она отдохнула', minutes: 30, terminal: true, goto: 'c41_b_cow',
+        text: 'Ты отбираешь у Хенрике нож и ставишь кастрюлю. Хенрике сопротивляется минуту, потом садится на лавку и засыпает сидя, с прямой спиной.', effects: [set41('bh', 'lunch'), until41(8, 50)] },
     ] }),
 
   X({ id: 'c41_b_cow', title: 'Хлев', camp: yard14, ambient: wet41,
@@ -332,6 +348,8 @@ export const day41Scenes: Scene[] = [
         text: 'Ты говоришь с ней тихо, долго, пока она не перестаёт переступать. Доишь медленно. Полное ведро. Хенрике кивает от двери.', effects: [set41('bc', 'milk'), w41('milked', true), until41(9, 40)] },
       { id: 'c41_bc_leave', label: 'Оставить Хенрике и мужчинам', minutes: 20, terminal: true, goto: 'c41_b_merle',
         text: 'Ты уходишь из хлева. Есть вещи, которые лучше делать без тебя.', effects: [set41('bc', 'leave'), until41(9, 20)] },
+      { id: 'c41_bc_hay', label: 'Принести сена и чистой воды', when: not(cowLost41), minutes: 20, terminal: true, goto: 'c41_b_merle', ambientDuring: wet41,
+        text: 'Охапка сена, ведро воды. Корова пьёт долго, с шумом. Ты стоишь рядом, пока она не начинает жевать.', effects: [set41('bc', 'hay'), until41(9, 20)] },
     ] }),
 
   X({ id: 'c41_b_merle', title: 'Мерле', camp: kitchen14,
@@ -348,6 +366,8 @@ export const day41Scenes: Scene[] = [
         text: 'Нина прижимается к тебе плечом и молчит. Потом говорит по-русски: «Я думала, вы умрёте». Ты обнимаешь её. Больше ничего не говорите.', effects: [set41('bm', 'nina'), npc('c7_nina', 2), until41(10, 15)] },
       { id: 'c41_bm_rest', label: 'Уложить её спать днём', minutes: 30, terminal: true, goto: 'c41_b_water',
         text: 'Одеяло, подушка, задёрнутая занавеска. Засыпает через минуту. Ты сидишь рядом, пока дыхание не становится ровным.', effects: [set41('bm', 'rest'), until41(10, 10)] },
+      { id: 'c41_bm_tea', label: 'Принести сладкого чаю и посидеть рядом', minutes: 30, terminal: true, goto: 'c41_b_water',
+        text: 'Чай с двумя ложками сахара. Ты сидишь рядом, пока кружка не пустеет. Потом ещё немного.', effects: [set41('bm', 'tea'), until41(10, 10)] },
     ] }),
 
   X({ id: 'c41_b_water', title: 'Вода', camp: yard14, ambient: wet41,
@@ -379,6 +399,8 @@ export const day41Scenes: Scene[] = [
         text: 'Ты читаешь список вслух в пожарной части: двор, кто, что. Зандер стоит рядом и кивает. Брандт записывает. Список длинный. Никто не перебивает.', effects: [set41('ba', 'council'), w41('wound_list', true), until41(11, 30)] },
       { id: 'c41_ba_sleep', label: 'Сначала поспать час: ночь была без сна', minutes: 40, terminal: true, goto: 'c41_b_cellar',
         text: 'Ты ложишься на лавку в кухне, не раздеваясь. Час без снов. Просыпаешься оттого, что кто-то накрыл тебя курткой. Голова ясная впервые со вчерашнего дня.', effects: [set41('ba', 'sleep'), { body: 'fatigue', delta: -12 }, until41(11, 30)] },
+      { id: 'c41_ba_kids', label: 'Сначала накормить детей и уложить их днём', minutes: 40, terminal: true, goto: 'c41_b_cellar',
+        text: 'Каша, тёплое молоко, одеяла. Дети засыпают быстро, как будто ждали разрешения. В доме становится тихо, и взрослые начинают говорить в полный голос.', effects: [set41('ba', 'kids'), until41(11, 30)] },
     ] }),
 
   X({ id: 'c41_b_cellar', title: 'Погреб', camp: kitchen14,
@@ -407,6 +429,8 @@ export const day41Scenes: Scene[] = [
         text: 'Кровать в комнате стариков, у печной стены. Фрау Петерс садится на неё, гладит одеяло ладонью и говорит: «Wie bei meiner Mutter». Как у мамы. Ей восемьдесят.', effects: [set41('bp', 'room'), w41('peters_room', true), until41(12, 15)] },
       { id: 'c41_bp_skip', label: 'Пройти мимо: дела', minutes: 15, terminal: true, goto: 'c41_lunch',
         text: 'Ты киваешь и проходишь. Картошка подождёт.', effects: [set41('bp', 'skip'), until41(12, 0)] },
+      { id: 'c41_bp_soup', label: 'Поставить вариться суп на обед', minutes: 15, terminal: true, goto: 'c41_lunch',
+        text: 'Кастрюля, вода, картошка, лук, кость из погреба. Через час по кухне пахнет обедом, и люди начинают заглядывать в дверь.', effects: [set41('bp', 'soup'), until41(12, 0)] },
     ] }),
 
   X({ id: 'c41_b_jorg', title: 'Йорг и дети', camp: yard14, ambient: wet41,
@@ -423,6 +447,8 @@ export const day41Scenes: Scene[] = [
         text: 'Кашель сухой, температуры нет. Ты даёшь сироп от кашля из аптечки и говоришь держать в тепле. Женщина уходит, оглядываясь.', effects: [set41('bj', 'child'), until41(13, 40)] },
       { id: 'c41_bj_none', label: 'Сказать, что лекарств нет', when: not(jorg41), minutes: 20, terminal: true, goto: 'c41_b_gerdes',
         text: 'Женщина кивает и идёт дальше. Ты смотришь ей вслед. Сироп у тебя есть. Одна бутылка. Своим.', effects: [set41('bj', 'none'), until41(13, 25)] },
+      { id: 'c41_bj_tea', label: 'Вынести горячего чаю и постоять рядом', minutes: 20, terminal: true, goto: 'c41_b_gerdes', ambientDuring: wet41,
+        text: 'Кружка в руки. Человек пьёт и смотрит на дорогу. Разговор получается сам: о погоде, о детях, о том, куда ведёт эта дорога.', effects: [set41('bj', 'tea'), until41(13, 25)] },
     ] }),
 
   X({ id: 'c41_b_gerdes', title: 'Ханзены', camp: yard14, ambient: wet41,
@@ -444,6 +470,8 @@ export const day41Scenes: Scene[] = [
         text: 'Кастрюля, обёрнутая полотенцем, крышка привязана бечёвкой. Яннес несёт её через поле осторожно, как вазу. Возвращается с пустой кастрюлей и банкой варенья от фрау Ханзен.', effects: [set41('bg', 'soup'), until41(14, 10)] },
       { id: 'c41_bg_home2', label: 'Не ходить: на похороны пойдут соседи, а тут раненые', when: gerdesDead41, minutes: 25, terminal: true, goto: 'c41_b_zander',
         text: 'Ты остаёшься с аптечкой. Из окна видно, как по полю к яблоне идут несколько тёмных фигур. Ты смотришь, пока они не останавливаются. Потом снова берёшь бинт.', effects: [set41('bg', 'home2'), until41(14, 10)] },
+      { id: 'c41_bg_note', label: 'Написать Брандту записку: Ханзенам нужна помощь', minutes: 25, terminal: true, goto: 'c41_b_zander',
+        text: 'Три строчки для Брандта: кто, где, что нужно. Лукас заберёт вечером. Хоть кто-то в округе будет знать.', effects: [set41('bg', 'note'), until41(14, 10)] },
     ] }),
 
   X({ id: 'c41_b_zander', title: 'Доктор', camp: yard14, ambient: wet41,
@@ -579,6 +607,8 @@ export const day41Scenes: Scene[] = [
         text: 'У трактора она закуривает, первый раз при тебе. «Zwölf Verletzte heute Nacht. Zwei schaffen es nicht. {pm:Er|Sie} schon». Двенадцать раненых за ночь. Двое не выживут. {pm:Он|Она} — выживет. Лукас трогает с места.', effects: [set41('ro', 'walk'), until41(10, 30)] },
       { id: 'c41_ro_back', label: 'Поблагодарить и вернуться к постели', minutes: 30, terminal: true, goto: 'c41_r_house',
         text: '«Danke». Зандер кивает, не оборачиваясь. Ты возвращаешься в комнату. Капельница капает.', effects: [set41('ro', 'back'), blood(-2), until41(10, 30)] },
+      { id: 'c41_ro_fever', label: 'Спросить, что делать, если ночью поднимется жар', minutes: 30, terminal: true, goto: 'c41_r_house',
+        text: '— Kalte Tücher. Trinken. Und wenn das Fieber über neununddreißig geht, holt Lukas mich.\n\nХолодные полотенца. Пить. Если выше тридцати девяти — Лукас привезёт меня.', effects: [set41('ro', 'fever'), until41(10, 30)] },
     ] }),
 
   X({ id: 'c41_r_house', title: 'Дом', camp: kitchen14,
@@ -590,6 +620,8 @@ export const day41Scenes: Scene[] = [
         text: 'Бинт, совет, чай. Ты успеваешь почти всё и каждые десять минут заглядываешь в комнату. {partner} дышит.', effects: [set41('rh', 'help'), blood(-2), until41(11, 0)] },
       { id: 'c41_rh_send', label: 'Попросить Хенрике держать дом, а {m:самому|самой} не отходить', minutes: 30, terminal: true, goto: 'c41_r_noon',
         text: 'Хенрике кивает и берёт дом на себя. Ты сидишь у кровати. Капельница капает. Ты считаешь капли.', effects: [set41('rh', 'send'), blood(-3), until41(11, 0)] },
+      { id: 'c41_rh_list', label: 'Раздать всем дела по списку и вернуться к постели', minutes: 30, terminal: true, goto: 'c41_r_noon',
+        text: 'Вода, дрова, хлев, кухня — по имени против каждого. Список на двери. Никто не спорит. Ты возвращаешься в комнату, и тишина там уже другая.', effects: [set41('rh', 'list'), blood(-3), until41(11, 0)] },
     ] }),
 
   X({ id: 'c41_r_noon', title: 'Полдень', camp: house14, onEnter: [until41(11, 0)],
@@ -602,6 +634,8 @@ export const day41Scenes: Scene[] = [
         text: 'Сахар, тёплая вода, ложка. Глотает с трудом. Ты считаешь ложки. На двадцатой отворачивается: хватит.', effects: [set41('rn', 'tea'), drink(-25), blood(-2), until41(12, 15)] },
       { id: 'c41_rn_sit', label: 'Сидеть рядом и держать за руку', minutes: 60, terminal: true, goto: 'c41_lunch',
         text: 'Ты сидишь. За окном капает. Ты засыпаешь сидя и просыпаешься от того, что пальцы в твоей руке шевельнулись.', effects: [set41('rn', 'sit'), blood(-2), until41(12, 15)] },
+      { id: 'c41_rn_read', label: 'Читать вслух, что попадётся', minutes: 60, terminal: true, goto: 'c41_lunch',
+        text: 'Книжка с полки Хенрике: про пчёл, с картинками. Ты читаешь вполголоса, по-немецки, спотыкаясь. Неважно что. Важно, чтобы рядом звучал голос.', effects: [set41('rn', 'read'), blood(-2), until41(12, 15)] },
     ] }),
 
   X({ id: 'c41_r_visit', title: 'Гости', camp: kitchen14,
@@ -616,6 +650,8 @@ export const day41Scenes: Scene[] = [
         text: 'Хенрике ставит миску и стоит рядом, пока ты не съешь всё. Ты не помнишь, когда ел{m:|а} последний раз.', effects: [set41('rv', 'eat'), meal('eat'), until41(13, 35)] },
       { id: 'c41_rv_back', label: 'Вернуться к постели', minutes: 45, terminal: true, goto: 'c41_r_jacket',
         text: 'Ты киваешь всем сразу и уходишь в комнату. {partner} спит. Ты садишься рядом.', effects: [set41('rv', 'back'), blood(-2), until41(13, 45)] },
+      { id: 'c41_rv_ute', label: 'Попросить Уте посидеть у постели и выйти на воздух', minutes: 45, terminal: true, goto: 'c41_r_jacket',
+        text: 'Уте садится у кровати с вязанием. Ты выходишь на крыльцо и стоишь там десять минут, ни о чём не думая. Потом возвращаешься.', effects: [set41('rv', 'ute'), until41(13, 45)] },
     ] }),
 
   X({ id: 'c41_r_jacket', title: 'Куртка', camp: kitchen14,
@@ -640,6 +676,8 @@ export const day41Scenes: Scene[] = [
         text: 'Кипячёная вода, чистый бинт. Швы держат, краснота небольшая. Ты завязываешь узел и замечаешь, что руки у тебя больше не дрожат.', effects: [set41('rdr', 'clean'), treat('basic'), blood(-3), until41(15, 30)] },
       { id: 'c41_rdr_wait', label: 'Не трогать: пусть подсохнет', minutes: 30, terminal: true, goto: 'c41_brandt',
         text: 'Ты не трогаешь. Зандер сказала: менять, когда промокнет. Промокла не совсем.', effects: [set41('rdr', 'wait'), until41(15, 30)] },
+      { id: 'c41_rdr_henrike', label: 'Позвать Хенрике посмотреть: вдвоём спокойнее', when: henrike41, minutes: 30, terminal: true, goto: 'c41_brandt',
+        text: 'Хенрике смотрит на повязку, на лицо, на руки. Кивает: «Sauber. Nicht anfassen». Чисто. Не трогать. И кладёт тебе руку на плечо.', effects: [set41('rdr', 'henrike'), until41(15, 30)] },
     ] }),
 
   X({ id: 'c41_r_dusk', title: 'Сумерки', camp: kitchen14,
@@ -652,6 +690,8 @@ export const day41Scenes: Scene[] = [
         text: 'Бульон из курицы, которую Хенрике берегла. Ты кормишь с ложки, хотя {partner} говорит, что может сам{pm:|а}. Не может.', effects: [set41('rk', 'soup'), drink(-20), blood(-3), until41(16, 55)] },
       { id: 'c41_rk_wash', label: 'Умыть и переодеть в сухое', minutes: 40, terminal: true, goto: 'c41_r_window',
         text: 'Тёплая вода, полотенце. Ты смываешь засохшую кровь вокруг повязки, по сантиметру. Под кровью — знакомое лицо.', effects: [set41('rk', 'wash'), treat('basic'), blood(-2), until41(16, 55)] },
+      { id: 'c41_rk_sit', label: 'Посидеть рядом, пока совсем не стемнеет', minutes: 40, terminal: true, goto: 'c41_r_window',
+        text: 'Окно серое, потом синее, потом чёрное. Ты не зажигаешь лампу. Дыхание рядом ровное, и ты подстраиваешь под него своё.', effects: [set41('rk', 'sit'), blood(-2), until41(16, 55)] },
     ] }),
 
   X({ id: 'c41_r_window', title: 'Свеча', camp: kitchen14,
@@ -677,6 +717,8 @@ export const day41Scenes: Scene[] = [
         text: 'Ты рассказываешь тихо: двор, кто нёс, кто держал лампу, доктор. Слушают с закрытыми глазами. На середине ты замечаешь, что тебя держат за руку.', effects: [set41('rw', 'tell'), blood(-2), until41(18, 0)] },
       { id: 'c41_rw_later', label: 'Сказать: потом, сейчас спи', minutes: 30, terminal: true, goto: 'c41_evening',
         text: 'Ты поправляешь одеяло. «Потом». Глаза закрываются. Ты сидишь рядом, пока не зовут ужинать.', effects: [set41('rw', 'later'), blood(-2), until41(18, 0)] },
+      { id: 'c41_rw_hand', label: 'Ничего не говорить, просто взять за руку', minutes: 30, terminal: true, goto: 'c41_evening',
+        text: 'Ты берёшь руку. Пальцы сжимаются в ответ, слабо, но сжимаются. Вопросы подождут.', effects: [set41('rw', 'hand'), blood(-2), until41(18, 0)] },
     ] }),
 ];
 

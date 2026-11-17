@@ -37,6 +37,8 @@ export const day42AScenes: Scene[] = [
         text: 'На тополе у канавы висят шары омелы. Ты сбиваешь одну ветку палкой. Белые ягоды, восковые листья. Под омелой, говорят, целуются.', effects: [set42('ab', 'mistle'), set42('mistle', true), until42(47, 8, 30)] },
       { id: 'c42_ab_wood', label: 'Собирать сушняк', when: not(tree42), minutes: 40, activity: 'moderate', terminal: true, goto: 'c42_a_tracks', ambientDuring: thu42,
         text: 'Сухие ветки, обломки, кора. Две вязанки. В глубине лесополосы, у ёлок, ты замечаешь на снегу следы.', effects: [set42('ab', 'wood'), until42(47, 8, 30)] },
+      { id: 'c42_ab_cones', label: 'Набрать шишек на растопку', when: not(tree42), minutes: 40, terminal: true, goto: 'c42_a_tracks', ambientDuring: thu42,
+        text: 'Полный мешок шишек, сухих, под елями. Хенрике растапливает ими плиту быстрее, чем лучиной.', effects: [set42('ab', 'cones'), until42(47, 8, 30)] },
     ] }),
 
   X({ id: 'c42_a_tracks', title: 'Следы', camp: yard14, ambient: thu42,
@@ -123,6 +125,8 @@ export const day42AScenes: Scene[] = [
         text: 'Две вязанки на спине, как у старухи из сказки. В сенях ты складываешь их у стены. Сухие ветки трещат.', effects: [set42('atr', 'wood'), until42(47, 10, 55)] },
       { id: 'c42_atr_branch', label: 'Сломать одну еловую ветку и взять с собой', when: not(tree42), minutes: 35, terminal: true, goto: 'c42_a_stand', ambientDuring: thu42,
         text: 'Одна ветка, пушистая, с двумя шишками. Дома ты ставишь её в банку с водой на подоконник и ничего никому не говоришь.', effects: [set42('atr', 'branch'), w42('branch', true), until42(47, 10, 55)] },
+      { id: 'c42_atr_moss', label: 'Нарвать мха и лапника: утеплить курятник', when: not(tree42), minutes: 35, terminal: true, goto: 'c42_a_stand', ambientDuring: thu42,
+        text: 'Мешок мха, охапка лапника. Дома ты затыкаешь щели в курятнике. Куры смотрят с насеста, как ревизоры.', effects: [set42('atr', 'moss'), until42(47, 10, 55)] },
     ] }),
 
   X({ id: 'c42_a_stand', title: 'Ёлка', camp: kitchen14,
@@ -142,6 +146,8 @@ export const day42AScenes: Scene[] = [
         text: 'Нина говорит, не поворачиваясь: «Ist schon okay. Wirklich». Всё нормально. Правда.\n\nТы не споришь. Вы сидите и смотрите в окно, на поле и мокрую лесополосу.', effects: [set42('as', 'nina'), npc('c7_nina', 1), until42(47, 11, 45)] },
       { id: 'c42_as_rest', label: 'Посидеть пять минут у печи', minutes: 30, terminal: true, goto: 'c42_a_radio1',
         text: 'Ты садишься к печи. Руки пахнут смолой и мокрой корой. Пять минут никто тебя не зовёт.', effects: [set42('as', 'rest'), { body: 'stress', delta: -3 }, until42(47, 11, 40)] },
+      { id: 'c42_as_stack', label: 'Сложить сушняк у печи ровной поленницей', when: not(tree42), minutes: 30, terminal: true, goto: 'c42_a_radio1',
+        text: 'Ветки по длине, толстые вниз, тонкие наверх. Поленница выходит ровная, как у Хенрике. Хенрике проходит мимо и ничего не поправляет.', effects: [set42('as', 'stack'), until42(47, 11, 40)] },
     ] }),
 
   X({ id: 'c42_a_radio1', title: 'Объявления', camp: kitchen14,
@@ -154,7 +160,7 @@ export const day42AScenes: Scene[] = [
       { id: 'c42_ar_write', label: 'Записать всё и повесить на дверь', minutes: 30, terminal: true, goto: 'c42_lunch',
         text: 'Ты пишешь крупно на обороте листа Хенрике: сочельник, 16:00, церковь, одеяла. Школа — 4 января, Винзен. Нина подходит, читает и долго стоит у двери.', effects: [set42('ar', 'write'), w42('school_known', true), w42('church_known', true), until42(47, 12, 30)] },
       { id: 'c42_ar_henrike', label: 'Позвать Хенрике дослушать', when: henrike42, minutes: 30, terminal: true, goto: 'c42_lunch',
-        text: 'Хенрике слушает, вытирая руки о фартук. Про церковь говорит: «Da war ich seit Ostern nicht». Я там с Пасхи не была. Про школу молчит и смотрит на Нину или на детей.', effects: [set42('ar', 'henrike'), w42('school_known', true), w42('church_known', true), until42(47, 12, 30)] },
+        text: 'Хенрике слушает, вытирая руки о фартук. Про церковь говорит: «Da war ich seit Ostern nicht». Я там с Пасхи не была. Про школу молчит и смотрит на детей.', effects: [set42('ar', 'henrike'), w42('school_known', true), w42('church_known', true), until42(47, 12, 30)] },
       { id: 'c42_ar_off', label: 'Дослушать и выключить: беречь батарейки', minutes: 25, terminal: true, goto: 'c42_lunch',
         text: 'Ты выключаешь. В кухне сразу становится слышно, как капает с крыши.', effects: [set42('ar', 'off'), w42('school_known', true), w42('church_known', true), until42(47, 12, 25)] },
     ] }),
@@ -189,6 +195,8 @@ export const day42AScenes: Scene[] = [
         text: 'Узел за мешками с отрубями. Никто не видел. Тебе неприятно, как легко это получилось.', effects: [set42('abr', 'hide'), until42(47, 14, 10)] },
       { id: 'c42_abr_kindling', label: 'Колоть лучину', minutes: 40, activity: 'moderate', terminal: true, goto: 'c42_a_hansen',
         text: 'Тонкие полешки, лучина, береста в коробку. На праздники хватит. Руки пахнут смолой.', effects: [set42('abr', 'kindling'), until42(47, 14, 30)] },
+      { id: 'c42_abr_stove', label: 'Перебрать печь в сенях: тянет плохо', minutes: 40, terminal: true, goto: 'c42_a_hansen',
+        text: 'Заслонка, сажа, ведро золы. Через сорок минут печь тянет, а ты {m:чёрный|чёрная} по локоть. Хенрике смотрит и говорит: «Endlich». Наконец-то.', effects: [set42('abr', 'stove'), until42(47, 14, 30)] },
     ] }),
 
   X({ id: 'c42_a_hansen', title: 'Ханзены', camp: yard14, ambient: thu42,
@@ -210,6 +218,8 @@ export const day42AScenes: Scene[] = [
         text: 'Три тачки через поле. Старик ругается из кровати, что не может помочь. Фрау Ханзен даёт тебе банку сливового варенья и не берёт её обратно.', effects: [set42('ah', 'wood'), { body: 'fatigue', delta: 8 }, until42(47, 15, 30)] },
       { id: 'c42_ah_visit', label: 'Зайти и спросить, как старик', when: all(not(hansenDead42), not(hansenHere42)), minutes: 60, terminal: true, goto: 'c42_a_partner',
         text: 'Кашель меньше, жара нет. Старик спрашивает, будет ли у вас ёлка. «Dann komme ich gucken. Wenn ich darf». Тогда приду посмотреть. Если можно.', effects: [set42('ah', 'visit'), until42(47, 15, 30)] },
+      { id: 'c42_ah_eggs', label: 'Отнести им десяток яиц от Хенрике', minutes: 60, terminal: true, goto: 'c42_a_partner', ambientDuring: thu42,
+        text: 'Десяток яиц в шапке, через поле. Фрау Ханзен берёт их, как берут подарок, и не сразу находит, куда положить.', effects: [set42('ah', 'eggs'), until42(47, 15, 30)] },
     ] }),
 
   X({ id: 'c42_a_partner', title: 'Вдвоём', camp: yard14, ambient: thu42,
@@ -225,6 +235,8 @@ export const day42AScenes: Scene[] = [
         text: '{partner} слушает и спрашивает одно: «Ему есть где спать?» Ты отвечаешь честно: в яме под дубом. {partner} долго смотрит на лесополосу.', effects: [set42('ap', 'jonas'), until42(47, 16, 0)] },
       { id: 'c42_ap_tea', label: 'Забрать кастрюлю и поставить чайник', minutes: 30, terminal: true, goto: 'c42_a_barn',
         text: 'Чайник закипает, пока {partner} снимает сапоги. Вы пьёте у печи плечом к плечу, пока вас не зовут.', effects: [set42('ap', 'tea'), until42(47, 16, 0)] },
+      { id: 'c42_ap_boots', label: 'Помочь {partner.dat} стянуть мокрые сапоги и усадить к печи', minutes: 30, terminal: true, goto: 'c42_a_barn',
+        text: 'Сапоги не снимаются, ты тянешь за пятку, {partner} смеётся. Потом сидите у печи, ноги к теплу, и молчите.', effects: [set42('ap', 'boots'), until42(47, 16, 0)] },
     ] }),
 
   X({ id: 'c42_a_barn', title: 'Вечерние дела', camp: yard14, ambient: thu42,
@@ -239,6 +251,8 @@ export const day42AScenes: Scene[] = [
         text: 'Семь яиц в шапке. Курятник на засов. Под сеткой новых дыр нет.', effects: [set42('abn', 'hens'), until42(47, 16, 45)] },
       { id: 'c42_abn_round', label: 'Обойти изгородь до темноты', minutes: 30, terminal: true, goto: 'c42_thu_eve', ambientDuring: thu42,
         text: 'Борона у дыры, проволока, банки. Всё на месте. В лесополосе ни огонька.', effects: [set42('abn', 'round'), until42(47, 16, 45)] },
+      { id: 'c42_abn_water', label: 'Натаскать воды в кухню на вечер', minutes: 30, terminal: true, goto: 'c42_thu_eve', ambientDuring: thu42,
+        text: 'Четыре ведра из колодца в бак у плиты. Хватит на ужин, посуду и чай.', effects: [set42('abn', 'water'), until42(47, 16, 45)] },
     ] }),
 
   // ═════════════ Пятница ═════════════
@@ -286,8 +300,8 @@ export const day42AScenes: Scene[] = [
         text: 'К полудню ваш участок по пояс. Спину не разогнуть. Брандт проходит вдоль рва и молча кладёт тебе руку на плечо.', effects: [set42('adg', 'steady'), { body: 'fatigue', delta: 12 }, until42(48, 12, 15)] },
       { id: 'c42_adg_kids', label: 'Поставить мальчишек носить глину и показать, как', minutes: 150, activity: 'moderate', terminal: true, goto: 'c42_fri_lunch', ambientDuring: fri42,
         text: 'Три пацана с вёдрами. Сначала носят наполовину, потом полными. К полудню они спорят, кто больше. Ты считаешь за всех и каждому говоришь, что больше всех носил он.', effects: [set42('adg', 'kids'), { body: 'fatigue', delta: 8 }, until42(48, 12, 15)] },
-      { id: 'c42_adg_lukas', label: 'Копать в паре с Лукасом и расспросить его', minutes: 150, activity: 'heavy', terminal: true, goto: 'c42_fri_lunch', ambientDuring: fri42,
-        text: 'Лукас до ноября чинил тракторы. Теперь у пожарной части три трактора и ни одной запчасти. Он рассказывает, как снимает детали с одного, чтобы ехал другой. Смеётся. Ты тоже.', effects: [set42('adg', 'lukas'), { body: 'fatigue', delta: 10 }, until42(48, 12, 15)] },
+      { id: 'c42_adg_lukas', label: 'Копать в паре с Лукасом, сыном пожарного', minutes: 150, activity: 'heavy', terminal: true, goto: 'c42_fri_lunch', ambientDuring: fri42,
+        text: 'Рука у Лукаса уже без перевязи. Ему четырнадцать. Он рассказывает, как отец посадил его за руль трактора в восемь лет. «Jetzt fahre ich für alle». Теперь я вожу за всех. Говорит это с гордостью и немного с ужасом.', effects: [set42('adg', 'lukas'), { body: 'fatigue', delta: 10 }, until42(48, 12, 15)] },
     ] }),
 
   X({ id: 'c42_a_jonas2', title: 'Снова под дубом', camp: yard14, ambient: fri42,
@@ -374,6 +388,8 @@ export const day42AScenes: Scene[] = [
         text: 'Нитка, звезда, ветка. На подоконнике теперь что-то вроде ёлки. Никто не говорит, что это ёлка.', effects: [set42('ast', 'branch'), until42(48, 17, 50)] },
       { id: 'c42_ast_window', label: 'Повесить звезду на окно', minutes: 30, terminal: true, goto: 'c42_a_radio2',
         text: 'Звезда на нитке за стеклом. Вечером, когда зажгут свечи, её будет видно с дороги.', effects: [set42('ast', 'window'), until42(48, 17, 50)] },
+      { id: 'c42_ast_box', label: 'Убрать звезду в коробку до сочельника', minutes: 30, terminal: true, goto: 'c42_a_radio2',
+        text: 'Звезда ложится в коробку из-под чая, между соломенными звёздами. В сочельник её достанут. Так у Хенрике заведено: всё лучшее — в последний день.', effects: [set42('ast', 'box'), until42(48, 17, 50)] },
     ] }),
 
   X({ id: 'c42_a_radio2', title: 'Эфир', camp: kitchen14,
@@ -402,5 +418,7 @@ export const day42AScenes: Scene[] = [
         text: 'Ханна из Мюнстера — маме в Букстехуде: я жива. Петер — Кларе: жди. Имена, имена. Ты не знаешь ни одного и всё равно слушаешь до конца.', effects: [set42('ar2', 'names'), until42(48, 18, 30)] },
       { id: 'c42_ar2_off', label: 'Не слушать: помочь накрыть на стол', minutes: 30, terminal: true, goto: 'c42_fri_eve',
         text: 'Ты расставляешь тарелки. Приёмник бормочет на подоконнике, и ты не разбираешь слов.', effects: [set42('ar2', 'off'), until42(48, 18, 20)] },
+      { id: 'c42_ar2_kids', label: 'Позвать детей послушать: вдруг услышат знакомое имя', minutes: 30, terminal: true, goto: 'c42_fri_eve',
+        text: 'Дети садятся на пол у подоконника и повторяют каждое имя шёпотом. Знакомых нет. Но никто не уходит до конца.', effects: [set42('ar2', 'kids'), until42(48, 18, 20)] },
     ] }),
 ];

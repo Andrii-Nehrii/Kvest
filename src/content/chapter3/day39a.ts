@@ -62,7 +62,7 @@ export const day39AScenes: Scene[] = [
       { when: genLost, text: 'Без генератора заряжать телефоны нечем. Корса — только если жечь бензин.' },
       { when: all(genLost, parents39), text: 'Уве разглядывает синий велосипед Нины в сенях. «Ein Dynamo, ein Gleichrichter, ein altes Ladekabel. Dann tritt man und lädt». Динамо, выпрямитель, старый зарядный провод. Тогда крутишь педали и заряжаешь.' },
       { when: all(not(genLost), parents39), text: 'Уве обходит генератор Дениза кругом, щупает ремень, слушает мотор. «Der läuft zu fett. Frisst doppelt». Слишком богатая смесь. Жрёт вдвое.' },
-      { when: not(parents39), text: 'Дениз или Оле возятся в сарае с тем, что осталось из инструмента. Хотят собрать что-нибудь, что даёт ток без солярки.' },
+      { when: not(parents39), text: 'В сарае мужчины возятся с тем, что осталось из инструмента. Хотят собрать что-нибудь, что даёт ток без солярки.' },
     ],
     actions: [
       { id: 'c39_au_build', label: 'Помогать собирать, держать, подавать', minutes: 60, terminal: true, goto: 'c39_a_ice',
@@ -112,6 +112,8 @@ export const day39AScenes: Scene[] = [
         text: 'Лея пьёт чай у печки и молчит. Потом говорит.\n\n— Mein Bruder hätte euch gemocht.\n\nМой брат бы вас полюбил. И уходит в пункт.', effects: [set39('al', 'tea'), npc('c21_lea', 1), until39(41, 14, 30)] },
       { id: 'c39_al_neighbor', label: 'Дать соседу молока и сказать про совет', when: not(lea36), minutes: 40, terminal: true, goto: 'c39_a_neighbors',
         text: 'Сосед берёт банку и кивает. «Sonntag. Ich komme». В воскресенье. Приду. У ворот оборачивается: «Und ihr?» А вы?', effects: [set39('al', 'neighbor'), until39(41, 14, 30)] },
+      { id: 'c39_al_gate', label: 'Проводить до калитки и вернуться к работе', minutes: 40, terminal: true, goto: 'c39_a_neighbors', ambientDuring: frost39,
+        text: 'Вы стоите у калитки минуту, говорите о погоде, о капели, о том, что вечером опять подморозит. Важное остаётся несказанным. Потом ты возвращаешься к дровам.', effects: [set39('al', 'gate'), until39(41, 14, 30)] },
     ] }),
 
   X({ id: 'c39_a_road', title: 'Развилка', location: 'c7_farm_lane', camp: yard14, safe: false, ambient: frost39,
@@ -170,6 +172,8 @@ export const day39AScenes: Scene[] = [
         text: 'Треск, свист, обрывки. Голландская музыка. Потом мужской голос по-английски, медленно: «…this is Toronto calling…». Уве записывает частоту. Может, это Томас. Может, нет.', effects: [set39('ae', 'radio'), w39('toronto_freq', true), until39(41, 21, 30)] },
       { id: 'c39_ae_sleep', label: 'Лечь пораньше', minutes: 60, terminal: true, goto: 'c39_a_late',
         text: 'Ты ложишься в девять и спишь без снов до утра.', effects: [set39('ae', 'sleep'), { body: 'fatigue', delta: -8 }, until39(41, 21, 30)] },
+      { id: 'c39_ae_cards', label: 'Сыграть в карты при лампе', minutes: 60, terminal: true, goto: 'c39_a_late',
+        text: 'Колода с загнутыми углами, «Mau-Mau». Ты проигрываешь три раза подряд, и это лучший час за неделю.', effects: [set39('ae', 'cards'), until39(41, 21, 30)] },
     ] }),
 
   X({ id: 'c39_a_late', title: 'Перед сном', camp: house14,
@@ -257,6 +261,8 @@ export const day39AScenes: Scene[] = [
         text: 'Колонна уходит. Ты возвращаешься во двор. Корова, дрова, вода. Армия уходит. Хутор остаётся.', effects: [set39('aa', 'wave'), until39(42, 16, 0)] },
       { id: 'c39_aa_brothers', label: 'Помочь Денизу с фургоном к понедельнику', when: all(not(army39), not(east36('give')), brothersCome), minutes: 60, terminal: true, goto: 'c39_radio',
         text: 'Фургон Дениза капризничает на морозе. Вы час возитесь со свечами и аккумулятором. В конце мотор заводится с первого раза. Дениз хлопает по капоту: «Montag. Lager». Понедельник. Склад.', effects: [set39('aa', 'brothers'), w39('van_ready', true), until39(42, 16, 0)] },
+      { id: 'c39_aa_list', label: 'Записать, кто уехал и с кем', minutes: 60, terminal: true, goto: 'c39_radio',
+        text: 'Имена, машины, куда. Лист на гвозде у двери кухни. Хенрике читает и добавляет одно имя, которое ты забыл{m:|а}.', effects: [set39('aa', 'list'), until39(42, 16, 0)] },
     ] }),
 ];
 

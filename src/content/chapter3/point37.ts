@@ -104,6 +104,8 @@ export const shared37: Scene[] = [
         text: 'Кася сидит неподвижно. Потом говорит по-польски, тихо, сама себе.\n\n— To nic. Poczekam pod Szczecinem.\n\nНичего. Подожду под Щецином. Ты кладёшь ей руку на плечо. Она не отстраняется.', effects: [set37('ra', 'kasia'), { if: { npc: 'kasia', alive: true }, then: [{ npc: 'kasia', trust: 1 }] }, until37(17, 45)] },
       { id: 'c37_ra_off', label: 'Выключить и пойти собираться', minutes: 20, terminal: true, outcomes: afterRadio,
         text: 'Ты выключаешь приёмник посреди фразы. Всё нужное сказано. Остальное — завтра.', effects: [set37('ra', 'off'), until37(17, 40)] },
+      { id: 'c37_ra_write', label: 'Записать время и место и прибить листок к двери', minutes: 20, terminal: true, outcomes: afterRadio,
+        text: 'Шесть утра, школа Винзена, обратно до восемнадцати через Гестхахт. Крупно, на обороте календаря. Каждый, кто проходит мимо двери, читает и шевелит губами.', effects: [set37('ra', 'write'), until37(17, 40)] },
     ] }),
 
   S37({ id: 'c37_supper', for: 'any', chapter: 'ch3', title: 'Последний ужин', camp: kitchen14, onEnter: [until37(18, 30)],
@@ -140,6 +142,8 @@ export const shared37: Scene[] = [
         text: 'Кася берёт тебя за обе руки. «Dziękuję. Za Tima. Za wszystko». Спасибо. За Тима. За всё. Потом отпускает и уходит в дом, не оглядываясь.', effects: [set37('fw', 'kasia'), { if: { npc: 'kasia', alive: true }, then: [{ npc: 'kasia', trust: 2 }] }, until37(20, 30)] },
       { id: 'c37_fw_check', label: 'Обойти двор: ворота, сарай, курятник', minutes: 30, activity: 'light', terminal: true, goto: 'c37_night', ambientDuring: frost37,
         text: 'Ворота заперты, сарай закрыт, в курятнике тихо. За сараем, у ручья, тоже тихо. Снег под фонарём синий. Ты возвращаешься в дом {m:последним|последней}.', effects: [set37('fw', 'check'), until37(20, 30)] },
+      { id: 'c37_fw_tea', label: 'Вынести всем горячего: на морозе долго не простоишь', minutes: 30, terminal: true, goto: 'c37_night',
+        text: 'Термос, кружки по кругу, пар над головами. Кто-то говорит «Prost», и все смеются, хотя смеяться не над чем.', effects: [set37('fw', 'tea'), until37(20, 30)] },
     ] }),
 
   S37({ id: 'c37_night', for: 'any', chapter: 'ch3', title: 'Ночь перед десятым', camp: house14,

@@ -87,7 +87,7 @@ export const shared39: Scene[] = [
       { id: 'c39_lu_eat', label: 'Есть со всеми', minutes: 45, terminal: true, outcomes: fromLunch, ...tableOnly,
         text: 'Суп горячий. Ты ешь и слушаешь. Цифры за столом страшные, но голоса спокойные.', effects: [set39('lu', 'eat'), meal('eat'), until39(41, 13, 45)] },
       { id: 'c39_lu_count', label: 'Предложить считать на бумаге, а не в уме', minutes: 45, terminal: true, outcomes: fromLunch, ...tableOnly,
-        text: 'Хенрике приносит тетрадь, Уве или Оле — карандаш. Через полчаса на листе таблица: еда, дрова, вода, по неделям. Внизу итог. Его никто не читает вслух.', effects: [set39('lu', 'count'), meal('eat'), w39('table', true), until39(41, 13, 45)] },
+        text: 'Хенрике приносит тетрадь и карандаш. Через полчаса на листе таблица: еда, дрова, вода, по неделям. Внизу итог. Его никто не читает вслух.', effects: [set39('lu', 'count'), meal('eat'), w39('table', true), until39(41, 13, 45)] },
       { id: 'c39_lu_quick', label: 'Поесть быстро и уйти к делам', minutes: 30, terminal: true, outcomes: fromLunch,
         text: 'Миску к окну, хлеб в карман. Дела не ждут.', effects: [set39('lu', 'quick'), meal('eat'), until39(41, 13, 45)] },
     ] }),
@@ -102,6 +102,10 @@ export const shared39: Scene[] = [
         text: 'Ужин ранний, картошка с капустой. Хенрике следит, чтобы все легли пораньше: завтра суббота, работы не меньше.', effects: [set39('du', 'supper'), meal('eat'), until39(41, 18, 30)] },
       { id: 'c39_du_count', label: 'Пересчитать машины в колонне', minutes: 60, terminal: true, outcomes: fromDusk, ambientDuring: frost39,
         text: 'Ты стоишь у ворот и считаешь. Сорок две машины. Последняя — бензовоз. После неё дорога пустая.', effects: [set39('du', 'count'), w39('convoy_counted', true), meal('eat'), until39(41, 18, 30)] },
+      { id: 'c39_du_window', label: 'Ждать у окна с чаем, пока все соберутся', minutes: 60, terminal: true, outcomes: fromDusk,
+        text: 'Кружка остывает в руках. За окном темнеет поле, по дороге ползут огни. Ты считаешь людей в кухне и каждый раз сбиваешься: кто-то входит, кто-то выходит.', effects: [{ set: '$.c39_du', value: 'window' }, until39(41, 18, 30)] },
+      { id: 'c39_du_lamp', label: 'Зажечь фонарь у ворот, как велел Брандт', minutes: 60, terminal: true, outcomes: fromDusk, ambientDuring: frost39,
+        text: 'Фонарь на крюк у ворот, фитиль пониже, чтобы хватило до утра. Свет ложится кругом на снег. Из колонии видно, что у вас кто-то не спит.', effects: [{ set: '$.c39_du', value: 'lamp' }, until39(41, 18, 30)] },
     ] }),
 
   S39({ id: 'c39_watch', for: 'any', chapter: 'ch3', title: 'Дежурство', camp: yard14, safe: false, ambient: shelter39, onEnter: [until39(41, 22, 0)],
@@ -128,7 +132,7 @@ export const shared39: Scene[] = [
 
   S39({ id: 'c39_watch2', for: 'any', chapter: 'ch3', title: 'Смена', camp: house14,
     text: [
-      { text: 'Половина первого. Тебя сменяют Дениз или Оле, сонные, с термосом. Ты возвращаешься в дом по тропе, мимо проволоки с банками.' },
+      { text: 'Половина первого. Приходит смена, сонная, с термосом. Ты возвращаешься в дом по тропе, мимо проволоки с банками.' },
       { text: 'Небо на западе затянуто. Ветер сменился: дует с запада, сырой. Пахнет не морозом.' },
     ],
     actions: [
@@ -136,6 +140,8 @@ export const shared39: Scene[] = [
         text: 'Ты падаешь на кровать, не раздеваясь. Ноги не согреваются долго. Потом согреваются.', effects: [set39('w2', 'sleep'), until39(42, 8, 0, true)] },
       { id: 'c39_w2_tea', label: 'Выпить горячего на кухне и записать, что видел{m:|а}', minutes: 30, terminal: true, goto: 'c39_sat',
         text: 'Кухня тёплая, печь ещё не остыла. Ты пишешь на листке у двери: время, место, что видел{m:|а}. Для Брандта. Потом спать.', effects: [set39('w2', 'tea'), w39('watch_log', true), until39(42, 8, 0, true)] },
+      { id: 'c39_w2_partner', label: 'Лечь рядом с {partner.ins} и не будить', minutes: 30, terminal: true, goto: 'c39_sat',
+        text: 'Ты ложишься тихо, не раздеваясь до конца. {partner} шевелится во сне и придвигается ближе. Холод уходит из ног за минуту.', effects: [set39('w2', 'partner'), until39(42, 8, 0, true)] },
     ] }),
 
   // ═════════════ Суббота ═════════════
@@ -153,11 +159,15 @@ export const shared39: Scene[] = [
         text: '— Wenn es taut, werden sie wach. Die im Tal. — Хенрике вытирает руки о фартук. Когда тает, они просыпаются. Те, во впадине. — Mein Vater hat immer gesagt: der Winter ist der beste Wachhund. Er hat nie gesagt, warum.\n\nОтец всегда говорил: зима — лучший сторожевой пёс. Никогда не объяснял почему.', effects: [set39('sa', 'drip'), w39('thaw_warned', true), meal('eat'), until39(42, 9, 0)] },
       { id: 'c39_sa_sleep', label: 'Доспать ещё час', minutes: 60, activity: 'rest', terminal: true, outcomes: fromSat,
         text: 'Ты ложишься и засыпаешь сразу. Тебя будит запах кофе и голос Нины за стенкой.', effects: [set39('sa', 'sleep'), { body: 'fatigue', delta: -8 }, until39(42, 9, 15)] },
+      { id: 'c39_sa_drip2', label: 'Выйти на крыльцо послушать капель', minutes: 45, terminal: true, outcomes: fromSat, ambientDuring: frost39,
+        text: 'С крыши капает, с сосулек над крыльцом бежит вода. Снег на дворе посерел и осел. Хенрике выходит следом, слушает и молча уходит обратно.', effects: [{ set: '$.c39_sa', value: 'drip2' }, until39(42, 9, 0)] },
+      { id: 'c39_sa_stove', label: 'Растопить печь, пока все спят', minutes: 45, terminal: true, outcomes: fromSat,
+        text: 'Лучина, береста, два полена. Печь гудит. Когда спускаются остальные, в кухне уже тепло, и никто не знает, кто встал первым.', effects: [{ set: '$.c39_sa', value: 'stove' }, until39(42, 9, 0)] },
     ] }),
 
   S39({ id: 'c39_lunch2', for: 'any', chapter: 'ch3', title: 'Субботний обед', camp: kitchen14, onEnter: [until39(42, 12, 30)],
     text: [
-      { text: 'Обед. Хенрике зарезала курицу: суббота, народу много. Суп с лапшой, которую Биргит или Эва раскатала утром.' },
+      { text: 'Обед. Хенрике зарезала курицу: суббота, народу много. Суп с домашней лапшой: её раскатывали утром на весь стол.' },
       { when: evaHere, text: 'Эва ест молча. Если она едет с армией, то в понедельник вечером — к Тобиасу.' },
       { when: eldersCome, text: 'Петерсен рассказывает про наводнение шестьдесят второго в третий раз. Фрау Кёрнер не поправляет его ни разу.' },
     ],
@@ -166,6 +176,10 @@ export const shared39: Scene[] = [
         text: 'Суп настоящий, жирный, с курицей. Ты хвалишь, Хенрике отмахивается, но подкладывает ещё.', effects: [set39('l2', 'eat'), meal('eat'), npc('henrike', 1), until39(42, 13, 45)] },
       { id: 'c39_l2_tea', label: 'Выпить чаю с хлебом у плиты', minutes: 30, terminal: true, outcomes: fromLunch2,
         text: 'Ты пьёшь чай стоя и жуёшь хлеб. За столом и так тесно.', effects: [set39('l2', 'tea'), { body: 'hunger', delta: -8 }, until39(42, 13, 45)] },
+      { id: 'c39_l2_dishes', label: 'Мыть посуду, пока остальные едят', minutes: 45, terminal: true, outcomes: fromLunch2,
+        text: 'Таз с горячей водой, тряпка, гора мисок. За спиной разговор и смех. Хенрике ставит тебе на край стола миску супа: «Danach». Потом.', effects: [{ set: '$.c39_l2', value: 'dishes' }, until39(42, 13, 45)] },
+      { id: 'c39_l2_window', label: 'Отнести миску старикам наверх', minutes: 45, terminal: true, outcomes: fromLunch2,
+        text: 'Две миски на подносе, по лестнице, не расплескав. Наверху тебя благодарят так, будто ты принёс не суп, а новость.', effects: [{ set: '$.c39_l2', value: 'window' }, until39(42, 13, 45)] },
       { id: 'c39_l2_kids', label: 'Отдать детям свою курицу', minutes: 45, terminal: true, outcomes: fromLunch2, ...tableOnly,
         text: 'Ты перекладываешь мясо из своей миски Нине. Она делает вид, что не заметила, и съедает всё.', effects: [set39('l2', 'kids'), meal('eat'), { body: 'hunger', delta: 6 }, until39(42, 13, 45)] },
     ] }),
@@ -196,8 +210,12 @@ export const shared39: Scene[] = [
         text: 'Три огонька в венке, тени на потолке. Кто-то начинает петь, тихо, по-немецки, и замолкает на второй строчке. Никто не знает слов дальше.', effects: [set39('su', 'eat'), meal('eat'), until39(42, 19, 15)] },
       { id: 'c39_su_watch', label: 'Смотреть на свечи с чашкой чая', minutes: 60, terminal: true, goto: 'c39_night',
         text: 'Ты сидишь с краю с кружкой и смотришь на огоньки. Тепло, тесно, тихо.', effects: [set39('su', 'watch'), { body: 'stress', delta: -3 }, until39(42, 19, 15)] },
+      { id: 'c39_su_kids', label: 'Сесть с детьми на лавку у печи', minutes: 60, terminal: true, goto: 'c39_night',
+        text: 'Дети жмутся к тебе с двух сторон. Самый младший засыпает у тебя на плече на середине чьей-то истории. Ты боишься пошевелиться до конца ужина.', effects: [{ set: '$.c39_su', value: 'kids' }, { body: 'stress', delta: -4 }, until39(42, 19, 15)] },
+      { id: 'c39_su_dishes', label: 'Мыть посуду при свечах, пока остальные сидят', minutes: 60, terminal: true, goto: 'c39_night',
+        text: 'Таз, тёплая вода, миски одна за другой. За спиной свечи и голоса. Ты моешь медленно, чтобы подольше слушать.', effects: [{ set: '$.c39_su', value: 'dishes' }, until39(42, 19, 15)] },
       { id: 'c39_su_sing', label: 'Попросить Хенрике спеть', when: henrike39, minutes: 60, terminal: true, goto: 'c39_night', ...tableOnly,
-        text: 'Хенрике отказывается, потом поёт: «Macht hoch die Tür». Голос низкий, чуть дрожит. На втором куплете подпевает Биргит или Эва. Нина смотрит на них, открыв рот.', effects: [set39('su', 'sing'), meal('eat'), npc('henrike', 2, 'c39_sang'), { body: 'stress', delta: -6 }, until39(42, 19, 15)] },
+        text: 'Хенрике отказывается, потом поёт: «Macht hoch die Tür». Голос низкий, чуть дрожит. На втором куплете подпевает кто-то ещё. Нина смотрит на них, открыв рот.', effects: [set39('su', 'sing'), meal('eat'), npc('henrike', 2, 'c39_sang'), { body: 'stress', delta: -6 }, until39(42, 19, 15)] },
     ] }),
 
   S39({ id: 'c39_night', for: 'any', chapter: 'ch3', title: 'Суббота, вечер', camp: house14,
@@ -209,6 +227,8 @@ export const shared39: Scene[] = [
         text: 'Шёпотом. Совет у Брандта, склад в понедельник, оттепель во вторник. Вы раскладываете это по дням, как вещи по полкам. Легче не становится, но становится понятнее.', effects: [set39('ni', 'talk'), finish, until39(42, 20, 0)] },
       { id: 'c39_ni_sleep', label: 'Уснуть', minutes: 30, terminal: true, goto: 'c39_checkpoint',
         text: 'Ты засыпаешь под капель. Последняя мысль — о том, что весной это был бы хороший звук.', effects: [set39('ni', 'sleep'), finish, until39(42, 20, 0)] },
+      { id: 'c39_ni_window', label: 'Постоять у окна, прежде чем лечь', minutes: 30, terminal: true, goto: 'c39_checkpoint',
+        text: 'Двор под луной, капель с крыши, проволока с банками. Ты стоишь, пока не начинают мёрзнуть ноги на холодном полу, и только тогда ложишься.', effects: [set39('ni', 'window'), until39(42, 20, 0)] },
     ] }),
 
   S39({ id: 'c39_checkpoint', for: 'any', chapter: 'ch3', title: 'Суббота, восемь вечера', checkpoint: 39, universal: false, camp: house14,

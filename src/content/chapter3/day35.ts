@@ -93,6 +93,8 @@ export const day35Scenes: Scene[] = [
         text: 'Кася играет на гармошке Тима одну и ту же мелодию, три ноты. Ты слушаешь, пока не начинает получаться четвёртая.', effects: [set35('ad', 'kasia'), npc('kasia', 1), until35(16, 40)] },
       { id: 'c35_ad_wait', label: 'Ждать ужина', when: not(any(flag('w.c35_tobias_offer'), flag('w.c35_army_known'))), minutes: 30, terminal: true, goto: 'c35_y_a_wood',
         text: 'Ты сидишь у печи и смотришь, как Хенрике чистит картошку одной длинной лентой.', effects: [set35('ad', 'wait'), until35(16, 40)] },
+      { id: 'c35_ad_wood', label: 'Наколоть дров к ужину', minutes: 30, terminal: true, goto: 'c35_y_a_wood',
+        text: 'Колун, чурбак, двенадцать поленьев. Руки заняты, думать о главном некогда. Это и нужно.', effects: [set35('ad', 'wood'), until35(16, 40)] },
     ] }),
 
   // ═════════════ B ═════════════
@@ -155,6 +157,6 @@ export const day35Scenes: Scene[] = [
       { id: 'c35_bd_lea', label: 'Помочь Лее с лучиной', when: lea35, minutes: 30, terminal: true, goto: 'c35_x_nina',
         text: 'Лея колет, ты складываешь. Она говорит, не поднимая головы: «Wenn du nach Norden gehst — nimm mehr Handschuhe mit, als du denkst». Если пойдёшь на север — возьми больше перчаток, чем думаешь.', effects: [set35('bd', 'lea'), npc('c21_lea', 1), until35(15, 0)] },
       { id: 'c35_bd_ute', label: 'Помочь Уте разнести носки', when: ute35, minutes: 30, terminal: true, goto: 'c35_x_nina', ambientDuring: frost35,
-        text: 'Носки толстые, колючие, из шерсти фрау Хаберланд или своей. Петерсен надевает их сразу, поверх своих, и шевелит пальцами.', effects: [set35('bd', 'ute'), npc('c14_ute', 1), until35(15, 0)] },
+        text: 'Носки толстые, колючие, грубой домашней вязки. Петерсен надевает их сразу, поверх своих, и шевелит пальцами.', effects: [set35('bd', 'ute'), npc('c14_ute', 1), until35(15, 0)] },
     ] }),
 ];

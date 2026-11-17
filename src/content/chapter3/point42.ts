@@ -110,7 +110,7 @@ export const shared42: Scene[] = [
 
   S42({ id: 'c42_thu_night', for: 'any', chapter: 'ch3', title: 'Перед сном', camp: house14,
     text: [
-      { text: 'Половина девятого. Дом затихает. С крыши капает, на лугу кричит какая-то птица.' },
+      { text: 'Половина восьмого. Дом затихает рано. С крыши капает, на лугу кричит какая-то птица.' },
     ],
     actions: [
       { id: 'c42_tn_talk', label: 'Лечь рядом с {partner.ins} и поговорить про день', minutes: 30, terminal: true, goto: 'c42_fri_dawn',
@@ -147,6 +147,10 @@ export const shared42: Scene[] = [
         text: 'Венок, баня, дрова, кухня. Хенрике распределяет, как на поле. Никто не спорит: так проще.', effects: [set42('fl', 'plan'), meal('eat'), until42(48, 13, 15)] },
       { id: 'c42_fl_bread', label: 'Поесть стоя и вернуться к делам', minutes: 30, terminal: true, outcomes: fromFriLunch,
         text: 'Миска у окна, три минуты. Дела ждут.', effects: [set42('fl', 'bread'), { body: 'hunger', delta: -15 }, until42(48, 13, 0)] },
+      { id: 'c42_fl_stove', label: 'Подкинуть дров и посидеть у плиты', minutes: 30, terminal: true, outcomes: fromFriLunch,
+        text: 'Два полена в топку, дверца, жар в лицо. Пять минут ты сидишь на корточках у плиты и ни о чём не думаешь.', effects: [set42('fl', 'stove'), until42(48, 13, 0)] },
+      { id: 'c42_fl_dishes', label: 'Мыть посуду, пока остальные едят', minutes: 30, terminal: true, outcomes: fromFriLunch,
+        text: 'Миски в таз, тёплая вода, мыло. Ты слушаешь, о чём говорят за спиной, и не оборачиваешься.', effects: [set42('fl', 'dishes'), until42(48, 13, 0)] },
     ] }),
 
   S42({ id: 'c42_fri_eve', for: 'any', chapter: 'ch3', title: 'Вечер пятницы', camp: kitchen14, onEnter: [until42(48, 18, 30)],
@@ -161,6 +165,10 @@ export const shared42: Scene[] = [
         text: 'Начинает Хенрике: снег до окон, отец везёт ёлку на санях. Потом все по очереди. Когда доходит до тебя, ты рассказываешь своё. Тихо. Все слушают.', effects: [set42('fe', 'story'), meal('eat'), { body: 'stress', delta: -6 }, until42(48, 19, 45)] },
       { id: 'c42_fe_watch', label: 'Смотреть на свечи с чашкой чая', minutes: 60, terminal: true, goto: 'c42_fri_night',
         text: 'Ты сидишь у края стола с кружкой. Свечи горят ровно. Ты думаешь о тех, кто сидел бы за этим столом месяц назад.', effects: [set42('fe', 'watch'), { body: 'hunger', delta: -15 }, until42(48, 19, 45)] },
+      { id: 'c42_fe_kids', label: 'Читать детям вслух у печи', minutes: 60, terminal: true, goto: 'c42_fri_night',
+        text: 'Книжка из сундука Оле, растрёпанная, про медвежонка зимой. Ты читаешь по-немецки, с ошибками. Дети поправляют хором и не дают закрыть книгу, пока не кончится.', effects: [set42('fe', 'kids'), { body: 'stress', delta: -4 }, until42(48, 19, 45)] },
+      { id: 'c42_fe_window', label: 'Поставить на подоконник свечу для тех, кого нет', minutes: 60, terminal: true, goto: 'c42_fri_night',
+        text: 'Ещё одна свеча, отдельно от венка. Хенрике замечает и молча придвигает её ближе к стеклу, чтобы было видно с дороги.', effects: [set42('fe', 'window'), until42(48, 19, 45)] },
     ] }),
 
   S42({ id: 'c42_fri_night', for: 'any', chapter: 'ch3', title: 'Пятница, ночь', camp: house14,
@@ -172,6 +180,8 @@ export const shared42: Scene[] = [
         text: 'Вы лежите в темноте и говорите о том, каким будет сочельник. Кого позвать. Что надеть. Глупости. Важные глупости.', effects: [set42('fn', 'talk'), finish, until42(48, 20, 30)] },
       { id: 'c42_fn_sleep', label: 'Уснуть', minutes: 45, terminal: true, goto: 'c42_checkpoint',
         text: 'Ты засыпаешь под тиканье часов в кухне.', effects: [set42('fn', 'sleep'), { body: 'fatigue', delta: -6 }, finish, until42(48, 20, 30)] },
+      { id: 'c42_fn_gift', label: 'Проверить, хорошо ли спрятан подарок', minutes: 45, terminal: true, goto: 'c42_checkpoint',
+        text: 'В темноте, на ощупь, ты проверяешь тайник. На месте. Ты ложишься и улыбаешься в подушку, сам{m:|а} не зная чему.', effects: [set42('fn', 'gift'), until42(48, 20, 30)] },
     ] }),
 
   S42({ id: 'c42_checkpoint', for: 'any', chapter: 'ch3', title: 'Пятница, вечер', checkpoint: 42, universal: false, camp: house14,

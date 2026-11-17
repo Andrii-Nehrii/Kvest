@@ -31,6 +31,8 @@ export const day40BScenes: Scene[] = [
         text: 'Дети в кухне, на лавке у печи. Йорг упирается: он с топором в сарае, где мешки. Пусть. Дети в доме, это главное. Хенрике ставит им молоко.', effects: [set40('bb', 'kids'), w40('strangers_kid', 'safe'), until40(45, 9, 0)] },
       { id: 'c40_bb_bail', label: 'Отчерпать воду из хлева', minutes: 75, activity: 'heavy', terminal: true, goto: 'c40_b_merle', ambientDuring: thaw40,
         text: 'Ведро за ведром, через порог. Вода прибывает почти так же быстро, как ты черпаешь. К девяти её по щиколотку меньше. Корова смотрит на тебя с благодарностью или кажется.', effects: [set40('bb', 'bail'), { body: 'fatigue', delta: 10 }, until40(45, 9, 0)] },
+      { id: 'c40_bb_door', label: 'Подпереть дверь хлева, чтобы не распахнуло ветром', minutes: 60, terminal: true, goto: 'c40_b_merle',
+        text: 'Кол, камень, проволока. Дверь хлева больше не болтается. Корова косится, но успокаивается.', effects: [set40('bb', 'door'), until40(45, 9, 0)] },
     ] }),
 
   X({ id: 'c40_b_merle', title: 'Сахар', camp: kitchen14,
@@ -44,8 +46,14 @@ export const day40BScenes: Scene[] = [
         text: 'Хлеб с маслом на ночь, сахар в кармане, стакан сока на табурете. Мерле закатывает глаза: «Wie im Kindergarten». Как в детском саду. Но соглашается. И просит будить её, если она будет странной.', effects: [set40('bm', 'snack'), set40('snack', true), until40(45, 10, 30)] },
       { id: 'c40_bm_dose', label: 'Уменьшить с ней вечернюю дозу: ночь будет тяжёлая', when: merle40, minutes: 60, terminal: true, goto: 'c40_b_house',
         text: 'Мерле считает, ты проверяешь. Чуть меньше на ночь, чуть больше еды. «Wenn ich morgen hoch bin, ist es deine Schuld». Если завтра сахар будет высокий, это ты виновата. Она улыбается.', effects: [set40('bm', 'dose'), set40('snack', true), until40(45, 10, 30)] },
-      { id: 'c40_bm_nina', label: 'Дать Нине дело: следить за свечами и спичками в доме', when: not(merle40), minutes: 60, terminal: true, goto: 'c40_b_house',
+      { id: 'c40_bm_nina', label: 'Дать Нине дело: следить за свечами и спичками в доме', when: all(not(merle40), ninaFarm), minutes: 60, terminal: true, goto: 'c40_b_house',
         text: 'Нина раскладывает свечи по комнатам и в каждой проверяет спички. Серьёзная, как часовой. Когда она занята, она не бегает к окну.', effects: [set40('bm', 'nina'), w40('nina_busy', true), until40(45, 10, 30)] },
+      { id: 'c40_bm_talk', label: 'Посидеть с Мерле: ей страшно не меньше, чем тебе', when: merle40, minutes: 60, terminal: true, goto: 'c40_b_house',
+        text: 'Мерле говорит, что боится не ночи, а того, что ночью нельзя будет включить свет и посмотреть сахар. Вы решаете: фонарик под подушку, сахар и сок у кровати. Становится чуть легче.', effects: [set40('bm', 'talk'), until40(45, 10, 30)] },
+      { id: 'c40_bm_candles', label: 'Помочь Хенрике разложить свечи и спички', when: all(not(merle40), not(ninaFarm)), minutes: 60, terminal: true, goto: 'c40_b_house',
+        text: 'Свеча и коробок на каждый подоконник, в каждую комнату, в карман каждой куртки у двери. Хенрике проверяет за тобой и одну свечу переставляет.', effects: [set40('bm', 'candles'), until40(45, 10, 30)] },
+      { id: 'c40_bm_window', label: 'Посмотреть из окна на ручей', minutes: 45, terminal: true, goto: 'c40_b_house',
+        text: 'Зеве за полем стала шире и темнее. По ней плывут льдины, медленно, одна за другой. Ты смотришь, пока Хенрике не зовёт.', effects: [set40('bm', 'window'), until40(45, 10, 15)] },
     ] }),
 
   X({ id: 'c40_b_house', title: 'Дом к ночи', camp: kitchen14,
@@ -72,7 +80,7 @@ export const day40BScenes: Scene[] = [
       { id: 'c40_bn_move', label: 'Пойти к ним с санями и перевезти к вам до темноты', when: not(flag('w.c40_gerdes_moved')), minutes: 120, activity: 'heavy', risky: true, terminal: true, goto: 'c40_dusk', ambientDuring: thaw40,
         outcomes: [
           { id: 'ok', check: { traits: ['endurance', 'strength'], difficulty: 3, uses: ['mobility'] },
-            text: 'Сани по мокрому снегу тянуть тяжело, вдвоём с Йоргом, Денизом или кто пошёл. Старика укладываете на сани, укрываете клеёнкой от дождя. К четырём он у вас, в комнате стариков. Фрау Ханзен целует тебе руки.',
+            text: 'Сани по мокрому снегу тянуть тяжело, вдвоём с тем, кто вызвался. Старика укладываете на сани, укрываете клеёнкой от дождя. К четырём он у вас, в комнате стариков. Фрау Ханзен целует тебе руки.',
             effects: [set40('bn', 'move'), w40('gerdes_moved', true), { body: 'fatigue', delta: 12 }, until40(45, 16, 0)] },
           { id: 'mud',
             text: 'На полпути сани вязнут в раскисшей колее, ты падаешь в грязь лицом. Встаёшь, тянешь дальше. Старика довозите, но ты {m:мокрый|мокрая} до нитки и колено разбито о полоз.',
@@ -97,7 +105,7 @@ export const day40BScenes: Scene[] = [
     ],
     actions: [
       { id: 'c40_bn1_call', label: 'Позвать мужчин: пусть идут двое, с фонарём', minutes: 60, terminal: true, goto: 'c40_b_n2',
-        text: 'Ты будишь Уве, Дениза или Йорга. Двое уходят с фонарём и ломом. Через двадцать минут возвращаются: дети в доме, хлев на засове. Корову не вывели: не успели.', effects: [set40('bn1', 'call'), w40('strangers_kid', 'safe'), until40(45, 22, 0)] },
+        text: 'Ты будишь мужчин. Двое уходят с фонарём и ломом. Через двадцать минут возвращаются: дети в доме, хлев на засове. Корову не вывели: не успели.', effects: [set40('bn1', 'call'), w40('strangers_kid', 'safe'), until40(45, 22, 0)] },
       { id: 'c40_bn1_go', label: 'Выйти с лампой: забрать детей из сарая или закрыть хлев', minutes: 60, risky: true, terminal: true, goto: 'c40_b_n2', ambientDuring: thaw40,
         outcomes: [
           { id: 'ok', when: torch40, check: { traits: ['agility'], difficulty: 3, uses: ['focus'] },
@@ -125,7 +133,7 @@ export const day40BScenes: Scene[] = [
       { id: 'c40_bn2_hold', label: 'Держать дверь плечом вместе с Хенрике', minutes: 45, risky: true, terminal: true, goto: 'c40_b_n3',
         outcomes: [
           { id: 'hurt', when: worse1, text: 'Колено подламывается, ты падаешь у двери. Дверь приоткрывается на ладонь, в щель лезет рука, хватает тебя за рукав и тянет. Ты рвёшься назад, и ногти на чужих пальцах распарывают тебе руку от локтя. Уве захлопывает дверь. Кровь на полу.', effects: [set40('bn2', 'hold'), ...hurt2, until40(46, 0, 30)] },
-          { id: 'ok', check: { traits: ['strength', 'endurance'], difficulty: 4, uses: ['strength'] }, text: 'Плечом в дверь, Хенрике рядом, Уве или Дениз за спиной. Дверь вздрагивает от каждого удара, но держит. Через полчаса снаружи тихо.', effects: [set40('bn2', 'hold'), w40('door_held', true)] },
+          { id: 'ok', check: { traits: ['strength', 'endurance'], difficulty: 4, uses: ['strength'] }, text: 'Плечом в дверь, Хенрике рядом, кто-то из мужчин за спиной. Дверь вздрагивает от каждого удара, но держит. Через полчаса снаружи тихо.', effects: [set40('bn2', 'hold'), w40('door_held', true)] },
           { id: 'hurt2', text: 'Дверь дёргается, щель, рука. Тебя тянут за рукав, ты рвёшься, рукав трещит, ногти распарывают кожу. Дверь захлопывают за тебя. Кровь.', effects: [set40('bn2', 'hold'), ...hurt2] },
         ], effects: [until40(46, 0, 30)] },
       { id: 'c40_bn2_kids', label: 'Увести детей в кладовку и сидеть с ними', minutes: 45, terminal: true, goto: 'c40_b_n3',
@@ -146,7 +154,7 @@ export const day40BScenes: Scene[] = [
         outcomes: [
           { id: 'down', when: worse2, text: 'Ты выбегаешь. Ноги разъезжаются в грязи. Раненая рука не успевает. Ты падаешь, затылком о ступеньку крыльца. Белая вспышка. Потом ничего.\n\nПоследнее, что ты слышишь, — Хенрике кричит твоё имя.', effects: [set40('bn3', 'run'), ...down40] },
           { id: 'ok', check: { traits: ['agility'], difficulty: 4, uses: ['mobility'] }, text: 'Ты догоняешь её у колодца и хватаешь за куртку. Тянешь назад, к двери. У забора кто-то идёт к вам, медленно. Вы влетаете в кухню, засов. Все целы.', effects: [set40('bn3', 'run'), w40('runner_saved', true)] },
-          { id: 'slip', text: 'Ты падаешь у крыльца, встаёшь, бежишь. Её уже держит Йорг или Дениз, выскочивший следом. Вы втроём заваливаетесь в кухню. Ты {m:весь|вся} в грязи, колени ободраны.', effects: [set40('bn3', 'run'), w40('runner_saved', true), { body: 'fatigue', delta: 6 }] },
+          { id: 'slip', text: 'Ты падаешь у крыльца, встаёшь, бежишь. Её уже держит кто-то из мужчин, выскочивший следом. Вы втроём заваливаетесь в кухню. Ты {m:весь|вся} в грязи, колени ободраны.', effects: [set40('bn3', 'run'), w40('runner_saved', true), { body: 'fatigue', delta: 6 }] },
         ], effects: [until40(46, 2, 30)] },
       { id: 'c40_bn3_stay', label: 'Кричать ей с порога и не выходить', minutes: 30, terminal: true, goto: 'c40_b_after',
         text: 'Ты кричишь с порога. Хенрике отталкивает тебя и выбегает сама, в одном платке, с кочергой. Она приводит её назад. На крыльце Хенрике поскальзывается и падает на руку. Запястье распухает на глазах.', effects: [set40('bn3', 'stay'), w40('henrike_hurt', true), npc('henrike', -1, 'c40_stayed_inside'), until40(46, 2, 30)] },

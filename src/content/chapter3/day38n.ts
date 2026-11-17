@@ -125,6 +125,8 @@ export const day38NScenes: Scene[] = [
         text: 'Тридцать шесть и шесть. Солдат кивает. Ты проходишь в ворота. Мужчина с чемоданом уже у двери отдельного корпуса. Дверь за ним закрывается.', effects: [set38('ng', 'pass'), until38(10, 45)] },
       { id: 'c38_ng_ask', label: 'Спросить солдата: что с теми, кто в отдельном корпусе', minutes: 30, terminal: true, outcomes: byRole('c38_na_unload', 'c38_nb_meds'),
         text: '— Drei Tage. Dann wissen wir es. — Солдат меряет следующего. — Die meisten haben Grippe. Die meisten.\n\nТри дня. Потом станет ясно. У большинства грипп. У большинства.', effects: [set38('ng', 'ask'), until38(10, 45)] },
+      { id: 'c38_ng_wait', label: 'Посмотреть, куда поведут мужчину с чемоданом', minutes: 30, terminal: true, outcomes: byRole('c38_na_unload', 'c38_nb_meds'), ambientDuring: frost38,
+        text: 'Мужчину уводят за забор, к отдельному корпусу. Он оглядывается на чемодан у ворот. Солдат ставит чемодан к стене так, как ставят вещь, за которой не вернутся.', effects: [set38('ng', 'wait'), until38(10, 45)] },
       { id: 'c38_ng_ilka', label: 'Спросить про мужа той женщины с моста, Брандеса', when: flag('w.c38_ilka'), minutes: 30, terminal: true, outcomes: byRole('c38_na_unload', 'c38_nb_meds'),
         text: 'Солдат листает список у ворот. «Brandes, Holger. Halle, Reihe sieben». Ряд семь. Позже, в зале, ты находишь его: седой, небритый. Ты говоришь: Илька жива. Она у моста. Он садится на раскладушку и закрывает лицо руками.', effects: [set38('ng', 'ilka'), w38('ilka_told', true), until38(10, 50)] },
     ] }),
@@ -252,6 +254,8 @@ export const day38NScenes: Scene[] = [
         text: 'Вы стоите у окна, плечо к плечу, и рассказываете быстро, перебивая друг друга. Дерево. Солдат. Мерле. Полчаса — и снова каждый к своей машине.', effects: [set38('ns', 'partner'), { body: 'stress', delta: -4 }, until38(14, 15)] },
       { id: 'c38_ns_give', label: 'Отдать свою миску тому, кто остаётся', minutes: 30, terminal: true, outcomes: byRole('c38_na_load', 'c38_nb_stretcher'),
         text: 'Ты отдаёшь миску старику у двери. Он остаётся. Ты едешь домой, тебя там накормят. Он ест медленно, как будто боится, что отнимут.', effects: [set38('ns', 'give'), { body: 'hunger', delta: 4 }, until38(14, 15)] },
+      { id: 'c38_ns_window', label: 'Стоять у окна и смотреть на ворота: кого ещё привезут', minutes: 30, terminal: true, outcomes: byRole('c38_na_load', 'c38_nb_stretcher'),
+        text: 'У ворот останавливается грузовик, из кузова выносят носилки. Ты смотришь, пока не зовут на погрузку. Лица на носилках не разглядеть.', effects: [set38('ns', 'window'), until38(14, 15)] },
     ] }),
 
   X({ id: 'c38_na_load', title: 'Коляска', location: ahr38, camp: ahrCamp, safe: false, ambient: frost38,

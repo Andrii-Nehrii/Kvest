@@ -334,6 +334,8 @@ export const day36AScenes: Scene[] = [
         text: 'Брандт отпускает дружинников и подходит, стягивая перчатку.', effects: [set36('aj', 'brandt'), until36(15, 30)] },
       { id: 'c36_aj_home', label: 'Сразу домой', minutes: 30, terminal: true, goto: 'c36_a_home',
         text: 'Ты не задерживаешься. Хочется домой, к печке. Хочется знать, как там Винзен.', effects: [set36('aj', 'home'), { if: carJest, then: [{ drive: 'opel_corsa', km: 4, to: farm36 }] }, until36(15, 45)] },
+      { id: 'c36_aj_unload', label: 'Помочь разгрузить ящики у пожарной части', minutes: 30, terminal: true, goto: 'c36_a_home',
+        text: 'Ящики с армейскими консервами в подвал пожарной части. Лукас носит рядом, по одному: рука ещё на перевязи. Через полчаса кто-то из пожарных выносит вам по кружке чая.', effects: [set36('aj', 'unload'), until36(15, 45)] },
     ] }),
 
   X({ id: 'c36_a_lea', title: 'Лея', location: jest36, camp: jestCamp, ambient: hall36,

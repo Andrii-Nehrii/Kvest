@@ -156,6 +156,8 @@ export const day39BScenes: Scene[] = [
         text: 'Печка дымит, потому что заслонка наполовину закрыта. Ты открываешь, подкладываешь. Через полчаса в домике тепло. Мерле сидит в одеяле и говорит.\n\n— Ich wohne in einem Gartenhaus. Wie eine Gartenzwergin.\n\nЯ живу в садовом домике. Как садовый гном.', effects: [set39('bu', 'merle'), { if: { npc: 'merle', alive: true }, then: [{ npc: 'merle', trust: 1 }] }, until39(41, 16, 30)] },
       { id: 'c39_bu_talk', label: 'Поговорить с Уте и Яннесом про вторник', minutes: 45, terminal: true, goto: 'c39_dusk', ambientDuring: frost39,
         text: 'Яннес говорит, что видел ночью огни на насыпи: кто-то шёл с фонарями к впадине. Мародёры или дружина. Уте говорит.\n\n— Oder Narren.\n\nИли дураки.', effects: [set39('bu', 'talk'), w39('lights_seen', true), until39(41, 16, 15)] },
+      { id: 'c39_bu_dig', label: 'Прокопать канавку от домика к канаве', minutes: 45, activity: 'heavy', terminal: true, goto: 'c39_dusk', ambientDuring: frost39,
+        text: 'Лопата, мёрзлая корка, мягкая земля под ней. Канавка выходит кривая, но вода, когда пойдёт, пойдёт по ней, а не под порог. Уте одобрительно хмыкает.', effects: [set39('bu', 'dig'), until39(41, 16, 15)] },
     ] }),
 
   X({ id: 'c39_b_evening', title: 'Пятничный вечер', camp: kitchen14,
@@ -219,6 +221,8 @@ export const day39BScenes: Scene[] = [
         text: 'Носки, расчёска, детская книжка с польскими буквами. Ты складываешь всё в коробку и подписываешь: «Kasia». Весной, может быть, она вернётся.', effects: [set39('be2', 'kasia'), until39(42, 12, 0)] },
       { id: 'c39_be2_army', label: 'Собрать свои десять килограммов', when: army39, minutes: 60, terminal: true, goto: 'c39_lunch2',
         text: 'Ты собираешь и разбираешь. Каждая вещь, которую оставляешь, — кусок месяца, прожитого здесь.', effects: [set39('be2', 'army'), w39('b_packed_army', true), until39(42, 12, 0)] },
+      { id: 'c39_be2_tea', label: 'Сварить чаю и сесть рядом', minutes: 60, terminal: true, goto: 'c39_lunch2',
+        text: 'Чайник, две кружки. Разговор не клеится, но молчать рядом легче, чем по отдельности.', effects: [set39('be2', 'tea'), until39(42, 12, 0)] },
     ] }),
 
   X({ id: 'c39_b_henrike', title: 'Книга посевов', camp: kitchen14,
@@ -249,9 +253,13 @@ export const day39BScenes: Scene[] = [
       { id: 'c39_bm2_ration', label: 'Договориться с Мерле: экономить с сегодняшнего дня', when: merleFarm39, minutes: 45, terminal: true, goto: 'c39_radio',
         text: 'Меньше хлеба, больше капусты, сахар только на крайний случай. Мерле соглашается легко: «Ich wollte eh abnehmen». Я всё равно хотела похудеть. Шутит. Ей страшно.', effects: [set39('bm2', 'ration'), w39('merle_saving', true), until39(42, 16, 0)] },
       { id: 'c39_bm2_ask', label: 'Спросить у всех за столом: у кого есть знакомые аптекари', when: merleFarm39, minutes: 45, terminal: true, goto: 'c39_radio',
-        text: 'Петерсен вспоминает аптекаря из Ханштедта. Хенрике — фельдшера, который лечил коров. Уве или Оле говорит: в больнице Бухгольца должны быть холодильники. Список растёт. Ни одного точного адреса.', effects: [set39('bm2', 'ask'), w39('insulin_leads', true), until39(42, 16, 0)] },
+        text: 'Петерсен вспоминает аптекаря из Ханштедта. Хенрике — фельдшера, который лечил коров. Кто-то вспоминает: в больнице Бухгольца должны быть холодильники. Список растёт. Ни одного точного адреса.', effects: [set39('bm2', 'ask'), w39('insulin_leads', true), until39(42, 16, 0)] },
       { id: 'c39_bm2_listen', label: 'Дослушать списки до конца', when: not(merleFarm39), minutes: 45, terminal: true, goto: 'c39_radio',
         text: 'Имена, имена, имена. Под конец — «Brockmann, Thomas, Toronto, sucht…» Ищет. Ты вздрагиваешь. Это ответ на ваше письмо или новый запрос — не понять.', effects: [set39('bm2', 'listen'), w39('thomas_heard', true), until39(42, 16, 0)] },
+      { id: 'c39_bm2_draw', label: 'Попросить Мерле показать рисунки', when: merleFarm39, minutes: 45, terminal: true, goto: 'c39_radio',
+        text: 'Блокнот с загнутыми углами. Кухня, кот, которого нет, мост в Гестхахте. Мерле листает быстро, на одном рисунке останавливается: родители у машины. Закрывает блокнот.', effects: [set39('bm2', 'draw'), until39(42, 16, 0)] },
+      { id: 'c39_bm2_off', label: 'Выключить радио и помочь Хенрике с ужином', when: not(merleFarm39), minutes: 45, terminal: true, goto: 'c39_radio',
+        text: 'Ты выключаешь. Хенрике кивает на картошку. Нож, ведро, очистки. Хенрике чистит быстрее тебя вдвое и молчит. Это приятно.', effects: [set39('bm2', 'off'), until39(42, 16, 0)] },
     ] }),
 ];
 

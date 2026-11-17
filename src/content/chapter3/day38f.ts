@@ -67,7 +67,7 @@ export const day38FScenes: Scene[] = [
     ],
     actions: [
       { id: 'c38_fak_fix', label: 'Сделать, о чём просят', minutes: 30, activity: 'light', terminal: true, goto: 'c38_fa_room', ambientDuring: frost38,
-        text: 'Полчаса — и готово. Цепь на месте, или лёд проверен топором у берега, или щель забита паклей. Тебе говорят «спасибо» так, будто ты сделал{m:|а} что-то большое.', effects: [set38('fak', 'fix'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until38(14, 45)] },
+        text: 'Полчаса — и готово: что просили, сделано. Тебе говорят «спасибо» так, будто ты сделал{m:|а} что-то большое.', effects: [set38('fak', 'fix'), { if: { npc: 'c7_nina', alive: true }, then: [{ npc: 'c7_nina', trust: 1 }] }, until38(14, 45)] },
       { id: 'c38_fak_later', label: 'Сказать: потом, сейчас некогда', minutes: 10, terminal: true, goto: 'c38_fa_room',
         text: 'Тебе кивают и уходят. Без обиды. Почти без обиды.', effects: [set38('fak', 'later'), until38(14, 25)] },
       { id: 'c38_fak_teach', label: 'Показать, как сделать самому', minutes: 40, terminal: true, goto: 'c38_fa_room', ambientDuring: frost38,
@@ -238,12 +238,12 @@ export const day38FScenes: Scene[] = [
       { when: all(not(northPartner38), invited), text: 'Приедет ли Мерле? Окафор обещал. Радио молчит.' },
     ],
     actions: [
-      { id: 'c38_faw_road', label: 'Выйти к дороге и ждать там', minutes: 210, terminal: true, goto: 'c38_evening',
-        text: 'Ты стоишь у поворота, пока не перестаёшь чувствовать ноги. Потом возвращаешься греться и выходишь снова. В восемь вдали появляются фары.', effects: [set38('faw', 'road'), { body: 'fatigue', delta: 4 }, until38(20, 30)] },
-      { id: 'c38_faw_cook', label: 'Помогать Хенрике готовить на всех, кто приедет', minutes: 210, terminal: true, goto: 'c38_evening',
-        text: 'Картошка, капуста, сало на сковороде. Руки заняты — голова свободнее. Хенрике учит тебя, как резать лук, чтобы не плакать. Плачешь всё равно.', effects: [set38('faw', 'cook'), npc('henrike', 1), until38(20, 30)] },
-      { id: 'c38_faw_sleep', label: 'Прилечь: всё равно ничего не изменишь', minutes: 210, activity: 'rest', terminal: true, goto: 'c38_evening',
-        text: 'Ты ложишься одетый поверх одеяла. Не спишь, но и не встаёшь. Слушаешь каждый звук с дороги. В половине девятого слышишь мотор.', effects: [set38('faw', 'sleep'), { body: 'fatigue', delta: -6 }, until38(20, 30)] },
+      { id: 'c38_faw_road', label: 'Выйти к дороге и ждать там', minutes: 90, terminal: true, goto: 'c38_f_radio',
+        text: 'Ты стоишь у поворота, пока не перестаёшь чувствовать ноги. Потом возвращаешься греться и выходишь снова. Дорога пустая.', effects: [set38('faw', 'road'), { body: 'fatigue', delta: 4 }, until38(19, 30)] },
+      { id: 'c38_faw_cook', label: 'Помогать Хенрике готовить на всех, кто приедет', minutes: 90, terminal: true, goto: 'c38_f_radio',
+        text: 'Картошка, капуста, сало на сковороде. Руки заняты — голова свободнее. Хенрике учит тебя, как резать лук, чтобы не плакать. Плачешь всё равно.', effects: [set38('faw', 'cook'), npc('henrike', 1), until38(19, 30)] },
+      { id: 'c38_faw_sleep', label: 'Прилечь: всё равно ничего не изменишь', minutes: 90, activity: 'rest', terminal: true, goto: 'c38_f_radio',
+        text: 'Ты ложишься одетый поверх одеяла. Не спишь, но и не встаёшь. Слушаешь каждый звук с дороги.', effects: [set38('faw', 'sleep'), { body: 'fatigue', delta: -6 }, until38(19, 30)] },
     ] }),
 
   // ═════════════ B на хуторе (если не едет) ═════════════
@@ -273,7 +273,7 @@ export const day38FScenes: Scene[] = [
       { id: 'c38_fbe_warm', label: 'Тепло, чай с мёдом, растереть', minutes: 45, terminal: true, goto: 'c38_fb_nina',
         text: 'Ты делаешь, как делала бы бабушка. Становится легче, или так кажется. Ты не {m:уверен|уверена}, что правильно, но человеку спокойнее.', effects: [set38('fbe', 'warm'), until38(10, 30)] },
       { id: 'c38_fbe_zander', label: 'Решить: после обеда сходить к Зандер, спросить', minutes: 30, terminal: true, goto: 'c38_fb_nina',
-        text: 'Ты записываешь, что спросить. Зандер сегодня одна: Лея на севере или в Винзене. Ей пригодятся руки.', effects: [set38('fbe', 'zander'), w38('to_zander', true), until38(10, 15)] },
+        text: 'Ты записываешь, что спросить. Зандер сегодня одна: Леи в пункте нет. Ей пригодятся руки.', effects: [set38('fbe', 'zander'), w38('to_zander', true), until38(10, 15)] },
     ] }),
 
   X({ id: 'c38_fb_nina', title: 'Нина', camp: kitchen14,
@@ -290,6 +290,8 @@ export const day38FScenes: Scene[] = [
         text: 'Шесть человечков: Хенрике, Оле, корова, она сама и двое, держащиеся за руки. Под ними подписано по-немецки: «Meine». Мои.', effects: [set38('fbn', 'draw'), until38(11, 15)] },
       { id: 'c38_fbn_outside', label: 'Пойти с Ниной на улицу: проветриться', when: ninaFarm, minutes: 45, terminal: true, goto: 'c38_fb_room',
         text: 'Вы лепите снеговика у ворот. Снег сухой, не липнет, снеговик выходит кривой. Нина смеётся впервые за неделю.', effects: [set38('fbn', 'outside'), { body: 'stress', delta: -4 }, npc('c7_nina', 1), until38(11, 30)] },
+      { id: 'c38_fbn_write', label: 'Написать Нине пару строк в тетради', when: not(ninaFarm), minutes: 30, terminal: true, goto: 'c38_fb_room',
+        text: 'Ты пишешь на последней странице: «Корова на месте. Хенрике ворчит. Ждём». И рисуешь корову хуже, чем Нина. Пусть посмеётся.', effects: [set38('fbn', 'write'), until38(11, 15)] },
     ] }),
 
   X({ id: 'c38_fb_room', title: 'Место', camp: kitchen14,
@@ -329,6 +331,8 @@ export const day38FScenes: Scene[] = [
         text: 'Халат великоват, перчатки малы. Женщина с рукой: порезалась косой, глубоко. Ты промываешь, Зандер шьёт. Потом ребёнок с кашлем, старик с давлением. Время идёт быстро.', effects: [set38('fbp', 'work'), until38(15, 15)] },
       { id: 'c38_fbp_ask', label: 'Сначала спросить про своих стариков', minutes: 40, terminal: true, goto: 'c38_fb_patient',
         text: 'Зандер слушает на ходу, кивает.\n\n— Kühlen, hochlegen, und wenn Fieber kommt — holen Sie mich.\n\nХолод, держать выше, а если будет жар — зовите меня. Потом показывает на приёмную: работа.', effects: [set38('fbp', 'ask'), w38('zander_advice', true), until38(15, 15)] },
+      { id: 'c38_fbp_boil', label: 'Сначала прокипятить инструмент: Зандер не успевает', minutes: 40, terminal: true, goto: 'c38_fb_patient',
+        text: 'Кастрюля на плитке: ножницы, пинцеты, иглодержатель. Через двадцать минут у Зандер чистый инструмент, а у тебя красные руки.', effects: [set38('fbp', 'boil'), until38(15, 15)] },
     ] }),
 
   X({ id: 'c38_fb_patient', title: 'Мальчик', location: 'c16_jesteburg', camp: jestCamp, ambient: hall38,
@@ -374,6 +378,8 @@ export const day38FScenes: Scene[] = [
         text: 'Вы стоите, пока не проходит последний грузовик. Хенрике берёт тебя под руку, и вы идёте в дом. Молча.', effects: [set38('fbd', 'stand'), npc('henrike', 1), until38(17, 0)] },
       { id: 'c38_fbd_hens', label: 'Закрыть кур и принести дров', minutes: 15, activity: 'moderate', terminal: true, outcomes: toEvening('c38_fb_wait'), ambientDuring: frost38,
         text: 'Куры, засов, охапка дров. Колонна уже прошла. Остался запах солярки и тишина.', effects: [set38('fbd', 'hens'), until38(17, 0)] },
+      { id: 'c38_fbd_count', label: 'Пересчитать машины в колонне', minutes: 15, terminal: true, outcomes: toEvening('c38_fb_wait'), ambientDuring: frost38,
+        text: 'Двенадцать, тринадцать… двадцать два грузовика. Последний с красным фонарём. Ты не знаешь, зачем считаешь. Просто так легче смотреть.', effects: [set38('fbd', 'count'), until38(17, 0)] },
     ] }),
 
   X({ id: 'c38_fb_wait', title: 'Ждать', camp: kitchen14,
@@ -382,12 +388,30 @@ export const day38FScenes: Scene[] = [
       { when: invited, text: 'Приедет ли Мерле? Ты не знаешь. Радио молчит.' },
     ],
     actions: [
-      { id: 'c38_fbw2_cook', label: 'Готовить ужин на всех, кто приедет', minutes: 210, terminal: true, goto: 'c38_evening',
-        text: 'Картошка, капуста, суп. Кухня наполняется паром. Ты накрываешь на четырнадцать, потом убираешь две тарелки, потом ставишь обратно.', effects: [set38('fbw2', 'cook'), until38(20, 30)] },
-      { id: 'c38_fbw2_window', label: 'Сидеть у окна и смотреть на дорогу', minutes: 210, terminal: true, goto: 'c38_evening',
-        text: 'Дорога белая в темноте. Два часа ничего. Потом далеко, у леса, — фары.', effects: [set38('fbw2', 'window'), until38(20, 30)] },
-      { id: 'c38_fbw2_rest', label: 'Прилечь на час', minutes: 210, activity: 'rest', terminal: true, goto: 'c38_evening',
-        text: 'Ты ложишься, не раздеваясь, и закрываешь глаза. Слышишь, как Хенрике гремит кастрюлями. В половине девятого во дворе мотор.', effects: [set38('fbw2', 'rest'), { body: 'fatigue', delta: -6 }, until38(20, 30)] },
+      { id: 'c38_fbw2_cook', label: 'Готовить ужин на всех, кто приедет', minutes: 90, terminal: true, goto: 'c38_f_radio',
+        text: 'Картошка, капуста, суп. Кухня наполняется паром. Ты накрываешь на четырнадцать, потом убираешь две тарелки, потом ставишь обратно.', effects: [set38('fbw2', 'cook'), until38(19, 30)] },
+      { id: 'c38_fbw2_window', label: 'Сидеть у окна и смотреть на дорогу', minutes: 90, terminal: true, goto: 'c38_f_radio',
+        text: 'Дорога белая в темноте. Час ничего: ни фар, ни шагов.', effects: [set38('fbw2', 'window'), until38(19, 30)] },
+      { id: 'c38_fbw2_rest', label: 'Прилечь на час', minutes: 90, activity: 'rest', terminal: true, goto: 'c38_f_radio',
+        text: 'Ты ложишься, не раздеваясь, и закрываешь глаза. Слышишь, как Хенрике гремит кастрюлями.', effects: [set38('fbw2', 'rest'), { body: 'fatigue', delta: -6 }, until38(19, 30)] },
+    ] }),
+
+  X({ id: 'c38_f_radio', title: 'Радио', camp: kitchen14,
+    text: [
+      { text: 'Половина восьмого. Красный Крест Винзена по радио: северная колонна прошла мост в Гестхахте в семнадцать пятьдесят две, за восемь минут до закрытия. Сорок три человека. Имён не читают.' },
+      { text: 'В кухне становится тихо так, что слышно, как в печи осыпаются угли.' },
+    ],
+    actions: [
+      { id: 'c38_fr_tell', label: 'Сказать вслух то, что все и так услышали', minutes: 60, terminal: true, goto: 'c38_evening',
+        text: '«Успели». Хенрике садится на лавку и долго вытирает руки фартуком, хотя они сухие. «Gut». Хорошо. Кто-то за столом смеётся, коротко и не к месту, и никто его не одёргивает.', effects: [set38('fr', 'tell'), { body: 'stress', delta: -4 }, until38(20, 30)] },
+      { id: 'c38_fr_off', label: 'Выключить радио: остальное увидим сами', minutes: 60, terminal: true, goto: 'c38_evening',
+        text: 'Щелчок, тишина. Хенрике кивает: правильно. Вы сидите при одной лампе и слушаете двор.', effects: [set38('fr', 'off'), until38(20, 30)] },
+      { id: 'c38_fr_gate', label: 'Выйти с фонарём к воротам', minutes: 60, terminal: true, goto: 'c38_evening', ambientDuring: frost38,
+        text: 'Мороз схватывает лицо. Ты стоишь у ворот, луч фонаря лежит на пустой дороге. Ты возвращаешься греться, выходишь снова и на третий раз видишь у леса свет.', effects: [set38('fr', 'gate'), until38(20, 30)] },
+      { id: 'c38_fr_bread', label: 'Нарезать хлеб на всех, кто бы ни приехал', minutes: 60, terminal: true, goto: 'c38_evening',
+        text: 'Две буханки, ровными ломтями, на доску. Потом третья, на всякий случай. Хенрике смотрит на гору хлеба и ничего не говорит: правильно.', effects: [set38('fr', 'bread'), until38(20, 30)] },
+      { id: 'c38_fr_kids', label: 'Уложить детей: им незачем ждать до ночи', minutes: 60, terminal: true, goto: 'c38_evening',
+        text: 'Младшие спорят и засыпают на середине спора. Ты сидишь рядом, пока дыхание не выравнивается, и слушаешь двор.', effects: [set38('fr', 'kids'), until38(20, 30)] },
     ] }),
 
   // ═════════════ Встречать в Винзене ═════════════
@@ -432,5 +456,7 @@ export const day38FScenes: Scene[] = [
         text: 'Ты не помнишь, как оказываешься у машины. Руки, холодные куртки, чей-то смех. Потом пикап, тесно, плечо к плечу, до самого хутора.', effects: [set38('wa', 'run'), { if: merleComes38, then: [{ set: '$.met.merle', value: true }] }, { if: parentsCome38, then: [{ set: '$.met.uwe', value: true }, { set: '$.met.birgit', value: true }] }, { if: flag('$.c38_car_winsen'), then: [{ drive: 'opel_corsa', km: 17, to: 'hof_luedemann' }] }, { body: 'stress', delta: -6 }, until38(20, 30)] },
       { id: 'c38_wa_help', label: 'Помогать всем выгружаться', minutes: 75, terminal: true, goto: 'c38_evening', ambientDuring: cab38,
         text: 'Узлы, носилки, старики. Ты подаёшь руку каждому, кто спускается. Своих обнимаешь уже потом, у машины.', effects: [set38('wa', 'help'), { if: merleComes38, then: [{ set: '$.met.merle', value: true }] }, { if: parentsCome38, then: [{ set: '$.met.uwe', value: true }, { set: '$.met.birgit', value: true }] }, { if: flag('$.c38_car_winsen'), then: [{ drive: 'opel_corsa', km: 17, to: 'hof_luedemann' }] }, until38(20, 30)] },
+      { id: 'c38_wa_count', label: 'Стоять у кузова и считать, кто вышел', minutes: 75, terminal: true, goto: 'c38_evening', ambientDuring: frost38,
+        text: 'Ты считаешь лица, пока не находишь те, что ищешь. Потом считать перестаёшь.', effects: [set38('wa', 'count'), until38(20, 30)] },
     ] }),
 ];
