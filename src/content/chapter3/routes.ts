@@ -16,6 +16,8 @@ import { point32Available, prepare32 } from './point32';
 import { arrivals33, point33Available, prepare33 } from './point33';
 import { point34Available, prepare34 } from './point34';
 import { point35Available, prepare35 } from './point35';
+import { point36Available, prepare36 } from './point36';
+import { point37Available, prepare37 } from './point37';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1054,4 +1056,28 @@ export const newEntry35: Scene = {
   actions: ([
     { id: 'c35_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c35_dawn', effects: [prepare35, { restUntil: at(37, 6, 30), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point35Available, a.when ?? { always: true }) })),
+};
+
+// ───────────── Вход в участок 36 ─────────────
+export const newEntry36: Scene = {
+  id: 'c36_start', for: 'any', chapter: 'ch3', title: 'Вторник', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point36Available, text: 'Ночь на вторник. Дом спит неровно: кто-то ворочается, кто-то встаёт попить, скрипят половицы. Каждый в доме думает о десятом по-своему.\n\nТы лежишь в темноте и слушаешь, как трещит мороз в стенах. Решения сказаны вслух. Теперь их надо прожить.' },
+    { when: not(point36Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c36_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c36_dawn', effects: [prepare36, { restUntil: at(38, 6, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point36Available, a.when ?? { always: true }) })),
+};
+
+// ───────────── Вход в участок 37 ─────────────
+export const newEntry37: Scene = {
+  id: 'c37_start', for: 'any', chapter: 'ch3', title: 'Среда', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point37Available, text: 'Ночь на среду. Ветер с востока к утру усиливается и стучит ставней на чердаке. Кто-то встаёт и подпирает её поленом.\n\nДо десятого — одна ночь и один день. Ты лежишь и перебираешь в уме, что ещё не сделано. Список не кончается.' },
+    { when: not(point37Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c37_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c37_dawn', effects: [prepare37, { restUntil: at(39, 6, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point37Available, a.when ?? { always: true }) })),
 };

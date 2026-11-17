@@ -36,6 +36,11 @@ export const contacts3: Record<string, ContactDef> = {
     intro: 'Старая женщина в мужском свитере из третьего ряда женского корпуса. В казарме с тринадцатого.',
     knownWhen: { visited: 'c18_b_block' },
   },
+  c35_haase: {
+    id: 'c35_haase', name: 'Оберлейтенант Хаазе', fromCheckpoint: 34,
+    intro: 'Офицер комендатуры Люнебурга, в очках, с планшетом. Переписывал жильцов хутора для зимнего снабжения.',
+    knownWhen: { visited: 'c35_list' },
+  },
   c34_gerdes: {
     id: 'c34_gerdes', name: 'Фрау Гердес', fromCheckpoint: 33,
     intro: 'Ищет мужа, развозчика посылок. Десятого ноября он не вернулся домой.',

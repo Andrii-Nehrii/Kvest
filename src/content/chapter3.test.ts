@@ -34,6 +34,8 @@ import { point32Available } from './chapter3/point32';
 import { point33Available } from './chapter3/point33';
 import { point34Available } from './chapter3/point34';
 import { point35Available } from './chapter3/point35';
+import { point36Available } from './chapter3/point36';
+import { point37Available } from './chapter3/point37';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -393,7 +395,9 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 32 || P.every(pid => evalCond({ s: out.state, c, pid }, point32Available)))
       && (n + 1 !== 33 || P.every(pid => evalCond({ s: out.state, c, pid }, point33Available)))
       && (n + 1 !== 34 || P.every(pid => evalCond({ s: out.state, c, pid }, point34Available)))
-      && (n + 1 !== 35 || P.every(pid => evalCond({ s: out.state, c, pid }, point35Available)))) {
+      && (n + 1 !== 35 || P.every(pid => evalCond({ s: out.state, c, pid }, point35Available)))
+      && (n + 1 !== 36 || P.every(pid => evalCond({ s: out.state, c, pid }, point36Available)))
+      && (n + 1 !== 37 || P.every(pid => evalCond({ s: out.state, c, pid }, point37Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

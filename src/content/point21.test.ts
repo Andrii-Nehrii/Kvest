@@ -644,6 +644,67 @@ describe('участок 30: мороз — опасная ночь по трё�
     }
   });
 
+  // ───────────── Участок 36 ─────────────
+  const after35 = (ans: Record<string, string>, jannik = true) => {
+    const b32 = after32('farm', 'farm', 'family');
+    const s33 = fresh(mergeCp(b32, 33, leg(b32, 'A'), leg(b32, 'B')));
+    const b33 = completeCheckpoint(c, s33, both({ c3_new_winter33: 'work' })).state;
+    const s34 = fresh(mergeCp(b33, 34, leg(b33, 'A'), leg(b33, 'B')));
+    const b34 = completeCheckpoint(c, s34, both({ c3_new_lean34: 'north' })).state;
+    b34.vars['A.met_jannik'] = 'refused';
+    const s35 = fresh(mergeCp(b34, 35, leg(b34, 'A', jannik ? { c35_a_jannik: 'c35_aj_sorry' } : { c35_a_jannik: 'c35_aj_silent' }), leg(b34, 'B')));
+    const north = ans.north === 'together' && !s35.vars['w.c35_jannik'] ? 'go' : ans.north;
+    return completeCheckpoint(c, s35, { A: { c3_new_north35: north, c3_new_way35: ans.way }, B: { c3_new_east35: ans.east, c3_new_way35: ans.way } }).state;
+  };
+
+  it('участок 36: порознь на часть — Люнебург и Винзен; кейс Ройтера; миры сходятся', () => {
+    const routes: [Record<string, string>, Record<string, string>, Record<string, string>][] = [
+      [{ north: 'go', east: 'yes', way: 'stay' }, { c36_a_case: 'c36_ca_212', c36_a_station: 'c36_as_say' }, { c36_b_desk: 'c36_bd_sign' }],
+      [{ north: 'together', east: 'give', way: 'north' }, { c36_a_case: 'c36_ca_120', c36_a_case2: 'c36_a2_bar' }, { c36_b_desk: 'c36_bd_merle' }],
+      [{ north: 'no', east: 'no', way: 'east' }, { c36_a_case: 'c36_ca_leave' }, { c36_b_desk: 'c36_bd_okafor', c36_b_list: 'c36_bl_us' }],
+    ];
+    for (const [ans, ar, br] of routes) {
+      const b35 = after35(ans);
+      for (const p of P) expect(b35.chars[p].scene).toBe('c36_start');
+      const a = leg(b35, 'A', ar), b = leg(b35, 'B', br);
+      expect(a.vars['A.c36_finished']).toBe(true);
+      expect(b.vars['B.c36_finished']).toBe(true);
+      if (ar.c36_a_case === 'c36_ca_212') expect(Object.values(a.items).some(i => i.type === 'c36_suture' && i.qty > 0 && i.at.kind === 'char')).toBe(true);
+      const s36 = mergeCp(b35, 36, a, b);
+      expect(s36.chars.A.time).toBe(s36.chars.B.time);
+      for (const p of P) { expect(s36.chars[p].location).toBe('hof_luedemann'); expect(canAct(s36.chars[p].body)).toBe(true); }
+      const out = completeCheckpoint(c, s36, { A: { c3_new_merle36: 'all', c3_new_gift36: 'ham' }, B: { c3_new_merle36: 'stay', c3_new_gift36: 'ham' } }).state;
+      expect(out.vars['w.c36_merle']).toBe('merle');
+      expect(out.vars['w.c36_gift']).toBe('ham');
+      for (const p of P) expect(out.chars[p].scene).toBe('c37_start');
+    }
+  }, 60000);
+
+  // ───────────── Участок 37 ─────────────
+  it('участок 37: реквизиция (эхо) у ворот, сборы, последнее слово; миры сходятся', () => {
+    const routes: [Record<string, string>, Record<string, string>, Record<string, string>, Record<string, string>][] = [
+      [{ north: 'go', east: 'yes', way: 'stay' }, { c37_a_truck: 'c37_at_receipt' }, {}, { c3_new_leave37: 'stay', c3_new_send37: 'both' }],
+      [{ north: 'together', east: 'give', way: 'north' }, { c37_a_soldier: 'c37_as_let' }, { c37_b_pens: 'c37_bp_keep' }, { c3_new_send37: 'none' }],
+      [{ north: 'no', east: 'no', way: 'east' }, {}, { c37_b_henrike: 'c37_bh_east' }, { c3_new_leave37: 'stay', c3_new_send37: 'morning' }],
+    ];
+    for (const [ans, ar, br, kt] of routes) {
+      const b35 = after35(ans);
+      const s36 = fresh(mergeCp(b35, 36, leg(b35, 'A'), leg(b35, 'B')));
+      const b36 = completeCheckpoint(c, s36, both({ c3_new_merle36: 'merle', c3_new_gift36: 'potatoes' })).state;
+      for (const p of P) expect(b36.chars[p].scene).toBe('c37_start');
+      const a = leg(b36, 'A', ar), b = leg(b36, 'B', br);
+      expect(a.vars['w.c37_lost']).toBeDefined();
+      const s37 = mergeCp(b36, 37, a, b);
+      expect(s37.chars.A.time).toBe(s37.chars.B.time);
+      for (const p of P) { expect(s37.chars[p].location).toBe('hof_luedemann'); expect(canAct(s37.chars[p].body)).toBe(true); }
+      const answers = Object.fromEntries(Object.entries(kt).filter(([id]) => id !== 'c3_new_leave37' || s37.vars['w.c35_way'] === 'east' || s37.vars['w.c35_east'] === 'yes'));
+      const out = completeCheckpoint(c, s37, both(answers)).state;
+      expect(out.vars['w.c37_send']).toBe(kt.c3_new_send37);
+      expect(out.vars['w.c37_leave']).toBe('stay');
+      for (const p of P) expect(out.chars[p].scene).toBe('c38_start');
+    }
+  }, 90000);
+
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
     const forced: Record<string, string> = pid === 'A'
