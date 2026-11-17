@@ -43,6 +43,10 @@ export const day43AScenes: Scene[] = [
         text: 'Цепь растягивается вдоль канавы, по человеку на десять шагов. Ты идёшь в середине. Под ногами хрустит наст.', effects: [set43('as', 'line'), until43(49, 7, 40)] },
       { id: 'c43_as_dogs', label: 'Попросить Брандта взять собак на короткий поводок: это человек, не зверь', when: dogs43, minutes: 40, terminal: true, goto: 'c43_a_belt', ambientDuring: sat43,
         text: 'Брандт хмурится, потом кивает Лукасу. Собак берут на короткий поводок. «Wenn er wegläuft, lass ich sie los». Если побежит, спущу.', effects: [set43('as', 'dogs'), npc('c16_brandt', -1), until43(49, 7, 40)] },
+      { id: 'c43_as_brandt', label: 'Встать рядом с Брандтом: посмотреть, как он ведёт людей', minutes: 40, terminal: true, goto: 'c43_a_belt', ambientDuring: sat43,
+        text: 'Брандт расставляет людей по десять шагов, молча, жестами. Ты идёшь рядом. Он говорит, не глядя: «Wenn wir ihn finden, redest du». Если найдём — говоришь ты.', effects: [set43('as', 'brandt'), until43(49, 7, 40)] },
+      { id: 'c43_as_rear', label: 'Идти замыкающим: следить, чтобы никто не отстал', minutes: 40, terminal: true, goto: 'c43_a_belt', ambientDuring: sat43,
+        text: 'Ты идёшь последним. Старики отстают, мальчишки забегают вперёд. Ты собираешь цепь, как пастух. Брандт оглядывается и кивает.', effects: [set43('as', 'rear'), until43(49, 7, 40)] },
     ] }),
 
   X({ id: 'c43_a_belt', title: 'Лесополоса', camp: yard14, ambient: sat43,
@@ -159,6 +163,8 @@ export const day43AScenes: Scene[] = [
         text: 'Колун, чурбак, полено. Поленница у стены растёт на ряд. Ты колешь и думаешь о фонаре с треснувшим стеклом.', effects: [set43('ay', 'wood'), { body: 'fatigue', delta: 6 }, until43(49, 15, 15)] },
       { id: 'c43_ay_lamp', label: 'Почистить и заправить фонари на ночь', minutes: 45, terminal: true, goto: 'c43_a_gate',
         text: 'Три фонаря, керосин на донышке, тряпка, ножницы для фитиля. Ты подрезаешь фитили ровно. Если ночью придётся бежать к посту, свет будет.', effects: [set43('ay', 'lamp'), until43(49, 15, 0)] },
+      { id: 'c43_ay_partner', label: 'Сходить к пожарной части: встретить автобус пораньше', minutes: 45, terminal: true, goto: 'c43_a_gate', ambientDuring: sat43,
+        text: 'Ты стоишь у пожарной части полчаса раньше, чем нужно. Лукас выносит тебе кружку чая. Автобуса ещё не видно.', effects: [set43('ay', 'partner'), until43(49, 15, 0)] },
     ] }),
 
   X({ id: 'c43_a_gate', title: 'Автобус', camp: yard14, ambient: sat43, onEnter: [until43(49, 15, 50)],
@@ -216,6 +222,8 @@ export const day43AScenes: Scene[] = [
         text: 'Ведро, тряпка, щётка. Грязь от сапог, опилки, смола. Через час пол светлый, и все ходят по нему на цыпочках.', effects: [set43('ah', 'floor'), until43(50, 11, 0)] },
       { id: 'c43_ah_wreath', label: 'Поправить венок и подрезать свечи', minutes: 45, terminal: true, goto: 'c43_sun_lunch',
         text: 'Ветки к середине, свечи ровно, фитили короче. Венок становится таким, каким был в первый адвент.', effects: [set43('ah', 'wreath'), until43(50, 10, 45)] },
+      { id: 'c43_ah_kids', label: 'Занять детей, чтобы не мешали', minutes: 45, terminal: true, goto: 'c43_sun_lunch',
+        text: 'Карандаши, бумага, задание: нарисовать гостей, которые придут. Через час у тебя десять портретов фрау Ханзен с огромным пирогом.', effects: [set43('ah', 'kids'), until43(50, 10, 45)] },
     ] }),
 
   X({ id: 'c43_a_prep', title: 'Перед гостями', camp: yard14, ambient: sun43,
@@ -231,6 +239,8 @@ export const day43AScenes: Scene[] = [
         text: 'Лопата, снег мягкий и тяжёлый. Дорожка от ворот до крыльца, потом к сараю. Пот под шапкой, хотя минус.', effects: [set43('ap', 'path'), { body: 'fatigue', delta: 6 }, until43(50, 14, 30)] },
       { id: 'c43_ap_wood', label: 'Принести дров в кухню: сегодня будет жарко', minutes: 45, terminal: true, goto: 'c43_coffee', ambientDuring: sun43,
         text: 'Шесть охапок к печи. Хенрике говорит, что столько не надо. Потом подкладывает в печь сразу две.', effects: [set43('ap', 'wood'), until43(50, 14, 15)] },
+      { id: 'c43_ap_lamp', label: 'Повесить фонарь у калитки: гости пойдут в сумерках', minutes: 45, terminal: true, goto: 'c43_coffee', ambientDuring: sun43,
+        text: 'Фонарь на крюк у калитки, фитиль пониже. Свет лежит кругом на снегу. Кто пойдёт обратно в темноте, не собьётся.', effects: [set43('ap', 'lamp'), until43(50, 14, 15)] },
     ] }),
 
   X({ id: 'c43_a_dusk', title: 'После гостей', camp: yard14, ambient: sun43,
@@ -246,5 +256,7 @@ export const day43AScenes: Scene[] = [
         text: 'Санки, поле, темнота. У её дома она смотрит на заколоченное окно и говорит: «Wenn einer da gewesen wäre…» Если бы кто-то был на месте… Не договаривает.', effects: [set43('ad', 'hansen'), until43(50, 17, 30)] },
       { id: 'c43_ad_chores', label: 'Закрыть кур и сарай', minutes: 30, terminal: true, goto: 'c43_sun_eve', ambientDuring: sun43,
         text: 'Засов, проволока, банки. Всё на месте. Фигура на тропе исчезла.', effects: [set43('ad', 'chores'), until43(50, 17, 0)] },
+      { id: 'c43_ad_partner', label: 'Найти {partner.acc} и постоять вдвоём у окна', minutes: 30, terminal: true, goto: 'c43_sun_eve',
+        text: 'Вы стоите у окна, плечо к плечу. Свечи в венке догорают. За окном снег. Ни один из вас не говорит про завтра.', effects: [set43('ad', 'partner'), until43(50, 17, 0)] },
     ] }),
 ];

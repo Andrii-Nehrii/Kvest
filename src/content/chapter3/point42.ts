@@ -181,7 +181,7 @@ export const shared42: Scene[] = [
       { id: 'c42_fn_sleep', label: 'Уснуть', minutes: 45, terminal: true, goto: 'c42_checkpoint',
         text: 'Ты засыпаешь под тиканье часов в кухне.', effects: [set42('fn', 'sleep'), { body: 'fatigue', delta: -6 }, finish, until42(48, 20, 30)] },
       { id: 'c42_fn_gift', label: 'Проверить, хорошо ли спрятан подарок', minutes: 45, terminal: true, goto: 'c42_checkpoint',
-        text: 'В темноте, на ощупь, ты проверяешь тайник. На месте. Ты ложишься и улыбаешься в подушку, сам{m:|а} не зная чему.', effects: [set42('fn', 'gift'), until42(48, 20, 30)] },
+        text: 'В темноте, на ощупь, ты проверяешь тайник. На месте. Ты ложишься и улыбаешься в подушку, сам{m:|а} не зная чему.', effects: [set42('fn', 'gift'), finish, until42(48, 20, 30)] },
     ] }),
 
   S42({ id: 'c42_checkpoint', for: 'any', chapter: 'ch3', title: 'Пятница, вечер', checkpoint: 42, universal: false, camp: house14,

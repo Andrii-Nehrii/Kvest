@@ -87,10 +87,14 @@ export const day43BScenes: Scene[] = [
         text: 'Бланк, имя, класс, «Erziehungsberechtigte» — кто отвечает. Ты пишешь хутор Людеманов. Спальня для девочек на третьем этаже, десять кроватей. Нина смотрит на кровать у окна и говорит: «Die». Эта.', effects: [set43('bv', 'sign'), w43('nina_signed', true), until43(49, 11, 15)] },
       { id: 'c43_bv_ninatalk', label: 'Оставить Нину с учительницей и подождать в коридоре', when: ninaTrip43, minutes: 60, terminal: true, goto: 'c43_b_board',
         text: 'Ты ждёшь на подоконнике. Из учительской доносится смех. Нина выходит с красными щеками и тетрадью задач на каникулы.', effects: [set43('bv', 'ninatalk'), until43(49, 11, 15)] },
+      { id: 'c43_bv_school', label: 'Обойти школу с Ниной: спальня, столовая, классы', when: ninaTrip43, minutes: 60, terminal: true, goto: 'c43_b_board',
+        text: 'Классы с картами на стенах, столовая в спортзале, спальня на третьем этаже. Нина трогает парты, как старых знакомых. На лестнице она берёт тебя за руку и не отпускает.', effects: [set43('bv', 'school'), until43(49, 11, 15)] },
       { id: 'c43_bv_list', label: 'Получить по списку Зандер, что дадут', when: alone, minutes: 60, terminal: true, goto: 'c43_b_board',
         text: 'Йод — да. Бинты — да. Антибиотик — две упаковки, под роспись. Обезболивающего нет. Ты расписываешься за Зандер и прячешь коробку под куртку.', effects: [set43('bv', 'list'), w43('zander_meds', true), until43(49, 11, 15)] },
       { id: 'c43_bv_trade', label: 'Поменять мыло и чай на то, чего нет в списке', when: alone, minutes: 60, terminal: true, goto: 'c43_b_board',
         text: 'Женщина за столом берёт мыло, нюхает и даёт за него упаковку детского жаропонижающего. «Für das Mädchen bei euch». Для девочки у вас. Ты не спрашиваешь, откуда она знает.', effects: [set43('bv', 'trade'), until43(49, 11, 15)] },
+      { id: 'c43_bv_wait', label: 'Подождать в очереди и поговорить с людьми', when: alone, minutes: 60, terminal: true, goto: 'c43_b_board',
+        text: 'Очередь длинная: люди из Ханштедта, из Тоштедта, из-под Бухгольца. Каждый рассказывает свою зиму. Ты слушаешь и запоминаешь, у кого что болит.', effects: [set43('bv', 'wait'), until43(49, 11, 15)] },
     ] }),
 
   W({ id: 'c43_b_board', title: 'Доска поиска', ambient: sat43,
@@ -127,8 +131,12 @@ export const day43BScenes: Scene[] = [
         text: 'Нина кивает слишком быстро. «Klar». Ясно. Потом всё-таки говорит: «Bei euch ist es gut. Aber hier bin ich normal». У вас хорошо. Но здесь я нормальная.', effects: [set43('bm', 'nina'), w43('nina_wants', 'stay'), until43(49, 13, 0)] },
       { id: 'c43_bm_ninano', label: 'Сказать: на выходные — домой, это не обсуждается', when: ninaTrip43, minutes: 45, terminal: true, goto: 'c43_b_back',
         text: 'Нина пинает снег. «Du bist nicht meine Mutter». Ты мне не мать. Потом, через минуту, уже тише: «Aber okay». Но ладно.', effects: [set43('bm', 'ninano'), w43('nina_wants', 'home'), npc('c7_nina', -1), until43(49, 13, 0)] },
+      { id: 'c43_bm_ninaask', label: 'Спросить Нину, чего ей не хватает дома', when: ninaTrip43, minutes: 45, terminal: true, goto: 'c43_b_back',
+        text: 'Нина долго думает. «Dass mich keiner fragt, wie es mir geht. Weil alle wissen, wie es mir geht». Что никто не спрашивает, как я. Потому что все и так знают.', effects: [set43('bm', 'ninaask'), until43(49, 13, 0)] },
       { id: 'c43_bm_coord', label: 'Спросить координатора, как ей самой здесь', when: alone, minutes: 45, terminal: true, goto: 'c43_b_back',
         text: '— Ich schlafe vier Stunden. Ich esse, was übrig bleibt. Und jeden Morgen kommen mehr. — Она тушит сигарету о скамейку. — Wenn Sie kommen, kann ich fünf schlafen.\n\nЯ сплю четыре часа. Ем, что остаётся. И каждое утро приходит больше людей. Если придёте вы, я буду спать пять.', effects: [set43('bm', 'coord'), until43(49, 13, 0)] },
+      { id: 'c43_bm_bench', label: 'Посидеть на скамейке и подумать о листке', when: alone, minutes: 45, terminal: true, goto: 'c43_b_back',
+        text: 'Дети катаются с горки на картонках. Ты сидишь с листком в руках и думаешь, как скажешь это {partner.dat}. И что скажет {pm:он|она}.', effects: [set43('bm', 'bench'), until43(49, 13, 0)] },
     ] }),
 
   W({ id: 'c43_b_back', title: 'Обратно', ambient: sat43,
@@ -171,6 +179,8 @@ export const day43BScenes: Scene[] = [
         text: 'Хенрике читает, надев очки. Потом снимает очки и говорит: «Das entscheidet ihr. Nicht ich». Это решаете вы. Не я. И уходит к плите.', effects: [set43('bev', 'henrike'), until43(49, 17, 45)] },
       { id: 'c43_bev_rest', label: 'Посидеть у печи: ноги гудят после Винзена', minutes: 45, terminal: true, goto: 'c43_sat_eve',
         text: 'Печь, кружка, тишина. Ты закрываешь глаза на минуту и открываешь их, когда зовут ужинать.', effects: [set43('bev', 'rest'), { body: 'fatigue', delta: -4 }, until43(49, 17, 30)] },
+      { id: 'c43_bev_kids', label: 'Рассказать детям про Винзен', minutes: 45, terminal: true, goto: 'c43_sat_eve',
+        text: 'Дети садятся на лавку у печи. Ты рассказываешь про автобус, про очередь у ворот, про город, где снова ходят люди и топят печи. Младший спрашивает, есть ли там дети. Есть. Много. Он кивает, будто это всё решает.', effects: [set43('bev', 'kids'), until43(49, 17, 30)] },
     ] }),
 
   // ═════════════ Воскресенье ═════════════
@@ -222,6 +232,8 @@ export const day43BScenes: Scene[] = [
         text: 'Хенрике говорит: десять кило муки в неделю — это зима для всех. А четыре ночи в неделю без тебя — это тоже зима. «Für ihn». Для него. Она кивает на окно, за которым {partner} колет дрова.', effects: [set43('bm2', 'henrike'), until43(50, 14, 30)] },
       { id: 'c43_bm2_rest', label: 'Полежать час перед гостями', minutes: 60, terminal: true, goto: 'c43_coffee',
         text: 'Ты ложишься поверх одеяла. Снизу пахнет печеньем. Сон не идёт, но лежать хорошо.', effects: [set43('bm2', 'rest'), { body: 'fatigue', delta: -6 }, until43(50, 14, 30)] },
+      { id: 'c43_bm2_porch', label: 'Выйти на крыльцо подышать перед гостями', minutes: 60, terminal: true, goto: 'c43_coffee', ambientDuring: sun43,
+        text: 'Снег идёт редко. Над колонией дым. Ты стоишь, пока не начинают мёрзнуть руки, и возвращаешься к печенью.', effects: [set43('bm2', 'porch'), until43(50, 14, 30)] },
     ] }),
 
   X({ id: 'c43_b_dusk', title: 'После гостей', camp: kitchen14,

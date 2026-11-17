@@ -228,7 +228,7 @@ export const shared39: Scene[] = [
       { id: 'c39_ni_sleep', label: 'Уснуть', minutes: 30, terminal: true, goto: 'c39_checkpoint',
         text: 'Ты засыпаешь под капель. Последняя мысль — о том, что весной это был бы хороший звук.', effects: [set39('ni', 'sleep'), finish, until39(42, 20, 0)] },
       { id: 'c39_ni_window', label: 'Постоять у окна, прежде чем лечь', minutes: 30, terminal: true, goto: 'c39_checkpoint',
-        text: 'Двор под луной, капель с крыши, проволока с банками. Ты стоишь, пока не начинают мёрзнуть ноги на холодном полу, и только тогда ложишься.', effects: [set39('ni', 'window'), until39(42, 20, 0)] },
+        text: 'Двор под луной, капель с крыши, проволока с банками. Ты стоишь, пока не начинают мёрзнуть ноги на холодном полу, и только тогда ложишься.', effects: [set39('ni', 'window'), finish, until39(42, 20, 0)] },
     ] }),
 
   S39({ id: 'c39_checkpoint', for: 'any', chapter: 'ch3', title: 'Суббота, восемь вечера', checkpoint: 39, universal: false, camp: house14,

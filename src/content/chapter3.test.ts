@@ -42,6 +42,7 @@ import { point40Available } from './chapter3/point40';
 import { point41Available } from './chapter3/point41';
 import { point42Available } from './chapter3/point42';
 import { point43Available } from './chapter3/point43';
+import { point44Available } from './chapter3/point44';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -420,7 +421,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 40 || P.every(pid => evalCond({ s: out.state, c, pid }, point40Available)))
       && (n + 1 !== 41 || P.every(pid => evalCond({ s: out.state, c, pid }, point41Available)))
       && (n + 1 !== 42 || P.every(pid => evalCond({ s: out.state, c, pid }, point42Available)))
-      && (n + 1 !== 43 || P.every(pid => evalCond({ s: out.state, c, pid }, point43Available)))) {
+      && (n + 1 !== 43 || P.every(pid => evalCond({ s: out.state, c, pid }, point43Available)))
+      && (n + 1 !== 44 || P.every(pid => evalCond({ s: out.state, c, pid }, point44Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);
@@ -606,4 +608,18 @@ it('часть 1: безопасная помощь с водой закрыва
   expect(ids(s, 'A')).not.toContain('c5_water');
   expect(ids(s, 'A')).not.toContain('c5_water_together');
   expect(evalCond({ s, c, pid: 'A' }, { injured: 'sprain' })).toBe(false);
+});
+
+it('запас: в последней сцене точки каждый вариант, ведущий на КТ, отмечает точку пройденной', () => {
+  const sets = (effs: unknown[] | undefined, key: string) => JSON.stringify(effs ?? []).includes(`"$.${key}"`);
+  const bad: string[] = [];
+  for (const sc of Object.values(c.scenes)) {
+    const m = /^c(\d+)_/.exec(sc.id);
+    if (!m || Number(m[1]) < 21) continue;
+    const key = `c${m[1]}_finished`;
+    const toCp = (sc.actions ?? []).filter((a) => [a.goto, ...(a.outcomes ?? []).map((o) => o.goto)].some((g) => g && c.scenes[g]?.checkpoint !== undefined));
+    if (!toCp.some((a) => sets(a.effects, key) || (a.outcomes ?? []).some((o) => sets(o.effects, key)))) continue;
+    for (const a of toCp) if (!sets(a.effects, key) && !(a.outcomes?.length && a.outcomes.every((o) => sets(o.effects, key)))) bad.push(a.id);
+  }
+  expect(bad).toEqual([]);
 });

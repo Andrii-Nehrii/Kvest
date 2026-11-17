@@ -9,6 +9,7 @@ import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
 import { canon21, point21Available, stageC, stageF, stageL, stageR } from './chapter3/point21';
 import { point42Available } from './chapter3/point42';
 import { point43Available } from './chapter3/point43';
+import { point44Available } from './chapter3/point44';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -926,6 +927,29 @@ describe('участок 30: мороз — опасная ночь по трё�
       for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c44_start'); }
     }
   }, 300000);
+
+  // ───────────── Участок 44 ─────────────
+  it('участок 44: совет по решению КТ43, Нильс, сочельник впереди; миры сходятся; дальше заглушка', () => {
+    const b42 = b42std();
+    for (const council of ['truth', 'yard', 'silent']) {
+      const s43 = mergeCp(b42, 43, leg(b42, 'A'), leg(b42, 'B'));
+      const merleHere = s43.vars['w.c38_merle'] === 'farm';
+      const b43 = completeCheckpoint(c, s43, { A: merleHere ? { c3_new_convoy43: 'go' } : { c3_new_job43: 'yes' }, B: { c3_new_council43: council } }).state;
+      for (const p of P) { expect(b43.chars[p].scene).toBe('c44_start'); expect(evalCond({ s: b43, c, pid: p }, point44Available)).toBe(true); }
+      const a = leg(b43, 'A'), b = leg(b43, 'B');
+      for (const [pid, l] of [['A', a], ['B', b]] as const) {
+        expect(l.vars[`${pid}.c44_finished`], council).toBe(true);
+        expect(l.chars[pid].location).toBe('hof_luedemann');
+      }
+      expect(a.vars['w.c44_verdict']).toBe(b.vars['w.c44_verdict']);
+      const s44 = mergeCp(b43, 44, a, b);
+      expect(s44.chars.A.time).toBe(s44.chars.B.time);
+      const out = completeCheckpoint(c, s44, both({ c3_new_eve44: 'open', c3_new_post44: 'a' }, { c3_new_eve44: 'home', c3_new_post44: 'a' })).state;
+      expect(out.vars['w.c44_eve']).toBe('near');
+      expect(out.vars['w.c44_post']).toBe('a');
+      for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c45_start'); }
+    }
+  }, 400000);
 
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');

@@ -121,6 +121,10 @@ export const shared43: Scene[] = [
         text: 'Хенрике поёт «Tochter Zion» тихо, не поднимая глаз. На втором куплете подпевает кто-то ещё. Дети слушают, открыв рот.', effects: [set43('sd', 'sing'), meal('eat'), npc('henrike', 1), until43(50, 8, 15)] },
       { id: 'c43_sd_tea', label: 'Чай у окна: смотреть на снег', minutes: 30, terminal: true, outcomes: fromSunDawn,
         text: 'Снег идёт редко, крупно, будто нехотя. Ты пьёшь чай и смотришь, как двор становится белым.', effects: [set43('sd', 'tea'), { body: 'hunger', delta: -10 }, until43(50, 8, 0)] },
+      { id: 'c43_sd_snow', label: 'Выйти во двор: снег идёт крупно, по-рождественски', minutes: 30, terminal: true, outcomes: fromSunDawn, ambientDuring: sun43,
+        text: 'Снег ложится на плечи и не тает. Двор белый, следов нет, только твои. Ты стоишь, пока не замерзают уши, и возвращаешься к свечам.', effects: [set43('sd', 'snow'), until43(50, 8, 0)] },
+      { id: 'c43_sd_kids', label: 'Разбудить детей посмотреть на четыре свечи', minutes: 30, terminal: true, outcomes: fromSunDawn,
+        text: 'Дети спускаются в пижамах, с одеялами на плечах, и садятся вокруг венка. Самый маленький пересчитывает свечи. Четыре. Он пересчитывает ещё раз.', effects: [set43('sd', 'kids'), until43(50, 8, 0)] },
     ] }),
 
   S43({ id: 'c43_sun_lunch', for: 'any', chapter: 'ch3', title: 'Обед в воскресенье', camp: kitchen14, onEnter: [until43(50, 12, 30)],
@@ -137,6 +141,8 @@ export const shared43: Scene[] = [
         text: 'Миска у плиты, пять минут. К трём придут гости, а пол ещё не мыт.', effects: [set43('sl', 'bread'), { body: 'hunger', delta: -15 }, until43(50, 13, 0)] },
       { id: 'c43_sl_dishes', label: 'Мыть посуду, пока остальные едят', minutes: 30, terminal: true, outcomes: [{ id: 'a', when: A43, goto: 'c43_a_prep' }, { id: 'b', goto: 'c43_b_merle2' }],
         text: 'Таз, тёплая вода, миски одна за другой. За спиной смеются. Хенрике ставит тебе миску на край стола: «Danach». Потом.', effects: [set43('sl', 'dishes'), until43(50, 13, 0)] },
+      { id: 'c43_sl_window', label: 'Посидеть у окна с миской', minutes: 30, terminal: true, goto: 'c43_a_prep',
+        text: 'Снег на изгороди, на колодце, на лесополосе. Ты ешь медленно и смотришь, как он идёт.', effects: [set43('sl', 'window'), until43(50, 13, 0)] },
     ] }),
 
   S43({ id: 'c43_coffee', for: 'any', chapter: 'ch3', title: 'Кофе в три', camp: kitchen14, onEnter: [until43(50, 15, 0)],
@@ -155,6 +161,8 @@ export const shared43: Scene[] = [
         text: 'Карты, пуговицы, «камень, ножницы, бумага». Через час дети кричат так, что из кухни просят потише. Это хороший знак.', effects: [set43('cf', 'kids'), until43(50, 16, 15)] },
       { id: 'c43_cf_window', label: 'Встать у окна с чашкой: смотреть на снег', minutes: 60, terminal: true, outcomes: fromCoffee,
         text: 'Снег на поле, на изгороди, на лесополосе. За спиной смеются. Ты смотришь, пока чашка не остывает.', effects: [set43('cf', 'window'), until43(50, 16, 0)] },
+      { id: 'c43_cf_dishes', label: 'Носить чашки и подливать всем', minutes: 60, terminal: true, outcomes: fromCoffee,
+        text: 'Кофейник, чашки, сахар. Ты обходишь стол, пока все говорят. Так видно каждого.', effects: [set43('cf', 'dishes'), until43(50, 16, 0)] },
     ] }),
 
   S43({ id: 'c43_sun_eve', for: 'any', chapter: 'ch3', title: 'Вечер воскресенья', camp: kitchen14, onEnter: [until43(50, 18, 30)],
@@ -169,6 +177,10 @@ export const shared43: Scene[] = [
         text: '— Wer in der Tauwetternacht vom Posten gegangen ist. — Хенрике мешает суп. — Er sagt, jemand war weg. Und deshalb ist der alte Hansen tot. Oder nur das Fenster kaputt. Je nachdem, wen man fragt.\n\nКто в ночь оттепели ушёл с поста. Он говорит, кого-то не было. И поэтому старик Ханзен мёртв. Или только окно разбито. Смотря кого спросить.', effects: [set43('ev', 'ask'), meal('eat'), until43(50, 19, 45)] },
       { id: 'c43_ev_quiet', label: 'Посидеть у печи, пока свечи не догорят', minutes: 60, terminal: true, goto: 'c43_sun_night',
         text: 'Четыре огонька, потом три, потом два. Ты сидишь, пока не гаснет последний. В темноте пахнет воском.', effects: [set43('ev', 'quiet'), { body: 'hunger', delta: -15 }, until43(50, 19, 45)] },
+      { id: 'c43_ev_dishes', label: 'Мыть посуду, пока остальные сидят', minutes: 60, terminal: true, goto: 'c43_sun_night',
+        text: 'Чашки с золотым ободком — отдельно, по одной, в тёплой воде. Хенрике вытирает. Вы не говорите о завтра. Говорите о чашках.', effects: [set43('ev', 'dishes'), until43(50, 19, 45)] },
+      { id: 'c43_ev_wood', label: 'Принести дров на ночь', minutes: 60, terminal: true, goto: 'c43_sun_night', ambientDuring: sun43,
+        text: 'Три охапки, четвёртая про запас. Снег перестал. Над колонией одно окно ещё горит.', effects: [set43('ev', 'wood'), until43(50, 19, 45)] },
     ] }),
 
   S43({ id: 'c43_sun_night', for: 'any', chapter: 'ch3', title: 'Перед советом', camp: house14,

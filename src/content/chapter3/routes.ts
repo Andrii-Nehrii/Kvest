@@ -24,6 +24,7 @@ import { point40Available, prepare40 } from './point40';
 import { point41Available, prepare41 } from './point41';
 import { point42Available, prepare42 } from './point42';
 import { point43Available, prepare43 } from './point43';
+import { point44Available, prepare44 } from './point44';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1120,7 +1121,7 @@ export const newEntry40: Scene = {
     { when: not(point40Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
   ],
   actions: ([
-    { id: 'c40_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c40_dawn', effects: [prepare40, { restUntil: at(44, 6, 0), sleeping: true }] },
+    { id: 'c40_go', label: 'Встать', minutes: 30, terminal: true, goto: 'c40_dawn', effects: [prepare40, { restUntil: at(44, 6, 0), sleeping: true }, { body: 'hunger', delta: -50 }, { body: 'thirst', delta: -45 }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point40Available, a.when ?? { always: true }) })),
 };
 
@@ -1158,4 +1159,16 @@ export const newEntry43: Scene = {
   actions: ([
     { id: 'c43_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c43_dawn', effects: [prepare43, { restUntil: at(49, 6, 30) }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point43Available, a.when ?? { always: true }) })),
+};
+
+// ───────────── Вход в участок 44 ─────────────
+export const newEntry44: Scene = {
+  id: 'c44_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point44Available, text: 'Ты просыпаешься до будильника. За окном темно и тихо. Сегодня совет.' },
+    { when: not(point44Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c44_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c44_dawn', effects: [prepare44, { restUntil: at(51, 6, 30) }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point44Available, a.when ?? { always: true }) })),
 };

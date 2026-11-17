@@ -140,7 +140,7 @@ export const shared41: Scene[] = [
       { id: 'c41_ni_sleep', label: 'Уснуть сразу', minutes: 30, terminal: true, goto: 'c41_checkpoint',
         text: 'Ты засыпаешь, не успев раздеться. Без снов.', effects: [set41('ni', 'sleep'), { body: 'fatigue', delta: -8 }, finish, until41(20, 0)] },
       { id: 'c41_ni_check', label: 'Проверить засов и окна, прежде чем лечь', minutes: 30, terminal: true, goto: 'c41_checkpoint',
-        text: 'Засов, ставни, проволока с банками. Всё на месте. Ты возвращаешься в постель и засыпаешь, едва коснувшись подушки.', effects: [set41('ni', 'check'), until41(20, 0)] },
+        text: 'Засов, ставни, проволока с банками. Всё на месте. Ты возвращаешься в постель и засыпаешь, едва коснувшись подушки.', effects: [set41('ni', 'check'), finish, until41(20, 0)] },
     ] }),
 
   S41({ id: 'c41_checkpoint', for: 'any', chapter: 'ch3', title: 'Среда, вечер', checkpoint: 41, universal: false, camp: house14,
