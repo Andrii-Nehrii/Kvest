@@ -54,7 +54,12 @@ export const contacts3: Record<string, ContactDef> = {
   c42_jonas: {
     id: 'c42_jonas', name: 'Феликс Ридель', fromCheckpoint: 41,
     intro: 'Солдат-срочник, девятнадцать лет. С ноября жил в яме под поваленным дубом в лесополосе за полем.',
-    knownWhen: { visited: 'c42_a_jonas' },
+    knownWhen: { any: [{ visited: 'c42_a_jonas' }, { visited: 'c43_a_felix' }] },
+  },
+  c43_kessler: {
+    id: 'c43_kessler', name: 'Доктор Кесслер', fromCheckpoint: 42,
+    intro: 'Ветеринар из Винзена, лет шестидесяти. Отдала последний свиной инсулин из своей клиники.',
+    knownWhen: { flag: '$.met.c43_kessler' },
   },
   c42_bahr: {
     id: 'c42_bahr', name: 'Коринна Бар', fromCheckpoint: 41,

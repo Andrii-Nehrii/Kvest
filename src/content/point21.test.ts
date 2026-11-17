@@ -8,6 +8,7 @@ import type { GameState, PlayerId } from '../engine/types';
 import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
 import { canon21, point21Available, stageC, stageF, stageL, stageR } from './chapter3/point21';
 import { point42Available } from './chapter3/point42';
+import { point43Available } from './chapter3/point43';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -896,6 +897,33 @@ describe('участок 30: мороз — опасная ночь по трё�
       expect(out.vars['w.c42_church']).toBe('some');
       if (fa.c42_a_tracks !== 'c42_at_back') expect(out.vars['w.c42_jonas_fate']).toBe('take');
       for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c43_start'); }
+    }
+  }, 300000);
+
+  // ───────────── Участок 43 ─────────────
+  const b42std = () => { const b41 = b41std(); const s42 = mergeCp(b41, 42, leg(b41, 'A'), leg(b41, 'B')); return completeCheckpoint(c, s42, kt42(s42)).state; };
+  it('участок 43: суббота порознь, воскресенье вместе; каждый решает за другого; дальше заглушка', () => {
+    const b42 = b42std();
+    for (const p of P) { expect(b42.chars[p].scene).toBe('c43_start'); expect(evalCond({ s: b42, c, pid: p }, point43Available)).toBe(true); }
+    const variants: [Record<string, string>, Record<string, string>][] = [
+      [{}, {}],
+      [{ c43_a_sweep: 'c43_as_line', c43_a_jannes: 'c43_aj_help' }, { c43_b_ute: 'c43_bu_jannes' }],
+    ];
+    for (const [fa, fb] of variants) {
+      const a = leg(b42, 'A', fa), b = leg(b42, 'B', fb);
+      for (const [pid, l] of [['A', a], ['B', b]] as const) {
+        expect(l.vars[`${pid}.c43_finished`], JSON.stringify([fa, fb])).toBe(true);
+        expect(l.chars[pid].location).toBe('hof_luedemann');
+      }
+      expect(b.vars['w.c43_b_knows_why']).toBe(true);
+      expect(a.vars['w.c43_a_heard_jannes']).toBe(true);
+      const s43 = mergeCp(b42, 43, a, b);
+      expect(s43.chars.A.time).toBe(s43.chars.B.time);
+      const merleHere = s43.vars['w.c38_merle'] === 'farm';
+      const out = completeCheckpoint(c, s43, { A: merleHere ? { c3_new_convoy43: 'merle' } : { c3_new_job43: 'part' }, B: { c3_new_council43: 'yard' } }).state;
+      expect(out.vars['w.c43_council']).toBe('yard');
+      if (merleHere) expect(out.vars['w.c43_convoy']).toBe('merle'); else expect(out.vars['w.c43_job']).toBe('part');
+      for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c44_start'); }
     }
   }, 300000);
 
