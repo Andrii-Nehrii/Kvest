@@ -224,8 +224,8 @@ export function Resolution({ save, onClose }: { save: LocalSave; onClose: () => 
     <div className="page">
       <div className="scene-title">Контрольная точка №{save.cp!.index} пройдена</div>
       <div className="h1">Что решено</div>
-      {r.joint.length === 0 && <p className="muted">Совместных решений на этой точке не было.</p>}
-      {r.joint.map((j) => {
+      {r.joint.every((j) => j.silent) && <p className="muted">Совместных решений на этой точке не было.</p>}
+      {r.joint.filter((j) => !j.silent).map((j) => {
         const d = content.joint[j.id];
         return (
           <Card key={j.id} title={KIND_TEXT[j.kind]}>

@@ -282,7 +282,12 @@ export interface JointResult {
   reason: string;
   /** Если выбор сделала взвешенная случайность — её значение (для воспроизводимости). */
   roll?: number;
+  /** Вопрос некому было задать: решено по умолчанию, на экране итогов не показывается. */
+  silent?: boolean;
 }
+
+/** С этой КТ (по `s.checkpoint` до слияния: 20 → КТ21) вопрос без участников решается молча, без текста. */
+export const SILENT_UNASKED_FROM = 20;
 
 export function participants(c: Content, s: GameState, d: JointDecision): PlayerId[] {
   return PLAYERS.filter((p) => canAct(s.chars[p].body) && evalCond({ s, c, pid: p }, d.canParticipate));
@@ -299,6 +304,9 @@ export function resolveJoint(c: Content, s: GameState, decisionId: string, answe
   const d = c.joint[decisionId];
   if (!d) throw new Error(`Нет совместного решения ${decisionId}`);
   const who = participants(c, s, d);
+  // С КТ21 (запас, ещё не сыгранный парой): вопрос, который некому задать — нужного человека нет, условие не сложилось, —
+  // решается как раньше (переменные мира те же), но молча: без карточки на экране итогов и без строки в журнале.
+  const silent = who.length === 0 && s.checkpoint >= SILENT_UNASKED_FROM;
   for (const p of who) {
     if (!answers[p]) throw new Error(`Ждём ответ игрока ${p}`);
     if (!optionsFor(c, s, d, p).some((o) => o.id === answers[p])) throw new Error(`Вариант ${answers[p]} недоступен игроку ${p}`);
@@ -367,14 +375,15 @@ export function resolveJoint(c: Content, s: GameState, decisionId: string, answe
     }
   }
 
+  if (silent) res.silent = true;
   for (const id of res.applied) {
     const opt = d.options.find((o) => o.id === id)!;
     applyEffects(w, opt.effects);
-    for (const p of PLAYERS) if (!isDead(s.chars[p].body)) log({ s, c, pid: p }, 'checkpoint', opt.text);
+    if (!silent) for (const p of PLAYERS) if (!isDead(s.chars[p].body)) log({ s, c, pid: p }, 'checkpoint', opt.text);
   }
   for (const p of PLAYERS) {
     if (answers[p] && who.includes(p)) s.vars[`joint.${d.id}.${p}`] = answers[p]!;
-    if (!isDead(s.chars[p].body) && res.reason) log({ s, c, pid: p }, 'checkpoint', res.reason);
+    if (!silent && !isDead(s.chars[p].body) && res.reason) log({ s, c, pid: p }, 'checkpoint', res.reason);
   }
   s.vars[`joint.${d.id}.result`] = res.applied.join('+');
   s.vars[`joint.${d.id}.kind`] = res.kind;

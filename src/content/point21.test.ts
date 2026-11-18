@@ -924,7 +924,12 @@ describe('участок 30: мороз — опасная ночь по трё�
       const s43 = mergeCp(b42, 43, a, b);
       expect(s43.chars.A.time).toBe(s43.chars.B.time);
       const merleHere = s43.vars['w.c38_merle'] === 'farm';
-      const out = completeCheckpoint(c, s43, { A: merleHere ? { c3_new_convoy43: 'merle' } : { c3_new_job43: 'part' }, B: { c3_new_council43: 'yard' } }).state;
+      const res43 = completeCheckpoint(c, s43, { A: merleHere ? { c3_new_convoy43: 'merle' } : { c3_new_job43: 'part' }, B: { c3_new_council43: 'yard' } });
+      const out = res43.state;
+      // Вопрос, который некому задать, пропускается молча: ни решения, ни строки в журнале.
+      const unasked = res43.joint.find((j) => j.id === (merleHere ? 'c3_new_job43' : 'c3_new_convoy43'))!;
+      expect(unasked.silent).toBe(true);
+      expect(out.log.some((e) => e.kind === 'checkpoint' && e.text.includes('Решить не успели'))).toBe(false);
       expect(out.vars['w.c43_council']).toBe('yard');
       if (merleHere) expect(out.vars['w.c43_convoy']).toBe('merle'); else expect(out.vars['w.c43_job']).toBe('part');
       for (const p of P) { expect(canAct(out.chars[p].body)).toBe(true); expect(out.chars[p].scene).toBe('c44_start'); }

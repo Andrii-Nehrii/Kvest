@@ -1,7 +1,7 @@
 import type { Scene } from '../../engine/content-types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { ninaFarm } from './point18';
+import { ninaFarm, v } from './point18';
 import { npc } from './point19';
 import {
   S44, convoy44, hansenDead44, henrike44, job44, julian44, merle44, mon44, set44, tue44, until44, w44,
@@ -42,6 +42,9 @@ export const day44BScenes: Scene[] = [
       { when: all(merle44, convoy44('none')), text: 'Ты рассказываешь Мерле, что решил{pm:|а} {partner}: в Гамбург не едет никто. Мерле кивает с облегчением и сразу отворачивается, чтобы ты не видел{m:|а} лица.' },
       { when: all(not(merle44), job44('yes')), text: '{partner} решил{pm:|а}: с января ты работаешь в Винзене, с понедельника по четверг. Хенрике слышит и ставит на стол лишнюю тарелку, хотя до января ещё неделя.' },
       { when: all(not(merle44), job44('part')), text: '{partner} решил{pm:|а}: два дня в неделю, без ночёвки. Если Красный Крест согласится.' },
+      { when: all(merle44, v('w.c43_merle_secret', 'kept')), text: 'Про половинные дозы ты молчишь, как обещал{m:|а} в субботу. Мерле это знает: теперь она считает единицы при тебе, не пряча листок.' },
+      { when: all(merle44, v('w.c43_merle_secret', 'partner')), text: 'Про половинные дозы знаешь ты и {partner}, больше никто: так договорились с Мерле в субботу. Она смотрит на вас обоих, когда колет, и не отворачивается.' },
+      { when: all(merle44, v('w.c43_merle_secret', 'argued')), text: 'После субботнего спора Мерле больше не делит дозы пополам. Ты проверяешь флакон украдкой: деления совпадают с её листком.' },
       { when: all(not(merle44), job44('no')), text: '{partner} решил{pm:|а}: нет. Ты остаёшься на хуторе. Листок из Винзена лежит на подоконнике.' },
     ],
     actions: [
@@ -95,15 +98,16 @@ export const day44BScenes: Scene[] = [
   // ═════════════ Вторник ═════════════
   X({ id: 'c44_b_answer', title: 'Ответ', camp: kitchen14,
     text: [
-      { when: merleGoes, text: 'Утром Мерле спускается одетая и кладёт на стол листок из Красного Креста. Подписанный. «Achtundzwanzigster. Und du kommst mit». Двадцать восьмое. И ты едешь со мной.' },
+      { when: all(merleGoes, not(flag('w.c44_merle_stays'))), text: 'Утром Мерле спускается одетая и кладёт на стол листок из Красного Креста. Подписанный. «Achtundzwanzigster. Und du kommst mit». Двадцать восьмое. И ты едешь со мной.' },
+      { when: all(merleGoes, flag('w.c44_merle_stays')), text: 'Утром Мерле спускается одетая и кладёт на стол листок из Красного Креста. Подписанный. Вчера она сказала, что остаётся. «Ich hab die Nacht gerechnet. Fünf Fläschchen reichen nicht bis zum Frühling». Я всю ночь считала. Пяти флаконов до весны не хватит.' },
       { when: all(merle44, not(convoy44('go'))), text: 'Утром Мерле рвёт листок из Красного Креста пополам и бросает в печь. «Fertig». Всё. Потом садится есть, как ни в чём не бывало.' },
       { when: not(merle44), text: 'Утром Нильс должен заехать за ответами для Винзена. Листок лежит на подоконнике, придавленный кружкой.' },
     ],
     actions: [
       { id: 'c44_ba_yes', label: 'Обнять Мерле и начать собирать вещи на неделю', when: merleGoes, minutes: 75, terminal: true, goto: 'c44_b_bake',
-        text: 'Рюкзак, тёплые вещи, аптечка, флаконы Мерле в вате. Неделя в Гамбурге, если мост откроют. Ты складываешь и думаешь, как скажешь это {partner.dat}. Хотя {pm:он|она} и так знает: {pm:он|она} это и решил{pm:|а}.', effects: [set44('ba', 'yes'), w44('hamburg_trip', true), until44(52, 9, 0)] },
+        text: 'Рюкзак, тёплые вещи, аптечка, флаконы Мерле в вате. Неделя в Гамбурге, если мост откроют. Ты складываешь и думаешь, как скажешь это {partner.dat}. Хотя {pm:он|она} и так знает: {pm:он|она} это и решил{pm:|а}.', effects: [set44('ba', 'yes'), w44('hamburg_trip', true), w44('merle_stays', false), until44(52, 9, 0)] },
       { id: 'c44_ba_wait', label: 'Сказать Мерле: подумай ещё до сочельника', when: merleGoes, minutes: 60, terminal: true, goto: 'c44_b_bake',
-        text: 'Мерле качает головой. «Ich hab nachgedacht. Seit Mittwoch». Я подумала. С середы. Листок она отдаёт тебе: отвезёшь Нильсу {m:сам|сама}.', effects: [set44('ba', 'wait'), w44('hamburg_trip', true), until44(52, 8, 45)] },
+        text: 'Мерле качает головой. «Ich hab nachgedacht. Seit Mittwoch». Я подумала. С середы. Листок она отдаёт тебе: отвезёшь Нильсу {m:сам|сама}.', effects: [set44('ba', 'wait'), w44('hamburg_trip', true), w44('merle_stays', false), until44(52, 8, 45)] },
       { id: 'c44_ba_fire', label: 'Не спорить и сесть завтракать с ней', when: all(merle44, not(convoy44('go'))), minutes: 60, terminal: true, goto: 'c44_b_bake',
         text: 'Вы едите кашу молча. Потом Мерле говорит: «Fünf Fläschchen. Dann suche ich weiter. Mit dir». Пять флаконов. Потом буду искать дальше. С тобой.', effects: [set44('ba', 'fire'), w44('merle_stays', true), until44(52, 8, 45)] },
       { id: 'c44_ba_note', label: 'Разложить флаконы и шприцы по дням', when: all(merle44, not(convoy44('go'))), minutes: 60, terminal: true, goto: 'c44_b_bake',
@@ -133,6 +137,8 @@ export const day44BScenes: Scene[] = [
     text: [
       { when: flag('w.c42_b_gift'), text: 'Подарок для {partner.gen} почти готов. Осталось чуть-чуть, и спрятать.' },
       { when: not(flag('w.c42_b_gift')), text: 'До сочельника два дня. Подарка для {partner.gen} у тебя пока нет.' },
+      { text: 'Дети в соседней комнате шепчутся и замолкают, когда ты входишь. У них тоже секреты.' },
+      { when: henrike44, text: 'Хенрике прячет что-то в сундук и запирает его на ключ, который носит на шее.' },
       { text: 'Детям тоже нужно что-то положить под ёлку. Хотя бы по мелочи.' },
     ],
     actions: [
@@ -177,6 +183,7 @@ export const day44BScenes: Scene[] = [
     text: [
       { text: 'Сумерки. Штоллен остывает на подоконнике под полотенцем. В кухне тесно от лавок и стульев.' },
       { when: flag('w.c44_hamburg_trip'), text: 'Рюкзак на неделю стоит у двери. Ты стараешься на него не смотреть.' },
+      { text: 'В окне видно, как над колонией загораются огоньки: свечи на подоконниках, по одной, по две. Берег готовится к празднику так, будто ничего не случилось. Или как раз потому, что случилось.' },
     ],
     actions: [
       { id: 'c44_bd2_table', label: 'Прикинуть с Хенрике, как всех рассадить в сочельник', minutes: 45, terminal: true, goto: 'c44_tue_eve',

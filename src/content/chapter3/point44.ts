@@ -93,6 +93,8 @@ export const shared44: Scene[] = [
     text: [
       { text: 'Пожарная часть, гараж без машин. Скамейки из школы, человек сорок, пар изо ртов. Брандт стоит у стола с блокнотом. Лукас у двери.' },
       { text: '— Die Tauwetternacht. Am Posten bei der Kolonie war vierzig Minuten keiner. Ich will wissen, wer. Jeder Hof sagt, was er weiß.\n\nНочь оттепели. На посту у колонии сорок минут никого не было. Я хочу знать, кто. Каждый двор говорит, что знает.' },
+      { when: all(A44, flag('w.c43_a_heard_jannes')), text: 'Ты знаешь от самого Яннеса, у колоды в субботу: его не было. Почему — он тебе не сказал.' },
+      { when: all(not(A44), flag('w.c43_b_knows_why')), text: 'Ты знаешь то, чего, может быть, не скажет здесь никто: в ту ночь закричала Уте, и Яннес побежал к ней. Сорок минут.' },
       { when: all(A44, council44('truth')), text: 'Очередь доходит до вашего двора. Ты встаёшь и говоришь, как решил{pm:|а} {partner}: всё, что знаете. Пост у колонии в ту ночь держал Яннес, и его не было сорок минут.' },
       { when: all(not(A44), council44('truth')), text: 'Очередь доходит до вашего двора. Встаёт {A} и говорит, как ты решил{m:|а}: всё, что знаете. Пост у колонии держал Яннес, и его не было сорок минут.' },
       { when: all(A44, council44('yard')), text: 'Очередь доходит до вашего двора. Ты встаёшь и говоришь, как решил{pm:|а} {partner}: за ту ночь отвечает двор Людеманов. Лишние смены у Зеве — ваши, до весны. Имени ты не называешь.' },
@@ -234,7 +236,7 @@ export const shared44: Scene[] = [
       { id: 'c44_ev_sing', label: 'Попросить Хенрике спеть', when: henrike44, minutes: 60, terminal: true, goto: 'c44_tue_night', ...tableOnly,
         text: 'Хенрике поёт «Leise rieselt der Schnee». Тихо падает снег. Дети подпевают на последнем куплете. За окном и правда тихо падает снег.', effects: [set44('ev', 'sing'), meal('eat'), npc('henrike', 1), until44(52, 19, 45)] },
       { id: 'c44_ev_quiet', label: 'Поесть у печи и молчать', minutes: 45, terminal: true, goto: 'c44_tue_night',
-        text: 'Ты сидишь у печи с миской на коленях. В кухне шумно и тепло. Ты молчишь и слушаешь.', effects: [set44('ev', 'quiet'), { body: 'hunger', delta: -20 }, until44(52, 19, 45)] },
+        text: 'Ты ешь у печи, держа миску на коленях. В кухне шумно и тепло. Ты молчишь и слушаешь.', effects: [set44('ev', 'quiet'), { body: 'hunger', delta: -20 }, until44(52, 19, 45)] },
       { id: 'c44_ev_dishes', label: 'Мыть посуду, пока все говорят', minutes: 45, terminal: true, goto: 'c44_tue_night',
         text: 'Таз, тёплая вода, миски. За спиной спорят про сочельник. Ты моешь медленно и слушаешь.', effects: [set44('ev', 'dishes'), until44(52, 19, 45)] },
       { id: 'c44_ev_wood', label: 'Принести дров на ночь', minutes: 45, terminal: true, goto: 'c44_tue_night', ambientDuring: tue44,
@@ -251,7 +253,7 @@ export const shared44: Scene[] = [
       { id: 'c44_tn_gift', label: 'Проверить, на месте ли подарок', minutes: 45, terminal: true, goto: 'c44_checkpoint',
         text: 'Тайник на месте. Ты ложишься и улыбаешься в темноту.', effects: [set44('tn', 'gift'), finish, until44(52, 20, 30)] },
       { id: 'c44_tn_sleep', label: 'Уснуть', minutes: 45, terminal: true, goto: 'c44_checkpoint',
-        text: 'Ты засыпаешь под тиканье часов в кухне.', effects: [set44('tn', 'sleep'), { body: 'fatigue', delta: -6 }, finish, until44(52, 20, 30)] },
+        text: 'Ты засыпаешь, считая удары сердца, и не досчитываешь до ста.', effects: [set44('tn', 'sleep'), { body: 'fatigue', delta: -6 }, finish, until44(52, 20, 30)] },
     ] }),
 
   S44({ id: 'c44_checkpoint', for: 'any', chapter: 'ch3', title: 'Вторник, вечер', checkpoint: 44, universal: false, camp: house14,

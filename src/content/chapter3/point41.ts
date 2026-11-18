@@ -67,8 +67,8 @@ export const shared41: Scene[] = [
     actions: [
       { id: 'c41_dw_eat', label: 'Поесть: день будет длинный', minutes: 40, terminal: true, outcomes: fromDawn, ...tableOnly,
         text: 'Каша, хлеб, чай. Ты ешь, не чувствуя вкуса. Тело просит есть само.', effects: [set41('dw', 'eat'), meal('eat'), until41(7, 40)] },
-      { id: 'c41_dw_partner', label: 'Сесть рядом с {partner.ins}', minutes: 40, terminal: true, outcomes: fromDawn,
-        text: 'Ты садишься рядом. Плечо к плечу. Ничего не говоришь. Или держишь руку, которая лежит поверх одеяла, холодная и неподвижная.', effects: [set41('dw', 'partner'), { body: 'stress', delta: -4 }, { body: 'hunger', delta: -10 }, until41(7, 40)] },
+      { id: 'c41_dw_partner', label: 'Сесть рядом с {partner.ins}', minutes: 40, terminal: true,
+        outcomes: [{ id: 'down', when: partnerDown41, text: 'Ты садишься на край кровати и держишь руку, которая лежит поверх одеяла, холодная и неподвижная. Пальцы не отвечают. Пульс есть.', goto: 'c41_r_bed' }, { id: 'a', when: A41, text: 'Ты садишься рядом. Плечо к плечу. Ничего не говоришь. {partner} тоже. Так и едите.', goto: 'c41_a_bodies' }, { id: 'b', text: 'Ты садишься рядом. Плечо к плечу. Ничего не говоришь. {partner} тоже. Так и едите.', goto: 'c41_b_wounds' }], effects: [set41('dw', 'partner'), { body: 'stress', delta: -4 }, { body: 'hunger', delta: -10 }, until41(7, 40)] },
       { id: 'c41_dw_henrike', label: 'Помочь Хенрике у плиты', when: henrike41, minutes: 40, terminal: true, outcomes: fromDawn,
         text: 'Ты раздаёшь миски. Хенрике говорит, не глядя: «Wir leben. Das ist heute alles». Мы живы. Сегодня это всё.', effects: [set41('dw', 'henrike'), meal('eat'), npc('henrike', 1), until41(7, 40)] },
       { id: 'c41_dw_porch', label: 'Выйти на крыльцо подышать: в доме тяжело', minutes: 40, terminal: true, outcomes: fromDawn, ambientDuring: wet41,

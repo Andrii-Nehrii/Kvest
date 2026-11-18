@@ -127,11 +127,11 @@ export const day43AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c43_al_eat', label: 'Обедать', minutes: 40, terminal: true, goto: 'c43_a_brandt', ...tableOnly,
-        text: 'Суп горячий, хлеб вчерашний. Ты ешь и думаешь о фонаре на столбе.', effects: [set43('al', 'eat'), meal('eat'), until43(49, 13, 15)] },
+        text: 'Суп обжигает, хлеб чёрствый. Ты ешь и думаешь о фонаре на столбе.', effects: [set43('al', 'eat'), meal('eat'), until43(49, 13, 15)] },
       { id: 'c43_al_henrike', label: 'Спросить Хенрике про Яннеса', when: henrike43, minutes: 40, terminal: true, goto: 'c43_a_brandt', ...tableOnly,
         text: '— Jannes? Guter Junge. Redet wenig. Seit Ute allein ist, hackt er ihr Holz. — Хенрике смотрит на тебя внимательно. — Warum?\n\nЯннес? Хороший парень. Говорит мало. С тех пор как Уте одна, колет ей дрова. А что?\n\nТы не отвечаешь.', effects: [set43('al', 'henrike'), meal('eat'), until43(49, 13, 15)] },
       { id: 'c43_al_bread', label: 'Взять хлеб и пойти во двор', minutes: 25, terminal: true, goto: 'c43_a_brandt',
-        text: 'Хлеб в карман, кружку залпом. Думать удобнее с колуном в руках.', effects: [set43('al', 'bread'), { body: 'hunger', delta: -12 }, until43(49, 13, 0)] },
+        text: 'Ломоть хлеба в карман, чай — на ходу. Думать удобнее с колуном в руках.', effects: [set43('al', 'bread'), { body: 'hunger', delta: -12 }, until43(49, 13, 0)] },
     ] }),
 
   X({ id: 'c43_a_brandt', title: 'Брандт у ворот', camp: yard14, ambient: sat43, onEnter: [until43(49, 13, 30)],
@@ -144,7 +144,7 @@ export const day43AScenes: Scene[] = [
       { id: 'c43_abt_later', label: 'Сказать: что знаю — скажу на совете', minutes: 30, terminal: true, goto: 'c43_a_yard', ambientDuring: sat43,
         text: 'Брандт кивает. «Gut. Montag». Хорошо. В понедельник. Джип уезжает. Ты стоишь у ворот, пока не начинают мёрзнуть руки.', effects: [set43('abt', 'later'), until43(49, 14, 0)] },
       { id: 'c43_abt_nothing', label: 'Сказать: ничего не видел', minutes: 30, terminal: true, goto: 'c43_a_yard', ambientDuring: sat43,
-        text: 'Брандт смотрит на тебя чуть дольше, чем нужно. «Lukas sagt was anderes». Лукас говорит другое. Или не говорит, но Брандт делает вид. Джип уезжает.', effects: [set43('abt', 'nothing'), npc('c16_brandt', -1), until43(49, 14, 0)] },
+        text: 'Брандт задерживает на тебе взгляд. «Lukas sagt was anderes». Лукас говорит другое. Что именно, Брандт не уточняет. Джип уезжает.', effects: [set43('abt', 'nothing'), npc('c16_brandt', -1), until43(49, 14, 0)] },
       { id: 'c43_abt_what', label: 'Спросить, что он сделает с тем, кто ушёл', minutes: 30, terminal: true, goto: 'c43_a_yard', ambientDuring: sat43,
         text: '— Raus aus der Wache. Und halbe Ration bis Februar. Für den ganzen Hof. — Брандт смотрит на поле. — Wer weggeht, lässt alle anderen allein.\n\nИз стражи вон. И половина пайка до февраля. Всему двору. Кто уходит с поста, оставляет одних всех остальных.', effects: [set43('abt', 'what'), set43('knows_cost', true), until43(49, 14, 0)] },
     ] }),

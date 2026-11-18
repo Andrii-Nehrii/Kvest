@@ -32,7 +32,7 @@ export const felix45 = felixAround44;
 export const nilsFriend45: Cond = nilsHelped;
 export const nilsPassed45: Cond = v('A.city_crash', 'passed');
 /** Мерле едет 28-го в Гамбург и {B} с ней (КТ43 + подпись в 44-й). */
-export const hamburg45: Cond = all(merle44, any(flag('w.c44_hamburg_trip'), v('w.c43_convoy', 'go')));
+export const hamburg45: Cond = all(merle44, flag('w.c44_hamburg_trip'));
 /** Мерле остаётся на хуторе (ветеринарный инсулин). */
 export const merleHome45: Cond = all(merle44, not(hamburg45));
 export const job45 = (x: string): Cond => v('w.c43_job', x);
