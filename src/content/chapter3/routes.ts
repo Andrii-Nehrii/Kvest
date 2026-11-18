@@ -30,6 +30,7 @@ import { point46Available, prepare46 } from './point46';
 import { point47Available, prepare47 } from './point47';
 import { partnerWasDown48, point48Available, prepare48 } from './point48';
 import { point49Available, prepare49 } from './point49';
+import { point50Available, prepare50 } from './point50';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1234,4 +1235,16 @@ export const newEntry49: Scene = {
     { id: 'c49_go', label: 'Встать', minutes: 5, terminal: true, outcomes: [{ id: 'h', when: { at: 'c48_uke' }, goto: 'c49_hb_dawn' }, { id: 'f', goto: 'c49_dawn' }],
       effects: [prepare49, { restUntil: at(60, 6, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point49Available, a.when ?? { always: true }) })),
+};
+
+export const newEntry50: Scene = {
+  id: 'c50_start', for: 'any', chapter: 'ch3', title: 'Сильвестр', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point50Available, text: 'Тридцать первое декабря, час дня. До Нового года одиннадцать часов.' },
+    { when: not(point50Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c50_go', label: 'Дальше', minutes: 5, terminal: true, outcomes: [{ id: 'h', when: { at: 'c48_uke' }, goto: 'c50_hb_shift' }, { id: 'f', goto: 'c50_prep' }],
+      effects: [prepare50, { restUntil: at(61, 13, 0) }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point50Available, a.when ?? { always: true }) })),
 };

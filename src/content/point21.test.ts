@@ -15,6 +15,7 @@ import { point46Available } from './chapter3/point46';
 import { point47Available } from './chapter3/point47';
 import { point48Available } from './chapter3/point48';
 import { point49Available } from './chapter3/point49';
+import { point50Available } from './chapter3/point50';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -1110,7 +1111,20 @@ describe('участок 30: мороз — опасная ночь по трё�
     expect(r49.state.vars['w.c49_tracks']).toBe('pit');
     if (hamburg) expect(r49.state.vars['w.c49_merle']).toBeTruthy(); else expect(r49.state.vars['w.c49_midnight']).toBeTruthy();
     for (const p of P) expect(r49.state.chars[p].scene).toBe('c50_start');
-  }, 1500000);
+    // ── Участок 50: Сильвестр и первое января ──
+    const b49 = r49.state;
+    for (const p of P) expect(evalCond({ s: b49, c, pid: p }, point50Available), `${p} может играть 50-ю`).toBe(true);
+    const a0 = leg(b49, 'A'), b0 = leg(b49, 'B');
+    for (const [pid, l] of [['A', a0], ['B', b0]] as const) expect(l.vars[`${pid}.c50_finished`], `${pid} дошёл до КТ50`).toBe(true);
+    expect(a0.chars.A.location).toBe('hof_luedemann');
+    expect(b0.chars.B.location).toBe(hamburg ? 'c48_uke' : 'hof_luedemann');
+    const s50 = mergeCp(b49, 50, a0, b0);
+    expect(s50.chars.A.time).toBe(s50.chars.B.time);
+    const r50 = completeCheckpoint(c, s50, pick(s50, 50, { c3_new_pit50: 'post' }));
+    expect(r50.state.vars['w.c50_pit']).toBe('post');
+    if (hamburg) expect(r50.state.vars['w.c50_bridge']).toBeTruthy();
+    for (const p of P) expect(r50.state.chars[p].scene).toBe('c51_start');
+  }, 2400000);
 
   it('участок 48: выбывший в 47-й — второй выхаживает, к вечеру сводка и дальше заглушка', () => {
     const { b46 } = b46for48();
@@ -1144,6 +1158,7 @@ describe('участок 30: мороз — опасная ночь по трё�
     for (const [pid, l] of [['A', a9], ['B', b9]] as const) expect(l.vars[`${pid}.c49_finished`]).toBe(true);
     const out = completeCheckpoint(c, mergeCp(b48, 49, a9, b9), pick(mergeCp(b48, 49, a9, b9), 49)).state;
     for (const p of P) expect(out.chars[p].scene).toBe('c50_start');
+    for (const p of P) expect(evalCond({ s: out, c, pid: p }, point50Available), `${p} может играть 50-ю`).toBe(true);
   }, 1500000);
 
   const downIn30 = (pid: PlayerId) => {
