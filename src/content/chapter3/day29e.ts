@@ -4,6 +4,7 @@ import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { ninaFarm, v } from './point18';
 import { npc } from './point19';
+import { toHouseA29 } from './house28';
 import { S29, day29, frost29, jest29, set29, until29, w29 } from './point29';
 
 // Участок 29, дополнение (проверка объёма 15.11). Суббота: A — Керем приходит за долгом или с обменом; B — в пункте просьбы Эриха
@@ -24,13 +25,13 @@ export const day29EScenes: Scene[] = [
       { when: not(kerem), text: 'В половине четвёртого у ворот никого. Ветер гонит снег вдоль забора. Колонка стоит, укутанная или нет, и молчит.' },
     ],
     actions: [
-      { id: 'c29_ak_pay', label: 'Отдать картошкой: мешок за долг или за инструмент', when: all(kerem, potatoes), minutes: 60, terminal: true, goto: 'c29_night',
+      { id: 'c29_ak_pay', label: 'Отдать картошкой: мешок за долг или за инструмент', when: all(kerem, potatoes), minutes: 60, terminal: true, outcomes: toHouseA29,
         text: 'Ты насыпаешь из кладовки двенадцать килограммов. Керем взвешивает мешок рукой, кивает. «Deniz wird sagen, zu wenig. Ich sage: genau richtig». Дениз скажет — мало. А я скажу — в самый раз. Он пристёгивает мешок к багажнику и чуть не падает на первом же повороте.', effects: [set29('ak', 'pay'), w29('kerem', 'paid'), { unstock: 'potatoes', qty: 12, at: 'c3_farm_stock' }, { if: not(debt), then: [{ give: 'c29_wire' }] }, npc('kerem', 2), until29(28, 17, 30)] },
-      { id: 'c29_ak_wait', label: 'Попросить подождать до весны', when: kerem, minutes: 40, terminal: true, goto: 'c29_night',
+      { id: 'c29_ak_wait', label: 'Попросить подождать до весны', when: kerem, minutes: 40, terminal: true, outcomes: toHouseA29,
         text: '— Bis Frühling? — Керем чешет затылок под ушанкой. — Gut. Aber dann mit Zinsen. Ein Huhn.\n\nДо весны? Ладно. Но тогда с процентами. Одна курица.\n\nОн смеётся, но не совсем шутит. Уезжает с пустым багажником.', effects: [set29('ak', 'wait'), w29('kerem', 'later'), until29(28, 17, 0)] },
-      { id: 'c29_ak_tea', label: 'Позвать его в дом, на чай, и поговорить про Бухгольц', when: kerem, minutes: 60, terminal: true, goto: 'c29_night',
+      { id: 'c29_ak_tea', label: 'Позвать его в дом, на чай, и поговорить про Бухгольц', when: kerem, minutes: 60, terminal: true, outcomes: toHouseA29,
         text: 'Керем пьёт чай, обхватив кружку двумя руками. Рассказывает: в Бухгольце пусто, мастерская мёрзнет, Дениз не спит ночами, слушает улицу. «Er redet davon, wegzugehen. Er sagt es nicht, aber er redet davon». Он говорит об отъезде. Не говорит прямо, но говорит. Про канистру в этот раз никто не вспоминает.', effects: [set29('ak', 'tea'), w29('kerem', 'talked'), npc('kerem', 1, 'c29_tea'), until29(28, 17, 30)] },
-      { id: 'c29_ak_gate', label: 'Проверить ворота и лечь пораньше', when: not(kerem), minutes: 30, terminal: true, goto: 'c29_night',
+      { id: 'c29_ak_gate', label: 'Проверить ворота и лечь пораньше', when: not(kerem), minutes: 30, terminal: true, outcomes: toHouseA29,
         text: 'Засов, калитка, цепь на воротах. Темнеет рано. Ты ложишься до шести и засыпаешь сразу.', effects: [set29('ak', 'gate'), until29(28, 17, 30)] },
     ] }),
 

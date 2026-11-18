@@ -9,6 +9,7 @@ import { indoor16 } from './point16';
 import { any, v } from './point18';
 import { npc, tableOnly } from './point19';
 import { henrike43, merle43 } from './point43';
+import { kasiaLate } from './house28';
 
 // Участок 44 «Совет»: пн 21.12, 06:30 → КТ44 вт 22.12, 20:30. Передышка после «знают разное»; человек из прошлого — Нильс,
 // водитель серого «гольфа» из Баренфельда (первый день A: `A.city_crash = helped` — вытащил ломом; иначе проехал мимо). Теперь он
@@ -274,6 +275,8 @@ S44({ id: 'c44_tue_dawn', for: 'any', chapter: 'ch3', title: 'Вторник', c
   S44({ id: 'c44_tue_night', for: 'any', chapter: 'ch3', title: 'Перед сочельником', camp: house14,
     text: [
       { text: 'Дом засыпает. Завтра — двадцать третье. Послезавтра — сочельник.' },
+      { when: kasiaLate, text: 'Кася вырезает из бумаги звёзды для окон, польские, с восемью лучами. Нина сидит рядом и учится.' },
+      { when: all({ npc: 'c8_eva', alive: true }, flag('w.c29_eva_role')), text: 'Эва третий вечер подряд ставит тесто на штолен. Хенрике ворчит, что изюма мало, и отдаёт свой, припрятанный с лета.' },
     ],
     actions: [
       { id: 'c44_tn_talk', label: 'Поговорить с {partner.ins} о сочельнике', minutes: 45, terminal: true, goto: 'c44_checkpoint',

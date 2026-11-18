@@ -5,10 +5,11 @@ import { all, flag, not } from './world3';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
-import { v } from './point18';
+import { any, v } from './point18';
 import { evaHere, npc, tableOnly } from './point19';
 import { brothersCome, eldersCome, oleHome33 } from './point33';
 import { tobias36 } from './point36';
+import { evaRole, kasiaLate, leaLate } from './house28';
 
 // Участок 39: пятница 11.12, 07:00 → КТ39 суббота 12.12, 20:00. Жребий: запертая находка (B). План — STOCK_PLAN.md §10.4.
 // Дом после десятого: новые люди (Мерле, её родители — или пустое место), инсулин, армия уходит раньше срока, Лея и Берген,
@@ -221,6 +222,10 @@ export const shared39: Scene[] = [
   S39({ id: 'c39_night', for: 'any', chapter: 'ch3', title: 'Суббота, вечер', camp: house14,
     text: [
       { text: 'Дом затихает. Капель за окном не перестаёт. Ты лежишь и слушаешь её, как часы.' },
+      { when: all(kasiaLate, any(v('w.c29_kasia_road', 'stay'), v('w.c31_kasia_advice', 'stay'))), text: 'Из-под лестницы слышно, как Кася шепчет по-польски. Десятого она не ушла. Говорит, что осталась с Тимом.' },
+      { when: all(kasiaLate, flag('w.c31_kasia_axe')), text: 'Поленница у сарая за неделю выросла на метр. Это Кася: каждое утро по часу. Топор она теперь держит правильно.' },
+      { when: all({ npc: 'c8_eva', alive: true }, evaRole('kitchen')), text: 'На кухне Эва ставит тесто на завтра. Хенрике сидит рядом и чистит лук. Кто у кого на подхвате, уже не разобрать.' },
+      { when: all(leaLate, v('w.c29_lea_rule', 'all')), text: 'В кладовке за кухней до ночи горит свет. К Лее теперь ходят со всей округи, и Хенрике завела для них отдельную лавку в сенях.' },
     ],
     actions: [
       { id: 'c39_ni_talk', label: 'Говорить с {partner.ins} про совет и про вторник', minutes: 30, terminal: true, goto: 'c39_checkpoint',

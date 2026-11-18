@@ -1,6 +1,7 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { evaHere } from './point19';
 import { any, v } from './point18';
 import { P28, oleDead, timDied, timWard } from './point28';
 
@@ -63,15 +64,19 @@ export const point28Place: JointDecision = {
   default: 'hands',
 };
 
+const evaHouse28: Cond = all(evaHere, { npc: 'c8_eva', alive: true });
+const kasiaHouse28: Cond = any({ npc: 'kasia', alive: true, at: 'hof_luedemann' }, { npc: 'kasia', alive: true, at: 'c3_farm_shed' });
+const leaHouse28: Cond = { npc: 'c21_lea', alive: true, at: 'hof_luedemann' };
+
 export const point28House: JointDecision = {
   id: 'c3_new_house28', checkpoint: 28, canParticipate: P28,
-  prompt: { default: 'Хенрике согласна оставить в доме одного человека сверх Нины. Кого вы попросите оставить: Эву, Касю или Лею? Разные ответы — Эву.' },
+  prompt: { default: 'Хенрике согласна оставить в доме одного человека сверх Нины. Кого из тех, кто сейчас живёт на хуторе, вы попросите оставить? Остальные будут спать там, где спали. Разные ответы — Эву.' },
   options: [
-    { id: 'eva', label: { default: 'Эву' }, effects: [{ set: 'w.c28_house', value: 'eva' }],
+    { id: 'eva', label: { default: 'Эву' }, when: any(evaHouse28, all(not(kasiaHouse28), not(leaHouse28))), effects: [{ set: 'w.c28_house', value: 'eva' }],
       text: 'Эва остаётся. Хенрике: «Die kann kochen. Und sie hat keine Angst vor mir». Готовит. И меня не боится.' },
-    { id: 'kasia', label: { default: 'Касю' }, effects: [{ set: 'w.c28_house', value: 'kasia' }],
+    { id: 'kasia', label: { default: 'Касю' }, when: kasiaHouse28, effects: [{ set: 'w.c28_house', value: 'kasia' }],
       text: 'Кася остаётся до колонны на восток. Хенрике: «Die hat ihr Kind hier begraben. Die gehört jetzt zu uns». Она похоронила здесь сына. Теперь она наша.' },
-    { id: 'lea', label: { default: 'Лею' }, effects: [{ set: 'w.c28_house', value: 'lea' }],
+    { id: 'lea', label: { default: 'Лею' }, when: leaHouse28, effects: [{ set: 'w.c28_house', value: 'lea' }],
       text: 'Лея может жить здесь. Хенрике: «Wer Ole das Leben gerettet hat, kriegt ein Bett». Кто спас Оле жизнь, получает кровать.' },
   ],
   compromises: [{ pair: ['eva', 'kasia'], result: 'eva' }, { pair: ['eva', 'lea'], result: 'eva' }, { pair: ['kasia', 'lea'], result: 'eva' }],

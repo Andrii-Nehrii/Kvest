@@ -40,7 +40,9 @@ export const okafor38: Cond = { npc: 'okafor', alive: true };
 export const merleComes38: Cond = all(not(leavePawel38), { npc: 'merle', alive: true }, any(v('w.c36_merle', 'all'), v('w.c36_merle', 'merle')),
   not(v('w.c36_merle_msg', 'stay')), any(bNorth36, aNorth36, all(okaforComes, okafor38), flag('w.c36_merle_seat')));
 export const parentsCome38: Cond = all(merleComes38, v('w.c36_merle', 'all'), any(flag('w.c36_merle_seat'), jannikYes, bNorth36));
-export const kasiaDeparts38: Cond = all(kasia36, kasiaGoes36, pawel36, any(flag('w.c36_kasia_listed'), flag('w.c36_kasia_seat')));
+/** Список Мирека из Винзена (29-я, 31-я): поляки уходят десятого и без Павла. */
+const mirek38: Cond = any(v('w.c29_kasia_road', 'list'), v('w.c31_kasia_advice', 'go'));
+export const kasiaDeparts38: Cond = all(kasia36, kasiaGoes36, any(all(pawel36, any(flag('w.c36_kasia_listed'), flag('w.c36_kasia_seat'))), mirek38));
 export const henrike38: Cond = { npc: 'henrike', alive: true, at: farm38 };
 export const pensFarm38: Cond = { stocked: 'c21_insulin', qty: 1, at: 'c3_farm_stock' };
 /** Трактор на ходу: не в кювете с 30-й (или вытащен) и с соляркой (не отдана на реквизиции 37-й или добыта снова). */

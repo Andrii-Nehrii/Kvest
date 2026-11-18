@@ -4,6 +4,7 @@ import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
 import { any, v } from './point18';
 import { npc } from './point19';
+import { toHouseB29 } from './house28';
 import { S29, day29, dutyB29, frost29, jest29, oleAlive29, place29, set29, until29, w29 } from './point29';
 
 // Участок 29, обе линии в субботу и перед собранием. A — работа по новому порядку, ружьё (Оле) или шапка (Хенрике), колонка;
@@ -125,11 +126,11 @@ export const day29Scenes: Scene[] = [
       { text: 'К вечеру мороз. Окна затягивает узорами. Хенрике достаёт с чердака коробку с адвентским венком: еловые ветки, четыре свечи, красная лента. Нина плетёт его на кухонном столе.' },
     ],
     actions: [
-      { id: 'c29_be_help', label: 'Помочь Нине с венком', minutes: 60, terminal: true, goto: 'c29_night',
+      { id: 'c29_be_help', label: 'Помочь Нине с венком', minutes: 60, terminal: true, outcomes: toHouseB29,
         text: 'Ветки колются. Лента путается. Нина ругается по-русски, тихо, чтобы Хенрике не поняла. Хенрике всё равно понимает и смеётся.', effects: [set29('be', 'help'), npc('c7_nina', 1), until29(28, 18, 0)] },
-      { id: 'c29_be_rest', label: 'Отдохнуть у печи', minutes: 60, terminal: true, goto: 'c29_night',
+      { id: 'c29_be_rest', label: 'Отдохнуть у печи', minutes: 60, terminal: true, outcomes: toHouseB29,
         text: 'Ты сидишь у печи и смотришь, как Нина плетёт. Впервые за неделю ничего не болит, кроме ног.', effects: [set29('be', 'rest'), { body: 'fatigue', delta: -4 }, until29(28, 18, 0)] },
-      { id: 'c29_be3_flour', label: 'Сходить к Кёлер за мукой: Хенрике обещала Нине штолен', minutes: 60, terminal: true, goto: 'c29_night', ambientDuring: frost29,
+      { id: 'c29_be3_flour', label: 'Сходить к Кёлер за мукой: Хенрике обещала Нине штолен', minutes: 60, terminal: true, outcomes: toHouseB29, ambientDuring: frost29,
         text: 'Кёлер отсыпает полкило муки и щепоть изюма из жестяной банки, последнего. «Für den Stollen. Advent ist Advent». На штолен. Адвент есть адвент. Обратно ты идёшь в темноте, и над деревней в двух окнах уже горят свечи.', effects: [set29('be3', 'flour'), w29('stollen', true), { stock: 'c3_flour', qty: 1, at: 'c3_farm_stock' }, npc('c3_koehler', 1), until29(28, 17, 30)] },
     ] }),
 

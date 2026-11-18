@@ -8,6 +8,7 @@ import { indoor16 } from './point16';
 import { any, ninaFarm, v } from './point18';
 import { evaHere, npc, tableOnly } from './point19';
 import { entryJoin } from './point30';
+import { afterSupper31 } from './house28';
 
 // Участок 31: вторник 1.12, 04:00 → КТ31 20:00. Передышка после ночи 30-й (или спасение выбывшего); находка A. План — STOCK_PLAN.md §9.
 // Нормальный день: A — ящик из третьего грузовика, братья Айдын, машина; B — Нина и Винзен, доктор Зандер на обходе.
@@ -155,11 +156,11 @@ export const shared31: Scene[] = [
       { when: v('$.c31_bp', 'sleep'), text: 'Ты {m:лёг|легла} пораньше, но сон не шёл. К ужину ты {m:спустился|спустилась} раньше всех.' },
     ],
     actions: [
-      { id: 'c31_ev_eat', label: 'Поесть', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A31, goto: 'c31_a_late' }, { id: 'b', goto: 'c31_b_late' }], ...tableOnly,
+      { id: 'c31_ev_eat', label: 'Поесть', minutes: 40, terminal: true, outcomes: afterSupper31, ...tableOnly,
         text: 'Суп горячий. Ты ешь, пока тепло не доходит до пальцев ног.', effects: [set31('ev', 'eat'), meal('eat'), finish, until31(19, 30)] },
-      { id: 'c31_ev_partner', label: 'Сесть рядом с {partner.ins}', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A31, goto: 'c31_a_late' }, { id: 'b', goto: 'c31_b_late' }],
+      { id: 'c31_ev_partner', label: 'Сесть рядом с {partner.ins}', minutes: 40, terminal: true, outcomes: afterSupper31,
         text: 'Ты садишься рядом. Под столом ваши колени касаются. Вы почти не разговариваете. После такой ночи и такого дня это и не нужно.', effects: [set31('ev', 'partner'), { body: 'stress', delta: -3 }, finish, until31(19, 30)] },
-      { id: 'c31_ev_plan', label: 'Разложить на столе, кто куда завтра едет и с чем', minutes: 40, terminal: true, outcomes: [{ id: 'a', when: A31, goto: 'c31_a_late' }, { id: 'b', goto: 'c31_b_late' }],
+      { id: 'c31_ev_plan', label: 'Разложить на столе, кто куда завтра едет и с чем', minutes: 40, terminal: true, outcomes: afterSupper31,
         text: 'Вы раскладываете на столе: карта, листки, ключи. Кто куда, во сколько, с кем, что взять, что привезти. Хенрике смотрит через плечо и молча дописывает на краю листа: «Salz». Соль. Нина записывает всё в свою тетрадь, на отдельной странице, и подписывает: «Mittwoch».', effects: [set31('ev', 'plan'), w31('plan_written', true), until31(19, 30)] },
     ] }),
 

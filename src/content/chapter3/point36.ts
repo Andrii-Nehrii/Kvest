@@ -39,7 +39,8 @@ export const kasia36: Cond = { npc: 'kasia', alive: true, at: farm36 };
 export const pawel36: Cond = pawel34;
 export const insulinHome36: Cond = { stocked: 'c21_insulin', qty: 1, at: 'c3_farm_stock' };
 export const ninaWinsen36: Cond = v('w.c32_nina', 'winsen');
-export const kasiaGoes36: Cond = any(v('w.c35_kasia_east', 'promised'), east36('give'));
+/** Кася уходит десятого: обещание {B} в 35-й, отданное место — или сама записалась к полякам в 29-й / решила в 31-й. */
+export const kasiaGoes36: Cond = any(v('w.c35_kasia_east', 'promised'), east36('give'), v('w.c29_kasia_road', 'list'), v('w.c31_kasia_advice', 'go'));
 
 export const frost36 = { tempC: -8, outdoor: true, wet: false };
 /** Кузов под брезентом: ветра нет, но холодно. */

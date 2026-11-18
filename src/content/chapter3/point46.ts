@@ -11,6 +11,7 @@ import { npc, tableOnly } from './point19';
 import { tobias36 } from './point36';
 import { parents42 } from './point42';
 import { felix45, hamburg45, henrike45, julian45, merle45 } from './point45';
+import { evaRole, kasiaLate, leaLate } from './house28';
 
 // Участок 46 «Сочельник»: чт 24.12, 17:00 → КТ46 пт 25.12, 20:00. Передышка после двух дней порознь. Вечер вместе: служба в шесть
 // в Йестебурге (`w.c42_church` all/some/home), стол (гости — `w.c44_eve`, Нильс — `w.c45_guest`; курица — `w.c44_hen`, угорь из 45-й),
@@ -405,6 +406,9 @@ export const shared46: Scene[] = [
   S46({ id: 'c46_hall', for: 'any', chapter: 'ch3', title: 'Час до ужина', camp: house14,
     text: [
       { text: 'Стемнело. В большой комнате зажгли одну лампу и печку. До ужина час. Дом отдыхает: кто спит, кто сидит с книгой, кто просто смотрит в огонь.' },
+      { when: all({ npc: 'c8_eva', alive: true }, any(evaRole('kitchen'), evaRole('split'))), text: 'Из кухни пахнет майораном: рождественский суп варит Эва, по-померански. Хенрике накрывает на стол и впервые не заглядывает в кастрюлю.' },
+      { when: kasiaLate, text: 'Кася ставит на подоконник свечу для Тима. Подумав, ставит вторую, для Дариуша.' },
+      { when: all(leaLate, any(v('w.c29_lea_rule', 'all'), v('w.c29_lea_rule', 'village'))), text: 'У двери стоит корзина: яйца, банка мёда, вязаные носки. Записка: «Für die Doktorin». Это от тех, кого Лея лечила в кладовке за кухней.' },
       { when: nilsNight46, text: 'Нильс ушёл к своей машине ещё днём. На лавке в кухне аккуратно сложено одеяло, а на нём записка карандашом: «Danke für alles. N.»' },
       { when: felix46, text: 'Феликс сидит у окна с листом бумаги и не пишет. Письмо домой, которого некуда отправить.' },
     ],

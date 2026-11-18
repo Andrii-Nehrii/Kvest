@@ -4,6 +4,7 @@ import { all, flag, not } from './world3';
 import { yard14 } from './point14';
 import { any, v } from './point18';
 import { npc } from './point19';
+import { toErrand32 } from './day32h';
 import {
   S32, fed32, finish32, frost32, jest32, ninaGoes32, ninaWinsen32, okaforHere32, own32, set32, truck32, until32, volunteerB, w32, winsen32,
 } from './point32';
@@ -173,11 +174,11 @@ export const day32BScenes: Scene[] = [
       { text: 'Утро в Винзене серое и тихое, только у школы урчат моторы.' },
     ],
     actions: [
-      { id: 'c32_bq_boxes', label: 'Погрузить коробки и ехать', minutes: 30, terminal: true, goto: 'c32_y_b_kitchen',
+      { id: 'c32_bq_boxes', label: 'Погрузить коробки и ехать', minutes: 30, terminal: true, outcomes: toErrand32,
         text: 'Коробки ты ставишь себе под ноги и держишь коленями. Грузовик трогается в половине одиннадцатого.', effects: [set32('bq', 'boxes'), w32('meds', 'got'), { give: 'c32_drk_box' }, until32(33, 9, 30)] },
-      { id: 'c32_bq_okafor', label: 'Попрощаться с Окафором и жильцами', when: okaforHere32, minutes: 45, terminal: true, goto: 'c32_y_b_kitchen',
+      { id: 'c32_bq_okafor', label: 'Попрощаться с Окафором и жильцами', when: okaforHere32, minutes: 45, terminal: true, outcomes: toErrand32,
         text: 'Окафор провожает тебя до грузовика. Фуфу в коробке смотрит в дырку. Окафор жмёт тебе руку двумя руками, по-старомодному.\n\n— Перчатки, — говорит он. — Всегда. Помните?\n\nТы помнишь. Коробки с лекарствами уже в кузове.', effects: [set32('bq', 'okafor'), w32('meds', 'got'), { give: 'c32_drk_box' }, npc('okafor', 1), until32(33, 9, 30)] },
-      { id: 'c32_bt2_note', label: 'Оставить на доске у входа записку для тех, кто будет искать', minutes: 20, terminal: true, goto: 'c32_y_b_kitchen',
+      { id: 'c32_bt2_note', label: 'Оставить на доске у входа записку для тех, кто будет искать', minutes: 20, terminal: true, outcomes: toErrand32,
         text: 'На доске у входа в школу сотни записок. Ты пишешь свою: «Lüdemann-Hof bei Jesteburg. Barmbek, Fuhlsbüttler Str. Wir leben». Хутор Людеманов у Йестебурга. Бармбек. Мы живы. Прикалываешь булавкой поверх чужой, старой, выцветшей.', effects: [set32('bt2', 'note'), w32('b_note_winsen', true), until32(33, 9, 30)] },
     ] }),
 

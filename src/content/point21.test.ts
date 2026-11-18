@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { completeCheckpoint, mergeNotes, mergeSegments, syncClocks } from '../engine/checkpoint';
+import { completeCheckpoint, mergeNotes, mergeSegments, optionsFor, syncClocks } from '../engine/checkpoint';
 import { applyEffects } from '../engine/effects';
 import { segmentFinished } from '../engine/game';
 import { evalCond } from '../engine/conditions';
@@ -384,8 +384,10 @@ describe('участок 28: пятница — ночь, патруль, Хен
       const s28 = mergeCp(b27, 28, a, b);
       expect(s28.chars.A.time).toBe(s28.chars.B.time);
       for (const p of P) { expect(s28.chars[p].location).toBe('hof_luedemann'); expect(canAct(s28.chars[p].body)).toBe(true); }
-      const out = completeCheckpoint(c, s28, { A: { c3_new_place28: 'family', c3_new_house28: 'lea' }, B: { c3_new_place28: 'guests', c3_new_house28: 'lea' } }).state;
-      expect(out.vars['w.c28_place']).toBe('hands'); expect(out.vars['w.c28_house']).toBe('lea');
+      // В доме можно оставить только того, кто живёт на хуторе: последний из доступных вариантов.
+      const house = optionsFor(c, s28, c.joint.c3_new_house28, 'A').map((o) => o.id).at(-1)!;
+      const out = completeCheckpoint(c, s28, { A: { c3_new_place28: 'family', c3_new_house28: house }, B: { c3_new_place28: 'guests', c3_new_house28: house } }).state;
+      expect(out.vars['w.c28_place']).toBe('hands'); expect(out.vars['w.c28_house']).toBe(house);
       for (const p of P) expect(out.chars[p].scene).toBe('c29_start');
     });
 });

@@ -370,6 +370,11 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       if (id === 'c3_new_job43') { s.vars['w.c38_merle'] = 'north'; }
       if (id === 'c3_new_school42') { s.vars['w.c42_school_known'] = true; s.npcs.c7_nina ??= introducedPerson(c.npcs.c7_nina, 0); s.npcs.c7_nina.alive = true; s.npcs.c7_nina.location = 'hof_luedemann'; }
       if (id === 'c3_new_answer46') { s.vars['w.c46_tobias_letter'] = true; s.npcs.c15_tobias ??= introducedPerson(c.npcs.c15_tobias, 0); s.npcs.c15_tobias.alive = true; }
+      if (id === 'c3_new_house28') {
+        // Выбор возможен только из тех, кто живёт на хуторе: все трое на месте, чтобы прошла своя ветка 29–31.
+        s.vars['w.c18_seat'] = 'eva';
+        for (const npc of ['kasia', 'c21_lea', 'c8_eva']) { s.npcs[npc] ??= introducedPerson(c.npcs[npc], 0); s.npcs[npc].alive = true; s.npcs[npc].location = 'hof_luedemann'; }
+      }
       if (id === 'c3_new_cellar47') s.vars['w.c47_food'] = 'share';
       if (id === 'c3_new_bjorn48') s.vars['w.c47_karsten'] = 'told';
       if (id === 'c3_new_uke48') s.vars['w.c48_hamburg'] = true;

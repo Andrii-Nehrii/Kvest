@@ -32,6 +32,11 @@ export const point32Notes: MergeNote[] = [
   N('c32_nina_stays', v('w.c32_nina', 'winsen'), 'Нина осталась в Винзене, у подруги, до Рождества. Там школа.'),
   N('c32_nina_back', all(v('w.c32_nina', 'farm'), flag('B.c32_nina_with')), 'Нина вернулась с {B.ins} из Винзена.'),
   N('c32_nina_home', all(v('w.c32_nina', 'farm'), not(flag('B.c32_nina_with'))), 'Нина вернулась из Винзена насовсем.'),
+  // Переделка: поручения из дома (REWORK_PLAN.md, этап 1).
+  N('c32_kasia_mail', v('w.c32_kasia_mail', 'given'), 'Письмо Каси лежит у Мирека в жестяной коробке. Пойдёт с поляками десятого.'),
+  N('c32_kasia_back', v('w.c32_kasia_mail', 'back'), 'Письмо Каси вернулось из Винзена неотправленным.'),
+  N('c32_lea_supplies', flag('w.c32_lea_supplies'), 'Из Винзена для Леи: шесть бинтов, йод, две катушки нити.'),
+  N('c32_hannover', v('w.c32_hannover', 'lists'), 'В Винзене сказали: Линден закрыт с девятого ноября, эвакуированных увозят в казармы Лангенхагена, там списки. Колонны через Целле — каждый второй вторник.'),
 ];
 
 export const point32Okafor: JointDecision = {
