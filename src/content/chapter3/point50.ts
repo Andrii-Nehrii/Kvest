@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { colonyHigh } from './standing';
 import { brothersCome, oleHome33 } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
@@ -46,21 +47,24 @@ export const bjornAlive50: Cond = all(flag('w.c47_karsten'), not(v('w.c47_karste
 export const bjornFire50: Cond = all(bjornAlive50, any(flag('w.c49_bjorn_fire'), v('w.c48_bjorn', 'take')));
 export const own50 = (key: string, value: string): Cond => v(`$.c50_${key}`, value);
 /** Где полночь: решение КТ49; {A} один — по решению КТ46. */
-export const atFire50: Cond = any(v('w.c49_midnight', 'fire'), all(alone50, v('w.c46_silvester', 'go')));
+/** Огонь вечером: решение КТ49 ({A} один — КТ46); «к полуночи домой, калитку запереть» (КТ49) отменяет огонь. */
+export const atFire50: Cond = all(not(v('w.c49_tracks', 'gate')), any(v('w.c49_midnight', 'fire'), all(alone50, v('w.c46_silvester', 'go'))));
+/** «Попросить Брандта: до одиннадцати, без колокола» (КТ49): огонь гасят в одиннадцать, колокола и ракет нет. */
+export const short50: Cond = v('w.c49_tracks', 'short');
 export const atPost50: Cond = v('w.c49_midnight', 'post');
 export const atHome50: Cond = all(not(atFire50), not(atPost50));
 export const volunteer50: Cond = v('$.c49_mq', 'volunteer');
 /** Карьер под присмотром: свой пост по КТ49 или Брандт узнал и поставил людей. */
 export const pitPost50: Cond = any(v('w.c49_tracks', 'pit'), flag('w.c49_brandt_knows'));
 /** Ракеты Лукаса гремят в полночь с площади: их не нашли или нашли и оставили, а Брандт не знает. */
-export const rocketsLoud50: Cond = any(not(flag('w.c49_rockets_found')), all(v('w.c49_rockets', 'left'), not(flag('w.c49_brandt_rockets'))));
+export const rocketsLoud50: Cond = all(not(short50), any(not(flag('w.c49_rockets_found')), all(v('w.c49_rockets', 'left'), not(flag('w.c49_brandt_rockets')))));
 export const rocketDeal50: Cond = v('w.c49_rockets', 'deal');
 export const clean50: Cond = all(pitPost50, not(rocketsLoud50));
 export const slip50: Cond = all(pitPost50, rocketsLoud50);
 /** Мика (КТ44: мешок картошки ему отнесли сами) живёт в крайнем домике колонии и не спит по ночам: он поднимет крик. */
 export const mika50: Cond = v('w.c44_thief', 'feed');
-export const door50: Cond = all(not(pitPost50), any(flag('w.c49_colony_told'), mika50));
-export const bite50: Cond = all(not(pitPost50), not(flag('w.c49_colony_told')), not(mika50));
+export const door50: Cond = all(not(pitPost50), any(flag('w.c49_colony_told'), mika50, colonyHigh));
+export const bite50: Cond = all(not(pitPost50), not(flag('w.c49_colony_told')), not(mika50), not(colonyHigh));
 export const leo50: Cond = all({ npc: 'c12_leo', alive: true }, any(flag('A.met.c12_leo'), flag('B.met.c12_leo')));
 export const marcus50: Cond = { npc: 'c12_marcus', alive: true };
 
@@ -91,7 +95,7 @@ const toNight = [
   { id: 'h', goto: 'c50_h_table' },
 ];
 const toMidnight = [
-  { id: 'f', when: atFire50, goto: 'c50_f_midnight' },
+  { id: 'f', when: all(atFire50, not(short50)), goto: 'c50_f_midnight' },
   { id: 'p', when: atPost50, goto: 'c50_p_midnight' },
   { id: 'h', goto: 'c50_h_midnight' },
 ];
@@ -168,6 +172,7 @@ export const shared50: Scene[] = [
   S50({ id: 'c50_out', for: 'any', chapter: 'ch3', title: 'Сборы на ночь', camp: yard14, ambient: rain50,
     text: [
       { text: 'Половина седьмого. Дождь стих до мороси. У крыльца раздают факелы, фонари, термосы. Кто куда — решено ещё вчера, и всё равно все переспрашивают.' },
+      { when: v('w.c49_tracks', 'gate'), text: 'К огню сегодня не идёт никто из ваших: к полуночи двор дома, калитка заперта, как решили вчера. Хенрике это одобряет молча.' },
       { text: 'Хенрике стоит в дверях и каждому уходящему говорит одно и то же: «Kommt wieder». Возвращайтесь.' },
       { when: all(ninaFarm, not(v('w.c46_silvester', 'stay'))), text: 'Нина просится к огню, к своим из Йестебурга. Хенрике отпускает её до одиннадцати, потом передумывает: до полуночи. И с тобой.' },
       { when: any(flag('w.c49_a_candles2'), flag('w.c48_a_candles')), text: 'Свечи с винзенского рынка горят в банках на подоконниках: хватило на все окна.' },
@@ -227,6 +232,7 @@ export const shared50: Scene[] = [
   S50({ id: 'c50_f_music', for: 'any', chapter: 'ch3', title: 'Аккордеон', location: jest50, camp: trip50(jest50), ambient: night50,
     text: [
       { text: 'В десять девушка достаёт аккордеон. Первую песню никто не поёт, вторую подпевают трое, на третьей — «Wir lagen vor Madagaskar» — поёт вся площадь, фальшиво и громко.' },
+      { when: short50, text: 'Колокола в полночь не будет, и ракет тоже: Брандт согласился с вашим двором. В одиннадцать огонь гасят водой из шланга, и люди расходятся по домам с факелами.' },
       { text: 'Брандт стоит в стороне и смотрит не на огонь, а в темноту за кольцом постов.' },
     ],
     actions: [
@@ -342,6 +348,7 @@ export const shared50: Scene[] = [
   S50({ id: 'c50_h_midnight', for: 'any', chapter: 'ch3', title: 'Полночь дома', camp: house14,
     text: [
       { text: 'Без минуты двенадцать все выходят на крыльцо. Дождь почти перестал. Из Йестебурга — колокол, двенадцать еле слышных ударов.' },
+      { when: short50, text: 'Колокола, правда, нет: Йестебург сегодня молчит, как договорились. Вы слушаете тишину вместо него.' },
       { when: all(flag('w.c45_dog'), rocketsLoud50), text: 'На первой ракете Луна вжимается в ноги детям и дрожит. Младший садится на ступеньку и обнимает её обеими руками, пока не стихнет.' },
       { when: rocketsLoud50, text: 'Над Йестебургом взлетают три ракеты, красная, зелёная, белая. Дети визжат от восторга. Хенрике сжимает перила крыльца.' },
       { when: rocketDeal50, text: 'Над полем далеко — одна белая ракета. Дети кричат «noch eine!», ещё одну. Больше не будет.' },
@@ -366,8 +373,10 @@ export const shared50: Scene[] = [
       { when: slip50, text: 'Без двадцати час со стороны карьера трубит рог, долго, тревожно. Из ельника вышли четверо, на ракеты. Троих встретили у карьера, четвёртый ушёл вдоль лесополосы. В час его догнал Яннес у забора колонии. Яннес цел, только рукав разорван.' },
       { when: all(door50, flag('w.c49_colony_told')), text: 'В час в колонии бьёт колокол. Из лесополосы вышел один и пошёл на свет окон. Ткнулся в запертую дверь крайнего домика, потом в соседнюю. Двери были закрыты: колония знала. Яннес вышел с вилами.' },
       { when: all(door50, mika50, not(flag('w.c49_colony_told'))), text: 'В час в колонии кричат. Из лесополосы вышел один, на свет окон. Первым его увидел Мика, мальчишка из крайнего домика: он не спит по ночам с тех пор, как копал ваш бурт. Он кричал на всю колонию, пока не захлопнулась последняя дверь. Старик в синей шапке, вышедший к сараю, вернулся бегом, как молодой. Яннес вышел с вилами.' },
+      { when: all(door50, colonyHigh, not(mika50), not(flag('w.c49_colony_told'))), text: 'В час в колонии бьёт их собственный колокол. У Уте с декабря своя ночная смена, по двое: с тех пор, как вы не раз вставали рядом с колонией. Когда из лесополосы выходит один, двери закрыты задолго до первого домика. Яннес выходит с вилами.' },
       { when: bite50, text: 'В час в колонии кричат. Старик в синей шапке, сосед Уте, вышел к сараю по нужде, без фонаря. Из лесополосы вышел один, на свет окон. Старика укусили за руку. Яннес прибежал на крик с вилами.' },
       { when: any(atFire50, volunteer50), text: 'Ты узнаёшь об этом, уже возвращаясь на хутор.' },
+      { when: all(bite50, v('w.c47_cellar', 'point')), text: 'Зандер прибегает первой: с тех пор как вы отдали в пункт банки из погреба Вальдхофа, на ваш двор она отзывается раньше других.' },
       { when: flag('w.c41_gun_rule'), text: 'Ружьё в сенях. После оттепели вы договорились: стрелять только в упор и только в крайнем случае. Сегодня случай не крайний, и от этого правила спокойнее.' },
     ],
     actions: [
@@ -504,6 +513,8 @@ export const shared50: Scene[] = [
         text: 'Ты засыпаешь под стук дождя по крыше и просыпаешься в сумерках. Первый день года проспан на треть. Это лучшее, что с ним можно было сделать.', effects: [set50('na2', 'sleep'), { body: 'fatigue', delta: -15 }, ny50(15, 30)] },
       { id: 'c50_na2_talk', label: 'Обсудить с {partner.ins} то, что придётся решать', when: together50, minutes: 45, terminal: true, goto: 'c50_ny_dusk',
         text: 'Вы сидите у печки и говорите вполголоса. О карьере. О том, кто будет стоять там в оттепель. О Лео, если он здесь. Решения не принимаете: их принимают вечером, вдвоём, как всегда.', effects: [set50('na2', 'talk'), ny50(15, 30)] },
+      { id: 'c50_na2_job', label: 'Собрать сумку на первую январскую смену в Винзене', when: all(not(A50), together50, any(v('w.c43_job', 'yes'), v('w.c43_job', 'part'))), minutes: 45, terminal: true, goto: 'c50_ny_dusk',
+        text: 'Работа в пункте Красного Креста в Винзене, как решили перед Рождеством: смена с понедельника. Ты складываешь халат, бинты из своих, термос, хлеб. Хенрике заворачивает тебе в бумагу два берлинера и говорит: «Für die Kolleginnen». Для коллег.', effects: [set50('na2', 'job'), w50('b_jan_shift', true), ny50(15, 30)] },
       { id: 'c50_na2_kids', label: 'Читать детям вслух единственную книгу в доме', minutes: 45, terminal: true, goto: 'c50_ny_dusk',
         text: '«Die kleine Hexe». Маленькая ведьма. Ты читаешь по-немецки медленно, спотыкаясь, дети поправляют произношение. Через двадцать страниц ты уже не спотыкаешься.', effects: [set50('na2', 'kids'), ny50(15, 30)] },
     ] }),

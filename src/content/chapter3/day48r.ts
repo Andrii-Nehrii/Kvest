@@ -29,6 +29,8 @@ export const day48RScenes: Scene[] = [
       { when: henrike48, text: 'Хенрике сидит на табуретке у изголовья с вечера, в той же кофте. Она встаёт, уступая место: «Du jetzt. Ich mach Wasser warm». Теперь ты. Я согрею воду.' },
     ],
     actions: [
+      { id: 'c48_rb_lea', label: 'Позвать Лею: в пункте в ноябре она перевязывала лучше всех', when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), minutes: 45, terminal: true, goto: 'c48_r_doc',
+        text: 'Лея приходит сразу, в одном свитере, и молча моет руки до локтей. Бинт снимает так, будто он не присох. Рану промывает, стягивает края полосками пластыря, бинтует туго и ровно. Потом говорит: «Sie bleibt. Aber Zander muss nähen». Останется. Но Зандер должна зашить. Ты понимаешь, что Лея осталась тогда не зря.', effects: [set48('rb', 'lea'), w48('lea_helped', true), { treat: 'proper', target: '@partner' }, { body: 'bloodLoss', delta: -6, target: '@partner' }, until48(7, 30)] },
       { id: 'c48_rb_wound', label: 'Снять старую повязку, промыть рану и перевязать заново', minutes: 45, terminal: true, goto: 'c48_r_doc',
         text: 'Бинт присох, ты отмачиваешь его тёплой водой, миллиметр за миллиметром. Рана над ухом длинная, края разошлись. Кипячёная вода, чистая марля, туго. Кровь проступает и останавливается.', effects: [set48('rb', 'wound'), treat('basic'), blood(-3), until48(7, 30)] },
       { id: 'c48_rb_warm', label: 'Укрыть потеплее, бутылки с тёплой водой к ногам и под мышки', minutes: 45, terminal: true, goto: 'c48_r_doc',

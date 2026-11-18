@@ -4,6 +4,7 @@ import { all, flag } from './world3';
 import {
   S50, bite50, clean50, door50, jest50, ny50, rain50, rocketsLoud50, set50, slip50, trip50, w50,
 } from './point50';
+import { brandtHigh, brandtLow } from './standing';
 
 // Участок 50, линия A. Первое утро года: площадь после огня, Брандт (что было ночью и почему), дорога домой мимо колонии.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S50({ ...scene, for: 'any', chapter: 'ch3' });
@@ -33,6 +34,7 @@ export const day50AScenes: Scene[] = [
       { when: all(rocketsLoud50, flag('w.c47_rockets_taken')), text: '— Die Kiste hab ich ihm am Sonntag weggenommen. Die drei hatte er woanders. — Брандт смотрит в блокнот. — Коробку я у него в воскресенье забрал. А эти три он держал в другом месте.' },
       { when: door50, text: 'Брандт говорит: один вышел к колонии, но двери были заперты. «Gut, dass die es wussten». Хорошо, что они знали. Про карьер он узнал поздно и знает, что поздно.' },
       { when: bite50, text: 'Брандт молчит долго. Потом говорит одно слово: «Willi». И ещё: «Ich hab die Kiesgrube nicht gekannt. Keiner hat mir was gesagt». Я не знал про карьер. Никто мне не сказал.' },
+      { when: brandtLow, text: 'С вашим двором он говорит последним и коротко. За месяц вы не раз шли ему поперёк, и он этого не забыл.' },
     ],
     actions: [
       { id: 'c50_nbr_pit', label: 'Предложить: карьер — пост до весны, по дворам', minutes: 60, terminal: true, goto: 'c50_na_road', ambientDuring: rain50,
@@ -41,6 +43,8 @@ export const day50AScenes: Scene[] = [
         text: 'Брандт смотрит на тебя тяжело. «Er ist sechzehn. Mit sechzehn macht man so was. Mit sechzehn muss man dafür auch geradestehen». Ему шестнадцать. В шестнадцать такое делают. В шестнадцать за это и отвечают. Но голос у него уже не такой злой.', effects: [set50('nbr', 'lukas'), w50('a_defended_lukas', true), ny50(11, 45)] },
       { id: 'c50_nbr_fire', label: 'Сказать: огонь был нужен, несмотря ни на что', minutes: 60, terminal: true, goto: 'c50_na_road', ambientDuring: rain50,
         text: 'Брандт поднимает глаза от блокнота. Долго смотрит. Потом говорит: «Danke». И больше ничего. Но в блокноте рядом с твоей фамилией появляется галочка.', effects: [set50('nbr', 'fire'), w50('a_backed_brandt', true), ny50(11, 45)] },
+      { id: 'c50_nbr_diesel', label: 'Попросить у Брандта солярки на январь', when: brandtHigh, minutes: 60, terminal: true, goto: 'c50_na_road', ambientDuring: rain50,
+        text: 'Брандт долго молчит, потом пишет в блокноте записку для склада: двадцать литров. «Für euren Hof. Ihr habt mehr getan, als ihr musstet». Для вашего двора. Вы сделали больше, чем были должны. Отдаёт записку и отворачивается, пока ты не стал{m:|а} благодарить.', effects: [set50('nbr', 'diesel'), w50('brandt_diesel', true), ny50(11, 45)] },
       { id: 'c50_nbr_quiet', label: 'Ничего не говорить, просто постоять рядом', minutes: 60, terminal: true, goto: 'c50_na_road', ambientDuring: rain50,
         text: 'Вы стоите под дождём у чёрного круга. Брандт курит, первый раз на твоей памяти. Говорит, что бросил десять лет назад. Докуривает до фильтра и бросает окурок в угли.', effects: [set50('nbr', 'quiet'), ny50(11, 45)] },
     ] }),

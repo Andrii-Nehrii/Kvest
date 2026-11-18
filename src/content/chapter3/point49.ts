@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brandtHigh, brandtLow, colonyHigh } from './standing';
 import { brothersCome, oleHome33 } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
@@ -227,6 +228,7 @@ export const shared49: Scene[] = [
     text: [
       { text: 'Назад идёте быстрее, чем туда. На краю поля Тиде вас ждёт Уте, в двух платках, с ребёнком на руках.' },
       { text: '— Und? — спрашивает она. И сразу, не дожидаясь: — Soll ich es den anderen sagen? Heute? Vor Silvester?\n\nНу? Сказать остальным? Сегодня? Перед Сильвестром?' },
+      { when: colonyHigh, text: 'Спрашивает она для порядка. Решать будет колония сама, но спросить вас Уте считает правильным: с ноября вы для них свои.' },
       { when: v('w.c16_sweep', 'warn'), text: 'Ты помнишь ночь в ноябре, когда вы сами шли к ней через поле — предупредить. Теперь она спрашивает у вас то же самое, только наоборот.' },
     ],
     actions: [
@@ -306,12 +308,18 @@ export const shared49: Scene[] = [
         text: 'Картошка горячая, лук сладкий. Ты ешь и думаешь, что завтра в это время уже будет гореть огонь на площади.', effects: [set49('ns', 'eat'), meal('eat'), until49(18, 45)] },
       { id: 'c49_ns_radio', label: 'Поймать вечернюю сводку по рации', when: flag('w.c41_radio'), minutes: 45, terminal: true, goto: 'c49_n_evening',
         text: 'Люнебург: оттепель с Нового года, дождь, плюс шесть. И ещё: со второго января Харбургский мост закрыт для гражданских. Хенрике выключает рацию и говорит: «Na dann. Frohes Neues». Ну что ж. С Новым годом.', effects: [set49('ns', 'radio'), w49('heard_thaw', true), w49('heard_bridge', true), ...fed49(25), until49(18, 45)] },
-      { id: 'c49_ns_merle', label: 'Посидеть с Мерле над её тетрадью', when: merleHome49, minutes: 45, terminal: true, goto: 'c49_n_evening',
-        text: 'Вы считаете вместе: сколько флаконов осталось, сколько дней. Выходит до середины февраля, если без ошибок. Мерле закрывает тетрадь и говорит: «Dann Februar». Значит, февраль. Как будто речь о погоде.', effects: [set49('ns', 'merle'), w49('merle_feb', true), ...fed49(25), until49(18, 45)] },
+      { id: 'c49_ns_merle', label: 'Посидеть с Мерле над её тетрадью', when: merleHome49, minutes: 45, terminal: true,
+        outcomes: [
+          { id: 'j', when: v('w.c41_vet', 'no'), goto: 'c49_n_evening', text: 'Вы считаете вместе: сколько флаконов, сколько дней. Без поездки к ветеринару перед Рождеством выходит до двадцатого января, не больше. Мерле закрывает тетрадь. «Dann Januar». Значит, январь. Она говорит это ровно, а пальцы у неё белые.', effects: [w49('merle_jan', true)] },
+          { id: 'f', goto: 'c49_n_evening', text: 'Вы считаете вместе: сколько флаконов осталось, сколько дней. Выходит до середины февраля, если без ошибок. Мерле закрывает тетрадь и говорит: «Dann Februar». Значит, февраль. Как будто речь о погоде.', effects: [w49('merle_feb', true)] },
+        ],
+        effects: [set49('ns', 'merle'), ...fed49(25), until49(18, 45)] },
       { id: 'c49_ns_bjorn', label: 'Вытирать посуду рядом с Бьёрном', when: bjorn49('take'), minutes: 45, terminal: true, goto: 'c49_n_evening',
         text: 'Он моет, ты вытираешь. Минут через двадцать он говорит, не поднимая головы: «Papa hat Silvester immer verschlafen». Папа всегда просыпал Сильвестр. И смеётся. Коротко, как кашляет.', effects: [set49('ns', 'bjorn'), w49('bjorn_laughed', true), ...fed49(25), until49(18, 45)] },
       { id: 'c49_ns_kids', label: 'Ужинать с детьми и выспрашивать, что они загадают на олово', minutes: 45, terminal: true, goto: 'c49_n_evening',
         text: 'Старший загадает собаку. Средняя — чтобы мама нашлась. Младший — корабль, всё ещё корабль. Ты не спрашиваешь у средней, где мама. Ты подкладываешь ей картошки.', effects: [set49('ns', 'kids'), ...fed49(30), until49(18, 45)] },
+      { id: 'c49_ns_tin', label: 'Открыть к ужину банку тушёнки из погреба Вальдхофа', when: v('w.c47_cellar', 'keep'), minutes: 45, terminal: true, goto: 'c49_n_evening',
+        text: 'Банку из погреба Вальдхофа вы оставили себе, как решили в воскресенье. Сегодня тот случай. Тушёнка на картошке, жир блестит в лампе. Дети едят молча, сосредоточенно, как на уроке. Хенрике соскребает банку ложкой до блеска.', effects: [set49('ns', 'tin'), w49('tin_opened', true), ...fed49(40), { body: 'stress', delta: -5 }, until49(18, 45)] },
       { id: 'c49_ns_porch', label: 'Поесть на крыльце, глядя на тот берег', when: heavy, minutes: 45, terminal: true, goto: 'c49_n_evening', ambientDuring: frost49,
         text: 'Миска остывает за пять минут. На том берегу Зеве ни огонька, ни звука. Мороз держит. Пока держит.', effects: [set49('ns', 'porch'), ...fed49(25), until49(18, 45)] },
     ] }),
@@ -412,8 +420,10 @@ export const shared49: Scene[] = [
       { text: 'В одиннадцать Брандт собирает у пожарной части всех, кто ночью стоит на постах: человек двадцать, кто в чём, пар над головами. На капоте джипа — карта с крестами.' },
       { when: hurt49, text: 'До Йестебурга тебя довозит Лукас на прицепе, укутанн{m:ого|ую} в одеяло, как мешок с картошкой.' },
       { text: 'Брандт говорит коротко: огонь в восемь, суп в девять, колокол в полночь. Каждому — его место на карте.' },
+      { when: brandtHigh, text: 'Вас Брандт слушает иначе, чем остальных: за месяц ваш двор не раз стоял рядом с ним.' },
+      { when: brandtLow, text: 'На вас Брандт смотрит холодно: за последний месяц вы не раз шли ему поперёк.' },
       { when: flag('w.c41_trench_men'), text: 'Ров за ручьями, который копал и ваш двор, на карте обведён синим. Брандт стучит по нему пальцем: «Hält». Держит.' },
-      { when: v('w.c47_food', 'less'), text: 'Из погреба Вальдхофа вы взяли меньше положенного, чтобы досталось семьям. Брандт это помнит: к вам он обращается так, как обращаются к своим.' },
+      { when: v('w.c47_food', 'less'), text: 'Из погреба Вальдхофа вы взяли меньше положенного, чтобы досталось семьям. Жена Брандта кивает вам из-за котла: она тоже помнит.' },
       { when: v('w.c39_council', 'yards'), text: 'Каждый двор сам за себя, общие только сигналы: так решили дворы в середине декабря. Поэтому у карьера с осени и не стоял никто.' },
       { when: v('w.c39_council', 'brandt'), text: 'Командует Брандт, как решили дворы в середине декабря. Сегодня это заметно: никто не спорит дольше минуты.' },
       { when: v('w.c23_monday', 'hide'), text: 'Ружьё, которое вы спрятали от патруля в ноябре, до сих пор лежит под досками в сарае. Брандт о нём не знает. У карты тебе от этого неуютно.' },
@@ -429,6 +439,8 @@ export const shared49: Scene[] = [
         text: 'Брандт слушает, потом ставит на карте ещё один крест, у карьера, и обводит его дважды. «Gut, dass einer was sagt». Хорошо, что хоть кто-то что-то говорит. Добровольцев на карьер находится трое.', effects: [set49('mq', 'pit'), w49('brandt_knows', true), d31(11, 45)] },
       { id: 'c49_mq_hollow', label: 'Напомнить Брандту ноябрьскую облаву на впадине', when: all(v('w.c29_sweep', 'join'), not(brandtKnows49)), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,
         text: 'Брандт помнит впадину: в ноябре ваш двор ходил туда с его людьми. Он молчит, потом ставит крест у карьера. «Damals hat der Frost auch gehalten. Bis er nicht mehr gehalten hat». Тогда мороз тоже держал. Пока не перестал. С десяти у карьера будет пост.', effects: [set49('mq', 'hollow'), w49('brandt_knows', true), w49('brandt_hollow', true), d31(11, 45)] },
+      { id: 'c49_mq_trust', label: 'Попросить Брандта поставить людей у карьера', when: all(brandtHigh, not(brandtKnows49)), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,
+        text: 'Ты говоришь коротко: карьер, следы, оттепель. Другого Брандт бы перебил. Тебя дослушивает и ставит на карте крест. «Ab zehn. Zwei Mann». С десяти. Двое. Спорить с ним никто не пробует.', effects: [set49('mq', 'trust'), w49('brandt_knows', true), w49('brandt_trust', true), d31(11, 45)] },
       { id: 'c49_mq_volunteer', label: 'Вызваться на пост у карьера', when: all(heavy, brandtKnows49), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,
         text: 'Ты поднимаешь руку. Брандт пишет твою фамилию рядом с крестом. «Ab zehn. Mit Fackel und Horn». С десяти. С факелом и рогом. Ещё двое поднимают руки после тебя, глядя в снег.', effects: [set49('mq', 'volunteer'), w49('pit_volunteer', true), d31(11, 45)] },
       { id: 'c49_mq_lukas', label: 'После совета отвести Брандта в сторону — про ракеты Лукаса', when: flag('w.c49_rockets_found'), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,

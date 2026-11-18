@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brandtHigh, brandtLow } from './standing';
 import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
@@ -293,6 +294,8 @@ export const shared48: Scene[] = [
       { when: any(silvester48('go'), flag('w.c47_owe_brandt')), text: 'Брандт показывает вам ваши места на карте: два поста на углах площади, один — у выхода к лесополосе. «Ab acht. Bis eins». С восьми. До часу.' },
       { when: silvester48('quiet'), text: 'Три поста со стороны леса уже размечены: колья с тряпками. Один — ваш.' },
       { when: silvester48('stay'), text: 'Брандт видит тебя и отворачивается к котлу. Ваш двор в Сильвестр дома. Но дрова на площадь приносят все.' },
+      { when: all(brandtHigh, not(silvester48('stay'))), text: 'Ваши посты Брандт ставит у самой площади, у огня: «Ihr habt genug im Wald gestanden». Вы достаточно постояли в лесу.' },
+      { when: all(brandtLow, not(silvester48('stay'))), text: 'Ваш пост Брандт ставит на самый край, к лесополосе. Объяснять, почему, он не считает нужным.' },
     ],
     actions: [
       { id: 'c48_tq_posts', label: 'Обойти с Брандтом посты и посмотреть, откуда видно лесополосу', minutes: 90, terminal: true, goto: 'c48_t_stranger', ambientDuring: day48,

@@ -176,6 +176,8 @@ export const day49AScenes: Scene[] = [
         text: 'Шесть свечей за пачку соли из кармана. Продавщица заворачивает их в газету и пишет на ней пальцем по инею: «Prosit». Будем здоровы.', effects: [set49('awm', 'candles'), w49('a_candles2', true), d31(8, 0)] },
       { id: 'c49_awm_coffee', label: 'Выпить кофе с Вибке у буржуйки', minutes: 60, terminal: true, goto: 'c49_aw_back',
         text: 'Вибке пьёт стоя, обжигаясь. Говорит, что после второго колонны пойдут раз в две недели, «wenn überhaupt». Если вообще пойдут. Потом добавляет: «Aber Nils fährt. Nils fährt immer». Но Нильс поедет. Нильс всегда едет.', effects: [set49('awm', 'coffee'), w49('a_nils_fortnight', true), ...fed49(20), d31(8, 0)] },
+      { id: 'c49_awm_nils', label: 'Попросить Вибке передать Нильсу: четвёртого ты едешь с ним', when: v('w.c45_nils', 'yes'), minutes: 60, terminal: true, goto: 'c49_aw_back',
+        text: 'Вибке записывает на обороте списка: «4.1. — Lüdemann, Beifahrer». Четвёртое — Людеман, рядом с водителем. «Nils hat gesagt, euch nimmt er immer mit. Ihr habt im Dezember ja gesagt». Нильс сказал, вас он всегда возьмёт. Вы же в декабре согласились. Значит, четвёртого ты будешь у моста сам.', effects: [set49('awm', 'nils'), w49('a_rides_nils', true), d31(8, 0)] },
       { id: 'c49_awm_board', label: 'Прочитать доску объявлений у входа', minutes: 60, terminal: true, goto: 'c49_aw_back',
         text: 'Сотни листков: «Suche», «Wer hat gesehen», «Lebe in Winsen, Turnhalle». Ищу. Кто видел. Живу в Винзене, спортзал. Ты читаешь, пока не начинает рябить в глазах. Знакомых имён нет. Это хорошо или плохо, ты не знаешь.', effects: [set49('awm', 'board'), d31(8, 0)] },
     ] }),

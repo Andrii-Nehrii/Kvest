@@ -3,6 +3,7 @@ import type { Cond } from '../../engine/types';
 import { all, flag } from './world3';
 import { any, v } from './point18';
 import { P47 } from './point47';
+import { repNotes48 } from './standing';
 
 export const finished47: Cond = all(P47, any(flag('A.c47_finished'), flag('B.c47_finished'), flag('A.c47_down'), flag('B.c47_down')));
 const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished47, when), text });
@@ -25,6 +26,7 @@ export const point47Notes: MergeNote[] = [
   N('c47_k_truth', v('w.c47_karsten_end', 'truth'), 'Карстена Тиде укусили в лесополосе. {B} сказала ему правду. Он попрощался с сыном и ушёл в лес один.'),
   N('c47_k_hidden', v('w.c47_karsten_end', 'hidden'), 'Карстена Тиде укусили в лесополосе. {B} перевязала и промолчала. Ночью он обратился у себя дома. Бьёрна, его сына, дружина нашла утром укушенным.'),
   N('c47_ute', flag('w.c47_b_stretcher'), 'Уте весь день была на медпункте у лесополосы. Она держится лучше, чем думала сама.'),
+  ...repNotes48,
 ];
 
 export const point47Cellar: JointDecision = {

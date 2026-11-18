@@ -1,6 +1,7 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { repNotes49 } from './standing';
 import { any, v } from './point18';
 import { P49, hurt49, silvester49, split49 } from './point49';
 
@@ -33,6 +34,7 @@ export const point49Notes: MergeNote[] = [
   N('c49_gun', w('gun_man', 'guard'), 'На южной дороге дружина забрала у прохожего пистолет с восемью патронами.'),
   N('c49_light', flag('w.c49_a_heard_light'), 'Люди с южной дороги говорят: в Эппендорфе есть свет, в каждом окне.'),
   N('c49_lead', flag('w.c49_lead_set'), 'В комоде нашёлся старый набор для литья олова: в полночь будут гадать.'),
+  N('c49_merle_jan', flag('w.c49_merle_jan'), 'Ветеринарного инсулина Мерле при нынешнем расходе — до двадцатого января. Перед Рождеством к ветеринару не ездили.'),
   N('c49_merle_feb', flag('w.c49_merle_feb'), 'Ветеринарного инсулина Мерле при нынешнем расходе — до середины февраля.'),
   // Бьёрн и соседи
   N('c49_bjorn_moved', flag('w.c49_bjorn_moved'), 'Бьёрн Тиде переехал на хутор, с курами. Ключ от отцовского дома носит на шее, на шнурке.'),
@@ -64,6 +66,7 @@ export const point49Notes: MergeNote[] = [
   N('c49_merle_home', w('b_merle_view', 'home'), 'Мерле может поехать четвёртого с инсулином на два месяца или остаться до марта. {B} сказала ей: домой.'),
   N('c49_merle_stay', w('b_merle_view', 'stay'), 'Мерле может поехать четвёртого с инсулином на два месяца или остаться до марта. {B} сказала ей: оставайся.'),
   N('c49_merle_hers', w('b_merle_view', 'hers'), 'Мерле может поехать четвёртого с инсулином на два месяца или остаться до марта. {B} сказала: решай сама.'),
+  ...repNotes49,
   N('c49_letter', flag('w.c49_b_letter2'), '{B} написала {A.dat} письмо на обороте схемы Мерле. Поедет с первой колонной.'),
 ];
 
