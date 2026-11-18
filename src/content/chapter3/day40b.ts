@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
 import { all, flag, not } from './world3';
 import { kitchen14, yard14 } from './point14';
-import { any, ninaFarm } from './point18';
+import { any, ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { parents39 } from './point39';
 import {
@@ -37,11 +37,24 @@ export const day40BScenes: Scene[] = [
 
   X({ id: 'c40_b_merle', title: 'Сахар', camp: kitchen14,
     text: [
+      // Где живёт Мерле (КТ38 `w.c38_bed`) — своя забота в день перед ночью (REWORK_PLAN.md, этап 6).
+      { when: all(merle40, v('w.c38_bed', 'colony')), text: 'Мерле ночует в домике в колонии, за насыпью, у самой воды. Утром она пришла сама, бледная: ночью у неё упал сахар, одна, в темноте. Никто не слышал. Сейчас ручей уже лижет нижнюю ступеньку её домика.' },
+      { when: all(merle40, v('w.c38_bed', 'attic')), text: 'С чердака капает: оттепель, крыша у трубы течёт. Одеяло Мерле мокрое по краю, а ночевать ей там и сегодня.' },
+      { when: all(merle40, v('w.c38_bed', 'room')), text: 'Вы третью неделю спите на кухонной лавке: ваша комната у Мерле. Спина это помнит каждое утро.' },
       { when: merle40, text: 'Мерле бледная. Ночью у неё упал сахар: проснулась в поту, руки тряслись. Съела два куска сахара и уснула. Утром говорит об этом, как о погоде.' },
       { when: all(not(merle40), ninaFarm), text: 'Нина не может усидеть на месте. Каждые полчаса бегает к окну смотреть на ручей и на сарай с коровой.' },
       { when: all(not(merle40), not(ninaFarm)), text: 'Хенрике раскладывает по дому свечи и спички: в каждую комнату, в каждый карман.' },
     ],
     actions: [
+      { id: 'c40_bm_bring', label: 'Забрать Мерле на ночь в дом: колония у самой воды', when: all(merle40, v('w.c38_bed', 'colony')), minutes: 60, terminal: true, goto: 'c40_b_house', ambientDuring: thaw40,
+        text: 'Ты идёшь с ней в колонию за вещами: одеяло, сумка с ручками-инсулином, сахар. Ручей уже на тропинке, вы обходите по насыпи. В доме Хенрике молча стелет Мерле на лавке у печи, на твоём месте. Ты сегодня всё равно не спишь.',
+        effects: [set40('bm', 'bring'), w40('merle_night', 'house'), npc('merle', 2), until40(45, 12, 0)] },
+      { id: 'c40_bm_bell', label: 'Оставить ей сахар и колокольчик: если что — звонить', when: all(merle40, v('w.c38_bed', 'colony')), minutes: 45, terminal: true, goto: 'c40_b_house', ambientDuring: thaw40,
+        text: 'Колокольчик с козьего ошейника Хенрике, шесть кусков сахара, фонарик. Мерле кладёт всё на подоконник в ряд. «Ich bin sechzehn, nicht sechs», — говорит она. Мне шестнадцать, а не шесть. Но колокольчик берёт.',
+        effects: [set40('bm', 'bell'), w40('merle_night', 'colony'), until40(45, 11, 45)] },
+      { id: 'c40_bm_down', label: 'Перенести Мерле вниз на эту ночь', when: all(merle40, v('w.c38_bed', 'attic')), minutes: 45, terminal: true, goto: 'c40_b_house',
+        text: 'Матрас, одеяло, сумка с ручками. Мерле спит сегодня в кухне, у печи. Под трубой на чердаке ты ставишь таз. К вечеру в нём уже на два пальца воды.',
+        effects: [set40('bm', 'down'), w40('merle_night', 'down'), npc('merle', 1), until40(45, 11, 45)] },
       { id: 'c40_bm_snack', label: 'Договориться с Мерле: на ночь — еда и сахар у кровати, будить, если что', when: merle40, minutes: 60, terminal: true, goto: 'c40_b_house',
         text: 'Хлеб с маслом на ночь, сахар в кармане, стакан сока на табурете. Мерле закатывает глаза: «Wie im Kindergarten». Как в детском саду. Но соглашается. И просит будить её, если она будет странной.', effects: [set40('bm', 'snack'), set40('snack', true), until40(45, 10, 30)] },
       { id: 'c40_bm_dose', label: 'Уменьшить с ней вечернюю дозу: ночь будет тяжёлая', when: merle40, minutes: 60, terminal: true, goto: 'c40_b_house',
