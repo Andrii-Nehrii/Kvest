@@ -326,7 +326,7 @@ export const shared48: Scene[] = [
       { id: 'c48_tn_eat', label: 'Обедать со всеми', minutes: 45, terminal: true, goto: 'c48_t_bjorn', ...tableOnly,
         text: 'Суп с картошкой и салом. Хлеб. За столом обсуждают беженцев из Гамбурга, мост, Сильвестр. Кто-то говорит, что после Нового года будет легче. Никто не верит, но все кивают.', effects: [set48('tn', 'eat'), meal('eat'), tue48(13, 15)] },
       { id: 'c48_tn_feed', label: 'Покормить {partner.acc} с ложки, если надо', when: partnerWasDown48, minutes: 45, terminal: true, goto: 'c48_t_bjorn', ...tableOnly,
-        text: 'Не надо. {partner} отбирает у тебя ложку и ест сам{pm:|а}, хмуро и упрямо. Ты смеёшься. Первый раз за три дня.', effects: [set48('tn', 'feed'), meal('eat'), { body: 'stress', delta: -6 }, tue48(13, 15)] },
+        text: 'Не надо. {partner} отбирает у тебя ложку и ест сам{pm:|а}, хмуро и упрямо. Ты смеёшься. Первый раз за три дня.', effects: [set48('tn', 'feed'), meal('eat'), { body: 'stress', delta: -6 }, { body: 'thirst', delta: -40, target: '@partner' }, { body: 'hunger', delta: -30, target: '@partner' }, tue48(13, 15)] },
       { id: 'c48_tn_quick', label: 'Поесть быстро и снова к делам', minutes: 30, terminal: true, goto: 'c48_t_bjorn',
         text: 'Хлеб с салом, кружка чая, стоя. Дела не ждут: Сильвестр ближе с каждым часом.', effects: [set48('tn', 'quick'), { body: 'hunger', delta: -20 }, tue48(13, 0)] },
       { id: 'c48_tn_stove', label: 'Поесть у печки остатков от вчерашнего', minutes: 30, terminal: true, goto: 'c48_t_bjorn',
@@ -392,12 +392,12 @@ export const shared48: Scene[] = [
 
   S48({ id: 'c48_t_eve', for: 'any', chapter: 'ch3', title: 'Ужин', camp: kitchen14,
     text: [
-      { text: 'Ужин. За окном мороз под минус двенадцать. Хенрике пробует тесто для берлинеров на завтра: без масла, без начинки, зато пятьдесят штук.' },
+      { text: 'Ужин. За окном мороз под минус двенадцать. Хенрике пробует тесто для берлинеров к Сильвестру: без масла, без начинки, зато пятьдесят штук.' },
       { when: v('w.c48_strangers', 'night'), text: 'Девочка из Гамбурга сидит с детьми на полу у печки и учит их считалке на гамбургском. Дети путаются и хохочут.' },
     ],
     actions: [
       { id: 'c48_te_eat', label: 'Ужинать со всеми', minutes: 50, terminal: true, goto: 'c48_t_night', ...tableOnly,
-        text: 'Суп, хлеб, по ложке капусты. Разговор про завтрашние берлинеры, про то, кому достанется с горчицей. Хенрике обещает одну такую. Кому — секрет.', effects: [set48('te', 'eat'), meal('eat'), tue48(18, 45)] },
+        text: 'Суп, хлеб, по ложке капусты. Разговор про берлинеры к Сильвестру, про то, кому достанется с горчицей. Хенрике обещает одну такую. Кому — секрет.', effects: [set48('te', 'eat'), meal('eat'), tue48(18, 45)] },
       { id: 'c48_te_dough', label: 'Помочь Хенрике с тестом', when: henrike48, minutes: 50, terminal: true, goto: 'c48_t_night', ...tableOnly,
         text: 'Тесто тёплое, живое, дышит под полотенцем. Хенрике показывает, как защипывать края. У тебя выходит криво. «Die Krummen schmecken besser». Кривые вкуснее. Она защипывает свои ровно.', effects: [set48('te', 'dough'), meal('eat'), npc('henrike', 1), tue48(18, 45)] },
       { id: 'c48_te_kids', label: 'Посидеть с детьми у печки', minutes: 50, terminal: true, goto: 'c48_t_night',
@@ -408,20 +408,20 @@ export const shared48: Scene[] = [
 
   S48({ id: 'c48_t_night', for: 'any', chapter: 'ch3', title: 'Вечер вторника', camp: house14,
     text: [
-      { text: 'Дом затихает. Лампа, печь, мороз за окном. Завтра — последний день года.' },
+      { text: 'Дом затихает. Лампа, печь, мороз за окном. Послезавтра — последний день года.' },
       { when: all(alone48, flag('w.c41_radio')), text: 'По рации вечером — ничего про Эппендорф. Значит, всё как было. Ты так решаешь.' },
     ],
     actions: [
       { id: 'c48_tt_talk', label: 'Поговорить с {partner.ins} о Сильвестре и о январе', when: any(normal48, partnerWasDown48), minutes: 60, terminal: true, goto: 'c48_checkpoint',
-        text: 'Про Бьёрна, про посты, про беженцев, про мост, который закроют. Шёпотом. Многое придётся решать вместе. Прямо сейчас.', effects: [set48('tt', 'talk'), finish, tue48(20, 0)] },
+        text: 'Про Бьёрна, про посты, про беженцев, про мост, который закроют. Шёпотом. Многое придётся решать вместе. Прямо сейчас.', effects: [set48('tt', 'talk'), finish, { if: partnerWasDown48, then: [{ body: 'thirst', delta: -20, target: '@partner' }] }, tue48(20, 0)] },
       { id: 'c48_tt_letter', label: 'Дописать письмо {partner.dat}, начатое вчера', when: alone48, minutes: 60, terminal: true, goto: 'c48_checkpoint',
-        text: 'Ещё страница: беженцы у калитки, прорубь, тесто Хенрике. Ты пишешь мелко, чтобы влезло. Пишешь «скоро» и зачёркиваешь. Пишешь «четвёртого».', effects: [set48('tt', 'letter'), w48('a_letter', true), finish, tue48(20, 0)] },
+        text: 'Ещё страница: беженцы у калитки, прорубь, тесто Хенрике. Ты пишешь мелко, чтобы влезло. Пишешь «скоро» и зачёркиваешь. Пишешь «четвёртого».', effects: [set48('tt', 'letter'), w48('a_letter', true), finish, { if: partnerWasDown48, then: [{ body: 'thirst', delta: -20, target: '@partner' }] }, tue48(20, 0)] },
       { id: 'c48_tt_sleep', label: 'Лечь пораньше', minutes: 60, terminal: true, goto: 'c48_checkpoint',
-        text: 'Ты засыпаешь сразу. Ночью снится мост и чей-то голос по рации, который называет твоё имя.', effects: [set48('tt', 'sleep'), { body: 'fatigue', delta: -6 }, finish, tue48(20, 0)] },
+        text: 'Ты засыпаешь сразу. Ночью снится мост и чей-то голос по рации, который называет твоё имя.', effects: [set48('tt', 'sleep'), { body: 'fatigue', delta: -6 }, finish, { if: partnerWasDown48, then: [{ body: 'thirst', delta: -20, target: '@partner' }] }, tue48(20, 0)] },
       { id: 'c48_tt_post', label: 'Отнести на пост горячего и постоять со сменой', minutes: 60, terminal: true, goto: 'c48_checkpoint', ambientDuring: day48,
-        text: 'Термос, хлеб. Смена у Зеве — Яннес или сосед. Вы стоите рядом, пьёте по очереди из одной крышки и молчите. На том берегу ничего. Так и должно быть.', effects: [set48('tt', 'post'), finish, tue48(20, 0)] },
+        text: 'Термос, хлеб. Смена у Зеве — Яннес или сосед. Вы стоите рядом, пьёте по очереди из одной крышки и молчите. На том берегу ничего. Так и должно быть.', effects: [set48('tt', 'post'), finish, { if: partnerWasDown48, then: [{ body: 'thirst', delta: -20, target: '@partner' }] }, tue48(20, 0)] },
     ] }),
 
-  S48({ id: 'c48_checkpoint', for: 'any', chapter: 'ch3', title: 'Понедельник, вечер', checkpoint: 48, universal: false, camp: house14,
+  S48({ id: 'c48_checkpoint', for: 'any', chapter: 'ch3', title: 'Вторник, вечер', checkpoint: 48, universal: false, camp: house14,
     text: [{ text: 'Восемь вечера. Двадцать девятое декабря. До Сильвестра два дня.' }], actions: [] }),
 ];

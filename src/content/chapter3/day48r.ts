@@ -16,6 +16,8 @@ const treat = (how: 'basic' | 'proper'): Effect => ({ treat: how, target: '@part
 const blood = (delta: number): Effect => ({ body: 'bloodLoss', delta, target: '@partner' });
 const drink = (delta: number): Effect => ({ body: 'thirst', delta, target: '@partner' });
 const drip: Effect = { if: partnerDown48, then: [blood(-25), drink(-40)] };
+/** Поить и кормить того, кто лежит: при жажде ниже 60 кровь восстанавливается почти вдвое быстрее. */
+const feed: Effect[] = [drink(-45), { body: 'hunger', delta: -35, target: '@partner' }];
 const merleGoes: Cond = all(merle48, flag('w.c44_hamburg_trip'));
 
 export const day48RScenes: Scene[] = [
@@ -157,9 +159,9 @@ export const day48RScenes: Scene[] = [
     ],
     actions: [
       { id: 'c48_rs_eat', label: 'Поесть за столом со всеми', minutes: 40, terminal: true, goto: 'c48_r_wake', ...tableOnly,
-        text: 'Суп, хлеб. Ты ешь, и тебе кладут ещё. Никто не спрашивает, как там. Все знают: как было.', effects: [set48('rs', 'eat'), meal('eat'), blood(-2), until48(18, 30)] },
+        text: 'Суп, хлеб. Ты ешь, и тебе кладут ещё. Никто не спрашивает, как там. Все знают: как было.', effects: [...feed, set48('rs', 'eat'), meal('eat'), blood(-2), until48(18, 30)] },
       { id: 'c48_rs_tray', label: 'Взять тарелку с собой в комнату', minutes: 40, terminal: true, goto: 'c48_r_wake',
-        text: 'Ты ешь у кровати, держа тарелку на коленях. Свеча на подоконнике догорает. Ты ставишь новую.', effects: [set48('rs', 'tray'), { body: 'hunger', delta: -25 }, blood(-2), until48(18, 30)] },
+        text: 'Ты ешь у кровати, держа тарелку на коленях. Свеча на подоконнике догорает. Ты ставишь новую.', effects: [...feed, set48('rs', 'tray'), { body: 'hunger', delta: -25 }, blood(-2), until48(18, 30)] },
     ] }),
 
   X({ id: 'c48_r_wake', title: 'Разговор', camp: house14,
@@ -169,24 +171,25 @@ export const day48RScenes: Scene[] = [
     ],
     actions: [
       { id: 'c48_rw_tell', label: 'Рассказать: суббота, лесополоса, кто нёс', minutes: 45, terminal: true, goto: 'c48_t_dawn',
-        text: 'Ты рассказываешь тихо. Тебя слушают с закрытыми глазами. На середине ты замечаешь, что тебя держат за руку. Крепче, чем утром.', effects: [set48('rw', 'tell'), blood(-3), tue48(7, 0, true)] },
+        text: 'Ты рассказываешь тихо. Тебя слушают с закрытыми глазами. На середине ты замечаешь, что тебя держат за руку. Крепче, чем утром.', effects: [...feed, set48('rw', 'tell'), blood(-3), tue48(7, 0, true)] },
       { id: 'c48_rw_date', label: 'Сказать только: понедельник, двадцать восьмое, всё хорошо', minutes: 30, terminal: true, goto: 'c48_t_dawn',
-        text: '«Понедельник. Двадцать восьмое. Всё хорошо». Глаза закрываются. Но рука в твоей руке остаётся тёплой и сжимается в ответ.', effects: [set48('rw', 'date'), blood(-3), tue48(7, 0, true)] },
+        text: '«Понедельник. Двадцать восьмое. Всё хорошо». Глаза закрываются. Но рука в твоей руке остаётся тёплой и сжимается в ответ.', effects: [...feed, set48('rw', 'date'), blood(-3), tue48(7, 0, true)] },
       { id: 'c48_rw_hand', label: 'Ничего не говорить, просто держать руку', minutes: 30, terminal: true, goto: 'c48_t_dawn',
-        text: 'Ты берёшь руку. Пальцы сжимаются в ответ, слабо, но сжимаются. Вопросы подождут до утра.', effects: [set48('rw', 'hand'), blood(-3), tue48(7, 0, true)] },
+        text: 'Ты берёшь руку. Пальцы сжимаются в ответ, слабо, но сжимаются. Вопросы подождут до утра.', effects: [...feed, set48('rw', 'hand'), blood(-3), tue48(7, 0, true)] },
     ] }),
   X({ id: 'c48_rt_bed', title: 'Утро вторника', camp: house14,
     text: [
       { when: partnerUp48, text: '{partner} сидит в кровати, опершись на подушки, и пытается заплести себе бинт поудобнее. Видит тебя и говорит первым: «Сколько я спал{pm:|а}?» Голос хриплый, но свой.' },
       { when: partnerDown48, text: '{partner} всё ещё спит, но иначе: глубоко, ровно, переворачиваясь на бок. Зандер сказала: такой сон лечит.' },
       { text: 'Повязка сухая. Синяк сполз на висок и стал жёлто-лиловым.' },
+      { text: 'В восемь заходит доктор Зандер: вторая капельница, полтора часа, пакет висит на гвозде над кроватью. «Danach kann es aufwärts gehen». После этого может пойти на поправку.' },
     ],
     actions: [
       { id: 'c48_rtb_tell', label: 'Рассказать, что пропущено: колонна, Брандт, Сильвестр', minutes: 75, terminal: true, goto: 'c48_t_stranger',
-        text: 'Ты рассказываешь по порядку. {partner} слушает, иногда закрывая глаза, и задаёт один вопрос: «А кто нёс?» Ты называешь имена. {partner} повторяет их шёпотом, как будто запоминает для чего-то.', effects: [set48('rtb', 'tell'), blood(-3), tue48(10, 45)] },
+        text: 'Ты рассказываешь по порядку. {partner} слушает, иногда закрывая глаза, и задаёт один вопрос: «А кто нёс?» Ты называешь имена. {partner} повторяет их шёпотом, как будто запоминает для чего-то.', effects: [...feed, blood(-28), set48('rtb', 'tell'), blood(-3), tue48(10, 45)] },
       { id: 'c48_rtb_walk', label: 'Помочь дойти до окна: Зандер разрешила вставать', minutes: 75, terminal: true, goto: 'c48_t_stranger',
-        text: 'Три шага до окна, держась за тебя. Голова кружится, ноги ватные. У окна {partner} стоит минуту и смотрит на снег. «Белое». Потом обратно. Три шага — как километр.', effects: [set48('rtb', 'walk'), blood(-3), tue48(10, 45)] },
+        text: 'Три шага до окна, держась за тебя. Голова кружится, ноги ватные. У окна {partner} стоит минуту и смотрит на снег. «Белое». Потом обратно. Три шага — как километр.', effects: [...feed, blood(-28), set48('rtb', 'walk'), blood(-3), tue48(10, 45)] },
       { id: 'c48_rtb_dressing', label: 'Сменить повязку и проверить зрачки', minutes: 75, terminal: true, goto: 'c48_t_stranger',
-        text: 'Швы держат, края розовые, без гноя. Зрачки одинаковые. Ты говоришь это вслух, как Зандер, и {partner} улыбается углом рта: «Ты теперь доктор».', effects: [set48('rtb', 'dressing'), treat('basic'), blood(-2), tue48(10, 45)] },
+        text: 'Швы держат, края розовые, без гноя. Зрачки одинаковые. Ты говоришь это вслух, как Зандер, и {partner} улыбается углом рта: «Ты теперь доктор».', effects: [...feed, blood(-28), set48('rtb', 'dressing'), treat('basic'), blood(-2), tue48(10, 45)] },
     ] }),
 ];

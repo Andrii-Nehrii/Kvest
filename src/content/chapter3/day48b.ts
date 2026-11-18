@@ -268,7 +268,7 @@ export const day48BScenes: Scene[] = [
 
   U({ id: 'c48_hbt_night', title: 'Вечер вторника', camp: trip48(uke48, 'sleep'), ambient: ward,
     text: [
-      { text: 'Комната сопровождающих. Пять раскладушек заняты, одна твоя. За окном — огни, островами. Завтра Сильвестр. Здесь, говорят, будут петь в столовой и зажгут свечи. Дома — огонь у пожарной части, посты, колокол.' },
+      { text: 'Комната сопровождающих. Пять раскладушек заняты, одна твоя. За окном — огни, островами. Послезавтра Сильвестр. Здесь, говорят, будут петь в столовой и зажгут свечи. Дома — огонь у пожарной части, посты, колокол.' },
     ],
     actions: [
       { id: 'c48_hbtx_radio', label: 'Попросить дежурную передать в Винзен: «Мерле лучше. Я думаю о вас»', minutes: 50, terminal: true, goto: 'c48_checkpoint_uke',
@@ -279,7 +279,7 @@ export const day48BScenes: Scene[] = [
         text: 'Ты засыпаешь в тепле, под гул батареи. Последняя мысль: дома сейчас холодно, и кто-то подкладывает в печку за двоих.', effects: [set48('hbtx', 'sleep'), { body: 'fatigue', delta: -6 }, { set: '$.c48_finished', value: true }, tue48(20, 0)] },
     ] }),
 
-  X({ id: 'c48_checkpoint_uke', title: 'Понедельник, вечер', location: uke48, checkpoint: 48, universal: false, camp: trip48(uke48, 'sleep'), ambient: ward,
+  X({ id: 'c48_checkpoint_uke', title: 'Вторник, вечер', location: uke48, checkpoint: 48, universal: false, camp: trip48(uke48, 'sleep'), ambient: ward,
     text: [{ text: 'Восемь вечера. Гамбург, Эппендорф. Двадцать девятое декабря.' }], actions: [] }),
 
   // ═════════════ Обычный день: утро B ═════════════

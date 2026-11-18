@@ -47,6 +47,7 @@ import { point45Available } from './chapter3/point45';
 import { point46Available } from './chapter3/point46';
 import { point47Available } from './chapter3/point47';
 import { point48Available } from './chapter3/point48';
+import { point49Available } from './chapter3/point49';
 import { introducedPerson } from '../engine/introduced';
 import { content as c } from './index';
 /** Написанные участки главы 3 (после последнего — экран продолжения). */
@@ -371,6 +372,7 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       if (id === 'c3_new_cellar47') s.vars['w.c47_food'] = 'share';
       if (id === 'c3_new_bjorn48') s.vars['w.c47_karsten'] = 'told';
       if (id === 'c3_new_uke48') s.vars['w.c48_hamburg'] = true;
+      if (id === 'c3_new_merle49') s.vars['w.c48_hamburg'] = true;
       if (id === 'c3_new_army39') { s.vars['w.c37_leave'] = 'army'; s.npcs.c15_tobias ??= introducedPerson(c.npcs.c15_tobias, 0); s.npcs.c15_tobias.alive = true; }
       if (id === 'c3_new_bed38') { s.vars['w.c36_merle'] = 'merle'; s.vars['w.c36_merle_seat'] = true; s.npcs.merle.alive = true; }
       if (id === 'c3_new_leave37' && option.id === 'army') { s.vars['w.c35_east'] = 'yes'; s.npcs.c15_tobias ??= introducedPerson(c.npcs.c15_tobias, 0); s.npcs.c15_tobias.alive = true; }
@@ -434,7 +436,8 @@ for (const id of c.checkpoints.filter(cp => cp.index >= 5).flatMap(cp => cp.join
       && (n + 1 !== 45 || P.every(pid => evalCond({ s: out.state, c, pid }, point45Available)))
       && (n + 1 !== 46 || P.every(pid => evalCond({ s: out.state, c, pid }, point46Available)))
       && (n + 1 !== 47 || P.every(pid => evalCond({ s: out.state, c, pid }, point47Available)))
-      && (n + 1 !== 48 || P.every(pid => evalCond({ s: out.state, c, pid }, point48Available)))) {
+      && (n + 1 !== 48 || P.every(pid => evalCond({ s: out.state, c, pid }, point48Available)))
+      && (n + 1 !== 49 || P.every(pid => evalCond({ s: out.state, c, pid }, point49Available)))) {
       for (const pid of P) leg(out.state, pid, `forced:${id}:${option.id}:${pid}`);
     }
   }, 120000);

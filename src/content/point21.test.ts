@@ -14,6 +14,7 @@ import { point45Available } from './chapter3/point45';
 import { point46Available } from './chapter3/point46';
 import { point47Available } from './chapter3/point47';
 import { point48Available } from './chapter3/point48';
+import { point49Available } from './chapter3/point49';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -1095,7 +1096,21 @@ describe('участок 30: мороз — опасная ночь по трё�
     const res = completeCheckpoint(c, s48, pick(s48, 48, { c3_new_uke48: 'spring', c3_new_bjorn48: 'take' }));
     if (hamburg) expect(res.state.vars['w.c48_uke']).toBe('spring');
     for (const p of P) expect(res.state.chars[p].scene).toBe('c49_start');
-  }, 900000);
+    // ── Участок 49: тридцатое и утро Сильвестра ──
+    const b48 = res.state;
+    for (const p of P) expect(evalCond({ s: b48, c, pid: p }, point49Available), `${p} может играть 49-ю`).toBe(true);
+    const a9 = leg(b48, 'A'), b9 = leg(b48, 'B');
+    for (const [pid, l] of [['A', a9], ['B', b9]] as const) expect(l.vars[`${pid}.c49_finished`], `${pid} дошёл до КТ49`).toBe(true);
+    expect(a9.chars.A.location).toBe('hof_luedemann');
+    expect(b9.chars.B.location).toBe(hamburg ? 'c48_uke' : 'hof_luedemann');
+    if (hamburg) expect(a9.vars['w.c49_a_radio']).toBeTruthy();
+    const s49 = mergeCp(b48, 49, a9, b9);
+    expect(s49.chars.A.time).toBe(s49.chars.B.time);
+    const r49 = completeCheckpoint(c, s49, pick(s49, 49, { c3_new_tracks49: 'pit' }));
+    expect(r49.state.vars['w.c49_tracks']).toBe('pit');
+    if (hamburg) expect(r49.state.vars['w.c49_merle']).toBeTruthy(); else expect(r49.state.vars['w.c49_midnight']).toBeTruthy();
+    for (const p of P) expect(r49.state.chars[p].scene).toBe('c50_start');
+  }, 1500000);
 
   it('участок 48: выбывший в 47-й — второй выхаживает, к вечеру сводка и дальше заглушка', () => {
     const { b46 } = b46for48();
@@ -1117,7 +1132,19 @@ describe('участок 30: мороз — опасная ночь по трё�
     expect(r.vars['B.c48_finished']).toBe(true);
     expect(r.chars.B.location).toBe('hof_luedemann');
     expect(r.chars.A.body.bloodLoss).toBeLessThan(b47!.chars.A.body.bloodLoss);
-  }, 900000);
+    // КТ48 и участок 49: раненый на ногах, играет свою линию со швами
+    const s48 = mergeSegments(c, b47!, { B: r });
+    syncClocks(c, s48, c.checkpoints.find(x => x.index === 48)!.syncNotBefore); mergeNotes(c, s48, 48);
+    expect(canAct(s48.chars.A.body), `blood=${s48.chars.A.body.bloodLoss}`).toBe(true);
+    const b48 = completeCheckpoint(c, s48, pick(s48, 48)).state;
+    for (const p of P) { expect(b48.chars[p].controlledBy).toBe(p); expect(b48.chars[p].scene).toBe('c49_start'); }
+    for (const p of P) expect(evalCond({ s: b48, c, pid: p }, point49Available), `${p} может играть 49-ю`).toBe(true);
+    const a9 = leg(b48, 'A'), b9 = leg(b48, 'B');
+    expect(a9.vars['A.c49_rh']).toBeTruthy();
+    for (const [pid, l] of [['A', a9], ['B', b9]] as const) expect(l.vars[`${pid}.c49_finished`]).toBe(true);
+    const out = completeCheckpoint(c, mergeCp(b48, 49, a9, b9), pick(mergeCp(b48, 49, a9, b9), 49)).state;
+    for (const p of P) expect(out.chars[p].scene).toBe('c50_start');
+  }, 1500000);
 
   const downIn30 = (pid: PlayerId) => {
     const b29 = after29('join', 'none');
