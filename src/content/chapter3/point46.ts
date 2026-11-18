@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -164,6 +165,7 @@ export const shared46: Scene[] = [
       { when: eve46('open'), text: 'Пришли все, кого звали: соседи, Феликс, Юлиан с бабушкой, которая не слышит и поэтому улыбается всем. Скамеек не хватило, двое сидят на ящиках.' },
       { when: eve46('near'), text: 'Свои и соседи, с кем договорились. Тесно, но не настолько, чтобы сидеть на ящиках.' },
       { when: eve46('home'), text: 'Только свои. Тихо, и от этого слышно, как трещат свечи на ёлке.' },
+      { when: all(brothersCome, not(eve46('home'))), text: 'Дениз принёс к столу противень баклавы: тесто тонкое, мёд Хенрике, орехи неизвестно откуда. «Bei uns macht man das so». У нас так принято. Керем раздаёт по кусочку детям первым.' },
       { when: all(henrike46, not({ npc: 'ole', at: 'hof_luedemann' }), v('w.c18_friday', 'write')), text: 'Хенрике ставит на стол лишнюю чашку. Для Оле. На ваше ноябрьское письмо он так и не ответил. Чашка стоит пустая весь вечер, и никто её не убирает.' },
       { when: all(henrike46, not({ npc: 'ole', at: 'hof_luedemann' }), v('w.c18_friday', 'go')), text: 'Хенрике каждый раз смотрит на дверь, когда скрипят половицы. Вы ездили за Оле в Люнебург в ноябре. Об этом сегодня не говорят.' },
       { when: v('w.c44_thief', 'feed'), text: 'В разгар ужина в дверь стучат. На пороге Мика, тот, что копал ваш бурт, и его сестра Лотте. Принесли звезду из соломы и банку из-под варенья с шишками. «Für den Baum». Для ёлки. Хенрике сажает обоих за стол, не спрашивая.' },

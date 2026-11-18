@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -92,6 +93,7 @@ export const shared44: Scene[] = [
   S44({ id: 'c44_council', for: 'any', chapter: 'ch3', title: 'Совет', location: jest44, camp: { at: jest44, stock: 'c3_farm_stock', rest: false }, onEnter: [until44(51, 10, 0), ...verdict],
     text: [
       { text: 'Пожарная часть, гараж без машин. Скамейки из школы, человек сорок, пар изо ртов. Брандт стоит у стола с блокнотом. Лукас у двери.' },
+      { when: brothersCome, text: 'Дениз и Керем сидят у стены. Дениз переводит брату вполголоса, хотя Керем понимает и так.' },
       { text: '— Die Tauwetternacht. Am Posten bei der Kolonie war vierzig Minuten keiner. Ich will wissen, wer. Jeder Hof sagt, was er weiß.\n\nНочь оттепели. На посту у колонии сорок минут никого не было. Я хочу знать, кто. Каждый двор говорит, что знает.' },
       { when: all(A44, flag('w.c43_a_heard_jannes')), text: 'Ты знаешь от самого Яннеса, у колоды в субботу: его не было. Почему — он тебе не сказал.' },
       { when: all(not(A44), flag('w.c43_b_knows_why')), text: 'Ты знаешь то, чего, может быть, не скажет здесь никто: в ту ночь закричала Уте, и Яннес побежал к ней. Сорок минут.' },

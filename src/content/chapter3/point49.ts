@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -273,6 +274,7 @@ export const shared49: Scene[] = [
     text: [
       { text: 'В пять уже темно. На посту у Зеве фонарь, в окнах колонии свечи. Брандт присылает Лукаса со списком на завтра.' },
       { text: 'Лукас читает с листа, запинаясь: в восемь — огонь, в девять — суп, в полночь — колокол и «noch was». Ещё кое-что. На «ещё кое-что» он смотрит в сторону.' },
+      { when: brothersCome, text: 'Следом заходит Дениз с фонарём: если ночью у карьера нужен второй, он пойдёт. Говорит это так, будто предлагает подвезти до города.' },
       { when: brandtKnows49, text: 'Внизу листа рукой Брандта: «Kiesgrube — Posten ab 22 Uhr». Карьер — пост с десяти вечера. Кто будет стоять, не написано.' },
     ],
     actions: [

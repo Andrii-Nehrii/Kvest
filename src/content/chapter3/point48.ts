@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -106,6 +107,7 @@ export const shared48: Scene[] = [
   S48({ id: 'c48_h_road', for: 'any', chapter: 'ch3', title: 'В Винзен', camp: yard14, ambient: dark48,
     text: [
       { text: 'Лукас ждёт у калитки на тракторе с прицепом: на прицеп — рюкзаки, Мерле и всех, кто едет провожать. Фары трактора режут темноту на два жёлтых коридора.' },
+      { when: brothersCome, text: 'Дениз предлагал фургон, но солярки на дорогу туда и обратно нет. Он стоит у калитки и машет, пока трактор не скрывается за поворотом.' },
       { when: parents48, text: 'Биргит садится рядом с Мерле и держит её за руку всю дорогу. Уве остаётся у калитки: кому-то надо остаться.' },
     ],
     actions: [

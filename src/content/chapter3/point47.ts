@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -226,6 +227,7 @@ export const shared47: Scene[] = [
   S47({ id: 'c47_sun_eve', for: 'any', chapter: 'ch3', title: 'Вечер воскресенья', camp: kitchen14,
     text: [
       { text: 'Вечер. Последний вечер перед двадцать восьмым. В кухне тепло, на столе лампа и суп.' },
+      { when: brothersCome, text: 'Заходят Дениз с Керемом: узнать, все ли целы после субботы. Сидят недолго, пьют чай стоя, как в мастерской.' },
       { when: hamburg47, text: 'Мерле сидит у печки с глюкометром или без и смотрит в огонь. Биргит гладит её по волосам, как маленькую.' },
       { when: felix47, text: 'Феликс чистит топор у порога, медленно, как оружие.' },
     ],

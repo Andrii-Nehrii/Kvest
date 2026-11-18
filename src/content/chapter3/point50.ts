@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
+import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -137,6 +138,7 @@ export const shared50: Scene[] = [
   S50({ id: 'c50_supper', for: 'any', chapter: 'ch3', title: 'Ужин перед ночью', camp: kitchen14,
     text: [
       { text: 'Ужинают рано, в пять: кто уйдёт, кто останется, все за одним столом. Щука с картошкой, капуста, берлинеры. По глотку яичного ликёра взрослым, по глотку сиропа детям.' },
+      { when: brothersCome, text: 'Дениз и Керем пришли со своей сковородой и жарят лук по-своему, с перцем. Спорят, чей Сильвестр был шумнее, стамбульский или харбургский. Хенрике запрещает спорить за едой и проигрывает.' },
       { text: 'После ужина Хенрике откашливается и говорит: «Dinner for One. Jedes Jahr. Auch dieses». Каждый год. И этот тоже. И пересказывает его по памяти, за обоих — за старую мисс Софи и за дворецкого, спотыкающегося о тигровую шкуру.' },
       { text: '— The same procedure as last year, Miss Sophie? — The same procedure as every year, James.' },
       { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея смеётся над тигром громче всех. Потом говорит, что дома в Сильвестр всегда смотрели «Dinner for One», с мамой и Финном. Говорит и не замолкает, как раньше, а доедает.' },
