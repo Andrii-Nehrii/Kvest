@@ -8,6 +8,7 @@ import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
 import { any, v, ninaFarm } from './point18';
+import { kasiaLate } from './house28';
 import { npc, tableOnly } from './point19';
 import { felix47, henrike47, merle47 } from './point47';
 import { julian45 } from './point45';
@@ -296,6 +297,7 @@ export const shared49: Scene[] = [
   S49({ id: 'c49_n_supper', for: 'any', chapter: 'ch3', title: 'Ужин', camp: kitchen14,
     text: [
       { text: 'Ужин при двух лампах: керосин берегут к завтрашнему. Картошка с луком, чай, по куску вчерашнего пирога.' },
+      { when: kasiaLate, text: 'Кася ставит на стол миску с варёной картошкой, политой шкварками, и говорит, что в Щецине в Сильвестр мама всегда жарила пончики, а с балконов жгли бенгальские огни. Здесь будет картошка. Зато горячая.' },
       { when: oleHome33, text: 'Оле после ужина учит детей заправлять фонари, не проливая керосин. У него получается лучше, чем у Хенрике, и она это молча признаёт.' },
       { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея после ужина первая идёт мыть посуду. Говорит, что в Бергене весной будет пусто и что ей туда не к спеху.' },
       { when: all(v('w.c39_strangers', 'barn'), not(flag('w.c40_left_army')), v('w.c41_jorg', 'stay')), text: 'Йорг чинит детям санки к Сильвестру: полозья из старой бочки. Дети сидят рядом и подают гвозди.' },

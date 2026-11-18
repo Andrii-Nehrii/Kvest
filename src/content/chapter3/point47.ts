@@ -7,6 +7,7 @@ import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
 import { any, v, ninaFarm } from './point18';
+import { kasiaLate } from './house28';
 import { npc, tableOnly } from './point19';
 import { felix46, hamburg46, henrike46, merle46 } from './point46';
 
@@ -110,6 +111,7 @@ export const shared47: Scene[] = [
   S47({ id: 'c47_supper', for: 'any', chapter: 'ch3', title: 'Ужин', camp: kitchen14,
     text: [
       { text: 'Ужин. За столом мало говорят. Дети, которые весь день сидели дома под присмотром Хенрике, чувствуют это и тоже молчат.' },
+      { when: kasiaLate, text: 'Кася чинит у лампы варежки, все подряд, чьи найдёт на печке. Говорит, что руки должны быть заняты, иначе думают сами.' },
       { when: all(ninaFarm, any(flag('w.c23_nina_bandage'), flag('w.c35_b_handover'))), text: 'Нина перевязывает сбитые руки тем, кто вернулся из лесополосы: туго, ровно, как её учили. Никто не просит её отойти.' },
       { when: oleHome33, text: 'Оле слушает, кто что видел в лесополосе, и молчит. Потом встаёт проверить засов, второй раз за вечер.' },
       { when: ninaFarm, text: 'Нина весь день просидела с младшими и рассказывала им, что взрослые ушли искать кошку. Дети делают вид, что верят. Нина делает вид, что верит им.' },
