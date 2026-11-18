@@ -28,6 +28,7 @@ import { point44Available, prepare44 } from './point44';
 import { point45Available, prepare45 } from './point45';
 import { point46Available, prepare46 } from './point46';
 import { point47Available, prepare47 } from './point47';
+import { point48Available, prepare48 } from './point48';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -1207,4 +1208,15 @@ export const newEntry47: Scene = {
   actions: ([
     { id: 'c47_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c47_dawn', effects: [prepare47, { restUntil: at(56, 6, 0), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point47Available, a.when ?? { always: true }) })),
+};
+
+export const newEntry48: Scene = {
+  id: 'c48_start', for: 'any', chapter: 'ch3', title: 'Понедельник', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point48Available, text: 'Будильник на половину шестого. Ты просыпаешься раньше.' },
+    { when: not(point48Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c48_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c48_dawn', effects: [prepare48, { restUntil: at(58, 5, 30), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point48Available, a.when ?? { always: true }) })),
 };

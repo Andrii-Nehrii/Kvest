@@ -57,6 +57,8 @@ export const locations3: Record<string, LocationDef> = Object.fromEntries(
     { id: 'c45_drage', name: 'Драге, пожарная часть', region: 'lk', indoor: true, media: ['people'] },
     { id: 'c47_wood', name: 'Лесополоса за Йестебургом', region: 'lk', indoor: false },
     { id: 'c47_waldhof', name: 'Вальдхоф Штёверов', region: 'lk', indoor: false },
+    { id: 'c48_harburg', name: 'Харбургские мосты', region: 'hh', indoor: false, media: ['people'] },
+    { id: 'c48_uke', name: 'Гамбург, больница в Эппендорфе', region: 'hh', indoor: true, media: ['people'] },
     { id: 'c3_medical_van', name: 'Машина медиков', region: 'hh', indoor: true },
     { id: 'c3_neighbor', name: 'Соседний двор у Jesteburg', region: 'lk', indoor: false, media: ['people'] },
     {

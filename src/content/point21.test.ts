@@ -13,6 +13,7 @@ import { point44Available } from './chapter3/point44';
 import { point45Available } from './chapter3/point45';
 import { point46Available } from './chapter3/point46';
 import { point47Available } from './chapter3/point47';
+import { point48Available } from './chapter3/point48';
 import { content as c } from './index';
 
 // Линия настоящей пары до КТ18 включительно (ответы — канон), дальше все исходы КТ19–КТ20.
@@ -1057,6 +1058,65 @@ describe('участок 30: мороз — опасная ночь по трё�
       if (P.every(p => canAct(s47.chars[p].body))) { expect(out.vars['w.c47_posts']).toBe('double'); }
       for (const p of P) if (canAct(out.chars[p].body)) expect(out.chars[p].scene).toBe('c48_start');
     }
+  }, 900000);
+
+  // ───────────── Участок 48 ─────────────
+  const pick = (s: GameState, n: number, forced: Record<string, string> = {}) => {
+    const cp = c.checkpoints.find((x) => x.index === n)!;
+    return Object.fromEntries(P.filter((p) => canAct(s.chars[p].body)).map((p) => [p, Object.fromEntries(cp.joint
+      .filter((id) => evalCond({ s, c, pid: p }, c.joint[id].canParticipate))
+      .map((id) => [id, forced[id] ?? c.joint[id].options.find((o) => evalCond({ s, c, pid: p }, o.when))!.id]))]));
+  };
+  const b46for48 = () => {
+    const b42 = b42std();
+    const s43 = mergeCp(b42, 43, leg(b42, 'A'), leg(b42, 'B'));
+    const merleHere = s43.vars['w.c38_merle'] === 'farm';
+    const b43 = completeCheckpoint(c, s43, { A: merleHere ? { c3_new_convoy43: 'go' } : { c3_new_job43: 'no' }, B: { c3_new_council43: 'truth' } }).state;
+    const s44 = mergeCp(b43, 44, leg(b43, 'A'), leg(b43, 'B', merleHere ? { c44_b_answer: 'c44_ba_yes' } : {}));
+    const b44 = completeCheckpoint(c, s44, pick(s44, 44, { c3_new_post44: 'other' })).state;
+    const s45 = mergeCp(b44, 45, leg(b44, 'A'), leg(b44, 'B'));
+    const b45 = completeCheckpoint(c, s45, pick(s45, 45)).state;
+    const s46 = mergeCp(b45, 46, leg(b45, 'A'), leg(b45, 'B'));
+    return { merleHere, b46: completeCheckpoint(c, s46, pick(s46, 46)).state };
+  };
+  it('участок 48: колонна или обычный день; миры сходятся; дальше заглушка', () => {
+    const { merleHere, b46 } = b46for48();
+    const s47 = mergeCp(b46, 47, leg(b46, 'A'), leg(b46, 'B'));
+    const b47 = completeCheckpoint(c, s47, pick(s47, 47)).state;
+    for (const p of P) { expect(b47.chars[p].scene).toBe('c48_start'); expect(evalCond({ s: b47, c, pid: p }, point48Available)).toBe(true); }
+    const hamburg = merleHere && !!b47.vars['w.c44_hamburg_trip'];
+    const a = leg(b47, 'A'), b = leg(b47, 'B');
+    for (const [pid, l] of [['A', a], ['B', b]] as const) expect(l.vars[`${pid}.c48_finished`]).toBe(true);
+    expect(a.chars.A.location).toBe('hof_luedemann');
+    expect(b.chars.B.location).toBe(hamburg ? 'c48_uke' : 'hof_luedemann');
+    if (hamburg) expect(b.vars['w.c48_hamburg']).toBe(true);
+    const s48 = mergeCp(b47, 48, a, b);
+    expect(s48.chars.A.time).toBe(s48.chars.B.time);
+    const res = completeCheckpoint(c, s48, pick(s48, 48, { c3_new_uke48: 'spring', c3_new_bjorn48: 'take' }));
+    if (hamburg) expect(res.state.vars['w.c48_uke']).toBe('spring');
+    for (const p of P) expect(res.state.chars[p].scene).toBe('c49_start');
+  }, 900000);
+
+  it('участок 48: выбывший в 47-й — второй выхаживает, к вечеру сводка и дальше заглушка', () => {
+    const { b46 } = b46for48();
+    const reckless = { c47_a_wood: 'c47_aw_rush', c47_a_cellar: 'c47_ace_alone', c47_a_barn: 'c47_ab_lamp', c47_a_carry: 'c47_aca_jump' };
+    let b47: GameState | undefined;
+    for (let i = 0; i < 12 && !b47; i++) {
+      const base = structuredClone(b46) as GameState; base.seed = `${base.seed}-d48-${i}`;
+      const d = leg(base, 'A', reckless, 'c47_checkpoint');
+      if (segmentFinished(c, d, 'A') !== 'incapacitated') continue;
+      const s47 = mergeSegments(c, base, { A: d, B: leg(base, 'B') });
+      syncClocks(c, s47, c.checkpoints.find((x) => x.index === 47)!.syncNotBefore); mergeNotes(c, s47, 47);
+      b47 = completeCheckpoint(c, s47, pick(s47, 47)).state;
+    }
+    expect(b47, 'никто не выбыл в 47-й за 12 попыток').toBeTruthy();
+    expect(canAct(b47!.chars.A.body)).toBe(false);
+    expect(evalCond({ s: b47!, c, pid: 'B' }, point48Available)).toBe(true);
+    const r = leg(b47!, 'B');
+    expect(r.vars['B.c48_rescuer']).toBe(true);
+    expect(r.vars['B.c48_finished']).toBe(true);
+    expect(r.chars.B.location).toBe('hof_luedemann');
+    expect(r.chars.A.body.bloodLoss).toBeLessThan(b47!.chars.A.body.bloodLoss);
   }, 900000);
 
   const downIn30 = (pid: PlayerId) => {

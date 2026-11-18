@@ -133,7 +133,8 @@ describe('переработанный участок 6', () => {
     expect(c.checkpoints.find(x => x.index === 45)!.joint).toEqual(['c3_new_nils45', 'c3_new_guest45']);
     expect(c.checkpoints.find(x => x.index === 46)!.joint).toEqual(['c3_new_silvester46', 'c3_new_answer46']);
     expect(c.checkpoints.find(x => x.index === 47)!.joint).toEqual(['c3_new_cellar47', 'c3_new_posts47']);
-    expect(c.checkpoints.some(x => x.index > 47)).toBe(false);
+    expect(c.checkpoints.find(x => x.index === 48)!.joint).toEqual(['c3_new_bjorn48', 'c3_new_uke48']);
+    expect(c.checkpoints.some(x => x.index > 48)).toBe(false);
   });
   it('расчёт из другого источника действительно сохраняет мешок, а не списывает его дважды', () => {
     const s = base(), bag = qty(s, 'potatoes', 'A'), stock = qty(s, 'potatoes', 'c3_farm_stock');
