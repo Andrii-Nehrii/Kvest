@@ -321,7 +321,7 @@ export const day50BScenes: Scene[] = [
     ],
     actions: [
       { id: 'c50_hw2_merle', label: 'Взять с собой Мерле', minutes: 75, terminal: true, goto: 'c50_hbn_wolters', ambientDuring: rain50,
-        text: 'Мерле идёт медленно, держась за тебя, и вдыхает мокрый воздух, как будто его выдают по талонам. У Альстера останавливается и говорит: «Im Sommer bin ich hier gerudert. Mit einem Jungen. Er hieß Finn». Летом я тут каталась на лодке. С мальчиком. Его звали Фин. Больше она про него ничего не говорит.', effects: [set50('hw2', 'merle'), ny50(14, 30)] },
+        text: 'Мерле идёт медленно, держась за тебя, и вдыхает мокрый воздух, как будто его выдают по талонам. У Альстера останавливается и говорит: «Im Sommer bin ich hier gerudert. Mit einem Jungen. Er hieß Jan». Летом я тут каталась на лодке. С мальчиком. Его звали Ян. Больше она про него ничего не говорит.', effects: [set50('hw2', 'merle'), ny50(14, 30)] },
       { id: 'c50_hw2_alone', label: 'Пойти одной вдоль воды', minutes: 75, terminal: true, goto: 'c50_hbn_wolters', ambientDuring: rain50,
         text: 'Ты идёшь вдоль берега до моста и обратно. Утки сидят на краю льда, у чёрной полыньи. Пожилая пара кормит их хлебом, крошка за крошкой. Ты думаешь, что город, где кормят уток, ещё не умер.', effects: [set50('hw2', 'alone'), { body: 'stress', delta: -6 }, ny50(14, 30)] },
       { id: 'c50_hw2_church', label: 'Дойти до церкви, где вчера звонили', minutes: 75, terminal: true, goto: 'c50_hbn_wolters', ambientDuring: rain50,

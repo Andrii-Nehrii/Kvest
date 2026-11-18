@@ -139,6 +139,7 @@ export const day21FScenes: Scene[] = [
       { when: v('$.c21_fv', 'leave'), text: 'Ты спускаешься от себя на стук калитки. На кухне так и стоит неубранная посуда.' },
       { text: 'У калитки стоит Уте. Без фонаря, в двух платках, с узелком.\n\n— Für das Mädchen. — Для девочки.\n\nВ узелке серые варежки с красной полоской, ещё тёплые от её рук.' },
       { text: '— Auf den Gleisen gehen sie. Alle Richtung Feuer. Kai wäre auch gegangen. Er ist immer hingegangen, wo es laut war.\n\nОни идут по рельсам. Все на огонь. Кай тоже пошёл бы. Он всегда шёл туда, где шумно.' },
+      { when: v('w.c16_sweep', 'warn'), text: 'В ночь перед облавой вы сами шли к ней через поле — предупредить. Она тогда никого не увела. Теперь говорит про Кая так, будто он просто вышел и скоро вернётся.' },
     ],
     actions: [
       { id: 'c21_fu_tea', label: 'Позвать её на кухню, к печи', minutes: 30, terminal: true, goto: 'c21_x_b_dark',

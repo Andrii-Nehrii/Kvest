@@ -223,6 +223,7 @@ export const shared49: Scene[] = [
     text: [
       { text: 'Назад идёте быстрее, чем туда. На краю поля Тиде вас ждёт Уте, в двух платках, с ребёнком на руках.' },
       { text: '— Und? — спрашивает она. И сразу, не дожидаясь: — Soll ich es den anderen sagen? Heute? Vor Silvester?\n\nНу? Сказать остальным? Сегодня? Перед Сильвестром?' },
+      { when: v('w.c16_sweep', 'warn'), text: 'Ты помнишь ночь в ноябре, когда вы сами шли к ней через поле — предупредить. Теперь она спрашивает у вас то же самое, только наоборот.' },
     ],
     actions: [
       { id: 'c49_nr2_tell', label: 'Сказать: да, пусть колония знает сегодня', minutes: 40, terminal: true, outcomes: fromPit, ambientDuring: day49,
@@ -288,6 +289,8 @@ export const shared49: Scene[] = [
   S49({ id: 'c49_n_supper', for: 'any', chapter: 'ch3', title: 'Ужин', camp: kitchen14,
     text: [
       { text: 'Ужин при двух лампах: керосин берегут к завтрашнему. Картошка с луком, чай, по куску вчерашнего пирога.' },
+      { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея после ужина первая идёт мыть посуду. Говорит, что в Бергене весной будет пусто и что ей туда не к спеху.' },
+      { when: all(v('w.c39_strangers', 'barn'), not(flag('w.c40_left_army')), v('w.c41_jorg', 'stay')), text: 'Йорг чинит детям санки к Сильвестру: полозья из старой бочки. Дети сидят рядом и подают гвозди.' },
       { when: merleHome49, text: 'Мерле показывает тебе тетрадь: за неделю сахар скачет, как заяц по полю. «Wenn Hamburg nicht geht, dann eben so». Если не Гамбург — значит, так.' },
       { when: bjorn49('take'), text: 'Бьёрн моет за всеми посуду. Его никто не просил. Хенрике смотрит на него и ничего не говорит, и это у неё высшая похвала.' },
       { when: flag('w.c49_pit_killed'), text: 'За столом говорят про браслет из Харбурга. Тихо, чтобы дети не слышали. Дети, конечно, слышат.' },
@@ -406,6 +409,8 @@ export const shared49: Scene[] = [
         text: 'Становится тихо. Брандт смотрит на тебя долго. «Das weiß ich. Und die Leute brauchen das Feuer trotzdem. Sonst kommen sie nicht durch den Winter». Это я знаю. А людям огонь всё равно нужен. Иначе они не переживут зиму. Кто-то сзади говорит: «Er hat recht». Непонятно, про кого.', effects: [set49('mq', 'noise'), w49('said_noise', true), d31(11, 45)] },
       { id: 'c49_mq_pit', label: 'Сказать про карьер всё, что видел{m:|а}', when: not(brandtKnows49), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,
         text: 'Брандт слушает, потом ставит на карте ещё один крест, у карьера, и обводит его дважды. «Gut, dass einer was sagt». Хорошо, что хоть кто-то что-то говорит. Добровольцев на карьер находится трое.', effects: [set49('mq', 'pit'), w49('brandt_knows', true), d31(11, 45)] },
+      { id: 'c49_mq_hollow', label: 'Напомнить Брандту ноябрьскую облаву на впадине', when: all(v('w.c29_sweep', 'join'), not(brandtKnows49)), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,
+        text: 'Брандт помнит впадину: в ноябре ваш двор ходил туда с его людьми. Он молчит, потом ставит крест у карьера. «Damals hat der Frost auch gehalten. Bis er nicht mehr gehalten hat». Тогда мороз тоже держал. Пока не перестал. С десяти у карьера будет пост.', effects: [set49('mq', 'hollow'), w49('brandt_knows', true), w49('brandt_hollow', true), d31(11, 45)] },
       { id: 'c49_mq_volunteer', label: 'Вызваться на пост у карьера', when: all(heavy, brandtKnows49), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,
         text: 'Ты поднимаешь руку. Брандт пишет твою фамилию рядом с крестом. «Ab zehn. Mit Fackel und Horn». С десяти. С факелом и рогом. Ещё двое поднимают руки после тебя, глядя в снег.', effects: [set49('mq', 'volunteer'), w49('pit_volunteer', true), d31(11, 45)] },
       { id: 'c49_mq_lukas', label: 'После совета отвести Брандта в сторону — про ракеты Лукаса', when: flag('w.c49_rockets_found'), minutes: 60, terminal: true, goto: 'c49_m_back', ambientDuring: mild49,

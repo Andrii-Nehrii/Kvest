@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { house14, kitchen14 } from './point14';
+import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
 import { any, v } from './point18';
@@ -102,6 +102,8 @@ export const shared44: Scene[] = [
       { when: all(A44, council44('silent')), text: 'Очередь доходит до вашего двора. Ты молчишь, как решил{pm:|а} {partner}. Брандт ждёт, потом сам смотрит в блокнот: «Jannes. Lukas hat es gesehen». Яннес. Лукас видел.' },
       { when: all(not(A44), council44('silent')), text: 'Очередь доходит до вашего двора. {A} молчит, как ты решил{m:|а}. Брандт ждёт, потом сам смотрит в блокнот: «Jannes. Lukas hat es gesehen». Яннес. Лукас видел.' },
       { text: 'В заднем ряду встаёт Яннес. Он хромает. «Ich war es. Vierzig Minuten». Это я. Сорок минут.' },
+      { when: v('w.c17_colony', 'stand'), text: 'Ты вспоминаешь ноябрьское утро у калитки колонии: вы стояли рядом с Уте, напротив — Брандт с солдатами, а Яннес за вашими спинами. Сегодня стоять приходится ему одному.' },
+      { when: v('w.c17_colony', 'move'), text: 'В ноябре вы ночью перевезли колонию к себе на тракторе. Яннес этого не забыл: вставая, он смотрит не на Брандта, а на вас.' },
       { text: 'И тогда встаёт Уте. Голос у неё срывается, но она говорит до конца: двое у её двери, её крик, Яннес с топором, его нога. В гараже тихо.' },
     ],
     actions: [
@@ -166,6 +168,8 @@ export const shared44: Scene[] = [
   S44({ id: 'c44_mon_eve', for: 'any', chapter: 'ch3', title: 'Вечер понедельника', camp: kitchen14, onEnter: [until44(51, 18, 30)],
     text: [
       { text: 'Вечер. В девять у пожарной части бьёт колокол: проверка, как решили на совете. Три удара, далеко и чисто.' },
+      { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея сидит на ступеньках с картой, которую ей кто-то дал в Йестебурге, и ведёт пальцем на восток. Потом складывает карту вчетверо и уходит в дом.' },
+      { when: all(v('w.c39_strangers', 'barn'), not(flag('w.c40_left_army')), v('w.c41_jorg', 'stay')), text: 'Йорг с детьми делает из соломы звёзды на ёлку. Младшая держит нитку здоровой рукой и командует.' },
       { when: felixAround44, text: 'Феликс вернулся со рва с мозолями на обеих ладонях и гордый, как после экзамена.' },
     ],
     actions: [
@@ -184,17 +188,38 @@ export const shared44: Scene[] = [
       { text: 'Дом засыпает. Рядом ворочается {partner}: тоже не спится.' },
     ],
     actions: [
-      { id: 'c44_mn_talk', label: 'Поговорить: про совет и про Гамбург', minutes: 30, terminal: true, goto: 'c44_tue_dawn',
-        text: 'Шёпотом, лицом к лицу. Про Яннеса, про Уте, про решения, которые вы приняли друг за друга. Не со всем вы согласны. Но говорите до конца.', effects: [set44('mn', 'talk'), until44(52, 7, 0, true)] },
-      { id: 'c44_mn_hold', label: 'Просто обнять и молчать', minutes: 30, terminal: true, goto: 'c44_tue_dawn',
-        text: 'Слова кончились ещё на совете. Ты обнимаешь {partner.acc} и слушаешь, как выравнивается дыхание.', effects: [set44('mn', 'hold'), until44(52, 7, 0, true)] },
-      { id: 'c44_mn_sleep', label: 'Сразу спать', minutes: 20, terminal: true, goto: 'c44_tue_dawn',
-        text: 'Ты засыпаешь раньше, чем колокол заканчивает бить.', effects: [set44('mn', 'sleep'), { body: 'fatigue', delta: -4 }, until44(52, 7, 0, true)] },
+      { id: 'c44_mn_talk', label: 'Поговорить: про совет и про Гамбург', minutes: 30, terminal: true, outcomes: [{ id: 't', when: A44, goto: 'c44_thief' }, { id: 'd', goto: 'c44_tue_dawn' }],
+        text: 'Шёпотом, лицом к лицу. Про Яннеса, про Уте, про решения, которые вы приняли друг за друга. Не со всем вы согласны. Но говорите до конца.', effects: [set44('mn', 'talk'), { if: A44, then: [until44(52, 2, 10, true)], else: [until44(52, 7, 0, true)] }] },
+      { id: 'c44_mn_hold', label: 'Просто обнять и молчать', minutes: 30, terminal: true, outcomes: [{ id: 't', when: A44, goto: 'c44_thief' }, { id: 'd', goto: 'c44_tue_dawn' }],
+        text: 'Слова кончились ещё на совете. Ты обнимаешь {partner.acc} и слушаешь, как выравнивается дыхание.', effects: [set44('mn', 'hold'), { if: A44, then: [until44(52, 2, 10, true)], else: [until44(52, 7, 0, true)] }] },
+      { id: 'c44_mn_sleep', label: 'Сразу спать', minutes: 20, terminal: true, outcomes: [{ id: 't', when: A44, goto: 'c44_thief' }, { id: 'd', goto: 'c44_tue_dawn' }],
+        text: 'Ты засыпаешь раньше, чем колокол заканчивает бить.', effects: [set44('mn', 'sleep'), { body: 'fatigue', delta: -4 }, { if: A44, then: [until44(52, 2, 10, true)], else: [until44(52, 7, 0, true)] }] },
     ] }),
 
-  S44({ id: 'c44_tue_dawn', for: 'any', chapter: 'ch3', title: 'Вторник', camp: kitchen14, onEnter: [until44(52, 7, 0)],
+    // Ночь на вторник, только {A}: мальчишка у бурта (последствия — в сводке, на Рождество и в Сильвестр).
+  S44({ id: 'c44_thief', for: 'any', chapter: 'ch3', title: 'Бурт', camp: yard14, ambient: { tempC: -6, outdoor: true, wet: false },
+    text: [
+      { text: 'Около двух тебя будит скрип. Не ветер: ветер так не делает. Ты выходишь в сени, куртка поверх белья, и смотришь в щель двери.' },
+      { text: 'За сараем, у бурта Хенрике, кто-то разгребает солому руками. Луна выходит из-за туч: мальчишка лет тринадцати в чужой взрослой куртке. Рядом мешок, в мешке картошка, килограммов десять.' },
+      { text: 'Он видит тебя и замирает. Не бежит. Сил бежать у него, похоже, нет.' },
+      { text: '— Wir sind drei. Mama, ich und Lotte. Im leeren Häuschen bei der Kolonie. Seit Sonntag.\n\nНас трое. Мама, я и Лотте. В пустом домике у колонии. С воскресенья.' },
+    ],
+    actions: [
+      { id: 'c44_th_feed', label: 'Отдать ему мешок и проводить до колонии', minutes: 50, terminal: true, goto: 'c44_tue_dawn', ambientDuring: { tempC: -6, outdoor: true, wet: false },
+        text: 'Ты несёшь мешок сам: мальчишка его еле тащит. В крайнем домике колонии темно, пахнет сыростью, под двумя одеялами шевелятся двое. Мать встаёт, видит мешок и не может сказать ни слова. Мальчишку зовут Мика. Он говорит своё имя, как будто отдаёт долг.', effects: [set44('th', 'feed'), w44('thief', 'feed'), { body: 'fatigue', delta: 3 }, until44(52, 7, 0, true)] },
+      { id: 'c44_th_half', label: 'Отсыпать ему половину и сказать: больше сюда не ходи', minutes: 30, terminal: true, goto: 'c44_tue_dawn', ambientDuring: { tempC: -6, outdoor: true, wet: false },
+        text: 'Половину обратно в бурт, половину ему. Он кивает, не поднимая глаз, и уходит по полю, волоча мешок. У края поля оборачивается. Ты стоишь, пока он не исчезает в темноте, потом закладываешь бурт соломой.', effects: [set44('th', 'half'), w44('thief', 'half'), until44(52, 7, 0, true)] },
+      { id: 'c44_th_brandt', label: 'Запереть его до утра в сарае и отвести к Брандту', minutes: 30, terminal: true, goto: 'c44_tue_dawn', ambientDuring: { tempC: -6, outdoor: true, wet: false },
+        text: 'Он не сопротивляется. В сарае ты даёшь ему старый тулуп и кружку воды. До утра из-за двери ни звука. Утром Лукас уводит его в Йестебург. Мать с девочкой бегут следом по снегу.', effects: [set44('th', 'brandt'), w44('thief', 'brandt'), until44(52, 7, 0, true)] },
+      { id: 'c44_th_chase', label: 'Прогнать: бурт — на всю зиму, на всех', minutes: 20, terminal: true, goto: 'c44_tue_dawn', ambientDuring: { tempC: -6, outdoor: true, wet: false },
+        text: 'Ты кричишь. Он бросает мешок и бежит по полю, падает, встаёт, бежит дальше. Мешок остаётся у бурта. Ты высыпаешь картошку обратно. Руки не слушаются, и не только от холода.', effects: [set44('th', 'chase'), w44('thief', 'chase'), { body: 'stress', delta: 6 }, until44(52, 7, 0, true)] },
+    ] }),
+
+S44({ id: 'c44_tue_dawn', for: 'any', chapter: 'ch3', title: 'Вторник', camp: kitchen14, onEnter: [until44(52, 7, 0)],
     text: [
       { text: 'Вторник. Ночью шёл снег, двор белый, следов нет. Послезавтра сочельник.' },
+      { when: any(v('w.c44_thief', 'feed'), v('w.c44_thief', 'half')), text: 'Хенрике смотрит на бурт за сараем и пересчитывает в уме. Ты рассказываешь про ночь. Она долго молчит. «Zehn Kilo. Na gut. Weihnachten». Десять кило. Ну ладно. Рождество.' },
+      { when: v('w.c44_thief', 'brandt'), text: 'Утром Лукас уводит мальчишку из сарая в Йестебург. Мать с девочкой бегут следом по снегу. Хенрике смотрит в окно и ничего не говорит.' },
       { when: v('w.c41_xmas', 'feast'), text: 'Хенрике выбирает курицу на Рождество. Старую рыжую, которая перестала нестись в ноябре.' },
       { when: v('w.c41_xmas', 'none'), text: 'Рождество праздновать не собирались. Но Хенрике всё равно достала из сундука скатерть.' },
     ],

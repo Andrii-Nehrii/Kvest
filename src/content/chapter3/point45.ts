@@ -63,6 +63,7 @@ export const shared45: Scene[] = [
   S45({ id: 'c45_dawn', for: 'any', chapter: 'ch3', title: 'Двадцать третье', camp: kitchen14,
     text: [
       { text: 'Без четверти шесть. В кухне горит одна лампа. На столе записка, которую вчера в десятом часу привёз Лукас, придавленная солонкой.' },
+      { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея уже на ногах и греет воду: она теперь встаёт раньше всех и молчит, пока не выпьет кружку.' },
       { text: '«Nils fragt nach {A}. Elbmarsch, Pakete, zwei Tage. Abholung 6:30 am Hof.» И ниже другим почерком: «Grippe in der Schule, zwei Schwestern liegen. Wir brauchen die Schwester vom Lüdemann-Hof, Mittwoch und Donnerstag. Bus 7:00 ab Feuerwache. — W.»\n\nНильс просит {A.acc}: Эльбмарш, посылки, два дня, заберёт в 6:30 у хутора. Грипп в школе, две сестры слегли. Нужна медсестра с хутора Людеманов, среда и четверг. Автобус в 7:00 от пожарной части.' },
       { when: henrike45, text: 'Хенрике уже у плиты. Она говорит, не оборачиваясь: «Zum Heiligabend seid ihr zurück. Sonst gibt es keinen». К сочельнику вернётесь. Иначе его не будет.' },
       { when: hamburg45, text: 'Мерле сидит у печи, листок с подписью сложен вдвое. Место в колонне держат до двадцать четвёртого. Отвезти листок в Винзен — сегодня.' },

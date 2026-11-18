@@ -1,5 +1,6 @@
 import type { Scene } from '../../engine/content-types';
 import type { Effect } from '../../engine/types';
+import { all, flag } from './world3';
 import {
   S50, bite50, clean50, door50, jest50, ny50, rain50, rocketsLoud50, set50, slip50, trip50, w50,
 } from './point50';
@@ -29,6 +30,7 @@ export const day50AScenes: Scene[] = [
     text: [
       { when: clean50, text: 'Брандт закрывает блокнот. «Zwei an der Kiesgrube. Keiner verletzt. Keiner». Двое у карьера. Никто не ранен. Никто. Он повторяет «keiner» ещё раз, тише, как будто проверяет, правда ли.' },
       { when: slip50, text: 'Брандт говорит сквозь зубы: четверо вышли на ракеты, троих взяли у карьера, четвёртый дошёл до колонии. «Wegen drei Raketen». Из-за трёх ракет. Он смотрит в сторону дома Лукаса.' },
+      { when: all(rocketsLoud50, flag('w.c47_rockets_taken')), text: '— Die Kiste hab ich ihm am Sonntag weggenommen. Die drei hatte er woanders. — Брандт смотрит в блокнот. — Коробку я у него в воскресенье забрал. А эти три он держал в другом месте.' },
       { when: door50, text: 'Брандт говорит: один вышел к колонии, но двери были заперты. «Gut, dass die es wussten». Хорошо, что они знали. Про карьер он узнал поздно и знает, что поздно.' },
       { when: bite50, text: 'Брандт молчит долго. Потом говорит одно слово: «Willi». И ещё: «Ich hab die Kiesgrube nicht gekannt. Keiner hat mir was gesagt». Я не знал про карьер. Никто мне не сказал.' },
     ],

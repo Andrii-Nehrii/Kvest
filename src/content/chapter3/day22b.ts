@@ -325,6 +325,7 @@ export const day22BScenes: Scene[] = [
   B({ id: 'c22_b_ute', title: 'Уте за новостями', camp: yard14, ambient: day22,
     text: [
       { text: 'В три у калитки стоит Уте. В двух платках, без узелка. Новостей она не приносит. Она пришла за ними.' },
+      { when: v('w.c15_garden', 'help'), text: 'По средам вы носили ей вёдра для колонии, по двадцать в день. Теперь вёдра не нужны, и она пришла с пустыми руками.' },
       { text: '— Man sagt, die Kolonne ist weg. Und dass ein Bus kommt, am Montag. Für die, die krank waren.\n\nГоворят, колонны больше нет. И что в понедельник придёт автобус. За теми, кто болел.\n\nОна смотрит на тебя внимательно.\n\n— Mein Jannes war im Oktober krank. Drei Tage. Steht er jetzt auf einer Liste?\n\nМой Яннес болел в октябре. Три дня. Он теперь в каком-то списке?' },
     ],
     actions: [
