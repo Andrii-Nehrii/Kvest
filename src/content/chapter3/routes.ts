@@ -26,6 +26,8 @@ import { point42Available, prepare42 } from './point42';
 import { point43Available, prepare43 } from './point43';
 import { point44Available, prepare44 } from './point44';
 import { point45Available, prepare45 } from './point45';
+import { point46Available, prepare46 } from './point46';
+import { point47Available, prepare47 } from './point47';
 import { point22Available, prepare22, wayHide as hide22, wayJest as jest22, wayTobias as tobias22 } from './point22';
 import { bflat5EntryActions, bflat5EntryText, bflat5EntryWhen } from './bflat5';
 import { segmentDay } from './clock';
@@ -53,7 +55,7 @@ import {
 import { hub, localMove } from './common';
 import { all, C4, flag, isA, isB, not, together } from './world3';
 import { A12, B12, P12, P13, guests13, house12, kitchen12, point12Available, point13Available, report12, wound12 } from './point12';
-import { A14, P14, P15, house14, jens15, nina15, point14Available, point15Available, yard14 } from './point14';
+import { A14, P14, P15, house14, jens15, kitchen14, nina15, point14Available, point15Available, yard14 } from './point14';
 import { A16, P16, P17, albers17, garden16, ninaAway, ninaHere, point16Available, point17Available, sweep17 } from './point16';
 
 const plan = (id: string): Cond => ({ v: 'w.day3', op: '==', value: id });
@@ -1183,4 +1185,26 @@ export const newEntry45: Scene = {
   actions: ([
     { id: 'c45_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c45_dawn', effects: [prepare45, { restUntil: at(53, 5, 45), sleeping: true }] },
   ] as ActionDef[]).map(a => ({ ...a, when: all(point45Available, a.when ?? { always: true }) })),
+};
+
+export const newEntry46: Scene = {
+  id: 'c46_start', for: 'any', chapter: 'ch3', title: 'Сочельник', universal: false, safe: true, camp: kitchen14, ambient: indoor16,
+  text: [
+    { when: point46Available, text: 'В кухне горят все лампы сразу. Кто-то уже поёт.' },
+    { when: not(point46Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c46_go', label: 'Войти в дом', minutes: 1, terminal: true, goto: 'c46_eve', effects: [prepare46, { restUntil: at(54, 17, 0) }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point46Available, a.when ?? { always: true }) })),
+};
+
+export const newEntry47: Scene = {
+  id: 'c47_start', for: 'any', chapter: 'ch3', title: 'Суббота', universal: false, safe: true, camp: house14, ambient: indoor16,
+  text: [
+    { when: point47Available, text: 'Ночью тебе снится лесополоса. Просыпаешься до будильника от того, что в калитку стучат.' },
+    { when: not(point47Available), text: 'Здесь пока заканчивается написанная часть истории. Пройденное сохранено. Продолжение начнётся с этого места.' },
+  ],
+  actions: ([
+    { id: 'c47_go', label: 'Встать', minutes: 5, terminal: true, goto: 'c47_dawn', effects: [prepare47, { restUntil: at(56, 6, 0), sleeping: true }] },
+  ] as ActionDef[]).map(a => ({ ...a, when: all(point47Available, a.when ?? { always: true }) })),
 };

@@ -51,6 +51,7 @@ const list: ItemType[] = [
   { id: 'c39_candles', name: 'коробка свечей', weight: 600, tags: ['light'], description: 'Из сундука Оле. Белые, хозяйственные, двенадцать штук.' },
   { id: 'c39_point_key', name: 'ключ от шкафа в пункте Зандер', weight: 10, tags: ['note'], description: 'Второй ключ. Раньше был у Леи.' },
   { id: 'c38_flares', name: 'сигнальная ракета', weight: 150, tags: ['light'], description: 'Армейская, красная. С брошенного поста у Гарльсторфа.' },
+  { id: 'c47_venison', name: 'копчёная оленья нога', weight: 1500, tags: ['food', 'staple'], food: { hunger: 30, kcal: 3000, minutes: 15 }, spoilsAfter: 90 * 1440, description: 'В вакуумной плёнке, из шкафа Штёвера в Вальдхофе.' },
   { id: 'c45_eel', name: 'копчёный угорь', weight: 500, tags: ['food', 'staple'], food: { hunger: 25, kcal: 1400, minutes: 10 }, spoilsAfter: 30 * 1440, description: 'Из коптильни Тамме Фоккена на дамбе в Теспе. Золотой, в газете.' },
   { id: 'c45_glucometer', name: 'глюкометр с полосками', weight: 150, tags: ['medicine', 'tool'], description: 'Из шкафа школьной медсестры в Винзене. Две банки полосок, батарейка живая.' },
   { id: 'c45_kids_meds', name: 'детский сироп от жара, две бутылочки', weight: 300, tags: ['medicine'], description: 'Из шкафа школьной медсестры в Винзене.' },

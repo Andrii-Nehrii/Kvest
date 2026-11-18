@@ -153,7 +153,7 @@ export const day42AScenes: Scene[] = [
   X({ id: 'c42_a_radio1', title: 'Объявления', camp: kitchen14,
     text: [
       { text: 'В полдень Красный Крест Винзена читает объявления. Приёмник на подоконнике, вокруг собираются все, кто в доме.' },
-      { text: '— …Heiligabend, sechzehn Uhr, Gottesdienst in Sankt Martin, Jesteburg. Die Kirche ist kalt, bringen Sie Decken mit. Ab vierten Januar Schule für Kinder aus dem Landkreis in Winsen, mit Übernachtung, Bus montags…\n\nВ сочельник, в четыре, служба в церкви Святого Мартина в Йестебурге. В церкви холодно, берите одеяла. С четвёртого января — школа для детей округа в Винзене, с ночёвкой, автобус по понедельникам.' },
+      { text: '— …Heiligabend, achtzehn Uhr, Gottesdienst in Sankt Martin, Jesteburg. Die Kirche ist kalt, bringen Sie Decken mit. Ab vierten Januar Schule für Kinder aus dem Landkreis in Winsen, mit Übernachtung, Bus montags…\n\nВ сочельник, в шесть, служба в церкви Святого Мартина в Йестебурге. В церкви холодно, берите одеяла. С четвёртого января — школа для детей округа в Винзене, с ночёвкой, автобус по понедельникам.' },
       { when: thomas34, text: '— …und am Freitag um achtzehn Uhr: Grüße aus Toronto. Thomas Brockmann liest Antworten vor.\n\nИ в пятницу в шесть: приветы из Торонто. Томас Брокман читает ответы.' },
     ],
     actions: [
