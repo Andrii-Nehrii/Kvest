@@ -40,6 +40,10 @@ export const point40Notes: MergeNote[] = [
   N('c40_gerdes_warned', all(flag('w.c40_warned'), not(flag('w.c40_gerdes_moved'))), 'Ханзенов успели предупредить. Они пересидели ночь в погребе.'),
   N('c40_gerdes_dead', v('w.c40_neighbor', 'dead'), 'Старик Ханзен не пережил ночь. До них не дошёл никто.'),
   N('c40_left', flag('w.c40_left_army'), 'Вы ушли с армией за Эльбу.'),
+  // Переделка: совет дворов КТ39 в ночь (REWORK_PLAN.md, этап 4).
+  N('c40_neighbors_came', v('w.c40_neighbors', 'came'), 'На колокол {A.gen} ночью пришли Уве и двое с вилами: общая стража. Забор держали вчетвером.'),
+  N('c40_neighbors_none', v('w.c40_neighbors', 'none'), 'На колокол {A.gen} ночью никто из соседей не пришёл: каждый двор сам за себя.'),
+  N('c40_neighbors_brandt', v('w.c40_neighbors', 'brandt'), 'На колокол ответила пожарная часть, но дружина Брандта поехала по своему листу, мимо хутора.'),
 ];
 
 export const point40After: JointDecision = {

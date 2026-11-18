@@ -104,7 +104,12 @@ export const day40AScenes: Scene[] = [
     ],
     actions: [
       { id: 'c40_an1_bell', label: 'Ударить в колокол сразу: пусть все проснутся', minutes: 60, terminal: true, goto: 'c40_a_n2', ambientDuring: thaw40,
-        text: 'Три удара, ещё три. С хутора отвечает стук по кастрюле, через поле — колокол у Уте. Потом далеко, у пожарной части. Округ не спит. Если это льдина — над тобой посмеются завтра.', effects: [set40('an1', 'bell'), w40('a_signal_early', true), w40('warned', true), until40(45, 22, 0)] },
+        // Совет дворов КТ39 решает, кто ответит на колокол (REWORK_PLAN.md, этап 4).
+        outcomes: [
+          { id: 'guard', when: v('w.c39_council', 'guard'), text: 'Три удара, ещё три. Через поле отвечает колокол у Уте, потом у Кёлер, потом далеко, у пожарной части. Общая стража, как решили в воскресенье. Через четверть часа к вашему забору выходят Уве и двое мужиков с вилами и фонарём.\n\n— Wo? — только и спрашивает Уве. Где?', effects: [w40('neighbors', 'came')] },
+          { id: 'brandt', when: v('w.c39_council', 'brandt'), text: 'Три удара, ещё три. Далеко у пожарной части отвечает колокол. Через полчаса по дороге проходят фары: дружина Брандта едет по своему листу постов. К вашему забору никто не сворачивает. Брандт старший, Брандт и решает, где нужнее.', effects: [w40('neighbors', 'brandt')] },
+          { id: 'yards', text: 'Три удара, ещё три. С хутора отвечает стук по кастрюле. Через поле тишина. У Кёлер в окне гаснет свет. Каждый двор сам за себя: так разошлись в воскресенье, так и есть.', effects: [w40('neighbors', 'none')] },
+        ], effects: [set40('an1', 'bell'), w40('a_signal_early', true), w40('warned', true), until40(45, 22, 0)] },
       { id: 'c40_an1_look', label: 'Спуститься к воде и посмотреть', minutes: 60, risky: true, terminal: true, goto: 'c40_a_n2', ambientDuring: thaw40,
         outcomes: [
           { id: 'ok', when: torch40, check: { traits: ['agility'], difficulty: 3, uses: ['focus'] },
@@ -126,8 +131,13 @@ export const day40AScenes: Scene[] = [
       { when: mate, text: 'Оле кричит тебе: «Zurück! Zum Haus! Sofort!» Назад! К дому! Немедленно!' },
       { when: not(mate), text: 'Твой напарник кричит: «Zurück! Zum Haus!» Назад! К дому!' },
       { when: fence40, text: 'Забор, который вы подпирали, качается, но держит.' },
+      { when: v('w.c40_neighbors', 'came'), text: 'Уве и его двое стоят рядом с тобой у забора. Вилы, лом, фонарь. Вчетвером забор — это уже стена.' },
+      { when: v('w.c40_neighbors', 'none'), text: 'У забора ты и напарник. Больше никого. Через поле у соседей темно и тихо, и это хуже любого шума.' },
+      { when: v('w.c40_neighbors', 'brandt'), text: 'Фары дружины ушли к мосту. Здесь только вы.' },
     ],
     actions: [
+      { id: 'c40_an2_uwe', label: 'Держать забор вместе с людьми Уве', when: v('w.c40_neighbors', 'came'), minutes: 45, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
+        text: 'Вы стоите вчетвером. Уве бьёт вилами через сетку, коротко, как бросают сено. Ты ломом. Напарник светит. Пятеро, шестеро. Забор качается и держит. Когда последний затихает, Уве вытирает вилы о мокрую траву.\n\n— Das war der Zaun. Jetzt seid ihr dran, wenn es bei uns läutet.\n\nЭто был забор. Теперь, если зазвонит у нас, — ваша очередь.\n\nОни уходят к своему двору бегом.', effects: [set40('an2', 'uwe'), w40('fence_held', true), w40('owe_uwe', true), { body: 'fatigue', delta: 6 }, until40(46, 0, 30)] },
       { id: 'c40_an2_back', label: 'Отступить к дому со всеми и запереть дверь', minutes: 45, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
         text: 'Вы бежите к дому, напарник последним, спиной вперёд. Дверь, засов, стол к двери. Снаружи слышно, как ломается забор у сарая. Двор теперь их.', effects: [set40('an2', 'back'), w40('yard_lost', true), until40(46, 0, 30)] },
       { id: 'c40_an2_hold', label: 'Держать забор: бить ломом тех, кто лезет', minutes: 45, risky: true, terminal: true, goto: 'c40_a_n3', ambientDuring: thaw40,
