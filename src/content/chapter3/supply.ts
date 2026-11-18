@@ -14,8 +14,12 @@ const DAYS: Record<number, number> = { 28: 2, 31: 2, 33: 2, 38: 2, 39: 4, 41: 2,
 const days = (n: number) => DAYS[n] ?? 1;
 // С КТ32 за столом девять-десять человек, пайка Брандта может не быть: бурт открывают шире (22 кг в сутки — около 3/4 нужного на десятерых).
 const potatoes = (n: number): Effect => ({ place: 'potatoes', at: 'c3_farm_stock', qty: (n >= 32 ? 22 : 14) * days(n) });
-const full: Cond = all(flag('w.c24_ration'), not(v('w.c24_ration', 'half')));
-const half: Cond = v('w.c24_ration', 'half');
+// Вычеркнутый из списка Брандта (КТ28 `off`) хутор пайка не получает; учёт комендатуры в 35-й (`w.c35_army_ration`) ставит его
+// на армейское снабжение — полный паёк, кто бы ни вычеркнул.
+const off: Cond = v('w.c28_list', 'off');
+const army: Cond = flag('w.c35_army_ration');
+const full: Cond = any(army, all(flag('w.c24_ration'), not(v('w.c24_ration', 'half')), not(off)));
+const half: Cond = all(v('w.c24_ration', 'half'), not(off), not(army));
 
 export function supplyNotes(n: number): MergeNote[] {
   if (n < 20) return [];
