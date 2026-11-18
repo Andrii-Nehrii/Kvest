@@ -119,6 +119,8 @@ export const shared22: Scene[] = [
         text: 'Ты накрываешь тарелку другой тарелкой и ставишь на холодный подоконник.', effects: [set22('su', 'pack'), meal('pack'), until22(19, 50)] },
       { id: 'c22_su_tea', label: 'Только чай', minutes: 15, terminal: true, goto: 'c22_evening',
         text: 'Ты пьёшь чай и смотришь, как остальные едят. Есть не хочется. Хочется, чтобы этот день уже кончился.', effects: [set22('su', 'tea'), { body: 'thirst', delta: -10 }, until22(19, 50)] },
+      { id: 'c22_su_malte', label: 'Попросить Мальте рассказать ещё что-нибудь про армию', minutes: 15, terminal: true, goto: 'c22_evening',
+        text: 'Мальте только этого и ждал. История про капрала, который боялся кур, длится до конца ужина. Смеются все, даже Нина. Ты смеёшься и ешь, сам{m:|а} не замечая, сколько съел{m:|а}.', effects: [set22('su', 'malte'), { body: 'hunger', delta: -25 }, until22(19, 50)] },
     ] }),
 
   S22({ id: 'c22_evening', for: 'any', chapter: 'ch3', title: 'Вдвоём', camp: house14,

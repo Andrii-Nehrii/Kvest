@@ -183,6 +183,8 @@ export const day21FScenes: Scene[] = [
         text: 'Ты накрываешь тарелку другой тарелкой и ставишь на холодный подоконник.', effects: [set21('fs', 'pack'), meal('pack'), until21(20, 18, 25)] },
       { id: 'c21_fs_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c21_f_news',
         text: 'Ты пьёшь чай и слушаешь, как стучат ложки.', effects: [set21('fs', 'tea'), { body: 'thirst', delta: -10 }, until21(20, 18, 25)] },
+      { id: 'c21_fs_nina', label: 'Спросить Нину, что она знает про зарево', minutes: 10, terminal: true, goto: 'c21_f_news',
+        text: 'Нина отвечает, не поднимая глаз: горело в Холленштедте, склад. Или не склад. Она ни в чём не уверена, кроме одного: засов надо проверить ещё раз. Ты встаёшь и проверяешь вместе с ней.', effects: [set21('fs', 'nina'), until21(20, 18, 25)] },
     ] }),
 
   F({ id: 'c21_f_news', title: 'Кёлер у ворот', camp: yard14, ambient: night21,

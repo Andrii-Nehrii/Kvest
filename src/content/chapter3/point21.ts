@@ -235,6 +235,8 @@ export const shared21: Scene[] = [
         text: 'Ты заворачиваешь хлеб и кашу в бумагу. День будет длинным.', effects: [set21('hb', 'pack'), meal('pack'), finish, until21(21, 7, 30)] },
       { id: 'c21_hb_tea', label: 'Только чай', minutes: 10, terminal: true, goto: 'c21_checkpoint',
         text: 'Ты пьёшь чай стоя, у окна, откуда видно дорогу.', effects: [set21('hb', 'tea'), finish, until21(21, 7, 30)] },
+      { id: 'c21_hb_guest', label: 'Сесть рядом с гостьей и ничего не спрашивать', minutes: 10, terminal: true, goto: 'c21_checkpoint',
+        text: 'Гостья косится на тебя и продолжает есть. Через минуту пододвигает тебе хлеб. Ни слова. Это больше, чем вчера.', effects: [set21('hb', 'guest'), finish, until21(21, 7, 30)] },
     ] }),
 
   S21({ id: 'c21_checkpoint', for: 'any', chapter: 'ch3', title: 'Суббота, половина восьмого', checkpoint: 21, universal: false, camp: house14,

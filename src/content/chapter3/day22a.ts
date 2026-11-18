@@ -195,6 +195,8 @@ export const day22AScenes: Scene[] = [
         text: 'Ты заворачиваешь свою порцию в бумагу и кладёшь в карман куртки.', effects: [set22('al', 'pack'), meal('pack'), until22(12, 45)] },
       { id: 'c22_al_tea', label: 'Только чай', minutes: 10, terminal: true, outcomes: afterLunch,
         text: 'Ты пьёшь чай стоя, у окна. Отсюда видно ворота и дорогу.', effects: [set22('al', 'tea'), until22(12, 45)] },
+      { id: 'c22_al_nina', label: 'Помочь Нине убрать со стола и перемыть посуду', minutes: 10, terminal: true, outcomes: afterLunch,
+        text: 'Нина моет, ты вытираешь. За десять минут она говорит больше, чем за весь вчерашний день: про коз, про соседку, про то, что весной надо чинить крышу сарая. Посуды немного, разговора хватает.', effects: [set22('al', 'nina'), until22(12, 45)] },
     ] }),
 
   A({ id: 'c22_a_kerem', title: 'Мопед', camp: yard14, ambient: day22,

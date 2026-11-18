@@ -196,19 +196,19 @@ export const day49BScenes: Scene[] = [
         text: 'Ты засыпаешь на первом же светофоре, который не работает, и просыпаешься, когда водитель глушит мотор. «Messehallen. Viel Glück». Мессехалле. Удачи.', effects: [set49('hv', 'doze'), { body: 'fatigue', delta: -6 }, toMesse, until49(12, 0)] },
     ] }),
 
-  X({ id: 'c49_hb_queue', title: 'Очередь', location: messe, camp: town, ambient: mild49,
+  X({ id: 'c49_hb_queue', title: 'Очередь', location: messe, camp: town, ambient: { tempC: 1, outdoor: true, wet: false },
     text: [
-      { text: 'Мессехалле, выставочные павильоны у телебашни. Теперь здесь Красный Крест и сенат: окна в фанере, у входа очередь в три ряда, на сотни метров. Все хотят одного: бумагу на мост до второго.' },
+      { text: 'Мессехалле, выставочные павильоны у телебашни. Теперь здесь Красный Крест и сенат: окна в фанере, у входа, под длинным навесом, очередь в три ряда, на сотни метров. Все хотят одного: бумагу на мост до второго.' },
       { text: 'Перед тобой — женщина с двумя детьми и котом в сумке. За тобой — студент с чехлом от гитары, в котором явно не гитара.' },
     ],
     actions: [
-      { id: 'c49_hq_paper', label: 'Показать охраннику бумагу Вольтерс', when: flag('w.c49_b_wolters_paper'), minutes: 90, terminal: true, goto: 'c49_hb_office', ambientDuring: mild49,
+      { id: 'c49_hq_paper', label: 'Показать охраннику бумагу Вольтерс', when: flag('w.c49_b_wolters_paper'), minutes: 90, terminal: true, goto: 'c49_hb_office', ambientDuring: { tempC: 1, outdoor: true, wet: false },
         text: 'Охранник читает, кивает и ведёт тебя вдоль очереди. Очередь смотрит тебе в спину, и ты чувствуешь каждый взгляд, как снежок за шиворот. Женщина с котом смотрит дольше всех.', effects: [set49('hq', 'paper'), w49('b_skipped', true), until49(13, 30)] },
-      { id: 'c49_hq_stand', label: 'Стоять в очереди, как все', minutes: 120, terminal: true, goto: 'c49_hb_office', ambientDuring: mild49,
+      { id: 'c49_hq_stand', label: 'Стоять в очереди, как все', minutes: 120, terminal: true, goto: 'c49_hb_office', ambientDuring: { tempC: 1, outdoor: true, wet: false },
         text: 'Два часа. Ноги перестают чувствовать холод через полчаса, потом через час — вообще что-то. Очередь движется рывками. Кто-то поёт, кто-то ругается, кто-то спит стоя, держась за соседа.', effects: [set49('hq', 'stand'), { body: 'fatigue', delta: 4 }, until49(14, 0)] },
-      { id: 'c49_hq_kids', label: 'Помочь женщине с детьми: подержать младшего', minutes: 120, terminal: true, goto: 'c49_hb_office', ambientDuring: mild49,
+      { id: 'c49_hq_kids', label: 'Помочь женщине с детьми: подержать младшего', minutes: 120, terminal: true, goto: 'c49_hb_office', ambientDuring: { tempC: 1, outdoor: true, wet: false },
         text: 'Младшему года три, он тяжёлый и тёплый, засыпает у тебя на плече через пять минут. Мать заполняет бланк на коленке. Они идут в Целле, к бабушке. «Wenn die Brücke offen ist». Если мост откроют. Ты отдаёшь ей ребёнка у самого окна, и плечо долго помнит тепло.', effects: [set49('hq', 'kids'), w49('b_helped_mother', true), until49(14, 0)] },
-      { id: 'c49_hq_student', label: 'Спросить студента, что у него в чехле', minutes: 120, terminal: true, goto: 'c49_hb_office', ambientDuring: mild49,
+      { id: 'c49_hq_student', label: 'Спросить студента, что у него в чехле', minutes: 120, terminal: true, goto: 'c49_hb_office', ambientDuring: { tempC: 1, outdoor: true, wet: false },
         text: 'Студент оглядывается и приоткрывает молнию. В чехле, на свитере, спит щенок. «Darf man nicht mitnehmen. Steht in den Regeln». Нельзя брать с собой. Так в правилах. Он застёгивает молнию и подмигивает. Два часа проходят быстрее.', effects: [set49('hq', 'student'), until49(14, 0)] },
     ] }),
 
@@ -236,17 +236,17 @@ export const day49BScenes: Scene[] = [
         text: 'Печать влажная, ты дуешь на неё, пока идёшь к выходу. Очередь за спиной не стала короче ни на метр.', effects: [set49('ho', 'stamp'), until49(14, 45)] },
     ] }),
 
-  X({ id: 'c49_hb_city', title: 'Город', location: messe, camp: town, ambient: mild49,
+  X({ id: 'c49_hb_city', title: 'Город', location: messe, camp: town, ambient: { tempC: 1, outdoor: true, wet: false },
     text: [
       { text: 'Фургон будет у Даммтора в четыре. До четырёх ты сама по себе в городе.' },
       { text: 'На Ратушной площади ставят помост: сенат обещает в полночь колокола всех церквей и речь бургомистра по радио. На столбах листовки: «Feuerwerk verboten. Lärm lockt». Фейерверк запрещён. Шум приманивает.' },
     ],
     actions: [
-      { id: 'c49_hc_alster', label: 'Постоять у Альстера', minutes: 75, terminal: true, goto: 'c49_hb_bus', ambientDuring: mild49,
+      { id: 'c49_hc_alster', label: 'Постоять у Альстера', minutes: 75, terminal: true, goto: 'c49_hb_bus', ambientDuring: { tempC: 1, outdoor: true, wet: false },
         text: 'По льду Альстера идут люди, прямо через озеро, санки за ними. У берега мальчишки катаются на коньках. Кто-то построил снеговика и надел на него полицейскую фуражку. Ты смеёшься вслух, одна, и тебе за это не стыдно.', effects: [set49('hc', 'alster'), toUke, until49(16, 30)] },
       { id: 'c49_hc_church', label: 'Зайти в церковь Святого Петра: там кормят', minutes: 75, terminal: true, goto: 'c49_hb_bus',
         text: 'В церкви тепло от сотни людей. Суп из полевой кухни, хлеб, орган, на котором кто-то учится играть одну и ту же фразу. Пастор ходит между рядами и спрашивает каждого: «Haben Sie jemanden?» У вас есть кто-нибудь? У тебя есть. Ты так и говоришь.', effects: [set49('hc', 'church'), ...fed49(30), toUke, until49(16, 30)] },
-      { id: 'c49_hc_market', label: 'Пройти через рынок под куполом вокзала', minutes: 75, terminal: true, goto: 'c49_hb_bus', ambientDuring: mild49,
+      { id: 'c49_hc_market', label: 'Пройти через рынок под куполом вокзала', minutes: 75, terminal: true, goto: 'c49_hb_bus', ambientDuring: { tempC: 1, outdoor: true, wet: false },
         text: 'Под куполом продают к Сильвестру: свечи, бенгальские огни, бутылки, конфеты с истёкшим сроком. Женщина отдаёт тебе бенгальский огонь бесплатно: «Für Ihren Liebsten. Sie gucken so». Для вашего любимого. У вас такой взгляд. Ты прячешь его в карман рядом с бумагами.', effects: [set49('hc', 'market'), w49('b_sparkler', true), toUke, until49(16, 30)] },
       { id: 'c49_hc_straight', label: 'Сразу к фургону: Мерле одна', minutes: 60, terminal: true, goto: 'c49_hb_bus',
         text: 'Ты ждёшь фургон у Даммтора час, переминаясь с ноги на ногу. Водитель приезжает раньше и смеётся: «Sie sind die Erste, die nicht spazieren geht». Вы первая, кто не пошёл гулять.', effects: [set49('hc', 'straight'), toUke, until49(16, 15)] },
