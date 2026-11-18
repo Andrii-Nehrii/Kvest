@@ -107,6 +107,8 @@ export const day27AScenes: Scene[] = [
       { text: 'Колун стоит у колоды, воткнутый в чурку. Ты берёшься за него просто чтобы занять руки.' },
     ],
     actions: [
+      { id: 'c27_ac_seed', label: 'Отвезти фрау Тимм два ящика семенной картошки', when: v('w.c26_seed', 'trade'), minutes: 20, terminal: true, goto: 'c27_sd_timm',
+        text: 'Ты спускаешься в подвал. Восемь ящиков «Saat» стоят у стены. Два ты поднимаешь наверх по одному, прижимая к животу.', effects: [set27('ac', 'seed')] },
       { id: 'c27_ac_wood', label: 'Колоть дрова до темноты', minutes: 60, activity: 'heavy', terminal: true, goto: 'c27_a_broth', ambientDuring: snow27,
         text: 'Колун поднимается и падает. Поднимается и падает. Ты не считаешь поленья. Ты не думаешь. К четырём поленница выше тебя.', effects: [set27('ac', 'wood'), { body: 'fatigue', delta: 12 }, { body: 'stress', delta: -3 }, until27(13, 0)] },
       { id: 'c27_ac_ole', label: 'Сесть рядом с Оле', when: oleHome27, minutes: 60, terminal: true, goto: 'c27_a_broth',

@@ -5,6 +5,7 @@ import { kitchen14, yard14 } from './point14';
 import { ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { brothersCome, okaforComes, oleHome33 } from './point33';
+import { timmLines34 } from './day34s';
 import { S34, frost34, set34, until34, w34 } from './point34';
 
 // Участок 34, дополнение (проверка объёма 15.11). Суббота до обеда: A — курятник после адвента или сани для стариков к службе;
@@ -18,10 +19,13 @@ const lea: Cond = { npc: 'c21_lea', alive: true };
 export const day34EScenes: Scene[] = [
   X({ id: 'c34_a_late', title: 'До обеда', camp: yard14, ambient: frost34, onEnter: [until34(35, 10, 30)],
     text: [
+      ...timmLines34,
       { when: roof, text: 'Крыша курятника, проломленная снегом в ночь на адвент, так и лежит внутрь. Куры ночуют в хлеву, у коров, и несутся где попало. Хенрике каждое утро ищет яйца по углам и ругается.' },
       { when: not(roof), text: 'Завтра служба, второй адвент. Старикам до Йестебурга четыре километра пешком не дойти. Хенрике говорит: на санях бы. Сани есть, полозья треснули.' },
     ],
     actions: [
+      { id: 'c34_al_timm', label: 'Уйти в Люллау: у фрау Тимм сегодня забой', when: v('w.c27_timm_deal', 'hands'), minutes: 40, terminal: true, goto: 'c34_sd_schlacht', ambientDuring: frost34,
+        text: 'Ты говоришь Хенрике, куда идёшь. Она кивает: «Dann bring Leber mit». Тогда принеси печень. Через поле до Люллау сорок минут по насту.', effects: [set34('al', 'timm'), until34(35, 11, 10)] },
       { id: 'c34_al_roof', label: 'Поднять крышу курятника: стропила, доски, толь', when: roof, minutes: 90, activity: 'heavy', terminal: true, goto: toNoon,
         text: 'Ты выпиливаешь новые стропила из жердей, которые Оле запас ещё летом. Доски от старого сарая, толь с крыши колодца. К обеду курятник стоит. Кривой, но стоит. Куры заходят внутрь по одной и садятся на насест, как будто ничего не было.', effects: [set34('al', 'roof'), w34('coop_fixed', true), npc('henrike', 1), until34(35, 12, 0)] },
       { id: 'c34_al_hens', label: 'Сделать насест в хлеву, раз уж они там', when: roof, minutes: 60, terminal: true, goto: toNoon,
@@ -61,6 +65,9 @@ export const day34EScenes: Scene[] = [
   X({ id: 'c34_a_spring', title: 'Весна', camp: kitchen14, onEnter: [until34(36, 15, 0)],
     text: [
       { text: 'После обеда Хенрике садится напротив тебя с кружкой и спрашивает прямо, без предисловий.' },
+      { when: v('w.c26_seed', 'keep'), text: 'В подвале восемь ящиков «Saat», нетронутые. Хенрике знает это, ты знаешь это. На всё поле хватит.' },
+      { when: v('w.c26_seed', 'half'), text: 'Семенной в подвале четыре ящика из восьми: половину съели в ноябре. Хенрике уже посчитала: на полполя. Вторую половину придётся у кого-то просить.' },
+      { when: v('w.c26_seed', 'trade'), text: 'Семенной в подвале шесть ящиков: два ушли к фрау Тимм за молоко. Хенрике говорит, что весной она их не вернёт, и правильно сделает. Сделка есть сделка.' },
       { text: '— Im März muss gepflügt werden. Ole kann nicht. Ich kann nicht mehr. Kannst du einen Pflug führen? Kartoffeln setzen? Ich frage dich, nicht ihn. Dich.\n\nВ марте надо пахать. Оле не может. Я уже не могу. Ты сможешь водить плуг? Сажать картошку? Я спрашиваю тебя, не его. Тебя.' },
       { when: oleHome33, text: 'Оле сидит у печи и делает вид, что спит.' },
     ],

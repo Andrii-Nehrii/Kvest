@@ -96,6 +96,8 @@ export const shared31: Scene[] = [
   S31({ id: 'c31_morning', for: 'any', chapter: 'ch3', title: 'Утро после', camp: kitchen14,
     text: [
       { text: 'Половина восьмого. Ясно, минус четыре. После ночи кажется, что тепло.' },
+      { when: all(v('w.c27_timm_deal', 'hands'), A31), text: 'В пять тебе надо было быть в Люллау на дойке. После такой ночи ты не {m:пошёл|пошла}. К девяти соседский мальчишка приносит записку от фрау Тимм. Одно слово: «Freitag». Пятница.' },
+      { when: all(v('w.c27_timm_deal', 'hands'), B31), text: 'В пять {A} должен был доить у фрау Тимм. После такой ночи он не пошёл. К девяти приносят записку от неё. Одно слово: «Freitag».' },
       { text: 'Около восьми к воротам на велосипеде подъезжает Лукас, сын пожарного. Рука у него всё ещё на перевязи. Он не заходит, говорит через калитку.' },
       { text: '— Hinnerk ist nicht zurückgekommen. Vom Rand. Sie haben ihn heute früh gefunden.\n\nХиннерк не вернулся. С края. Его нашли утром.' },
       { text: '— Und Brandt hat sich die Finger erfroren. Drei Stück. Die Zander sagt, vielleicht bleiben sie dran.\n\nА Брандт отморозил пальцы. Три. Зандер говорит, может, и не отнимут.' },

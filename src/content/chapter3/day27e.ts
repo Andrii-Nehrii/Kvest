@@ -1,5 +1,6 @@
 import type { Scene } from '../../engine/content-types';
-import { flag, not } from './world3';
+import { all, flag, not } from './world3';
+import { v } from './point18';
 import { kitchen14, yard14 } from './point14';
 import { npc } from './point19';
 import { S27, kasiaHere27, oleHome27, set27, until27, w27 } from './point27';
@@ -10,8 +11,11 @@ const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S27({ ...scene, for:
 const snow = { tempC: -4, outdoor: true, wet: false };
 
 export const day27EScenes: Scene[] = [
-  X({ id: 'c27_a_broth', title: 'Бульон', camp: yard14, ambient: snow, onEnter: [until27(13, 0)],
+  X({ id: 'c27_a_broth', title: 'Бульон', camp: yard14, ambient: snow, onEnter: [until27(13, 0),
+    // Обмен КТ26 без поездки A: ящики забирает внук фрау Тимм на санках, сделка — как договорились.
+    { if: all(v('w.c26_seed', 'trade'), not(flag('w.c27_timm_deal'))), then: [w27('timm_deal', 'plain'), { place: 'c26_milk', at: 'c3_farm_stock', qty: 2 }] }],
     text: [
+      { when: all(v('w.c26_seed', 'trade'), not(flag('$.c27_sd'))), text: 'В полдень за двумя ящиками «Saat» приезжал мальчишка от фрау Тимм, с санками и бидоном. Бидон оставил, ящики увёз. Через неделю, сказал, привезёт ещё.' },
       { text: 'В час Кася выходит во двор, в чужих валенках, и стоит перед тобой, пока ты не опускаешь колун.' },
       { text: '— Он nie je… не ест. Мама варила бульон, когда мы болели. Из курицы. Только бульон он пьёт.' },
       { when: { npc: 'henrike', alive: true, at: 'hof_luedemann' }, text: 'В курятнике шесть кур Хенрике. Несутся четыре. Хенрике пересчитывает их каждое утро, первым делом, ещё до чая.' },
