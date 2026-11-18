@@ -8,6 +8,7 @@ import { indoor16 } from './point16';
 import { any, ninaFarm, v } from './point18';
 import { evaHere, npc, tableOnly } from './point19';
 import { brothersCome, eldersCome, okaforComes, oleHome33 } from './point33';
+import { kasiaLate } from './house28';
 
 // Участок 35: понедельник 7.12, 06:00 → КТ35 21:00. КЛЮЧЕВАЯ, финал запаса. Крупное: знают разное / один решает за другого;
 // человек из прошлого (Янник, первый день A). План — STOCK_PLAN.md §9.
@@ -113,6 +114,9 @@ export const shared35: Scene[] = [
   S35({ id: 'c35_supper', for: 'any', chapter: 'ch3', title: 'Дом говорит', camp: kitchen14, onEnter: [until35(18, 0)],
     text: [
       { text: 'Ужин. За столом все, кто за эти недели стал своим. Новость про десятое разошлась по дому сама, как запах дыма: кто-то уходит, кто-то остаётся, кто-то ещё не знает.' },
+      { when: all(kasiaLate, v('w.c29_kasia_road', 'list')), text: 'Кася складывает рюкзак уже третий вечер подряд. Вынимает всё и кладёт обратно. До десятого три дня.' },
+      { when: all(kasiaLate, flag('w.c31_kasia_axe')), text: 'Поленница у сарая с понедельника заметно выше. Кася колет по утрам, пока все спят.' },
+      { when: all({ npc: 'c8_eva', alive: true }, v('w.c31_eva_spring', 'tense')), text: 'Эва и Хенрике готовят молча, каждая у своего края плиты. «До Рождества», — сказала Хенрике. Все считают дни.' },
       { when: ninaFarm, text: 'Нина говорит первой, не поднимая глаз от тарелки:\n\n— Если вы уйдёте, я останусь с Хенрике. Я уже решила. Не спорьте.' },
       { when: v('w.c32_nina', 'winsen'), text: 'Нинин стул пустой. Хенрике и сегодня поставила ей кружку.' },
       { when: evaHere, text: 'Эва крестит хлеб, прежде чем резать, и говорит, ни к кому не обращаясь: «Wer geht, der geht. Wer bleibt, muss essen». Кто уходит — уходит. Кто остаётся — должен есть.' },

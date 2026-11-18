@@ -6,6 +6,7 @@ import { house14, kitchen14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
 import { any, ninaFarm, v } from './point18';
+import { kasiaLate, leaLate } from './house28';
 import { npc, tableOnly } from './point19';
 import { okaforHere32 } from './point32';
 
@@ -69,6 +70,10 @@ export const shared33: Scene[] = [
   S33({ id: 'c33_dawn', for: 'any', chapter: 'ch3', title: 'Колонка', camp: yardDry33, ambient: frost33,
     text: [
       { text: 'Минус одиннадцать ночью. Утром Хенрике качает рычаг колонки, и рычаг не идёт. Совсем. Труба промёрзла насквозь, до самой земли.' },
+      { when: all(kasiaLate, v('w.c32_kasia_mail', 'given')), text: 'Кася узнала, что письмо у Мирека. Утром она поёт на кухне, тихо, по-польски, и сама этого не замечает.' },
+      { when: all(kasiaLate, v('w.c32_kasia_mail', 'back')), text: 'Конверт Каси лежит на подоконнике, неотправленный. Она на него не смотрит.' },
+      { when: all(leaLate, flag('w.c32_lea_supplies')), text: 'Бинты из Винзена Лея разложила на полке в кладовке ровными рядами. Говорит, что теперь до Рождества хватит. Если не будет ещё одной ночи, как та.' },
+      { when: all({ npc: 'c8_eva', alive: true }, v('w.c31_eva_list', 'farm')), text: 'Бланк с подписью Хенрике Эва повесила в швейной на гвоздь, рядом с часами Хельмута.' },
       { when: all(v('w.c27_timm_deal', 'hands'), { me: 'A' }), text: 'Ты {m:вернулся|вернулась} из Люллау к семи: пятница, дойка. Руки пахнут коровой, в бидоне четыре литра, ещё тёплые.' },
       { when: all(v('w.c27_timm_deal', 'hands'), { me: 'B' }), text: '{A} вернулся из Люллау к семи с полным бидоном: пятница, дойка у фрау Тимм. От него пахнет хлевом.' },
       { text: 'В бочке в сенях воды на дне. В доме стало больше людей, и каждый пьёт, моется и варит.' },
