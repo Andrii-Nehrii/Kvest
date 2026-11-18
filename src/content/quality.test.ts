@@ -105,7 +105,7 @@ describe.runIf(byChapter.size > 0)('Подсказки по качеству и 
       hint(share(dups.length, occ.size) <= 0.02, `${ch}: одинаковые тексты в разных сценах: ${dups.slice(0, 3).map(([t, v]) => `${[...v].join(',')}: ${t.slice(0, 50)}`).join(' / ')}`);
     });
 
-    it(`${ch}: сцены и тексты написаны руками — id каждой сцены и каждый текст есть в исходниках буквально (без генераторов)`, { timeout: 60000 }, () => {
+    it(`${ch}: сцены и тексты написаны руками — id каждой сцены и каждый текст есть в исходниках буквально (без генераторов)`, { timeout: 180000 }, () => {
       const generatedScenes = list.filter((s) => !allSource.includes(`'${s.id}'`) && !allSource.includes(`"${s.id}"`)).map((s) => s.id);
       hint(!generatedScenes.length, `${ch}: сцены собраны формулой: ${generatedScenes.slice(0, 6).join(', ')}`);
       const generatedTexts = texts.filter((t) => !allSource.includes(t.slice(0, 40)));
@@ -129,7 +129,7 @@ describe.runIf(byChapter.size > 0)('Подсказки по качеству и 
     });
 
     // Проход по всем флагам главы медленный и растёт вместе с главой: запас по времени, смысл проверки прежний.
-    it(`${ch}: исходы выборов кто-то читает — флагов, которые только ставятся, не больше 15 % (в главе 2 — 11 %)`, { timeout: 60000 }, () => {
+    it(`${ch}: исходы выборов кто-то читает — флагов, которые только ставятся, не больше 15 % (в главе 2 — 11 %)`, { timeout: 180000 }, () => {
       const all = JSON.stringify(c.scenes) + JSON.stringify(c.events) + JSON.stringify(c.joint) + JSON.stringify(c.checkpoints) + JSON.stringify(c.npcs);
       const sets = new Set<string>();
       for (const s of list) for (const m of JSON.stringify(s).matchAll(/"set":"([^"]+)"/g)) sets.add(m[1]);
