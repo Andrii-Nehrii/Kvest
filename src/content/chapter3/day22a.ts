@@ -102,7 +102,8 @@ export const day22AScenes: Scene[] = [
 
   A({ id: 'c22_a_tobias', title: 'Тобиас наедине', camp: yard14, ambient: day22,
     text: [
-      { text: 'Солдаты курят у машины. Тобиас отходит с тобой к груше. Под грушей холмик, обложенный камнями. Его мать. Он стоит к холмику спиной, чтобы не смотреть.' },
+      { when: not(v('w.c16_albers', 'no')), text: 'Солдаты курят у машины. Тобиас отходит с тобой к груше. Под грушей холмик, обложенный камнями. Его мать. Он стоит к холмику спиной, чтобы не смотреть.' },
+      { when: v('w.c16_albers', 'no'), text: 'Солдаты курят у машины. Тобиас отходит с тобой к груше и долго смотрит на неё. Его мать лежит в общей яме у насыпи, с остальными. Он не говорит об этом ни слова, и от этого хуже.' },
       { text: '— Ich war gestern bei Ole. Er fragt, ob sie lebt. Nur das. «Lebt sie?» Und dann: «Wenn sie kommt, fahr ich heim».\n\nЯ вчера был у Оле. Он спрашивает, жива ли она. Только это. «Она жива?» И потом: «Если она приедет, я поеду домой».' },
       { when: wayTobias, text: '— Jetzt fährt er heim, — говорит Тобиас. Теперь поедет. — Ich bringe ihn Montag selbst.\n\nВ понедельник я сам его привезу.' },
       { text: '— Montag kommt ein Bus aus Lüneburg. Alle, die genesen sind, werden abgeholt. Und Hunde. Und Brandt will Benzin, Waffen und Namen.\n\nВ понедельник приходит автобус из Люнебурга. Всех переболевших заберут. И собаки. А Брандту нужны бензин, оружие и имена.' },
