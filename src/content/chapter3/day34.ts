@@ -2,6 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { all, flag, not } from './world3';
 import { yard14 } from './point14';
 import { any, v } from './point18';
+import { toRuleB34 } from './day34w';
 import { npc } from './point19';
 import { brothersCome, eldersCome, okaforComes, oleHome33 } from './point33';
 import { S34, frost34, ilse34, jest34, lea34, set34, until34, w34 } from './point34';
@@ -55,13 +56,13 @@ export const day34Scenes: Scene[] = [
       { when: eldersCome, text: 'Фрау Кёрнер сидит у печи с листом бумаги на коленях. Карандаш не двигается. Она просит помочь ей написать письмо. Кому — не говорит.' },
     ],
     actions: [
-      { id: 'c34_ba_okafor', label: 'Пойти с Окафором', when: okaforComes, minutes: 80, terminal: true, goto: 'c34_b_skates',
+      { id: 'c34_ba_okafor', label: 'Пойти с Окафором', when: okaforComes, minutes: 80, terminal: true, outcomes: toRuleB34,
         text: 'Нога у Петерсена отёкшая, синяя у щиколотки. Окафор бинтует и учит тебя, как. Потом показывает, как считать дыхание у спящего. «Wenn ich am Zehnten gehe, muss es hier jemand können». Если десятого я уйду, здесь кто-то должен уметь.', effects: [set34('ba', 'okafor'), set34('learned_care', true), npc('okafor', 2), until34(35, 15, 30)] },
-      { id: 'c34_ba_lea', label: 'Сесть рядом с Леей', when: lea34, minutes: 80, terminal: true, goto: 'c34_b_skates',
+      { id: 'c34_ba_lea', label: 'Сесть рядом с Леей', when: lea34, minutes: 80, terminal: true, outcomes: toRuleB34,
         text: 'Лея рассказывает про мать и Финна, про их квартиру в Линдене, про собаку, которую они взяли из приюта прямо перед всем этим. Потом замолкает. Потом говорит: «Danke fürs Zuhören». Спасибо, что слушаешь.', effects: [set34('ba', 'lea'), npc('c21_lea', 2, 'c34_listened'), until34(35, 15, 30)] },
-      { id: 'c34_ba_letter', label: 'Помочь фрау Кёрнер с письмом', when: eldersCome, minutes: 80, terminal: true, goto: 'c34_b_skates',
+      { id: 'c34_ba_letter', label: 'Помочь фрау Кёрнер с письмом', when: eldersCome, minutes: 80, terminal: true, outcomes: toRuleB34,
         text: 'Она диктует медленно. Письмо мужу, который умер в две тысячи девятом. Про хутор, про снег, про то, что её взяли. В конце просит написать: «Ich komme bald». Я скоро. Ты пишешь. Она складывает письмо и кладёт под подушку.', effects: [set34('ba', 'letter'), until34(35, 15, 30)] },
-      { id: 'c34_ba_rest', label: 'Лечь поспать: неделя была длинная', minutes: 80, terminal: true, goto: 'c34_b_skates',
+      { id: 'c34_ba_rest', label: 'Лечь поспать: неделя была длинная', minutes: 80, terminal: true, outcomes: toRuleB34,
         text: 'Ты спишь днём, глубоко и без снов.', effects: [set34('ba', 'rest'), { body: 'fatigue', delta: -15 }, until34(35, 15, 30, true)] },
     ] }),
 

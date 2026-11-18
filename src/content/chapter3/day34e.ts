@@ -6,6 +6,7 @@ import { ninaFarm, v } from './point18';
 import { npc } from './point19';
 import { brothersCome, okaforComes, oleHome33 } from './point33';
 import { timmLines34 } from './day34s';
+import { toRuleA34 } from './day34w';
 import { S34, frost34, set34, until34, w34 } from './point34';
 
 // Участок 34, дополнение (проверка объёма 15.11). Суббота до обеда: A — курятник после адвента или сани для стариков к службе;
@@ -72,11 +73,11 @@ export const day34EScenes: Scene[] = [
       { when: oleHome33, text: 'Оле сидит у печи и делает вид, что спит.' },
     ],
     actions: [
-      { id: 'c34_as_yes', label: 'Сказать: смогу. Научите', minutes: 90, terminal: true, goto: 'c34_a_yard',
+      { id: 'c34_as_yes', label: 'Сказать: смогу. Научите', minutes: 90, terminal: true, outcomes: toRuleA34,
         text: 'Хенрике кивает и достаёт тетрадь. Рисует поле, делит на полосы, пишет, что где сажать. Объясняет, как цеплять плуг к трактору. Ты слушаешь до сумерек. Ты ещё не знаешь, будешь ли здесь в марте. Но слушаешь.', effects: [set34('as', 'yes'), w34('a_spring', 'yes'), npc('henrike', 2, 'c34_a_said_plough'), until34(36, 16, 45)] },
-      { id: 'c34_as_honest', label: 'Сказать честно: не знаю, будем ли мы здесь в марте', minutes: 60, terminal: true, goto: 'c34_a_yard',
+      { id: 'c34_as_honest', label: 'Сказать честно: не знаю, будем ли мы здесь в марте', minutes: 60, terminal: true, outcomes: toRuleA34,
         text: 'Хенрике долго молчит. Потом говорит: «Das ist ehrlich. Ehrlich ist besser als ja». Это честно. Честно лучше, чем «да». И уходит в хлев, к корове.', effects: [set34('as', 'honest'), w34('a_spring', 'honest'), until34(36, 16, 15)] },
-      { id: 'c34_as_ole', label: 'Сказать: спросите Оле. Он знает поле, я — нет', when: oleHome33, minutes: 60, terminal: true, goto: 'c34_a_yard',
+      { id: 'c34_as_ole', label: 'Сказать: спросите Оле. Он знает поле, я — нет', when: oleHome33, minutes: 60, terminal: true, outcomes: toRuleA34,
         text: 'Оле открывает глаза. «Ich kann nicht pflügen. Aber ich kann sagen, wie». Я не могу пахать. Но могу сказать, как. Он говорит. Хенрике слушает сына, а ты — их обоих.', effects: [set34('as', 'ole'), w34('a_spring', 'ole'), npc('ole', 2), until34(36, 16, 15)] },
     ] }),
 
