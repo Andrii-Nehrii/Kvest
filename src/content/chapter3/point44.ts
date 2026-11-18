@@ -2,7 +2,7 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { brothersCome } from './point33';
+import { brothersCome, oleHome33 } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
@@ -170,6 +170,7 @@ export const shared44: Scene[] = [
   S44({ id: 'c44_mon_eve', for: 'any', chapter: 'ch3', title: 'Вечер понедельника', camp: kitchen14, onEnter: [until44(51, 18, 30)],
     text: [
       { text: 'Вечер. В девять у пожарной части бьёт колокол: проверка, как решили на совете. Три удара, далеко и чисто.' },
+      { when: oleHome33, text: 'Оле чистит ружьё на кухне, как каждый вечер с тех пор, как вернулся. Хенрике делает вид, что не смотрит, и смотрит.' },
       { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея сидит на ступеньках с картой, которую ей кто-то дал в Йестебурге, и ведёт пальцем на восток. Потом складывает карту вчетверо и уходит в дом.' },
       { when: all(v('w.c39_strangers', 'barn'), not(flag('w.c40_left_army')), v('w.c41_jorg', 'stay')), text: 'Йорг с детьми делает из соломы звёзды на ёлку. Младшая держит нитку здоровой рукой и командует.' },
       { when: felixAround44, text: 'Феликс вернулся со рва с мозолями на обеих ладонях и гордый, как после экзамена.' },

@@ -6,7 +6,7 @@ import { brothersCome } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
-import { any, v } from './point18';
+import { any, v, ninaFarm } from './point18';
 import { npc, tableOnly } from './point19';
 import { felix47, henrike47, merle47 } from './point47';
 import { julian45 } from './point45';
@@ -402,6 +402,7 @@ export const shared48: Scene[] = [
   S48({ id: 'c48_t_eve', for: 'any', chapter: 'ch3', title: 'Ужин', camp: kitchen14,
     text: [
       { text: 'Ужин. За окном мороз под минус двенадцать. Хенрике пробует тесто для берлинеров к Сильвестру: без масла, без начинки, зато пятьдесят штук.' },
+      { when: ninaFarm, text: 'Нина пробует тесто и морщится: без сахара. Хенрике обещает сахар к Сильвестру. Нина записывает это в тетрадь, как договор.' },
       { when: v('w.c48_strangers', 'night'), text: 'Девочка из Гамбурга сидит с детьми на полу у печки и учит их считалке на гамбургском. Дети путаются и хохочут.' },
     ],
     actions: [

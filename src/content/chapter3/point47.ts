@@ -2,11 +2,11 @@ import type { Scene } from '../../engine/content-types';
 import { at } from '../../engine/time';
 import type { Cond, Effect } from '../../engine/types';
 import { all, flag, not } from './world3';
-import { brothersCome } from './point33';
+import { brothersCome, oleHome33 } from './point33';
 import { house14, kitchen14, yard14 } from './point14';
 import { meal } from './point12';
 import { indoor16 } from './point16';
-import { any, v } from './point18';
+import { any, v, ninaFarm } from './point18';
 import { npc, tableOnly } from './point19';
 import { felix46, hamburg46, henrike46, merle46 } from './point46';
 
@@ -110,6 +110,9 @@ export const shared47: Scene[] = [
   S47({ id: 'c47_supper', for: 'any', chapter: 'ch3', title: 'Ужин', camp: kitchen14,
     text: [
       { text: 'Ужин. За столом мало говорят. Дети, которые весь день сидели дома под присмотром Хенрике, чувствуют это и тоже молчат.' },
+      { when: all(ninaFarm, any(flag('w.c23_nina_bandage'), flag('w.c35_b_handover'))), text: 'Нина перевязывает сбитые руки тем, кто вернулся из лесополосы: туго, ровно, как её учили. Никто не просит её отойти.' },
+      { when: oleHome33, text: 'Оле слушает, кто что видел в лесополосе, и молчит. Потом встаёт проверить засов, второй раз за вечер.' },
+      { when: ninaFarm, text: 'Нина весь день просидела с младшими и рассказывала им, что взрослые ушли искать кошку. Дети делают вид, что верят. Нина делает вид, что верит им.' },
       { when: flag('w.c45_dog'), text: 'Луна обходит всех, кто вернулся из лесополосы, и нюхает руки. На одних задерживается дольше и тихо рычит. Потом уходит под лавку.' },
       { when: all({ npc: 'c21_lea', alive: true, at: 'hof_luedemann' }, not(flag('w.c41_lea_gone'))), text: 'Лея перевязывает тем, кто пришёл из лесополосы, сбитые руки. Молча, быстро, как будто всю жизнь только это и делала.' },
       { when: all(v('w.c39_strangers', 'barn'), not(flag('w.c40_left_army')), v('w.c41_jorg', 'stay')), text: 'Йорг весь день колол дрова за двоих и ни о чём не спрашивал. Только за ужином спрашивает одно: все ли вернулись.' },
@@ -159,6 +162,7 @@ export const shared47: Scene[] = [
   S47({ id: 'c47_brandt', for: 'any', chapter: 'ch3', title: 'К Брандту', location: jest47, camp: { at: jest47, stock: 'c3_farm_stock', rest: false }, ambient: sun47,
     text: [
       { text: 'Пожарная часть. Поленница для Сильвестра уже выше крыши гаража. Брандт сидит в дежурке с картой лесополосы, на которой крестиками отмечено вчерашнее.' },
+      { when: flag('w.c41_trench_men'), text: 'Брандт встречает вас иначе, чем остальных: двое с вашего двора копали ров за ручьями перед Рождеством. Он тогда сказал, что не забудет. Не забыл.' },
       { when: flag('w.c45_fenja_radio'), text: 'Между делом Брандт говорит, не поднимая глаз от карты: по рации из Винзена — нашёлся мужчина из Драге, который искал жену и детей. Лежал с переломом в школе, без документов. Его везут к ним после Нового года.' },
       { when: silvester47('go'), text: 'Вы говорите: двор будет, стража вокруг площади — ваша. Брандт кивает, будто иначе и быть не могло, и вписывает вас в список.' },
       { when: silvester47('some'), text: 'Вы говорите: придёт часть двора, остальные останутся у колокола. Брандт морщится. «Halb ist auch was». Половина — тоже что-то.' },
