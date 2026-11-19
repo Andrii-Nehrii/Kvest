@@ -1,6 +1,6 @@
 import type { JointDecision, MergeNote } from '../../engine/content-types';
 import type { Cond } from '../../engine/types';
-import { all, flag } from './world3';
+import { all, flag, not } from './world3';
 import { any, v } from './point18';
 import { P27, brandt27 } from './point27';
 
@@ -51,6 +51,8 @@ export const point27Notes: MergeNote[] = [
   N('c27_timm_hands', v('w.c27_timm_deal', 'hands'), '{A} отвёз фрау Тимм два ящика семенной. У неё ушёл работник: теперь {A} доит у неё по вторникам и пятницам в пять, за двойное молоко и четверть свиньи.'),
   N('c27_timm_plain', v('w.c27_timm_deal', 'plain'), '{A} отвёз фрау Тимм два ящика семенной. Молоко — каждый третий день у ворот.'),
   N('c27_timm_hay', v('w.c27_timm_deal', 'hay'), '{A} отвёз фрау Тимм два ящика семенной и выпросил вместо мяса два воза сена для коровы Хенрике.'),
+  // Переделка: «поехали домой» во вторник (REWORK_PLAN.md, этап 9).
+  N('c27_ole_decided', all(v('w.c25_ole', 'his'), flag('w.c25_ole_agrees'), not(flag('w.c27_ole_last'))), 'Оле решал сам и решил: домой. В пятницу Хенрике привезёт его.'),
 ];
 
 const whoA: Cond = all(P27, any(meA, { partner: 'incapacitated' }));

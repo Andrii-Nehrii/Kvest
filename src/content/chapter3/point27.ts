@@ -27,7 +27,10 @@ export const brandt27 = (x: string): Cond => v('w.c26_brandt', x);
 export const leaNear: Cond = any(flag('w.c25_lea_point'), v('w.c24_lea', 'sander'), v('w.c22_lea_at', 'sander'), all(v('w.c21_lea', 'hide'), not(flag('w.c24_lea'))));
 export const oleHome27: Cond = any(flag('w.c26_ole_home'), { npc: 'ole', alive: true, at: farm27 });
 /** Оле в Люнебурге, упал во вторник, Алерс не запретила, решали «пусть сам»: в четверг он даёт «последний раз». Весть придёт в пятницу. */
-export const oleLast: Cond = all(not(oleHome27), oleCollapsed, v('w.c25_ole', 'his'), not(flag('w.c25_ole_banned')), { npc: 'ole', alive: true });
+/** Оле умирает в Люнебурге, если решать оставили ему, а сам он домой не согласился. «Поехали домой» во вторник (КТ24 → 25-я:
+ *  `w.c25_ole_agrees`) спасает: решая сам, он решает ехать (REWORK_PLAN.md, этап 9). */
+export const oleAgreed27: Cond = flag('w.c25_ole_agrees');
+export const oleLast: Cond = all(not(oleHome27), oleCollapsed, v('w.c25_ole', 'his'), not(flag('w.c25_ole_banned')), not(oleAgreed27), { npc: 'ole', alive: true });
 
 export const npcs27: Record<string, NpcDef> = {
   c27_tim: {
