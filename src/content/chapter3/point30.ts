@@ -58,7 +58,9 @@ export const hurt1 = (what: 'wet' | 'bruise' | 'glove'): Effect[] => what === 'w
 export const hurt2: Effect[] = [set30('hurt2', true), { injure: 'cut', site: 'hands', severity: 3, bleeding: 1 }, { body: 'bloodLoss', delta: 18 }, { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 6 }];
 /** Третье звено: выбывание. Рана об лёд, кровь, холод. Страховка жизни — пока партнёр на ногах; спасать — в точке 31.
  * Выбывшего приносят в дом (заметка КТ30), поэтому место — хутор. */
-export const down30: Effect[] = [{ injure: 'laceration', site: 'head', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }, { body: 'stress', delta: 10 }, set30('down', true), w30('down', true), { move: farm30 }];
+/** Выбывание: рана, кровь; кто принёс в дом, тот и перевязал наскоро, а Хенрике смотрит за лежачим, если вы оба не встали
+ *  (иначе двойное выбывание в одну ночь кончалось бы смертью обоих по дороге к общей точке). */
+export const down30: Effect[] = [{ injure: 'laceration', site: 'head', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }, { body: 'stress', delta: 10 }, set30('down', true), w30('down', true), { move: farm30 }, { treat: 'basic' }, { set: '$.caredBy', value: 'henrike' }];
 const finish: Effect = { set: '$.c30_finished', value: true };
 
 export const shared30: Scene[] = [

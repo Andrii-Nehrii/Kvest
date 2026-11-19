@@ -58,7 +58,9 @@ export const hurt1: Effect[] = [set47('hurt1', true), { injure: 'bruise', site: 
 /** Второе звено: тяжело, но на ногах. */
 export const hurt2: Effect[] = [set47('hurt2', true), { injure: 'cut', site: 'leftArm', severity: 3, bleeding: 1 }, { body: 'bloodLoss', delta: 18 }, { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 6 }];
 /** Третье звено: выбывание. Удар головой, кровь, холод. Выбывшего приносят домой. Спасать — в 48-й. */
-export const down47: Effect[] = [{ injure: 'laceration', site: 'head', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }, { body: 'stress', delta: 10 }, set47('down', true), w47('down', true), { move: farm47 }];
+/** Выбывание: рана, кровь; кто принёс в дом, тот и перевязал наскоро, а Хенрике смотрит за лежачим, если вы оба не встали
+ *  (иначе двойное выбывание в одну ночь кончалось бы смертью обоих по дороге к общей точке). */
+export const down47: Effect[] = [{ injure: 'laceration', site: 'head', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }, { body: 'stress', delta: 10 }, set47('down', true), w47('down', true), { move: farm47 }, { treat: 'basic' }, { set: '$.caredBy', value: 'henrike' }];
 /** Рискованный ход: при двух прежних ранах — выбывание; иначе ловкость решает, а при неудаче — следующее звено. */
 export const risk47 = (id: string, down: string, ok: string, second: string, first: string, okEffects: Effect[] = []) => [
   { id: `${id}_down`, when: worse2, text: down, effects: down47 },

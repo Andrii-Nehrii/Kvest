@@ -68,7 +68,9 @@ export const hurt1 = (what: 'wet' | 'bruise'): Effect[] => what === 'wet'
 /** Второе звено: тяжело, но на ногах. */
 export const hurt2: Effect[] = [set40('hurt2', true), { injure: 'cut', site: 'leftArm', severity: 3, bleeding: 1 }, { body: 'bloodLoss', delta: 18 }, { body: 'fatigue', delta: 8 }, { body: 'stress', delta: 6 }];
 /** Третье звено: выбывание. Удар головой, кровь, холод. Выбывшего приносят в дом. Спасать — в 41-й. */
-export const down40: Effect[] = [{ injure: 'laceration', site: 'head', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }, { body: 'stress', delta: 10 }, set40('down', true), w40('down', true), { move: farm40 }];
+/** Выбывание: рана, кровь; кто принёс в дом, тот и перевязал наскоро, а Хенрике смотрит за лежачим, если вы оба не встали
+ *  (иначе двойное выбывание в одну ночь кончалось бы смертью обоих по дороге к общей точке). */
+export const down40: Effect[] = [{ injure: 'laceration', site: 'head', severity: 4, bleeding: 3 }, { body: 'bloodLoss', delta: 58 }, { body: 'stress', delta: 10 }, set40('down', true), w40('down', true), { move: farm40 }, { treat: 'basic' }, { set: '$.caredBy', value: 'henrike' }];
 const finish: Effect = { set: '$.c40_finished', value: true };
 const fromDawn = [{ id: 'd', when: depotMe40, goto: 'c40_d_road' }, { id: 'm', goto: 'c40_m_merle' }];
 const fromTue = [{ id: 'a', when: A40, goto: 'c40_a_mud' }, { id: 'b', goto: 'c40_b_barn' }];

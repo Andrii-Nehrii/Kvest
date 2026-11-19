@@ -103,8 +103,9 @@ R({ id: 'c31_r_visit', title: 'Гости', camp: yard14, ambient: frost31, onEn
         text: 'Ты киваешь всем сразу и уходишь обратно в комнату. {partner} спит. Ты садишься и смотришь, как поднимается одеяло.', effects: [set31('rv', 'back'), blood(-2), until31(15, 0)] },
     ] }),
 
-  R({ id: 'c31_r_dusk', title: 'Сумерки', camp: kitchen14,
+  R({ id: 'c31_r_dusk', title: 'Сумерки', camp: kitchen14, onEnter: [{ if: partnerDown31, then: [treat('proper'), blood(-60), drink(-30)] }],
     text: [
+      { when: partnerDown31, text: 'Под вечер ещё раз приходит Зандер с сумкой: вторая капельница, свежая повязка, укол. Уходя, она говорит в дверях:\n\n— Bis morgen früh ist {pm:er|sie} wach. Versprechen kann ich es nicht. Aber ich glaube es.\n\nК утру {pm:он|она} придёт в себя. Обещать не могу. Но думаю, что да.' },
       { when: partnerUp31, text: 'К сумеркам {partner} садится в кровати сам{pm:|а}. Голова кружится, {pm:он|она} держится за спинку. Просит есть.' },
       { when: partnerDown31, text: 'К сумеркам {partner} всё ещё спит. Дышит ровно. Лоб тёплый, не горячий.' },
     ],

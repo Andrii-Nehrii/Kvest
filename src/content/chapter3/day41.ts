@@ -690,8 +690,9 @@ export const day41Scenes: Scene[] = [
         text: 'Хенрике смотрит на повязку, на лицо, на руки. Кивает: «Sauber. Nicht anfassen». Чисто. Не трогать. И кладёт тебе руку на плечо.', effects: [set41('rdr', 'henrike'), until41(15, 30)] },
     ] }),
 
-  X({ id: 'c41_r_dusk', title: 'Сумерки', camp: kitchen14,
+  X({ id: 'c41_r_dusk', title: 'Сумерки', camp: kitchen14, onEnter: [{ if: partnerDown41, then: [treat('proper'), blood(-60), drink(-30)] }],
     text: [
+      { when: partnerDown41, text: 'Под вечер ещё раз приходит Зандер с сумкой: вторая капельница, свежая повязка, укол. Уходя, она говорит в дверях:\n\n— Bis morgen früh ist {pm:er|sie} wach. Versprechen kann ich es nicht. Aber ich glaube es.\n\nК утру {pm:он|она} придёт в себя. Обещать не могу. Но думаю, что да.' },
       { when: partnerUp41, text: 'К сумеркам {partner} садится в кровати сам{pm:|а}. Голова кружится. Просит есть.' },
       { when: partnerDown41, text: 'К сумеркам {partner} всё ещё спит. Дышит ровно. Лоб тёплый, не горячий.' },
     ],

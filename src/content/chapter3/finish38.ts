@@ -8,7 +8,8 @@ import { P38, kasiaDeparts38, leavePawel38, merleComes38, parentsCome38 } from '
 export const finished38: Cond = all(P38, any(flag('A.c38_finished'), flag('B.c38_finished')));
 const N = (id: string, when: Cond, text: string): MergeNote => ({ id, when: all(finished38, when), text });
 const meA: Cond = { me: 'A' };
-const home: Cond = not(leavePawel38);
+// Дома к КТ38 — и те, кого у Лауэнбурга развернули обратно (ветка Павла, этап 13 переделки).
+const home: Cond = any(not(leavePawel38), flag('w.c38_east_back'));
 const once = (id: string, when: Cond, effects: MergeNote['effects']): MergeNote => ({ id, when: all(finished38, meA, when), effects });
 
 // Сверка десятого, ночью. Мир (кто приехал, кто уехал, что отдали в дорогу) меняется здесь один раз — на линии A.
@@ -43,6 +44,7 @@ export const point38Notes: MergeNote[] = [
   N('c38_zander', any(v('B.c38_fbp', 'work'), v('B.c38_fbp', 'ask')), '{B} полдня помогала Зандер в пункте: Зандер сегодня была одна.'),
   N('c38_reuter', flag('w.c38_reuter_posted'), 'Письмо Ройтера жене отдано на почту Красного Креста в Винзене.'),
   N('c38_flares', any(v('A.c38_fap', 'flares'), v('A.c38_fap', 'look')), 'С брошенного поста у Гарльсторфа {A} привёз три сигнальные ракеты и мешки для песка.'),
+  N('c38_east_back', flag('w.c38_east_back'), 'Вы уехали с колонной Павла, но у Лауэнбурга дальше на восток пропускали только с польскими бумагами. Вы вернулись по мосту до шести и к ночи были на хуторе.'),
 ];
 
 export const point38Bed: JointDecision = {

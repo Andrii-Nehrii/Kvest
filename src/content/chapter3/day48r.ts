@@ -141,8 +141,9 @@ export const day48RScenes: Scene[] = [
         text: 'Уте понимает сразу и отдаёт банку. Яннес хочет что-то сказать, но Уте берёт его под руку. В дверях он всё-таки оборачивается: «Wenn was ist — die Glocke». Если что — колокол.', effects: [set48('rv', 'thank'), blood(-2), until48(15, 30)] },
     ] }),
 
-  X({ id: 'c48_r_dusk', title: 'Сумерки', camp: house14,
+  X({ id: 'c48_r_dusk', title: 'Сумерки', camp: house14, onEnter: [{ if: partnerDown48, then: [treat('proper'), blood(-60), drink(-30)] }],
     text: [
+      { when: partnerDown48, text: 'Под вечер ещё раз приходит Зандер с сумкой: вторая капельница, свежая повязка, укол. Уходя, она говорит в дверях:\n\n— Bis morgen früh ist {pm:er|sie} wach. Versprechen kann ich es nicht. Aber ich glaube es.\n\nК утру {pm:он|она} придёт в себя. Обещать не могу. Но думаю, что да.' },
       { text: 'Сумерки. В комнате темнеет раньше, чем во дворе. Ты зажигаешь свечу на подоконнике.' },
       { when: merle48, text: 'Из кухни слышно, как Биргит или кто-то ещё моет посуду. Дом говорит шёпотом весь день.' },
     ],

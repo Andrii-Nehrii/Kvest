@@ -733,14 +733,15 @@ describe('участок 30: мороз — опасная ночь по трё�
       [{ north: 'go', east: 'no', way: 'stay' }, 'merle', { c3_new_send37: 'both' }, 'farm', 'hof_luedemann'],
       [{ north: 'together', east: 'give', way: 'north' }, 'all', { c3_new_send37: 'none' }, 'farm', 'hof_luedemann'],
       [{ north: 'no', east: 'no', way: 'stay' }, 'stay', { c3_new_send37: 'none' }, 'north', 'hof_luedemann'],
-      [{ north: 'no', east: 'no', way: 'east' }, 'merle', { c3_new_leave37: 'pawel', c3_new_send37: 'morning' }, '', 'c38_moelln'],
+      // Уход с Павлом: у Лауэнбурга разворачивают — к ночи КТ38 снова на хуторе (этап 13 переделки).
+      [{ north: 'no', east: 'no', way: 'east' }, 'merle', { c3_new_leave37: 'pawel', c3_new_send37: 'morning' }, '', 'hof_luedemann'],
     ];
     for (const [ans, merle, kt37, merleAt, place] of routes) {
       const b37 = after37(ans, merle, kt37);
       for (const p of P) expect(b37.chars[p].scene).toBe('c38_start');
-      if (place === 'c38_moelln') expect(b37.vars['w.c37_leave']).toBe('pawel');
       const a = leg(b37, 'A'), b = leg(b37, 'B');
       const s38 = mergeCp(b37, 38, a, b);
+      if (b37.vars['w.c37_leave'] === 'pawel') expect(s38.vars['w.c38_east_back']).toBe(true);
       expect(s38.chars.A.time).toBe(s38.chars.B.time);
       for (const p of P) { expect(s38.chars[p].location).toBe(place); expect(canAct(s38.chars[p].body)).toBe(true); }
       if (merleAt) expect(s38.vars['w.c38_merle']).toBe(merleAt);

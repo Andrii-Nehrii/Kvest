@@ -1,13 +1,12 @@
 import type { Scene } from '../../engine/content-types';
 import { flag, not } from './world3';
 import { npc } from './point19';
-import { S38, bridge38, cab38, fed38, frost38, hall38, kasiaDeparts38, moelln38, set38, until38, w38 } from './point38';
+import { S38, bridge38, cab38, fed38, frost38, kasiaDeparts38, set38, until38, w38 } from './point38';
 
 // Участок 38, ветка ухода на восток с Павлом (КТ37 pawel): машина Павла, мост, северный берег, дорога на Мёльн, привал, школа в Мёльне.
-// Дальше истории для этой ветки пока нет: после КТ38 — экран «здесь пока заканчивается» (STOCK_PLAN §10.1 п. 3).
+// У поста под Лауэнбургом дальше пропускают только с польскими бумагами: вы возвращаетесь по мосту до шести, к ночи — хутор и общая КТ38.
 const X = (scene: Omit<Scene, 'for' | 'chapter'>): Scene => S38({ ...scene, for: 'any', chapter: 'ch3' });
 const roadCamp = { at: bridge38, stock: 'c3_farm_stock', rest: false as const };
-const moellnCamp = { at: moelln38, stock: 'c3_farm_stock', rest: false as const };
 
 export const day38PScenes: Scene[] = [
   X({ id: 'c38_p_board', title: 'Серый «Пассат»', location: bridge38, camp: roadCamp, ambient: cab38,
@@ -60,40 +59,48 @@ export const day38PScenes: Scene[] = [
       { text: 'У Лауэнбурга колонна встаёт: армейский пост, проверка, медленно. Павел выключает мотор, чтобы не жечь бензин.' },
     ],
     actions: [
-      { id: 'c38_pd_eat', label: 'Поесть то, что дала с собой Хенрике', minutes: 90, terminal: true, goto: 'c38_p_camp', ambientDuring: cab38,
+      { id: 'c38_pd_eat', label: 'Поесть то, что дала с собой Хенрике', minutes: 90, terminal: true, goto: 'c38_p_post', ambientDuring: cab38,
         text: 'Хлеб с салом, два яйца вкрутую. Ты делишь на всех в машине. Павел ест и говорит.\n\n— Pani Henrike gotuje jak moja matka.\n\nПани Хенрике готовит как моя мать.', effects: [set38('pd', 'eat'), ...fed38, until38(13, 0)] },
-      { id: 'c38_pd_walk', label: 'Выйти пройтись вдоль колонны', minutes: 90, terminal: true, goto: 'c38_p_camp', ambientDuring: frost38,
+      { id: 'c38_pd_walk', label: 'Выйти пройтись вдоль колонны', minutes: 90, terminal: true, goto: 'c38_p_post', ambientDuring: frost38,
         text: 'Семьи с детьми, старики, двое молодых с гитарой. Все говорят по-польски. Ты понимаешь одно слово из трёх. Кто-то протягивает тебе термос с чаем.', effects: [set38('pd', 'walk'), until38(13, 0)] },
-      { id: 'c38_pd_sleep', label: 'Заснуть на заднем сиденье', minutes: 90, activity: 'rest', terminal: true, goto: 'c38_p_camp', ambientDuring: cab38,
+      { id: 'c38_pd_sleep', label: 'Заснуть на заднем сиденье', minutes: 90, activity: 'rest', terminal: true, goto: 'c38_p_post', ambientDuring: cab38,
         text: 'Ты засыпаешь, прижавшись к мешку с мукой, и просыпаешься, когда машина уже снова едет.', effects: [set38('pd', 'sleep'), { body: 'fatigue', delta: -6 }, until38(13, 0)] },
     ] }),
 
-  X({ id: 'c38_p_camp', title: 'Мёльн', location: moelln38, camp: moellnCamp, ambient: hall38, onEnter: [until38(16, 0)],
+  // Пост у Лауэнбурга: дальше на восток — только с польскими бумагами. Ветка возвращается домой к ночи (REWORK_PLAN.md, этап 13).
+  X({ id: 'c38_p_post', title: 'Пост у Лауэнбурга', location: bridge38, camp: roadCamp, ambient: frost38, onEnter: [until38(14, 0)],
     text: [
-      { text: 'Мёльн. Спортзал школы, раскладушки, армейская кухня во дворе. Колонна Павла ночует здесь: дальше, говорят, дорога не чищена.' },
-      { text: 'Павел приносит новость с армейского поста: граница на Одере закрыта. Польша принимает своих только через лагерь под Щецином, по спискам. Он садится на раскладушку и долго молчит.' },
+      { text: 'Очередь доходит до «Пассата» к двум. Офицер в очках листает паспорта, ваши откладывает отдельно.' },
+      { text: '— Weiter nach Osten nur mit polnischen Papieren. Befehl seit heute früh. Die Grenze an der Oder ist zu. Polen nimmt seine eigenen Leute auf, über ein Lager bei Stettin. Alle anderen — zurück.\n\nДальше на восток — только с польскими документами. Приказ с сегодняшнего утра. Граница на Одере закрыта. Польша принимает своих, через лагерь под Щецином. Все остальные — назад.' },
+      { text: 'Павел выходит из машины и долго говорит с офицером, сначала по-немецки, потом по-польски, потом снова по-немецки. Возвращается, садится за руль и не заводит мотор.\n\n— Nie da się. Przepraszam.\n\nНе получится. Простите.' },
+      { when: kasiaDeparts38, text: 'Кася выходит из микроавтобуса впереди и бежит к вам по обочине, в расстёгнутой куртке.' },
     ],
     actions: [
-      { id: 'c38_pc_pawel', label: 'Сесть рядом с Павлом', minutes: 60, terminal: true, goto: 'c38_p_night',
-        text: '— Pojedziemy do granicy. Poczekamy. — Павел трёт лицо ладонями. Доедем до границы. Подождём. — A wy… nie wiem. Nie wiem, co z wami.\n\nА вы… не знаю. Не знаю, что с вами.', effects: [set38('pc', 'pawel'), w38('east_border', true), npc('pawel', 1), until38(19, 0)] },
-      { id: 'c38_pc_soup', label: 'Встать в очередь к армейской кухне', minutes: 60, terminal: true, goto: 'c38_p_night',
-        text: 'Гороховый суп из полевой кухни, по половнику. Солдат на раздаче спрашивает, откуда вы. Ты говоришь. Он кивает.\n\n— Von drüben. Gut, dass ihr rüber seid.\n\nС того берега. Хорошо, что успели перебраться.', effects: [set38('pc', 'soup'), ...fed38, until38(19, 0)] },
-      { id: 'c38_pc_register', label: 'Зарегистрироваться у армейского поста', minutes: 60, terminal: true, goto: 'c38_p_night',
-        text: 'Офицер записывает фамилии, откуда, куда. «Osten? Mit den Polen?» На восток? С поляками? Пожимает плечами и ставит штамп. Теперь вы есть в списке с этой стороны реки.', effects: [set38('pc', 'register'), w38('east_registered', true), until38(19, 0)] },
+      { id: 'c38_pp_bye', label: 'Попрощаться с Павлом здесь и идти к мосту пешком', minutes: 30, terminal: true, goto: 'c38_p_back', ambientDuring: frost38,
+        text: 'Павел обнимает вас по очереди, по-медвежьи, и суёт в карман бумажку с адресом под Щецином. «Jak się skończy — przyjedźcie». Когда кончится — приезжайте. Колонна трогается без вас. Вы стоите у поста, пока последняя машина не скрывается за поворотом.',
+        effects: [set38('pp', 'bye'), npc('pawel', 2), until38(14, 30)] },
+      { id: 'c38_pp_drive', label: 'Попросить Павла довезти до моста, пока не закрыли', minutes: 40, terminal: true, goto: 'c38_p_back', ambientDuring: cab38,
+        text: 'Павел смотрит на указатель бензина, потом на вас, и разворачивает «Пассат» поперёк колонны. Двадцать километров назад вдоль Эльбы. У моста он выходит, обнимает обоих и говорит: «Benzyna — to nic. Ludzie — to coś». Бензин — ерунда. Люди — это что-то. Потом уезжает догонять своих.',
+        effects: [set38('pp', 'drive'), npc('pawel', 3), until38(15, 0)] },
+      { id: 'c38_pp_truck', label: 'Попроситься в армейский грузовик, который идёт на запад', minutes: 30, terminal: true, goto: 'c38_p_back', ambientDuring: cab38,
+        text: 'Водитель кивает на кузов, не спрашивая. Вы прощаетесь с Павлом через опущенное стекло, наскоро, в шуме моторов. Брезент хлопает. Лауэнбург уходит назад.',
+        effects: [set38('pp', 'truck'), until38(14, 40)] },
     ] }),
 
-  X({ id: 'c38_p_night', title: 'Ночь за рекой', location: moelln38, camp: { ...moellnCamp, rest: 'sleep' as const }, ambient: hall38,
+  X({ id: 'c38_p_back', title: 'Обратно до шести', location: bridge38, camp: roadCamp, ambient: frost38,
+    onEnter: [w38('east_back', true)],
     text: [
-      { text: 'Спортзал затихает. Кто-то храпит, кто-то плачет во сне. Вы лежите на соседних раскладушках, сдвинутых вплотную.' },
-      { text: 'Мост закрыт. Хутор на том берегу. Сегодня вы впервые за месяц спите не под крышей Хенрике.' },
+      { text: 'Мост закрывают в шесть. Ты помнишь это утреннее «если вернуться, то только по этому мосту».' },
+      { when: kasiaDeparts38, text: 'Кася ушла с Павлом дальше. Её польский паспорт пропустили. Она стояла у поста и не знала, радоваться или плакать, и вы обнимали её втроём, пока Павел не посигналил.' },
+      { text: 'На мосту часовой смотрит на вас с удивлением: утром вы ехали на север. Записывает фамилии второй раз за день и поднимает шлагбаум. Под ногами гудит бетон. Внизу шуршит лёд.' },
+      { text: 'Южный берег. Автобус Красного Креста на Винзен, потом попутный трактор, потом пешком. К хутору вы подходите в темноте.' },
     ],
     actions: [
-      { id: 'c38_pn_talk', label: 'Шёпотом говорить, пока не уснёте', minutes: 30, terminal: true, goto: 'c38_p_checkpoint',
-        text: 'Вы говорите о Хенрике, о корове, о том, кто завтра подоит её вместо вас. Потом о Польше, о границе, о лагере под Щецином. Потом замолкаете.', effects: [set38('pn', 'talk'), { set: '$.c38_finished', value: true }, until38(23, 30)] },
-      { id: 'c38_pn_sleep', label: 'Уснуть', minutes: 30, terminal: true, goto: 'c38_p_checkpoint',
-        text: 'Ты засыпаешь сразу. Тебе снится хутор, и во сне ты не помнишь, что уехал{m:|а}.', effects: [set38('pn', 'sleep'), { set: '$.c38_finished', value: true }, until38(23, 30)] },
+      { id: 'c38_pk2_gate', label: 'Постучать в ворота', minutes: 420, terminal: true, goto: 'c38_checkpoint', ambientDuring: frost38,
+        text: 'Ворота открывает Хенрике, в шали поверх ночной рубашки, с лампой. Смотрит на вас долго.\n\n— Ich hab die Betten nicht abgezogen.\n\nЯ не снимала бельё с ваших кроватей.\n\nИ уходит в дом первой, оставив дверь открытой.',
+        effects: [set38('pk2', 'gate'), { set: '$.c38_finished', value: true }, { body: 'fatigue', delta: 8 }, until38(22, 30)] },
+      { id: 'c38_pk2_hand', label: 'Идти последний километр молча, держась за руки', minutes: 420, terminal: true, goto: 'c38_checkpoint', ambientDuring: frost38,
+        text: 'Последний километр вы идёте молча. Окно кухни горит: Хенрике не легла. Когда вы входите, она ставит на стол две тарелки, будто ждала именно к этому часу.',
+        effects: [set38('pk2', 'hand'), { set: '$.c38_finished', value: true }, { body: 'fatigue', delta: 8 }, { body: 'stress', delta: -4 }, until38(22, 30)] },
     ] }),
-
-  X({ id: 'c38_p_checkpoint', title: 'За Эльбой', location: moelln38, checkpoint: 38, universal: false, camp: moellnCamp,
-    text: [{ text: 'Половина двенадцатого. Мост закрыт. Вы на северном берегу.' }], actions: [] }),
 ];

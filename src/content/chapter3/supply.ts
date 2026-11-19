@@ -30,6 +30,12 @@ export function supplyNotes(n: number): MergeNote[] {
     notes.push({ id: `c${n}_supply_full`, when: all(once, full), effects: [{ place: 'c24_epa', at: 'c3_farm_stock', qty: 3 * days(n) }] });
     notes.push({ id: `c${n}_supply_half`, when: all(once, half), effects: [{ place: 'c24_epa', at: 'c3_farm_stock', qty: days(n) }] });
   }
+  // Кто за участок совсем не пил или не ел, того на точке отпаивают и кормят домашние: иначе обезвоживание к утру
+  // кладёт без сознания там, где точки спасения нет, и второй застревает у входа в следующую (проверка с сохранений пары).
+  if (n >= 21) {
+    notes.push({ id: `c${n}_care_thirst`, when: { body: 'thirst', op: '>=', value: 80 }, effects: [{ body: 'thirst', delta: -55 }] });
+    notes.push({ id: `c${n}_care_hunger`, when: { body: 'hunger', op: '>=', value: 85 }, effects: [{ body: 'hunger', delta: -40 }] });
+  }
   if (n === 24) notes.push({ id: 'c24_supply_text', when: all(once, flag('w.c24_ration')), text: 'По списку Брандта хутору положен паёк: армейские суточные наборы в зелёной плёнке. Их привозят к воротам вместе с хлебом.' });
   return notes;
 }
