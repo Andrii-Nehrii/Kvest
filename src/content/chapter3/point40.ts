@@ -186,6 +186,7 @@ export const shared40: Scene[] = [
   S40({ id: 'c40_eve', for: 'any', chapter: 'ch3', title: 'Ужин без армии', camp: kitchen14, onEnter: [until40(45, 17, 30)],
     text: [
       { text: 'Ужин рано, при одной лампе. Ставни закрыты. Дождь стучит по стеклу. Все за столом говорят тише обычного.' },
+      { when: flag('w.c40_army_back'), text: 'Утром вы были у моста через Эльбу. Теперь — за этим столом, и рюкзаки стоят у двери нераспакованные, как в понедельник.' },
       { when: watchSeeve40, text: 'Сегодня ночь вашего двора у Зеве. С восьми.' },
       { when: strangers40, text: 'Йорг с детьми ужинает с вами. Девочке лучше: жар спал. Йорг говорит, что ночью будет спать в сарае с топором.' },
       { when: merle40, text: 'Мерле колет вечернюю дозу и прячет ручку в нагрудный карман. «Falls wir rennen müssen». На случай, если придётся бежать.' },
@@ -230,12 +231,10 @@ export const shared40: Scene[] = [
       { text: 'Тобиас приносит вам два одеяла и садится рядом. «Um vier wecke ich euch. Um fünf sind wir weg». В четыре разбужу. В пять нас здесь нет.' },
     ],
     actions: [
-      { id: 'c40_ar_sleep', label: 'Попробовать уснуть', minutes: 30, terminal: true, goto: 'c40_army_checkpoint',
-        text: 'Ты лежишь и слушаешь, как дышат сорок человек. Под утро засыпаешь. Будит Тобиас. Грузовики. Мост. Потом другой берег.', effects: [set40('ar', 'sleep'), finish, until40(46, 6, 30)] },
-      { id: 'c40_ar_talk', label: 'Говорить с Тобиасом до утра', minutes: 30, terminal: true, goto: 'c40_army_checkpoint',
-        text: 'Тобиас рассказывает про Мёльн, про то, что будет за рекой. Ничего хорошего, ничего страшного. Просто другое. В пять — грузовики, мост, другой берег.', effects: [set40('ar', 'talk'), npc('c15_tobias', 1), finish, until40(46, 6, 30)] },
+      { id: 'c40_ar_sleep', label: 'Попробовать уснуть', minutes: 30, terminal: true, goto: 'c40_am_convoy',
+        text: 'Ты лежишь и слушаешь, как дышат сорок человек. Под утро засыпаешь.', effects: [set40('ar', 'sleep'), until40(45, 4, 0, true)] },
+      { id: 'c40_ar_talk', label: 'Говорить с Тобиасом до утра', minutes: 30, terminal: true, goto: 'c40_am_convoy',
+        text: 'Тобиас рассказывает про Мёльн, про то, что будет за рекой. Ничего хорошего, ничего страшного. Просто другое. Около трёх он замолкает на полуслове: уснул сидя.', effects: [set40('ar', 'talk'), npc('c15_tobias', 1), { body: 'fatigue', delta: 4 }, until40(45, 4, 0)] },
     ] }),
 
-  S40({ id: 'c40_army_checkpoint', for: 'any', chapter: 'ch3', title: 'За Эльбой', location: lue40, checkpoint: 40, universal: false, camp: { at: lue40, stock: 'c3_farm_stock', rest: false },
-    text: [{ text: 'Утро. Вы на том берегу Эльбы, с армией.' }], actions: [] }),
 ];

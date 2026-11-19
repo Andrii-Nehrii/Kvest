@@ -8,6 +8,7 @@ import type { GameState, PlayerId } from '../engine/types';
 import { P, acts, after8, car, leg, mergeCp, qty } from '../test/arc9kit';
 import { canon21, point21Available, stageC, stageF, stageL, stageR } from './chapter3/point21';
 import { point42Available } from './chapter3/point42';
+import { point41Available } from './chapter3/point41';
 import { point43Available } from './chapter3/point43';
 import { point44Available } from './chapter3/point44';
 import { point45Available } from './chapter3/point45';
@@ -832,13 +833,19 @@ describe('участок 30: мороз — опасная ночь по трё�
       expect(out!.chars[rescuer].scene).toBe('c41_start');
     }, 150000);
 
-  it('участок 40: уход с армией — понедельник и казарма, дальше заглушка', () => {
+  it('участок 40: уход с армией — казарма, мост, обратно к сумеркам и общая ночь; дальше 41-я', () => {
     const b39 = after39({ north: 'no', east: 'yes', way: 'stay' }, { c3_new_leave37: 'army', c3_new_send37: 'morning' }, { c3_new_watch38: 'from15', c3_new_bed38: 'colony' }, { c3_new_council39: 'guard', c3_new_depot39: 'none', c3_new_army39: 'go' });
     if (b39.vars['w.c39_army'] !== 'go') return; // Тобиаса в этой сборке нет — ветка недостижима
     const a = leg(b39, 'A'), b = leg(b39, 'B');
-    for (const [pid, l] of [['A', a], ['B', b]] as const) expect(l.chars[pid].location).toBe('c18_lueneburg');
-    const out = completeCheckpoint(c, mergeCp(b39, 40, a, b), {}).state;
+    for (const l of [a, b]) {
+      expect(l.vars['w.c40_army_back']).toBe(true);
+      expect(l.vars['w.c40_left_army']).toBe(false);
+    }
+    const s40 = mergeCp(b39, 40, a, b);
+    for (const p of P) expect(s40.chars[p].location).toBe('hof_luedemann');
+    const out = completeCheckpoint(c, s40, kt40(s40)).state;
     for (const p of P) expect(out.chars[p].scene).toBe('c41_start');
+    for (const p of P) expect(evalCond({ s: out, c, pid: p }, point41Available)).toBe(true);
   }, 150000);
 
   // ───────────── Участок 41 ─────────────
