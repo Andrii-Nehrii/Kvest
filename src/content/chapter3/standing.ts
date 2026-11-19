@@ -20,6 +20,8 @@ export const repNotes48: MergeNote[] = [
   n('rep48_b_monday_shut', v('w.c23_monday', 'shut'), [add(B, -1)]),
   n('rep48_b_sweep', v('w.c29_sweep', 'join'), [add(B, 1)]),
   n('rep48_b_sweep_leave', v('w.c29_sweep', 'leave'), [add(B, -1)]),
+  n('rep48_b_after30', v('w.c30_after', 'share'), [add(B, 1)]),
+  n('rep48_b_council40', v('w.c40_neighbors', 'came'), [add(B, 1)]),
   n('rep48_b_council39', v('w.c39_council', 'brandt'), [add(B, 1)]),
   n('rep48_b_trench', flag('w.c41_trench_men'), [add(B, 1)]),
   n('rep48_b_council43', any(v('w.c43_council', 'truth'), v('w.c43_council', 'yard')), [add(B, 1)]),
