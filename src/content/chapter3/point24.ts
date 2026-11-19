@@ -34,7 +34,9 @@ export const gunFound: Cond = all(gunHome, monHide, not(flag('w.c23_gun_spot')))
 export const gunHidden: Cond = all(gunHome, monHide, v('w.c23_gun_spot', 'floor'));
 /** Лея: в нише подвала её не находят; в остальных местах собака лает, и она выходит сама. */
 export const leaFound: Cond = all(wayHide, not(monShut), any(monOpen, not(v('w.c22_hide', 'cellar'))));
-export const sanderVouch: Cond = any(flag('w.c22_bag_sander'), flag('w.c22_b_helped_point'), flag('w.c19_doc_trust'), v('w.c22_lea_at', 'sander'));
+/** Тобиасу в 23-й сказали правду про Лею (КТ22 `truth`): донором её не положат — он сам говорит Брандту (REWORK_PLAN.md, этап 10). */
+export const tobiasKnew24: Cond = v('w.c23_tobias_told', 'truth');
+export const sanderVouch: Cond = any(flag('w.c22_bag_sander'), flag('w.c22_b_helped_point'), flag('w.c19_doc_trust'), v('w.c22_lea_at', 'sander'), tobiasKnew24);
 const guests = (x: string): Cond => v('w.c23_guests', x);
 export const marcusListed: Cond = all({ npc: 'c12_marcus', alive: true }, guests('in'), not(monShut));
 export const marcusTaken: Cond = all({ npc: 'c12_marcus', alive: true }, guests('shed'), not(monShut));
@@ -147,6 +149,7 @@ export const shared24: Scene[] = [
       { when: gunHanded, text: 'Ружьё висит на гвозде у двери. Дружинник снимает его, Брандт пишет расписку. Расписку он отдаёт, не глядя.' },
       { when: gunFound, text: 'Дружинник находит ружьё за шкафом. Брандт смотрит на него, потом на вас.\n\n— Am Donnerstag hieß es: keine Waffe im Haus.\n\nВ четверг было сказано: оружия в доме нет.' },
       { when: leaFound, text: 'Овчарка рвётся с поводка и лает. Не на подвал. Туда, где прячется Лея. Прежде чем дружинники успевают двинуться, она выходит сама. Руки на виду.\n\n— Sanitäterin. Von der Kolonne. Ich habe den Fahrer gepflegt.\n\nСанитарка. С колонны. Я ухаживала за шофёром.' },
+      { when: all(leaFound, tobiasKnew24), text: 'Брандт смотрит на Лею, потом в свой блокнот.\n\n— Albers war gestern bei mir. Der Gefreite. Er sagt, Sie waren nie krank. Ihr Blut hilft keinem, das hat ihm der Stabsarzt schriftlich gegeben. Also sind Sie für die Schule nicht interessant.\n\nАльберс был у меня вчера. Ефрейтор. Говорит, вы не болели. Ваша кровь никому не поможет, штабной врач дал ему это письменно. Значит, для школы вы не интересны.\n\nОн говорит это без злости, как вычёркивают строчку.' },
       { when: all(leaFound, sanderVouch), text: 'Брандт смотрит на неё долго. Потом кивает дружиннику: «Zur Ärztin. Die sucht Hände. Frau Doktor Sander bürgt für Leute vom Lüdemann-Hof».\n\nК врачу. Ей нужны руки. Доктор Зандер ручается за людей с хутора Людеманов.' },
       { when: all(leaFound, not(sanderVouch)), text: 'Брандт смотрит на неё долго. Потом говорит, мягко:\n\n— Sanitäterin. Gut. In der Schule brauchen wir genau so jemanden. Kommen Sie mit.\n\nСанитарка. Хорошо. В школе нам как раз такой человек нужен. Пойдёмте.' },
       { when: marcusTaken, text: 'Овчарка тянет к отдельному сараю. Дружинники выводят Маркуса, руки за голову. Лео за ним, в валенках Хенрике. Брандт смотрит на руку Маркуса, на шрамы.\n\n— Nicht auf der Liste. Und gebissen. Der kommt mit. Zur Beobachtung.\n\nНе в списке. И укушен. Пойдёт с нами. Под наблюдение.' },
