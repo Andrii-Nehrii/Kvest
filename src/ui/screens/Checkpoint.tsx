@@ -12,8 +12,10 @@ import {
   needPartnerSegment, optionsForMe, partnerAnswers, partnerOf, readyToFinish, shouldSendAnswers, type LocalSave,
 } from '../../app/session';
 import { content } from '../../content';
+import { checkpointReadingFor } from '../checkpoint-reading';
 import { Card, CodeIn, CodeOut } from '../kit';
 import { Narrative } from '../Narrative';
+import { CheckpointReading } from './CheckpointReading';
 
 const FINISH_TEXT = {
   checkpoint: 'Ты {m:дошёл|дошла} до контрольной точки.',
@@ -93,6 +95,9 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
   const questions = myQuestions(content, save);
   const partnerQ = partnerAnswers(content, save);
   const sendAnswer = shouldSendAnswers(content, save);
+  const waitingForPartner = (needPartner && !cp.partnerRecords)
+    || (partnerQ && !cp.partnerAnswers && (questions.length === 0 || !!cp.myAnswers));
+  const reading = checkpointReadingFor(save);
 
   useEffect(() => { if (iPlayed) mySegmentCode(content, save).then(setSegCode); }, [save.segment.length, save.baseHash]);
   useEffect(() => { if (sendAnswer) myAnswersCode(save).then(setAnsCode); }, [cp.myAnswers, cp.mergedHash, sendAnswer]);
@@ -151,6 +156,7 @@ export function Checkpoint({ save, cloud, onSave }: { save: LocalSave; cloud?: C
           {net.note && <div className="errors">{net.note}</div>}
         </Card>
       )}
+      {reading.length > 0 && <CheckpointReading key={`${save.me}-${cp.index}`} entries={reading} waiting={waitingForPartner} />}
       <div className="steps">
         {!net.on && segCards}
         {cp.merged && (
