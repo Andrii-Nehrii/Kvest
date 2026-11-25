@@ -48,7 +48,7 @@ export function CheckpointReading({ entries, waiting }: { entries: readonly Read
           <div className="reading-nav">
             <button className="btn" disabled={!previous} onClick={() => setIndex(index - 1)}>Назад</button>
             <select aria-label="Выбрать точку" value={index} onChange={(e) => setIndex(Number(e.target.value))}>
-              {entries.map(({ point }, i) => <option value={i} key={point}>Точка {point}</option>)}
+              {entries.map(({ point }, i) => <option value={i} key={point}>КТ {point}</option>)}
             </select>
             <button className="btn primary" onClick={() => next ? setIndex(index + 1) : dialog.current?.close()}>
               {next ? 'Дальше' : 'К точке'}
