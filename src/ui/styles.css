@@ -154,6 +154,25 @@ input[type=checkbox] { flex: none; width: 22px; height: 22px; margin: 0; accent-
 .option { display: flex; gap: 10px; align-items: flex-start; padding: 12px; margin: 6px 0; border-radius: 12px; border: 1px solid var(--line); background: var(--surface-2); text-align: left; width: 100%; }
 .option.sel { border-color: var(--accent); background: var(--accent-soft); }
 .option > :last-child { flex: 1; min-width: 0; }
+
+/* Чтение в паузе на контрольной точке */
+.reading-action { margin: 10px 0; }
+.reading-action > svg { flex: none; color: var(--accent); }
+.checkpoint-reading { width: min(calc(100% - 24px), 560px); max-height: calc(100dvh - 28px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  padding: 0; overflow: hidden; color: var(--text); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
+.checkpoint-reading[open] { display: flex; flex-direction: column; }
+.checkpoint-reading::backdrop { background: #000a; }
+.reading-header { display: flex; flex: none; align-items: center; justify-content: space-between; gap: 12px; padding: 9px 14px 9px 16px;
+  background: var(--surface); border-bottom: 1px solid var(--line); }
+.reading-header h2 { margin: 0; font: 600 17px/1.25 var(--ui); }
+.reading-header .icon-btn { flex: none; }
+.reading-body { min-height: 0; padding: 0 16px; overflow-y: auto; overscroll-behavior: contain; }
+.reading-body h3 { margin: 0 0 .55em; font: 600 24px/1.2 var(--story); }
+.reading-footer { flex: none; display: grid; gap: 8px; padding: 10px 14px; background: var(--surface); border-top: 1px solid var(--line); }
+.reading-nav { display: grid; grid-template-columns: minmax(0, 1fr) minmax(96px, 1.15fr) minmax(0, 1fr); gap: 6px; }
+.reading-nav .btn { padding: 7px 5px; }
+.reading-nav select { width: 100%; min-height: 48px; padding-inline: 7px; border-radius: 14px; border: 1px solid var(--line); background: var(--bg); }
+
 /* Здесь может оказаться имя игрока одним длинным словом — переносить где угодно. */
 .group-toggle, .btn.block { overflow-wrap: anywhere; }
 .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--nav-h) + 20px + env(safe-area-inset-bottom)); z-index: 9;
